@@ -1,0 +1,70 @@
+/* src/styles.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Material Theme */
+@import '@angular/material/theming';
+@include mat-core();
+
+/* Custom Material Theme */
+$custom-primary: mat-palette($mat-indigo);
+$custom-accent: mat-palette($mat-pink, A200, A100, A400);
+$custom-warn: mat-palette($mat-red);
+
+$custom-theme: mat-light-theme(
+  (
+    color: (
+      primary: $custom-primary,
+      accent: $custom-accent,
+      warn: $custom-warn,
+    ),
+  )
+);
+
+@include angular-material-theme($custom-theme);
+
+/* Global Styles */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    sans-serif;
+}
+
+/* Custom Material Overrides */
+.mat-mdc-card {
+  border-radius: 12px !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+}
+
+.mat-mdc-raised-button {
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+}
+
+.mat-mdc-outlined-button {
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+}
+
+/* Custom Utility Classes */
+.glass-effect {
+  @apply backdrop-blur-sm bg-white/70 border border-white/20;
+}
+
+.gradient-primary {
+  @apply bg-gradient-to-br from-blue-50 to-indigo-100;
+}
+
+.shadow-soft {
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1),
+    0 4px 6px -2px rgb(0 0 0 / 0.05);
+}

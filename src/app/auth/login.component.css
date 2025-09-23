@@ -1,0 +1,57 @@
+/* src/app/auth/login.component.css */
+
+.mat-mdc-card {
+  border-radius: 16px !important;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 10px 10px -5px rgb(0 0 0 / 0.04) !important;
+}
+
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button {
+  border-radius: 10px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+}
+
+.mat-mdc-raised-button:hover {
+  transform: translateY(-1px);
+}
+
+::ng-deep .mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: #1f2937;
+  --mdc-snackbar-supporting-text-color: #f9fafb;
+}
+
+.mat-icon {
+  user-select: none;
+}
+
+/* Animaciones personalizadas */
+.mat-card {
+  animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Loading states */
+.mat-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,235 @@
+<!-- src/app/dashboard/dashboard.component.html -->
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <mat-toolbar class="bg-white shadow-sm border-b">
+    <div class="flex items-center justify-between w-full">
+      <div class="flex items-center space-x-3">
+        <mat-icon class="text-indigo-600">dashboard</mat-icon>
+        <h1 class="text-xl font-semibold text-gray-900">Dashboard</h1>
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <!-- User Info -->
+        <div class="flex items-center space-x-2">
+          <div
+            class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center"
+          >
+            <mat-icon class="text-indigo-600 text-sm">person</mat-icon>
+          </div>
+          <span class="text-sm text-gray-700">{{ user()?.displayName }}</span>
+          <mat-chip class="text-xs" [color]="getRoleColor(user()?.role)">
+            {{ user()?.role?.toUpperCase() }}
+          </mat-chip>
+        </div>
+
+        <!-- Menu -->
+        <button mat-icon-button [matMenuTriggerFor]="userMenu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #userMenu="matMenu">
+          <button
+            mat-menu-item
+            *ngIf="user()?.role === 'admin'"
+            (click)="goToAdmin()"
+          >
+            <mat-icon>admin_panel_settings</mat-icon>
+            Panel Admin
+          </button>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            Cerrar Sesión
+          </button>
+        </mat-menu>
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto p-6">
+    <!-- Welcome Section -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">
+        ¡Bienvenido, {{ user()?.displayName }}!
+      </h2>
+      <p class="text-gray-600">
+        Has iniciado sesión exitosamente en el sistema.
+      </p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- User Info Card -->
+      <mat-card>
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="bg-blue-100 text-blue-600"
+            >person</mat-icon
+          >
+          <mat-card-title>Tu Información</mat-card-title>
+          <mat-card-subtitle>Detalles de tu cuenta</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-600">Email:</span>
+              <span class="text-sm font-medium">{{ user()?.email }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-600">Rol:</span>
+              <mat-chip class="text-xs" [color]="getRoleColor(user()?.role)">
+                {{ user()?.role?.toUpperCase() }}
+              </mat-chip>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-600">Estado:</span>
+              <mat-chip color="accent" class="text-xs">ACTIVO</mat-chip>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Permissions Card -->
+      <mat-card>
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="bg-green-100 text-green-600"
+            >security</mat-icon
+          >
+          <mat-card-title>Permisos</mat-card-title>
+          <mat-card-subtitle
+            >{{ user()?.permissions?.length || 0 }} permisos
+            asignados</mat-card-subtitle
+          >
+        </mat-card-header>
+        <mat-card-content>
+          <div class="flex flex-wrap gap-1">
+            <mat-chip
+              *ngFor="let permission of user()?.permissions"
+              color="accent"
+              class="text-xs"
+            >
+              {{ permission }}
+            </mat-chip>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Projects Card -->
+      <mat-card>
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="bg-purple-100 text-purple-600"
+            >work</mat-icon
+          >
+          <mat-card-title>Proyectos</mat-card-title>
+          <mat-card-subtitle
+            >{{ user()?.projects?.length || 0 }} proyectos
+            asignados</mat-card-subtitle
+          >
+        </mat-card-header>
+        <mat-card-content>
+          <div class="flex flex-wrap gap-1">
+            <mat-chip
+              *ngFor="let project of user()?.projects"
+              color="primary"
+              class="text-xs"
+            >
+              {{ project }}
+            </mat-chip>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Quick Actions -->
+    <mat-card class="mb-8">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="bg-indigo-100 text-indigo-600"
+          >flash_on</mat-icon
+        >
+        <mat-card-title>Acciones Rápidas</mat-card-title>
+        <mat-card-subtitle>Funciones disponibles para tu rol</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Admin Actions -->
+          <ng-container *ngIf="user()?.role === 'admin'">
+            <button
+              mat-raised-button
+              color="primary"
+              class="h-16"
+              (click)="goToAdmin()"
+            >
+              <div class="flex flex-col items-center">
+                <mat-icon>admin_panel_settings</mat-icon>
+                <span class="text-sm mt-1">Panel Admin</span>
+              </div>
+            </button>
+
+            <button
+              mat-raised-button
+              color="accent"
+              class="h-16"
+              (click)="manageUsers()"
+            >
+              <div class="flex flex-col items-center">
+                <mat-icon>group</mat-icon>
+                <span class="text-sm mt-1">Gestionar Usuarios</span>
+              </div>
+            </button>
+          </ng-container>
+
+          <!-- Common Actions -->
+          <button mat-raised-button class="h-16" (click)="viewProfile()">
+            <div class="flex flex-col items-center">
+              <mat-icon>account_circle</mat-icon>
+              <span class="text-sm mt-1">Mi Perfil</span>
+            </div>
+          </button>
+
+          <button mat-raised-button class="h-16" (click)="viewActivity()">
+            <div class="flex flex-col items-center">
+              <mat-icon>history</mat-icon>
+              <span class="text-sm mt-1">Actividad</span>
+            </div>
+          </button>
+
+          <button mat-raised-button class="h-16" (click)="viewSettings()">
+            <div class="flex flex-col items-center">
+              <mat-icon>settings</mat-icon>
+              <span class="text-sm mt-1">Configuración</span>
+            </div>
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- System Info -->
+    <mat-card>
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="bg-gray-100 text-gray-600"
+          >info</mat-icon
+        >
+        <mat-card-title>Información del Sistema</mat-card-title>
+        <mat-card-subtitle>Detalles técnicos y estado</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h4 class="font-medium text-gray-900 mb-2">Sesión Actual</h4>
+            <div class="space-y-1 text-sm text-gray-600">
+              <div>Último acceso: {{ formatDate(user()?.lastLogin) }}</div>
+              <div>Autenticación: Google OAuth 2.0</div>
+              <div>Estado: Conectado</div>
+            </div>
+          </div>
+          <div>
+            <h4 class="font-medium text-gray-900 mb-2">Sistema</h4>
+            <div class="space-y-1 text-sm text-gray-600">
+              <div>Framework: Angular 20</div>
+              <div>Backend: Firebase</div>
+              <div>Versión: {{ appInfo.name }} v1.0.0</div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

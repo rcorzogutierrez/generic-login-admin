@@ -1,0 +1,130 @@
+/* src/app/shared/access-denied.component.css */
+
+.mat-mdc-card {
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 10px 10px -5px rgb(0 0 0 / 0.04);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button {
+  border-radius: 8px;
+  text-transform: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.mat-mdc-raised-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.15);
+}
+
+.mat-mdc-outlined-button:hover {
+  transform: translateY(-1px);
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Error Icon Animation */
+.w-20.h-20 {
+  animation: bounceIn 0.8s ease-out;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Card Animation */
+.mat-card {
+  animation: slideInUp 0.6s ease-out 0.2s both;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Button Animations */
+.space-y-3 > button:nth-child(1) {
+  animation: fadeInUp 0.6s ease-out 0.4s both;
+}
+
+.space-y-3 > button:nth-child(2) {
+  animation: fadeInUp 0.6s ease-out 0.5s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Support Info Animation */
+.mt-8 {
+  animation: fadeIn 1s ease-out 0.8s both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Icon Styling */
+.mat-icon {
+  transition: all 0.3s ease;
+}
+
+.text-red-600 {
+  filter: drop-shadow(0 2px 4px rgba(220, 38, 38, 0.3));
+}
+
+/* Interactive Elements */
+a:hover {
+  transition: color 0.2s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .w-full.max-w-md {
+    max-width: 90vw;
+    padding: 0 1rem;
+  }
+
+  .text-3xl {
+    font-size: 1.875rem;
+  }
+
+  .w-20.h-20 {
+    width: 4rem;
+    height: 4rem;
+  }
+}

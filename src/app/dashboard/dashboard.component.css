@@ -1,0 +1,89 @@
+/* src/app/dashboard/dashboard.component.css */
+
+.mat-mdc-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transition: all 0.3s ease;
+}
+
+.mat-mdc-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+}
+
+.mat-mdc-card-header {
+  padding-bottom: 8px;
+}
+
+.mat-mdc-raised-button {
+  border-radius: 8px;
+  text-transform: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.mat-mdc-raised-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+}
+
+.mat-mdc-chip {
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+mat-toolbar {
+  border-bottom: 1px solid #e5e7eb;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Animaciones */
+.mat-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stats Cards Animation */
+.mat-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.mat-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.mat-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* Quick Action Buttons */
+.h-16 {
+  transition: all 0.2s ease;
+}
+
+.h-16:hover mat-icon {
+  transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .max-w-7xl {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .grid-cols-1.md\\:grid-cols-3 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}

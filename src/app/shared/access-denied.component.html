@@ -1,0 +1,76 @@
+<!-- src/app/shared/access-denied.component.html -->
+<div
+  class="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 flex items-center justify-center p-4"
+>
+  <div class="w-full max-w-md text-center">
+    <!-- Error Icon -->
+    <div class="mb-8">
+      <div
+        class="inline-flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mb-4"
+      >
+        <mat-icon class="text-red-600 text-4xl">block</mat-icon>
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Acceso Denegado</h1>
+      <p class="text-gray-600">
+        No tienes permisos suficientes para acceder a esta página
+      </p>
+    </div>
+
+    <!-- Info Card -->
+    <mat-card class="shadow-xl border-0 mb-6">
+      <mat-card-content class="p-6">
+        <div class="space-y-4">
+          <div
+            class="flex items-center justify-center space-x-2 text-sm text-gray-600"
+          >
+            <mat-icon class="text-gray-400">info</mat-icon>
+            <span
+              >Tu rol actual: <strong>{{ userRole }}</strong></span
+            >
+          </div>
+
+          <div class="text-sm text-gray-600">
+            <p class="mb-2">Para acceder a esta función necesitas:</p>
+            <ul class="text-left space-y-1 text-xs">
+              <li>• Permisos de administrador</li>
+              <li>• Autorización específica del sistema</li>
+              <li>• Rol compatible con la función solicitada</li>
+            </ul>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Action Buttons -->
+    <div class="space-y-3">
+      <button
+        mat-raised-button
+        color="primary"
+        class="w-full"
+        (click)="goToDashboard()"
+      >
+        <mat-icon class="mr-2">dashboard</mat-icon>
+        Volver al Dashboard
+      </button>
+
+      <button mat-stroked-button class="w-full" (click)="logout()">
+        <mat-icon class="mr-2">logout</mat-icon>
+        Cerrar Sesión
+      </button>
+    </div>
+
+    <!-- Support Info -->
+    <div class="mt-8 text-sm text-gray-500">
+      <p>¿Necesitas más permisos?</p>
+      <p class="mt-1">
+        Contacta al administrador en:
+        <a
+          [href]="'mailto:' + supportEmail"
+          class="text-indigo-600 hover:text-indigo-800 ml-1"
+        >
+          {{ supportEmail }}
+        </a>
+      </p>
+    </div>
+  </div>
+</div>

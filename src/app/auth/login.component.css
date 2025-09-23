@@ -1,5 +1,6 @@
-/* src/app/auth/login.component.css */
+/* src/app/auth/login/login.component.css */
 
+/* TUS ESTILOS ACTUALES (mantenidos) */
 .mat-mdc-card {
   border-radius: 16px !important;
   box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1),
@@ -26,7 +27,7 @@
   user-select: none;
 }
 
-/* Animaciones personalizadas */
+/* TUS ANIMACIONES ACTUALES (mantenidas y mejoradas) */
 .mat-card {
   animation: slideInUp 0.6s ease-out;
 }
@@ -42,7 +43,6 @@
   }
 }
 
-/* Loading states */
 .mat-spinner {
   animation: spin 1s linear infinite;
 }
@@ -53,5 +53,224 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* ===== NUEVOS ESTILOS COMPLEMENTARIOS ===== */
+
+/* Mejoras específicas para nuestras clases */
+.auth-logo {
+  animation: bounceInLogo 0.8s ease-out;
+  background: linear-gradient(135deg, #3f51b5 0%, #7c3aed 50%, #e91e63 100%);
+  box-shadow: 0 10px 25px -5px rgba(63, 81, 181, 0.4);
+}
+
+@keyframes bounceInLogo {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-10deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(5deg);
+  }
+  70% {
+    transform: scale(0.95) rotate(-2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Header con animación escalonada */
+.auth-header {
+  animation: slideInFromTop 0.7s ease-out;
+}
+
+.auth-title {
+  animation: slideInFromTop 0.8s ease-out;
+}
+
+.auth-subtitle {
+  animation: slideInFromTop 0.9s ease-out;
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Botón Google con efectos mejorados */
+.google-signin-button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px !important; /* Consistente con tus cards */
+  font-weight: 500 !important; /* Consistente con tus botones */
+}
+
+.google-signin-button:hover:not(:disabled) {
+  transform: translateY(-2px); /* Más pronunciado que tu hover actual */
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+.google-signin-button:active:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Estados de loading consistentes con tu spinner */
+.auth-spinner {
+  animation: spin 1s linear infinite; /* Usa tu animación existente */
+}
+
+.google-signin-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none !important;
+}
+
+/* Mensajes de estado con tu paleta */
+.auth-error {
+  background: linear-gradient(135deg, #fef2f2 0%, #fde8e8 100%);
+  border-color: #fecaca;
+  animation: slideInUp 0.6s ease-out; /* Usa tu animación existente */
+}
+
+.auth-success {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: #bbf7d0;
+  animation: slideInUp 0.6s ease-out; /* Usa tu animación existente */
+}
+
+/* Indicadores con gradientes sutiles */
+.protected-indicator {
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  border-color: #c4b5fd;
+  transition: all 0.3s ease;
+}
+
+.protected-indicator:hover {
+  transform: translateY(-1px); /* Consistente con tus hovers */
+  box-shadow: 0 4px 8px rgba(124, 58, 237, 0.15);
+}
+
+.firebase-connected {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  transition: all 0.3s ease;
+}
+
+.firebase-connected:hover {
+  transform: translateY(-1px); /* Consistente con tus hovers */
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.15);
+}
+
+/* Divider elegante */
+.auth-divider::before,
+.auth-divider::after {
+  background: linear-gradient(to right, 
+    transparent, 
+    rgba(107, 114, 128, 0.3) 20%, 
+    rgba(107, 114, 128, 0.6) 50%, 
+    rgba(107, 114, 128, 0.3) 80%, 
+    transparent);
+}
+
+/* Link con hover mejorado */
+.auth-link {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.auth-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background: linear-gradient(135deg, #3f51b5, #7c3aed);
+  transition: width 0.3s ease;
+}
+
+.auth-link:hover::after {
+  width: 100%;
+}
+
+/* Responsive mejorado */
+@media (max-width: 480px) {
+  .auth-logo {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+  
+  .auth-title {
+    font-size: 1.5rem;
+  }
+  
+  .google-signin-button {
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 10px !important; /* Consistente con tus botones en móvil */
+  }
+}
+
+/* Estados focus mejorados (accesibilidad) */
+.google-signin-button:focus-visible {
+  outline: 2px solid #3f51b5;
+  outline-offset: 2px;
+}
+
+.auth-link:focus-visible {
+  outline: 2px solid #3f51b5;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Modo oscuro preparado */
+@media (prefers-color-scheme: dark) {
+  .auth-logo {
+    box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.6);
+  }
+  
+  .protected-indicator {
+    background: linear-gradient(135deg, #312e81 0%, #3730a3 100%);
+    color: #e0e7ff;
+    border-color: #6366f1;
+  }
+  
+  .firebase-connected {
+    background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+    color: #a7f3d0;
+    border-color: #10b981;
+  }
+}
+
+/* Reducir movimiento para accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .auth-logo,
+  .auth-header,
+  .auth-title,
+  .auth-subtitle,
+  .mat-card {
+    animation: none !important;
+  }
+  
+  .google-signin-button:hover,
+  .protected-indicator:hover,
+  .firebase-connected:hover {
+    transform: none !important;
+  }
+  
+  .auth-spinner,
+  .mat-spinner {
+    animation: none !important;
   }
 }

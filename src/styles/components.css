@@ -1,0 +1,120 @@
+/* Componentes que extienden perfectamente tu configuración Material */
+
+/* Overrides suaves para tus botones Material personalizados */
+.mat-mdc-raised-button.auth-primary {
+  background-color: var(--firebase-primary) !important;
+  color: white !important;
+}
+
+.mat-mdc-outlined-button.auth-secondary {
+  border-color: var(--firebase-primary) !important;
+  color: var(--firebase-primary) !important;
+}
+
+/* Componentes para el dashboard que respetan tu tema */
+.dashboard-stat-card {
+  @apply bg-white rounded-xl p-6 border border-gray-100 hover:shadow-soft transition-all duration-300;
+}
+
+.dashboard-stat-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Navegación que usa tu paleta */
+.nav-item-custom {
+  @apply flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg transition-all duration-200 font-medium;
+}
+
+.nav-item-custom.active {
+  @apply bg-indigo-100 text-indigo-800 border-l-4 border-indigo-600;
+}
+
+/* Alertas que usan tus colores Material */
+.alert {
+  @apply px-4 py-3 rounded-lg border font-medium flex items-start gap-3;
+}
+
+.alert-success {
+  @apply bg-green-50 border-green-200 text-green-800;
+}
+
+.alert-error {
+  @apply bg-red-50 border-red-200 text-red-800;
+}
+
+.alert-warning {
+  @apply bg-amber-50 border-amber-200 text-amber-800;
+}
+
+.alert-info {
+  @apply bg-blue-50 border-blue-200 text-blue-800;
+}
+
+/* Loading states que funcionan con Material */
+.loading-spinner-material {
+  @apply inline-block w-5 h-5 border-2 border-gray-200 rounded-full animate-spin;
+  border-top-color: var(--firebase-primary);
+}
+
+.loading-overlay-custom {
+  @apply fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50;
+}
+
+.loading-content-custom {
+  @apply bg-white rounded-xl p-6 shadow-soft flex items-center gap-4 max-w-sm mx-4;
+}
+
+/* Form components que extienden Material */
+.form-floating-custom {
+  @apply relative;
+}
+
+.form-floating-custom input {
+  @apply block w-full px-3 pt-6 pb-2 text-base bg-transparent border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent peer;
+}
+
+.form-floating-custom label {
+  @apply absolute text-gray-500 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-3 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4;
+}
+
+/* Table styles que funcionan con Material Table */
+.table-custom {
+  @apply w-full bg-white shadow-soft rounded-xl overflow-hidden;
+}
+
+.table-custom thead {
+  @apply bg-gray-50;
+}
+
+.table-custom th {
+  @apply px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider;
+}
+
+.table-custom td {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-t border-gray-100;
+}
+
+.table-custom tr:hover {
+  @apply bg-gray-50;
+}
+
+/* Badge components */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-primary {
+  @apply bg-indigo-100 text-indigo-800;
+}
+
+.badge-success {
+  @apply bg-green-100 text-green-800;
+}
+
+.badge-error {
+  @apply bg-red-100 text-red-800;
+}
+
+.badge-warning {
+  @apply bg-amber-100 text-amber-800;
+}

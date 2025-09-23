@@ -1,0 +1,209 @@
+/* Responsive design que respeta tu configuración de Inter font y Material theme */
+
+/* Extra small devices (phones, <576px) */
+@media (max-width: 575.98px) {
+  .auth-main-card {
+    @apply p-6 m-3 rounded-2xl;
+  }
+  
+  .auth-title {
+    @apply text-xl;
+  }
+  
+  .google-signin-button {
+    @apply text-sm px-3 py-3;
+  }
+  
+  /* Ajustes para Material en móviles */
+  .mat-mdc-form-field .mat-mdc-text-field-wrapper .mat-mdc-form-field-input-control input {
+    font-size: 16px !important; /* Previene zoom en iOS */
+  }
+  
+  .mat-mdc-raised-button,
+  .mat-mdc-outlined-button {
+    min-height: 44px !important; /* Mejor touch target */
+  }
+  
+  .dashboard-stat-card {
+    @apply p-4;
+  }
+}
+
+/* Small devices (landscape phones, ≥576px) */
+@media (min-width: 576px) {
+  .auth-wrapper {
+    @apply max-w-sm;
+  }
+}
+
+/* Medium devices (tablets, ≥768px) */
+@media (min-width: 768px) {
+  .auth-page {
+    background: linear-gradient(135deg, 
+      rgb(99, 102, 241) 0%, 
+      rgb(139, 69, 193) 25%, 
+      rgb(219, 39, 119) 50%, 
+      rgb(239, 68, 68) 75%, 
+      rgb(249, 115, 22) 100%);
+  }
+  
+  .auth-main-card {
+    @apply p-10;
+    backdrop-filter: blur(16px);
+  }
+  
+  .dashboard-stat-card {
+    @apply hover:shadow-lg;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .dashboard-stat-card:hover {
+    transform: translateY(-4px);
+  }
+}
+
+/* Large devices (desktops, ≥992px) */
+@media (min-width: 992px) {
+  .auth-wrapper {
+    @apply max-w-md;
+  }
+  
+  .nav-item-custom {
+    @apply px-6 py-4;
+  }
+}
+
+/* Extra large devices (large desktops, ≥1200px) */
+@media (min-width: 1200px) {
+  .auth-wrapper {
+    @apply max-w-lg;
+  }
+  
+  .auth-main-card {
+    @apply p-12;
+  }
+  
+  .dashboard-stat-card {
+    @apply p-8;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (orientation: landscape) and (max-height: 600px) {
+  .auth-page {
+    @apply py-4;
+  }
+  
+  .auth-main-card {
+    @apply p-6 max-h-screen overflow-y-auto;
+  }
+  
+  .auth-header {
+    @apply mb-6;
+  }
+  
+  .auth-logo {
+    @apply w-12 h-12 mb-3;
+  }
+  
+  .auth-title {
+    @apply text-lg mb-1;
+  }
+  
+  .auth-subtitle {
+    @apply text-xs;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .auth-logo,
+  .google-signin-button .google-icon {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Dark mode support (para futuro) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --firebase-primary: #7c3aed;
+    --firebase-accent: #ec4899;
+    --firebase-warn: #ef4444;
+  }
+  
+  .auth-main-card {
+    @apply bg-gray-900/90 border-gray-700;
+    backdrop-filter: blur(16px);
+  }
+  
+  .auth-title {
+    @apply text-white;
+  }
+  
+  .auth-subtitle {
+    @apply text-gray-300;
+  }
+  
+  .google-signin-button {
+    @apply bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700;
+  }
+  
+  .dashboard-stat-card {
+    @apply bg-gray-800 border-gray-700;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .google-signin-button {
+    @apply border-2 border-gray-800;
+  }
+  
+  .auth-error {
+    @apply border-2 border-red-700;
+  }
+  
+  .auth-success {
+    @apply border-2 border-green-700;
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fadeInUp,
+  .auth-slide-in,
+  .animate-pulse-auth {
+    animation: none !important;
+  }
+  
+  .dashboard-stat-card {
+    @apply transition-none;
+  }
+  
+  .dashboard-stat-card:hover {
+    transform: none !important;
+  }
+  
+  .loading-spinner-material {
+    @apply animate-none;
+    border-left-color: var(--firebase-primary);
+  }
+}
+
+/* Print styles */
+@media print {
+  .auth-page {
+    @apply bg-white;
+  }
+  
+  .google-signin-button,
+  .auth-links,
+  .loading-overlay-custom {
+    @apply hidden;
+  }
+  
+  .auth-main-card {
+    @apply shadow-none border border-gray-300;
+  }
+}

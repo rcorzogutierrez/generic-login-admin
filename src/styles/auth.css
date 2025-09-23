@@ -1,0 +1,167 @@
+/* Estilos de autenticación que aprovechan tu configuración */
+
+/* Página de login principal */
+.auth-page {
+  @apply firebase-container auth-typography;
+}
+
+.auth-wrapper {
+  @apply w-full max-w-md animate-fadeInUp;
+}
+
+/* Card principal que extiende tu .mat-mdc-card */
+.auth-main-card {
+  @apply auth-card-enhanced p-8;
+}
+
+/* Header elegante */
+.auth-header {
+  @apply text-center mb-8;
+}
+
+.auth-logo {
+  @apply w-16 h-16 mx-auto mb-4 rounded-2xl shadow-soft bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center;
+}
+
+.auth-logo img {
+  @apply w-8 h-8;
+}
+
+.auth-title {
+  @apply text-2xl font-semibold text-gray-900 mb-2;
+}
+
+.auth-subtitle {
+  @apply text-gray-600 text-sm leading-relaxed;
+}
+
+/* Google Sign-in que respeta tu diseño */
+.google-signin-button {
+  @apply btn-google-auth mb-6;
+}
+
+.google-signin-button .google-icon {
+  @apply w-5 h-5 flex-shrink-0;
+}
+
+.google-signin-button:disabled {
+  @apply opacity-60 cursor-not-allowed;
+}
+
+/* Divider elegante */
+.auth-divider {
+  @apply relative flex items-center my-8;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  @apply flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent;
+  content: '';
+}
+
+.auth-divider-text {
+  @apply px-4 text-sm text-gray-500 bg-white font-medium;
+}
+
+/* Formularios que funcionan con tus Material overrides */
+.auth-form {
+  @apply space-y-6;
+}
+
+.auth-form .mat-mdc-form-field {
+  @apply w-full;
+}
+
+.auth-form .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  @apply rounded-lg;
+}
+
+/* Estados específicos */
+.auth-loading {
+  @apply relative overflow-hidden;
+}
+
+.auth-loading::after {
+  @apply absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center;
+  content: '';
+}
+
+.auth-loading-spinner {
+  @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10;
+}
+
+/* Mensajes de estado */
+.auth-message {
+  @apply p-4 rounded-lg border mb-6 flex items-start gap-3;
+}
+
+.auth-message-icon {
+  @apply w-5 h-5 flex-shrink-0 mt-0.5;
+}
+
+.auth-error {
+  @apply alert-error animate-fadeInUp;
+}
+
+.auth-success {
+  @apply alert-success animate-fadeInUp;
+}
+
+.auth-warning {
+  @apply alert-warning animate-fadeInUp;
+}
+
+.auth-info {
+  @apply alert-info animate-fadeInUp;
+}
+
+/* Enlaces y footer */
+.auth-links {
+  @apply text-center mt-8 space-y-3;
+}
+
+.auth-link {
+  @apply text-indigo-600 hover:text-indigo-800 text-sm font-medium hover:underline transition-colors duration-200 block;
+}
+
+.auth-footer {
+  @apply text-center mt-8 pt-6 border-t border-gray-200 text-xs text-gray-500 space-y-1;
+}
+
+/* Estados especiales */
+.protected-indicator {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 border border-indigo-200;
+}
+
+.admin-indicator {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200;
+}
+
+.firebase-connected {
+  @apply inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800;
+}
+
+.firebase-disconnected {
+  @apply inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800;
+}
+
+/* Animaciones específicas para auth */
+.auth-slide-in {
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* User avatar en auth */
+.auth-avatar {
+  @apply w-12 h-12 rounded-full border-2 border-white shadow-soft bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-medium;
+}

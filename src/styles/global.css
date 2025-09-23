@@ -16,65 +16,59 @@
   --auth-elevation-3: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
-/* Extensiones para tu sistema de clases utilitarias */
-@layer utilities {
-  /* Complementa tu .glass-effect */
-  .glass-auth {
-    @apply backdrop-blur-md bg-white/80 border border-white/30 shadow-soft;
-  }
-  
-  /* Complementa tu .gradient-primary */
-  .gradient-auth {
-    @apply bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50;
-  }
-  
-  /* Nueva utilidad para Firebase */
-  .firebase-container {
-    @apply min-h-screen gradient-auth flex items-center justify-center p-4;
-  }
+/* Clases personalizadas definidas directamente */
+.glass-auth {
+  @apply backdrop-blur-md bg-white/80 border border-white/30;
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
 }
 
-@layer components {
-  /* Botón Google que respeta tu tema Material */
-  .btn-google-auth {
-    @apply flex items-center justify-center gap-3 w-full px-4 py-3.5 bg-white border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200;
-    box-shadow: var(--auth-elevation-1);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  }
-  
-  .btn-google-auth:hover {
-    box-shadow: var(--auth-elevation-2);
-    transform: translateY(-1px);
-  }
-  
-  .btn-google-auth:active {
-    transform: translateY(0);
-    box-shadow: var(--auth-elevation-1);
-  }
-  
-  /* Card que extiende tu .mat-mdc-card personalizado */
-  .auth-card-enhanced {
-    @apply glass-auth;
-    border-radius: 16px !important;
-    box-shadow: var(--auth-elevation-3) !important;
-    backdrop-filter: blur(12px);
-  }
-  
-  /* Input states que funcionan con tus Material overrides */
-  .auth-input-success {
-    @apply border-green-500 focus:ring-green-500;
-  }
-  
-  .auth-input-error {
-    @apply border-red-500 focus:ring-red-500;
-  }
+.gradient-auth {
+  @apply bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50;
 }
 
-/* Mejoras para tu font Inter */
+.firebase-container {
+  @apply min-h-screen flex items-center justify-center p-4;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
 .auth-typography {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   font-variation-settings: normal;
+}
+
+/* Botón Google que respeta tu tema Material */
+.btn-google-auth {
+  @apply flex items-center justify-center gap-3 w-full px-4 py-3.5 bg-white border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200;
+  box-shadow: var(--auth-elevation-1);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.btn-google-auth:hover {
+  box-shadow: var(--auth-elevation-2);
+  transform: translateY(-1px);
+}
+
+.btn-google-auth:active {
+  transform: translateY(0);
+  box-shadow: var(--auth-elevation-1);
+}
+
+/* Card que extiende tu .mat-mdc-card personalizado */
+.auth-card-enhanced {
+  @apply backdrop-blur-md bg-white/80 border border-white/30;
+  border-radius: 16px !important;
+  box-shadow: var(--auth-elevation-3) !important;
+  backdrop-filter: blur(12px);
+}
+
+/* Input states que funcionan con tus Material overrides */
+.auth-input-success {
+  @apply border-green-500 focus:ring-green-500;
+}
+
+.auth-input-error {
+  @apply border-red-500 focus:ring-red-500;
 }
 
 /* Animaciones suaves que respetan tu diseño */

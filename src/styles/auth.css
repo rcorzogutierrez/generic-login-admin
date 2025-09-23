@@ -2,16 +2,23 @@
 
 /* Página de login principal */
 .auth-page {
-  @apply firebase-container auth-typography;
+  @apply min-h-screen flex items-center justify-center p-4;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
 .auth-wrapper {
-  @apply w-full max-w-md animate-fadeInUp;
+  @apply w-full max-w-md;
+  animation: fadeInUp 0.4s ease-out;
 }
 
 /* Card principal que extiende tu .mat-mdc-card */
 .auth-main-card {
-  @apply auth-card-enhanced p-8;
+  @apply backdrop-blur-md bg-white/80 border border-white/30 p-8;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+  backdrop-filter: blur(12px);
 }
 
 /* Header elegante */
@@ -20,7 +27,9 @@
 }
 
 .auth-logo {
-  @apply w-16 h-16 mx-auto mb-4 rounded-2xl shadow-soft bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center;
+  @apply w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center;
+  background: linear-gradient(135deg, #3f51b5 0%, #7c3aed 100%);
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
 }
 
 .auth-logo img {
@@ -37,7 +46,19 @@
 
 /* Google Sign-in que respeta tu diseño */
 .google-signin-button {
-  @apply btn-google-auth mb-6;
+  @apply flex items-center justify-center gap-3 w-full px-4 py-3.5 bg-white border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 mb-6;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.google-signin-button:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transform: translateY(-1px);
+}
+
+.google-signin-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
 
 .google-signin-button .google-icon {
@@ -55,7 +76,8 @@
 
 .auth-divider::before,
 .auth-divider::after {
-  @apply flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent;
+  @apply flex-1 h-px;
+  background: linear-gradient(to right, transparent, #d1d5db, transparent);
   content: '';
 }
 
@@ -93,6 +115,7 @@
 /* Mensajes de estado */
 .auth-message {
   @apply p-4 rounded-lg border mb-6 flex items-start gap-3;
+  animation: fadeInUp 0.4s ease-out;
 }
 
 .auth-message-icon {
@@ -100,19 +123,19 @@
 }
 
 .auth-error {
-  @apply alert-error animate-fadeInUp;
+  @apply bg-red-50 border-red-200 text-red-800;
 }
 
 .auth-success {
-  @apply alert-success animate-fadeInUp;
+  @apply bg-green-50 border-green-200 text-green-800;
 }
 
 .auth-warning {
-  @apply alert-warning animate-fadeInUp;
+  @apply bg-amber-50 border-amber-200 text-amber-800;
 }
 
 .auth-info {
-  @apply alert-info animate-fadeInUp;
+  @apply bg-blue-50 border-blue-200 text-blue-800;
 }
 
 /* Enlaces y footer */
@@ -163,5 +186,7 @@
 
 /* User avatar en auth */
 .auth-avatar {
-  @apply w-12 h-12 rounded-full border-2 border-white shadow-soft bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-medium;
+  @apply w-12 h-12 rounded-full border-2 border-white flex items-center justify-center text-white font-medium;
+  background: linear-gradient(135deg, #3f51b5 0%, #7c3aed 100%);
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
 }

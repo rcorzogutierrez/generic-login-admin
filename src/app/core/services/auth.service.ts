@@ -21,7 +21,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { Router } from '@angular/router';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments/environment.development';
 
 export interface AuthorizedUser {
   uid: string;

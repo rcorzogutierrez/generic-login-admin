@@ -46,6 +46,21 @@ export class AdminPanelComponent implements OnInit {
     'actions',
   ];
 
+  // Agregar estos métodos a tu admin-panel.component.ts
+
+  trackByEmail(index: number, user: any): string {
+    return user.email;
+  }
+
+  getUserIcon(role: string): string {
+    switch (role) {
+      case 'admin': return 'shield';
+      case 'user': return 'person';
+      case 'viewer': return 'visibility';
+      default: return 'person';
+    }
+  }
+
   mockUsers = [
     {
       email: 'rcorzogutierrez@gmail.com',

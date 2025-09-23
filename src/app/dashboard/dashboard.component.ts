@@ -65,6 +65,17 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+ 
+  getPermissionIcon(permission: string): string {
+    switch (permission) {
+      case 'read': return 'visibility';
+      case 'write': return 'edit';
+      case 'delete': return 'delete';
+      case 'manage_users': return 'group';
+      default: return 'verified';
+    }
+  }
+
   async logout() {
     try {
       await this.authService.logout();

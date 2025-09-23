@@ -1,11 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>My app</title>
-    <meta charset="UTF-8" />
-    <base href="/">
-  </head>
-  <body>
-    <app-root>Loading...</app-root>
-  </body>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Generic Admin Login - Dev</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  
+  <!-- Google Fonts - Inter para tipografía moderna -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Material Icons - CRÍTICO para que los iconos funcionen -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <!-- Meta tags adicionales para mejor SEO y funcionalidad -->
+  <meta name="description" content="Sistema de login reutilizable para múltiples proyectos">
+  <meta name="theme-color" content="#3b82f6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  
+  <!-- Preload crítico para mejor performance -->
+  <link rel="preload" href="https://fonts.googleapis.com/icon?family=Material+Icons" as="style">
+</head>
+<body>
+  <app-root>
+    <!-- Loading mejorado mientras carga la app -->
+    <div style="
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      height: 100vh; 
+      font-family: 'Inter', sans-serif; 
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      color: #64748b;
+    ">
+      <div style="text-align: center;">
+        <div style="
+          width: 60px; 
+          height: 60px; 
+          border: 3px solid #e2e8f0; 
+          border-top: 3px solid #3b82f6; 
+          border-radius: 50%; 
+          animation: spin 1s linear infinite; 
+          margin: 0 auto 20px;
+        "></div>
+        <div style="font-size: 18px; font-weight: 500; margin-bottom: 8px;">
+          Cargando aplicación...
+        </div>
+        <div style="font-size: 14px; opacity: 0.7;">
+          Generic Admin Login - Dev
+        </div>
+      </div>
+    </div>
+    
+    <style>
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </app-root>
+</body>
 </html>

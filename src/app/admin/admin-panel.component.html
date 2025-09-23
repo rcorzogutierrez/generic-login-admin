@@ -1,24 +1,40 @@
-<!-- src/app/admin/admin-panel.component.html -->
-<div class="min-h-screen bg-gray-50">
+<!-- src/app/admin/admin-panel.component.html - MEJORADO -->
+<div class="admin-container">
   <!-- Header -->
-  <mat-toolbar class="bg-white shadow-sm border-b">
-    <div class="flex items-center justify-between w-full">
-      <div class="flex items-center space-x-3">
-        <mat-icon class="text-red-600">admin_panel_settings</mat-icon>
-        <h1 class="text-xl font-semibold text-gray-900">
-          Panel de Administración
-        </h1>
-        <mat-chip color="warn" class="text-xs">ADMIN</mat-chip>
+  <header class="admin-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="logo-section">
+          <mat-icon class="admin-logo-icon">admin_panel_settings</mat-icon>
+          <div class="logo-text">
+            <h1>Panel de Administración</h1>
+            <span>Gestión completa del sistema</span>
+          </div>
+          <div class="admin-badge">
+            <span>ADMIN</span>
+          </div>
+        </div>
       </div>
-
-      <div class="flex items-center space-x-4">
-        <button mat-icon-button (click)="goToDashboard()">
+      
+      <div class="header-right">
+        <div class="admin-user-info">
+          <div class="user-avatar">
+            <mat-icon>shield</mat-icon>
+          </div>
+          <div class="user-details">
+            <span class="user-name">{{ currentUser()?.displayName }}</span>
+            <span class="user-role">ADMINISTRADOR</span>
+          </div>
+        </div>
+        
+        <button mat-icon-button (click)="goToDashboard()" class="nav-button" title="Ir al Dashboard">
           <mat-icon>dashboard</mat-icon>
         </button>
-
-        <button mat-icon-button [matMenuTriggerFor]="adminMenu">
+        
+        <button mat-icon-button [matMenuTriggerFor]="adminMenu" class="menu-button">
           <mat-icon>more_vert</mat-icon>
         </button>
+        
         <mat-menu #adminMenu="matMenu">
           <button mat-menu-item (click)="goToDashboard()">
             <mat-icon>dashboard</mat-icon>
@@ -31,189 +47,158 @@
         </mat-menu>
       </div>
     </div>
-  </mat-toolbar>
+  </header>
 
   <!-- Main Content -->
-  <div class="max-w-7xl mx-auto p-6">
+  <main class="admin-main">
     <!-- Welcome Section -->
-    <div class="mb-8">
-      <h2 class="text-2xl font-bold text-gray-900 mb-2">
-        Bienvenido, {{ currentUser()?.displayName }}
-      </h2>
-      <p class="text-gray-600">
-        Panel de control para gestión completa del sistema
-      </p>
-    </div>
+    <section class="welcome-section">
+      <h2 class="welcome-title">Centro de Control Administrativo</h2>
+      <p class="welcome-subtitle">Gestiona usuarios, proyectos y configuraciones del sistema</p>
+    </section>
 
-    <!-- Admin Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <mat-card>
-        <mat-card-content class="p-4 text-center">
-          <mat-icon class="text-blue-600 text-3xl mb-2">group</mat-icon>
-          <div class="text-2xl font-bold text-gray-900">{{ totalUsers }}</div>
-          <div class="text-sm text-gray-600">Usuarios Totales</div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card>
-        <mat-card-content class="p-4 text-center">
-          <mat-icon class="text-green-600 text-3xl mb-2">check_circle</mat-icon>
-          <div class="text-2xl font-bold text-gray-900">{{ activeUsers }}</div>
-          <div class="text-sm text-gray-600">Usuarios Activos</div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card>
-        <mat-card-content class="p-4 text-center">
-          <mat-icon class="text-purple-600 text-3xl mb-2">work</mat-icon>
-          <div class="text-2xl font-bold text-gray-900">
-            {{ totalProjects }}
+    <!-- Stats Grid -->
+    <section class="stats-section">
+      <div class="stats-grid">
+        <!-- Total Users -->
+        <div class="stat-card users-card">
+          <div class="stat-icon">
+            <mat-icon>group</mat-icon>
           </div>
-          <div class="text-sm text-gray-600">Proyectos</div>
-        </mat-card-content>
-      </mat-card>
+          <div class="stat-content">
+            <div class="stat-number">{{ totalUsers }}</div>
+            <div class="stat-label">Usuarios Totales</div>
+          </div>
+        </div>
 
-      <mat-card>
-        <mat-card-content class="p-4 text-center">
-          <mat-icon class="text-red-600 text-3xl mb-2">security</mat-icon>
-          <div class="text-2xl font-bold text-gray-900">{{ adminUsers }}</div>
-          <div class="text-sm text-gray-600">Administradores</div>
-        </mat-card-content>
-      </mat-card>
-    </div>
+        <!-- Active Users -->
+        <div class="stat-card active-card">
+          <div class="stat-icon">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ activeUsers }}</div>
+            <div class="stat-label">Usuarios Activos</div>
+          </div>
+        </div>
+
+        <!-- Projects -->
+        <div class="stat-card projects-card">
+          <div class="stat-icon">
+            <mat-icon>work</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ totalProjects }}</div>
+            <div class="stat-label">Proyectos</div>
+          </div>
+        </div>
+
+        <!-- Admins -->
+        <div class="stat-card admins-card">
+          <div class="stat-icon">
+            <mat-icon>security</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ adminUsers }}</div>
+            <div class="stat-label">Administradores</div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Quick Actions -->
-    <mat-card class="mb-8">
-      <mat-card-header>
-        <mat-icon mat-card-avatar class="bg-indigo-100 text-indigo-600"
-          >flash_on</mat-icon
-        >
-        <mat-card-title>Acciones Rápidas</mat-card-title>
-        <mat-card-subtitle>Gestión del sistema</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button
-            mat-raised-button
-            color="primary"
-            class="h-16"
-            (click)="addUser()"
-          >
-            <div class="flex flex-col items-center">
-              <mat-icon>person_add</mat-icon>
-              <span class="text-sm mt-1">Agregar Usuario</span>
-            </div>
-          </button>
+    <section class="actions-section">
+      <div class="section-header">
+        <h3>Acciones Rápidas</h3>
+        <p>Gestión del sistema</p>
+      </div>
+      
+      <div class="actions-grid">
+        <button class="action-button primary" (click)="addUser()">
+          <mat-icon>person_add</mat-icon>
+          <span>Agregar Usuario</span>
+        </button>
+        
+        <button class="action-button secondary" (click)="manageRoles()">
+          <mat-icon>admin_panel_settings</mat-icon>
+          <span>Gestionar Roles</span>
+        </button>
+        
+        <button class="action-button" (click)="viewLogs()">
+          <mat-icon>list_alt</mat-icon>
+          <span>Ver Logs</span>
+        </button>
+        
+        <button class="action-button" (click)="systemSettings()">
+          <mat-icon>settings</mat-icon>
+          <span>Configuración</span>
+        </button>
+      </div>
+    </section>
 
-          <button
-            mat-raised-button
-            color="accent"
-            class="h-16"
-            (click)="manageRoles()"
-          >
-            <div class="flex flex-col items-center">
-              <mat-icon>admin_panel_settings</mat-icon>
-              <span class="text-sm mt-1">Gestionar Roles</span>
-            </div>
-          </button>
-
-          <button mat-raised-button class="h-16" (click)="viewLogs()">
-            <div class="flex flex-col items-center">
-              <mat-icon>list_alt</mat-icon>
-              <span class="text-sm mt-1">Ver Logs</span>
-            </div>
-          </button>
-
-          <button mat-raised-button class="h-16" (click)="systemSettings()">
-            <div class="flex flex-col items-center">
-              <mat-icon>settings</mat-icon>
-              <span class="text-sm mt-1">Configuración</span>
-            </div>
-          </button>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Recent Users Table -->
-    <mat-card>
-      <mat-card-header>
-        <mat-icon mat-card-avatar class="bg-gray-100 text-gray-600"
-          >people</mat-icon
-        >
-        <mat-card-title>Usuarios Recientes</mat-card-title>
-        <mat-card-subtitle
-          >Últimos usuarios que han accedido al sistema</mat-card-subtitle
-        >
-      </mat-card-header>
-      <mat-card-content>
-        <div class="overflow-x-auto">
-          <table mat-table [dataSource]="mockUsers" class="w-full">
-            <!-- Email Column -->
-            <ng-container matColumnDef="email">
-              <th mat-header-cell *matHeaderCellDef>Usuario</th>
-              <td mat-cell *matCellDef="let user">{{ user.email }}</td>
-            </ng-container>
-
-            <!-- Role Column -->
-            <ng-container matColumnDef="role">
-              <th mat-header-cell *matHeaderCellDef>Rol</th>
-              <td mat-cell *matCellDef="let user">
-                <mat-chip [color]="getRoleColor(user.role)" class="text-xs">
-                  {{ user.role.toUpperCase() }}
-                </mat-chip>
-              </td>
-            </ng-container>
-
-            <!-- Status Column -->
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>Estado</th>
-              <td mat-cell *matCellDef="let user">
-                <mat-chip
-                  [color]="user.isActive ? 'accent' : ''"
-                  class="text-xs"
-                >
-                  {{ user.isActive ? 'ACTIVO' : 'INACTIVO' }}
-                </mat-chip>
-              </td>
-            </ng-container>
-
-            <!-- Last Login Column -->
-            <ng-container matColumnDef="lastLogin">
-              <th mat-header-cell *matHeaderCellDef>Último Acceso</th>
-              <td mat-cell *matCellDef="let user">
-                <span class="text-sm text-gray-600">
-                  {{ formatDate(user.lastLogin) }}
-                </span>
-              </td>
-            </ng-container>
-
-            <!-- Actions Column -->
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Acciones</th>
-              <td mat-cell *matCellDef="let user">
-                <button mat-icon-button [matMenuTriggerFor]="userMenu">
-                  <mat-icon>more_vert</mat-icon>
-                </button>
-                <mat-menu #userMenu="matMenu">
-                  <button mat-menu-item (click)="editUser(user)">
-                    <mat-icon>edit</mat-icon>
-                    Editar
+    <!-- Users Table -->
+    <section class="table-section">
+      <div class="section-header">
+        <h3>Usuarios Recientes</h3>
+        <p>Últimos usuarios que han accedido al sistema</p>
+      </div>
+      
+      <div class="table-container">
+        <div class="table-wrapper">
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Último Acceso</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of mockUsers; trackBy: trackByEmail" class="table-row">
+                <td class="user-cell">
+                  <div class="user-info">
+                    <div class="user-avatar-small">
+                      <mat-icon>{{ getUserIcon(user.role) }}</mat-icon>
+                    </div>
+                    <span class="user-email">{{ user.email }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="role-badge" [ngClass]="'role-' + user.role">
+                    {{ user.role.toUpperCase() }}
+                  </div>
+                </td>
+                <td>
+                  <div class="status-badge" [ngClass]="user.isActive ? 'status-active' : 'status-inactive'">
+                    <mat-icon>{{ user.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
+                    <span>{{ user.isActive ? 'ACTIVO' : 'INACTIVO' }}</span>
+                  </div>
+                </td>
+                <td class="date-cell">
+                  <span class="date-text">{{ formatDate(user.lastLogin) }}</span>
+                </td>
+                <td>
+                  <button mat-icon-button [matMenuTriggerFor]="userMenu" class="action-menu-button">
+                    <mat-icon>more_vert</mat-icon>
                   </button>
-                  <button mat-menu-item (click)="toggleUserStatus(user)">
-                    <mat-icon>{{
-                      user.isActive ? 'block' : 'check_circle'
-                    }}</mat-icon>
-                    {{ user.isActive ? 'Desactivar' : 'Activar' }}
-                  </button>
-                </mat-menu>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                  <mat-menu #userMenu="matMenu">
+                    <button mat-menu-item (click)="editUser(user)">
+                      <mat-icon>edit</mat-icon>
+                      Editar
+                    </button>
+                    <button mat-menu-item (click)="toggleUserStatus(user)">
+                      <mat-icon>{{ user.isActive ? 'block' : 'check_circle' }}</mat-icon>
+                      {{ user.isActive ? 'Desactivar' : 'Activar' }}
+                    </button>
+                  </mat-menu>
+                </td>
+              </tr>
+            </tbody>
           </table>
         </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
+      </div>
+    </section>
+  </main>
 </div>

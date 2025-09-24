@@ -10,9 +10,8 @@ import {
 } from 'firebase/auth';
 import {
   getFirestore,
-  doc,
-  getDoc,
-  setDoc,
+  Timestamp,
+  doc, 
   collection,
   query,
   where,
@@ -78,7 +77,7 @@ export class AuthService {
     this.googleProvider.setCustomParameters({
       prompt: 'select_account',
     });
-  }
+  } 
 
   /**
    * Configura el proyecto actual para validaciones de autorización
@@ -314,22 +313,62 @@ export class AuthService {
     this._isAuthorized.set(false);
   }
 
+  /**
+   * Actualiza el último login del usuario - Método mejorado
+   */
   private async updateLastLogin(uid: string): Promise<void> {
     try {
+      console.log('📅 Actualizando último login para UID:', uid);
+      
       const usersRef = collection(this.firestore, 'authorized_users');
       const q = query(usersRef, where('uid', '==', uid));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
         const userDoc = querySnapshot.docs[0];
+        const now = Timestamp.now();
+        
         await updateDoc(userDoc.ref, {
-          lastLogin: serverTimestamp(),
+          lastLogin: now,
+          lastLoginDate: new Date().toISOString()
         });
-        console.log('📅 Último login actualizado');
+        
+        console.log('✅ Último login actualizado exitosamente');
+      } else {
+        console.warn('⚠️ No se encontró usuario con UID:', uid);
+        
+        // Fallback: buscar por email del usuario autenticado
+        const currentUser = this.auth.currentUser;
+        if (currentUser?.email) {
+          const emailQuery = query(usersRef, where('email', '==', currentUser.email));
+          const emailSnapshot = await getDocs(emailQuery);
+          
+          if (!emailSnapshot.empty) {
+            const userDoc = emailSnapshot.docs[0];
+            const now = Timestamp.now();
+            
+            // También actualizar el UID para futuros usos
+            await updateDoc(userDoc.ref, {
+              uid: uid,
+              lastLogin: now,
+              lastLoginDate: new Date().toISOString()
+            });
+            
+            console.log('✅ Último login actualizado via email fallback');
+          }
+        }
       }
     } catch (error) {
       console.error('💥 Error actualizando último login:', error);
+      // No lanzar error para no interrumpir el flujo de login
     }
+  }
+
+  /**
+   * Método público para actualizar lastLogin desde otros servicios
+   */
+  async updateUserLastLogin(uid: string): Promise<void> {
+    await this.updateLastLogin(uid);
   }
 
   private getErrorMessage(error: any): string {

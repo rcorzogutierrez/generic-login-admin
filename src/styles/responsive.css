@@ -1,4 +1,4 @@
-/* Responsive design que respeta tu configuración de Inter font y Material theme */
+/* responsive.css */
 
 /* Extra small devices (phones, <576px) */
 @media (max-width: 575.98px) {
@@ -7,7 +7,11 @@
   }
   
   .auth-title {
-    @apply text-xl;
+    @apply text-xl text-gray-800; /* Agregado color oscuro */
+  }
+  
+  .auth-subtitle {
+    @apply text-gray-600; /* Agregado color gris para subtítulos */
   }
   
   .google-signin-button {
@@ -34,22 +38,35 @@
   .auth-wrapper {
     @apply max-w-sm;
   }
+  
+  /* Agregar estilos de texto para devices pequeños */
+  .auth-title {
+    @apply text-gray-800;
+  }
+  
+  .auth-subtitle {
+    @apply text-gray-600;
+  }
 }
 
 /* Medium devices (tablets, ≥768px) */
 @media (min-width: 768px) {
   .auth-page {
-    background: linear-gradient(135deg, 
-      rgb(99, 102, 241) 0%, 
-      rgb(139, 69, 193) 25%, 
-      rgb(219, 39, 119) 50%, 
-      rgb(239, 68, 68) 75%, 
-      rgb(249, 115, 22) 100%);
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
   }
   
   .auth-main-card {
     @apply p-10;
     backdrop-filter: blur(16px);
+  }
+  
+  /* AGREGAR: Estilos de texto para tablets y desktop */
+  .auth-title {
+    @apply text-gray-800 text-2xl font-semibold;
+  }
+  
+  .auth-subtitle {
+    @apply text-gray-600 text-base;
   }
   
   .dashboard-stat-card {
@@ -71,6 +88,15 @@
   .nav-item-custom {
     @apply px-6 py-4;
   }
+  
+  /* Mantener textos oscuros en desktop */
+  .auth-title {
+    @apply text-gray-800;
+  }
+  
+  .auth-subtitle {
+    @apply text-gray-600;
+  }
 }
 
 /* Extra large devices (large desktops, ≥1200px) */
@@ -85,6 +111,15 @@
   
   .dashboard-stat-card {
     @apply p-8;
+  }
+  
+  /* Mantener textos oscuros en pantallas grandes */
+  .auth-title {
+    @apply text-gray-800;
+  }
+  
+  .auth-subtitle {
+    @apply text-gray-600;
   }
 }
 
@@ -107,11 +142,11 @@
   }
   
   .auth-title {
-    @apply text-lg mb-1;
+    @apply text-lg mb-1 text-gray-800; /* Cambiado a texto oscuro */
   }
   
   .auth-subtitle {
-    @apply text-xs;
+    @apply text-xs text-gray-600; /* Cambiado a texto gris */
   }
 }
 
@@ -132,17 +167,21 @@
     --firebase-warn: #ef4444;
   }
   
+  .auth-page {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 50%, #0f172a 100%) !important;
+  }
+  
   .auth-main-card {
     @apply bg-gray-900/90 border-gray-700;
     backdrop-filter: blur(16px);
   }
   
   .auth-title {
-    @apply text-white;
+    @apply text-white; /* Solo blanco en dark mode */
   }
   
   .auth-subtitle {
-    @apply text-gray-300;
+    @apply text-gray-300; /* Solo gris claro en dark mode */
   }
   
   .google-signin-button {

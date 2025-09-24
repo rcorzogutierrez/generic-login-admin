@@ -579,3 +579,429 @@ mat-icon {
 .logo-icon {
   overflow: visible !important;
 }
+
+/* AGREGAR ESTOS ESTILOS AL FINAL DE TU dashboard.component.css EXISTENTE */
+
+/* ===================================
+   LOADING & ERROR STATES
+   =================================== */
+
+   .loading-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    gap: 1rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+  }
+  
+  .loading-section p {
+    color: #64748b;
+    margin: 0;
+    font-size: 1rem;
+  }
+  
+  .error-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    gap: 1rem;
+    text-align: center;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+  }
+  
+  .error-section mat-icon {
+    font-size: 48px !important;
+    width: 48px !important;
+    height: 48px !important;
+    color: #ef4444;
+  }
+  
+  .error-section p {
+    color: #ef4444;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  
+  /* ===================================
+     GLOBAL STATS SECTION
+     =================================== */
+  
+  .global-stats-section {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+  }
+  
+  .global-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .global-stat-card {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .global-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: white;
+  }
+  
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+  }
+  
+  .stat-icon.total-users { background: #3b82f6; }
+  .stat-icon.active-users { background: #10b981; }
+  .stat-icon.projects { background: #8b5cf6; }
+  .stat-icon.roles { background: #f59e0b; }
+  
+  .stat-icon mat-icon {
+    font-size: 24px !important;
+    width: 24px !important;
+    height: 24px !important;
+  }
+  
+  .stat-content {
+    flex: 1;
+  }
+  
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  
+  .stat-label {
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .stat-percentage {
+    color: #10b981;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  
+  .roles-card .stat-content {
+    width: 100%;
+  }
+  
+  .roles-list {
+    margin-top: 8px;
+  }
+  
+  .role-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+  
+  .role-name {
+    color: #64748b;
+    text-transform: capitalize;
+    font-weight: 500;
+  }
+  
+  .role-count {
+    font-weight: 600;
+    color: #1e293b;
+    background: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    border: 1px solid #e2e8f0;
+  }
+  
+  /* ===================================
+     PROJECT STATS SECTION
+     =================================== */
+  
+  .projects-stats-section {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+  }
+  
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .project-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .project-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+    background: white;
+  }
+  
+  .project-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+  
+  .project-header mat-icon {
+    color: #8b5cf6 !important;
+    font-size: 24px !important;
+    width: 24px !important;
+    height: 24px !important;
+  }
+  
+  .project-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e293b;
+  }
+  
+  .project-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .stat-item .label {
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .stat-item .value {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 14px;
+  }
+  
+  /* ===================================
+     ACTIVITY SECTION
+     =================================== */
+  
+  .activity-section {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  
+  .activity-section .section-header {
+    padding: 2rem 2rem 1rem 2rem;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 0;
+  }
+  
+  .activity-list {
+    padding: 0;
+  }
+  
+  .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.2s ease;
+  }
+  
+  .activity-item:last-child {
+    border-bottom: none;
+  }
+  
+  .activity-item:hover {
+    background: #f8fafc;
+  }
+  
+  .activity-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+  }
+  
+  .activity-icon.primary { background: #3b82f6; }
+  .activity-icon.accent { background: #10b981; }
+  .activity-icon.warn { background: #f59e0b; }
+  
+  .activity-icon mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+  }
+  
+  .activity-content {
+    flex: 1;
+  }
+  
+  .activity-description {
+    font-size: 14px;
+    color: #1e293b;
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+  
+  .activity-time {
+    font-size: 12px;
+    color: #64748b;
+  }
+  
+  /* ===================================
+     REFRESH BUTTON
+     =================================== */
+  
+  .refresh-button {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #64748b;
+  }
+  
+  .refresh-button:hover {
+    background: #f8fafc;
+    border-color: #3b82f6;
+    color: #3b82f6;
+  }
+  
+  .refresh-button mat-icon {
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
+  
+  /* ===================================
+     RESPONSIVE ADDITIONS
+     =================================== */
+  
+  @media (max-width: 768px) {
+    .global-stats-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .projects-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .global-stats-section,
+    .projects-stats-section,
+    .activity-section {
+      padding: 1.5rem;
+    }
+    
+    .activity-item {
+      padding: 1rem 1.5rem;
+    }
+    
+    .activity-section .section-header {
+      padding: 1.5rem 1.5rem 1rem 1.5rem;
+    }
+    
+    .stat-number {
+      font-size: 1.5rem;
+    }
+  }
+
+  /* ===================================
+   LAST ACCESS STYLING
+   =================================== */
+
+.last-access-recent {
+  color: #10b981 !important;
+  font-weight: 600;
+}
+
+.last-access-normal {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.time-ago-recent {
+  color: #10b981 !important;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.time-ago-normal {
+  color: #64748b;
+  font-weight: 400;
+  font-size: 0.8rem;
+}
+
+.recent-access {
+  color: #10b981 !important;
+  font-weight: 600;
+}

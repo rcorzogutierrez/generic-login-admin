@@ -1,4 +1,4 @@
-<!-- src/app/dashboard/dashboard.component.html - VERSIÓN SIMPLE -->
+<!-- src/app/dashboard/dashboard.component.html - DASHBOARD PERSONAL -->
 <div class="dashboard-container">
   <!-- Header -->
   <header class="dashboard-header">
@@ -8,7 +8,7 @@
           <mat-icon class="logo-icon">dashboard</mat-icon>
           <div class="logo-text">
             <h1>Dashboard</h1>
-            <span>Panel de Control</span>
+            <span>Panel Personal</span>
           </div>
         </div>
       </div>
@@ -19,17 +19,22 @@
             <mat-icon>person</mat-icon>
           </div>
           <div class="user-details">
-            <span class="user-name">{{ user()?.displayName }}</span>
-            <span class="user-role">{{ user()?.role?.toUpperCase() }}</span>
+            <span class="user-name">{{ userDashboard?.userInfo?.displayName || user()?.displayName }}</span>
+            <span class="user-role">{{ (userDashboard?.userInfo?.role || '')?.toUpperCase() }}</span>
           </div>
         </div>
+        
+        <!-- Botón refresh -->
+        <button mat-icon-button (click)="refreshData()" class="refresh-button" title="Actualizar datos">
+          <mat-icon>refresh</mat-icon>
+        </button>
         
         <button mat-icon-button [matMenuTriggerFor]="userMenu" class="menu-button">
           <mat-icon>more_vert</mat-icon>
         </button>
         
         <mat-menu #userMenu="matMenu">
-          <button mat-menu-item *ngIf="user()?.role === 'admin'" (click)="goToAdmin()">
+          <button mat-menu-item *ngIf="isAdmin()" (click)="goToAdmin()">
             <mat-icon>admin_panel_settings</mat-icon>
             Panel Admin
           </button>
@@ -44,149 +49,199 @@
 
   <!-- Main Content -->
   <main class="dashboard-main">
-    <!-- Welcome Section -->
-    <section class="welcome-section">
-      <h2 class="welcome-title">Bienvenido, {{ user()?.displayName }}</h2>
-      <p class="welcome-subtitle">Has iniciado sesión exitosamente en el sistema</p>
-      <div class="status-indicator">
-        <mat-icon>check_circle</mat-icon>
-        <span>Sesión activa</span>
-      </div>
-    </section>
+    
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-section">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Cargando tu información personal...</p>
+    </div>
 
-    <!-- Stats Grid -->
-    <section class="stats-grid">
-      <!-- User Info Card -->
-      <div class="stat-card">
-        <div class="card-header">
-          <div class="card-icon user-icon">
-            <mat-icon>person</mat-icon>
-          </div>
-          <div class="card-title">
-            <h3>Tu Información</h3>
-            <p>Detalles de tu cuenta</p>
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="info-row">
-            <span>Email:</span>
-            <span>{{ user()?.email }}</span>
-          </div>
-          <div class="info-row">
-            <span>Rol:</span>
-            <span class="role-badge">{{ user()?.role?.toUpperCase() }}</span>
-          </div>
-          <div class="info-row">
-            <span>Estado:</span>
-            <span class="status-active">ACTIVO</span>
-          </div>
-        </div>
-      </div>
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-section">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error }}</p>
+      <button mat-raised-button color="primary" (click)="refreshData()">
+        Reintentar
+      </button>
+    </div>
 
-      <!-- Permissions Card -->
-      <div class="stat-card">
-        <div class="card-header">
-          <div class="card-icon permissions-icon">
-            <mat-icon>security</mat-icon>
-          </div>
-          <div class="card-title">
-            <h3>Permisos</h3>
-            <p>{{ user()?.permissions?.length || 0 }} permisos asignados</p>
-          </div>
+    <!-- Dashboard Content -->
+    <div *ngIf="!loading && !error && userDashboard">
+      
+      <!-- Welcome Section -->
+      <section class="welcome-section">
+        <h2 class="welcome-title">Bienvenido, {{ userDashboard.userInfo.displayName }}</h2>
+        <p class="welcome-subtitle">{{ getMembershipMessage() }}</p>
+        <div class="status-indicator">
+          <mat-icon>check_circle</mat-icon>
+          <span>Sesión activa</span>
         </div>
-        <div class="card-content">
-          <div class="permission-list">
-            <div *ngFor="let permission of user()?.permissions" class="permission-item">
-              <mat-icon>{{ getPermissionIcon(permission) }}</mat-icon>
-              <span>{{ permission }}</span>
+      </section>
+
+      <!-- Personal Stats Grid -->
+      <section class="stats-grid">
+        
+        <!-- User Info Card -->
+        <div class="stat-card">
+          <div class="card-header">
+            <div class="card-icon user-icon">
+              <mat-icon>person</mat-icon>
+            </div>
+            <div class="card-title">
+              <h3>Tu Información</h3>
+              <p>Detalles de tu cuenta</p>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="info-row">
+              <span>Email:</span>
+              <span>{{ userDashboard.userInfo.email }}</span>
+            </div>
+            <div class="info-row">
+              <span>Rol:</span>
+              <span class="role-badge">{{ (userDashboard.userInfo.role || 'N/A').toUpperCase() }}</span>
+            </div>
+            <div class="info-row">
+              <span>Estado:</span>
+              <span class="status-active">{{ userDashboard.userInfo.isActive ? 'ACTIVO' : 'INACTIVO' }}</span>
+            </div>
+            <div class="info-row">
+              <span>Último acceso:</span>
+              <span>{{ userDashboard.userStats.lastLoginFormatted }}</span>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Projects Card -->
-      <div class="stat-card">
-        <div class="card-header">
-          <div class="card-icon projects-icon">
-            <mat-icon>work</mat-icon>
+        <!-- Permissions Card -->
+        <div class="stat-card">
+          <div class="card-header">
+            <div class="card-icon permissions-icon">
+              <mat-icon>security</mat-icon>
+            </div>
+            <div class="card-title">
+              <h3>Tus Permisos</h3>
+              <p>{{ userDashboard.userStats.totalPermissions }} permisos asignados</p>
+            </div>
           </div>
-          <div class="card-title">
-            <h3>Proyectos</h3>
-            <p>{{ user()?.projects?.length || 0 }} proyectos asignados</p>
+          <div class="card-content">
+            <div class="permission-list" *ngIf="userDashboard.userInfo.permissions.length > 0; else noPermissions">
+              <div *ngFor="let permission of userDashboard.userInfo.permissions" class="permission-item">
+                <mat-icon>{{ getPermissionIcon(permission) }}</mat-icon>
+                <span>{{ permission }}</span>
+              </div>
+            </div>
+            <ng-template #noPermissions>
+              <div class="info-row">
+                <span>No tienes permisos especiales asignados</span>
+              </div>
+            </ng-template>
           </div>
         </div>
-        <div class="card-content">
-          <div class="project-list">
-            <div *ngFor="let project of user()?.projects" class="project-item">
-              <mat-icon>folder</mat-icon>
-              <span>{{ project }}</span>
+
+        <!-- Projects Card -->
+        <div class="stat-card">
+          <div class="card-header">
+            <div class="card-icon projects-icon">
+              <mat-icon>work</mat-icon>
+            </div>
+            <div class="card-title">
+              <h3>Tus Proyectos</h3>
+              <p>{{ userDashboard.userStats.totalProjects }} proyectos asignados</p>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="project-list" *ngIf="userDashboard.userInfo.projects.length > 0; else noProjects">
+              <div *ngFor="let project of userDashboard.userInfo.projects" class="project-item">
+                <mat-icon>folder</mat-icon>
+                <span>{{ project }}</span>
+              </div>
+            </div>
+            <ng-template #noProjects>
+              <div class="info-row">
+                <span>No tienes proyectos asignados</span>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </section>
+
+      <!-- User Activity Section -->
+      <section class="activity-section" *ngIf="userDashboard.recentActivity.length > 0">
+        <div class="section-header">
+          <h3>Tu Actividad Reciente</h3>
+          <p>Últimas acciones en tu cuenta</p>
+        </div>
+        
+        <div class="activity-list">
+          <div *ngFor="let activity of userDashboard.recentActivity" class="activity-item">
+            <div class="activity-icon" [ngClass]="getActivityIconColor(activity.type)">
+              <mat-icon>{{ getActivityIcon(activity.type) }}</mat-icon>
+            </div>
+            <div class="activity-content">
+              <div class="activity-description">{{ activity.description }}</div>
+              <div class="activity-time">{{ formatDate(activity.timestamp) }}</div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Actions Section -->
-    <section class="actions-section">
-      <div class="section-header">
-        <h3>Acciones Rápidas</h3>
-        <p>Funciones disponibles para tu rol</p>
-      </div>
-      
-      <div class="actions-grid">
-        <button *ngIf="user()?.role === 'admin'" class="action-button primary" (click)="goToAdmin()">
-          <mat-icon>admin_panel_settings</mat-icon>
-          <span>Panel Admin</span>
-        </button>
-        
-        <button *ngIf="user()?.role === 'admin'" class="action-button secondary" (click)="manageUsers()">
-          <mat-icon>group</mat-icon>
-          <span>Gestionar Usuarios</span>
-        </button>
-        
-        <button class="action-button" (click)="viewProfile()">
-          <mat-icon>account_circle</mat-icon>
-          <span>Mi Perfil</span>
-        </button>
-        
-        <button class="action-button" (click)="viewActivity()">
-          <mat-icon>history</mat-icon>
-          <span>Actividad</span>
-        </button>
-        
-        <button class="action-button" (click)="viewSettings()">
-          <mat-icon>settings</mat-icon>
-          <span>Configuración</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- System Info -->
-    <section class="system-info">
-      <div class="section-header">
-        <h3>Información del Sistema</h3>
-        <p>Detalles técnicos y estado</p>
-      </div>
-      
-      <div class="info-grid">
-        <div class="info-section">
-          <h4>Sesión Actual</h4>
-          <div class="info-details">
-            <div>Último acceso: {{ formatDate(user()?.lastLogin) }}</div>
-            <div>Autenticación: Google OAuth 2.0</div>
-            <div class="status-connected">Estado: Conectado</div>
-          </div>
+      <!-- Actions Section -->
+      <section class="actions-section">
+        <div class="section-header">
+          <h3>Acciones Disponibles</h3>
+          <p>Funciones disponibles según tu rol</p>
         </div>
         
-        <div class="info-section">
-          <h4>Sistema</h4>
-          <div class="info-details">
-            <div>Framework: Angular 20</div>
-            <div>Backend: Firebase</div>
-            <div>Versión: {{ appInfo.name }} v1.0.0</div>
+        <div class="actions-grid">
+          <button 
+            *ngFor="let action of userDashboard.availableActions" 
+            [class]="getActionClass(action)"
+            (click)="executeAction(action)">
+            <mat-icon>{{ action.icon }}</mat-icon>
+            <span>{{ action.title }}</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- System Info -->
+      <section class="system-info">
+        <div class="section-header">
+          <h3>Información de tu Sesión</h3>
+          <p>Detalles técnicos y estado de la conexión</p>
+        </div>
+        
+        <div class="info-grid">
+          <div class="info-section">
+            <h4>Sesión Actual</h4>
+            <div class="info-details">
+              <div>Último acceso: {{ userDashboard.userStats.lastLoginFormatted }}</div>
+              <div>Días como miembro: {{ userDashboard.userStats.daysSinceCreation }}</div>
+              <div>Autenticación: Google OAuth 2.0</div>
+              <div class="status-connected">Estado: Conectado</div>
+            </div>
+          </div>
+          
+          <div class="info-section">
+            <h4>Tu Cuenta</h4>
+            <div class="info-details">
+              <div>Rol: {{ userDashboard.userInfo.role }}</div>
+              <div>Permisos: {{ userDashboard.userStats.totalPermissions }}</div>
+              <div>Proyectos: {{ userDashboard.userStats.totalProjects }}</div>
+              <div>Estado: {{ userDashboard.userInfo.isActive ? 'Activo' : 'Inactivo' }}</div>
+            </div>
+          </div>
+          
+          <div class="info-section">
+            <h4>Sistema</h4>
+            <div class="info-details">
+              <div>Framework: Angular 20</div>
+              <div>Backend: Firebase</div>
+              <div>Versión: {{ appInfo.name }} v1.0.0</div>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+    </div>
   </main>
 </div>

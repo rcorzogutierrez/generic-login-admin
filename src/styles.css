@@ -1,74 +1,151 @@
-/* src/styles.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ===================================
+   IMPORTACIONES DE TAILWIND
+   =================================== */
 
-/* Material Theme - Versión corregida para Angular Material moderno */
-@use '@angular/material' as mat;
-
-/* Incluir el core de Material */
-@include mat.core();
-
-/* Custom Material Theme */
-$custom-primary: mat.define-palette(mat.$indigo-palette);
-$custom-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
-$custom-warn: mat.define-palette(mat.$red-palette);
-
-$custom-theme: mat.define-light-theme((
-  color: (
-    primary: $custom-primary,
-    accent: $custom-accent,
-    warn: $custom-warn,
-  ),
-  typography: mat.define-typography-config(),
-  density: 0,
-));
-
-@include mat.all-component-themes($custom-theme);
-
-/* Global Styles */
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  height: 100%;
-  margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    sans-serif;
-}
-
-/* Custom Material Overrides */
-.mat-mdc-card {
-  border-radius: 12px !important;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
-}
-
-.mat-mdc-raised-button {
-  border-radius: 8px !important;
-  font-weight: 500 !important;
-  text-transform: none !important;
-}
-
-.mat-mdc-outlined-button {
-  border-radius: 8px !important;
-  font-weight: 500 !important;
-  text-transform: none !important;
-}
-
-/* Custom Utility Classes - Solo en el archivo principal que tiene @tailwind */
-@layer utilities {
-  .glass-effect {
-    @apply backdrop-blur-sm bg-white/70 border border-white/20;
-  }
-
-  .gradient-primary {
-    @apply bg-gradient-to-br from-blue-50 to-indigo-100;
-  }
-
-  .shadow-soft {
-    box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1),
-      0 4px 6px -2px rgb(0 0 0 / 0.05);
-  }
-}
+   @import 'tailwindcss/base';
+   @import 'tailwindcss/components';
+   @import 'tailwindcss/utilities';
+   
+   /* ===================================
+      ESTILOS PRINCIPALES - STYLE.CSS
+      =================================== */
+   
+   /* Angular Material Overrides */
+   .mat-mdc-outlined-button {
+     border-radius: 8px !important;
+     font-weight: 500 !important;
+     text-transform: none !important;
+   }
+   
+   /* ===================================
+      FONDO CORPORATIVO GLOBAL
+      =================================== */
+   
+   /* Fondo corporativo para toda la aplicación - Versión más sutil */
+   body {
+     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%) !important;
+     min-height: 100vh;
+     font-family: 'Inter', 'Roboto', sans-serif;
+   }
+   
+   /* Alternativa aún más neutra (descomenta si prefieres esta) */
+   /* 
+   body {
+     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e5e7eb 100%) !important;
+     min-height: 100vh;
+     font-family: 'Inter', 'Roboto', sans-serif;
+   }
+   */
+   
+   /* ===================================
+      TAILWIND CUSTOM UTILITIES
+      =================================== */
+   
+   @layer utilities {
+     /* Efectos de cristal */
+     .glass-effect {
+       @apply backdrop-blur-sm bg-white/70 border border-white/20;
+     }
+   
+     /* Degradados corporativos */
+     .gradient-primary {
+       @apply bg-gradient-to-br from-slate-50 to-blue-50;
+     }
+     
+     .gradient-corporate {
+       background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
+     }
+     
+     .gradient-neutral {
+       background: linear-gradient(135deg, #f9fafb 0%, #f1f5f9 50%, #e5e7eb 100%);
+     }
+   
+     /* Sombras suaves */
+     .shadow-soft {
+       box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1),
+         0 4px 6px -2px rgb(0 0 0 / 0.05);
+     }
+     
+     .shadow-corporate {
+       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 
+                   0 2px 4px -2px rgb(0 0 0 / 0.1);
+     }
+     
+     /* Colores corporativos */
+     .bg-corporate {
+       @apply bg-slate-50;
+     }
+     
+     .bg-corporate-light {
+       @apply bg-blue-50;
+     }
+     
+     .text-corporate-primary {
+       @apply text-slate-700;
+     }
+     
+     .text-corporate-secondary {
+       @apply text-slate-500;
+     }
+     
+     .text-corporate-accent {
+       @apply text-blue-600;
+     }
+     
+     .border-corporate {
+       @apply border-slate-200;
+     }
+   }
+   
+   /* ===================================
+      COMPONENTES ESPECÍFICOS
+      =================================== */
+   
+   /* Estilos para el componente de login - Menos azul */
+   .login-container {
+     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%) !important;
+     min-height: 100vh;
+   }
+   
+   /* Estilos para el panel de administración */
+   .admin-container {
+     background: #f8fafc;
+     min-height: 100vh;
+   }
+   
+   /* ===================================
+      ANGULAR MATERIAL CUSTOMIZATION
+      =================================== */
+   
+   /* Cards */
+   .mat-mdc-card {
+     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 
+                 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+     border-radius: 12px !important;
+     border: 1px solid rgb(226 232 240) !important;
+   }
+   
+   /* Botones primarios */
+   .mat-mdc-raised-button.mat-primary {
+     background-color: #3b82f6 !important;
+     color: white !important;
+   }
+   
+   .mat-mdc-raised-button.mat-primary:hover {
+     background-color: #2563eb !important;
+   }
+   
+   /* Botones outlined */
+   .mat-mdc-outlined-button.mat-primary {
+     border-color: #3b82f6 !important;
+     color: #3b82f6 !important;
+   }
+   
+   .mat-mdc-outlined-button.mat-primary:hover {
+     background-color: #eff6ff !important;
+   }
+   
+   /* Form fields */
+   .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+     border-radius: 8px !important;
+   }

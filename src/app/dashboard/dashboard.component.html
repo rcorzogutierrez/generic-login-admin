@@ -1,4 +1,4 @@
-<!-- src/app/dashboard/dashboard.component.html - DASHBOARD PERSONAL -->
+<!-- src/app/dashboard/dashboard.component.html - DASHBOARD PERSONAL CON MÓDULOS -->
 <div class="dashboard-container">
   <!-- Header -->
   <header class="dashboard-header">
@@ -77,6 +77,23 @@
           <span>Sesión activa</span>
         </div>
       </section>
+        <!-- Actions Section -->
+        <section class="actions-section">
+          <div class="section-header">
+            <h3>Acciones Disponibles</h3>
+            <p>Funciones disponibles según tu rol</p>
+          </div>
+          
+          <div class="actions-grid">
+            <button 
+              *ngFor="let action of userDashboard.availableActions" 
+              [class]="getActionClass(action)"
+              (click)="executeAction(action)">
+              <mat-icon>{{ action.icon }}</mat-icon>
+              <span>{{ action.title }}</span>
+            </button>
+          </div>
+        </section>
 
       <!-- Personal Stats Grid -->
       <section class="stats-grid">
@@ -107,10 +124,19 @@
             </div>
             <div class="info-row">
               <span>Último acceso:</span>
-              <span>{{ userDashboard.userStats.lastLoginFormatted }}</span>
+              <span [class]="isRecentAccess() ? 'last-access-recent' : 'last-access-normal'">
+                {{ getLastLoginInfo().formatted }}
+              </span>
+            </div>
+            <div class="info-row" *ngIf="getLastLoginInfo().timeAgo !== 'Sin registros de acceso'">
+              <span>Hace:</span>
+              <span [class]="isRecentAccess() ? 'time-ago-recent' : 'time-ago-normal'">
+                {{ getLastLoginInfo().timeAgo }}
+              </span>
             </div>
           </div>
         </div>
+       
 
         <!-- Permissions Card -->
         <div class="stat-card">
@@ -138,32 +164,33 @@
           </div>
         </div>
 
-        <!-- Projects Card -->
+        <!-- Modules Card -->
         <div class="stat-card">
           <div class="card-header">
             <div class="card-icon projects-icon">
-              <mat-icon>work</mat-icon>
+              <mat-icon>apps</mat-icon>
             </div>
             <div class="card-title">
-              <h3>Tus Proyectos</h3>
-              <p>{{ userDashboard.userStats.totalProjects }} proyectos asignados</p>
+              <h3>Tus Módulos</h3>
+              <p>{{ userDashboard.userStats.totalModules }} módulos asignados</p>
             </div>
           </div>
           <div class="card-content">
-            <div class="project-list" *ngIf="userDashboard.userInfo.projects.length > 0; else noProjects">
-              <div *ngFor="let project of userDashboard.userInfo.projects" class="project-item">
-                <mat-icon>folder</mat-icon>
-                <span>{{ project }}</span>
+            <div class="project-list" *ngIf="userDashboard.userInfo.modules.length > 0; else noModules">
+              <div *ngFor="let module of userDashboard.userInfo.modules" class="project-item">
+                <mat-icon>apps</mat-icon>
+                <span>{{ module }}</span>
               </div>
             </div>
-            <ng-template #noProjects>
+            <ng-template #noModules>
               <div class="info-row">
-                <span>No tienes proyectos asignados</span>
+                <span>No tienes módulos asignados</span>
               </div>
             </ng-template>
           </div>
         </div>
       </section>
+       
 
       <!-- User Activity Section -->
       <section class="activity-section" *ngIf="userDashboard.recentActivity.length > 0">
@@ -185,23 +212,7 @@
         </div>
       </section>
 
-      <!-- Actions Section -->
-      <section class="actions-section">
-        <div class="section-header">
-          <h3>Acciones Disponibles</h3>
-          <p>Funciones disponibles según tu rol</p>
-        </div>
-        
-        <div class="actions-grid">
-          <button 
-            *ngFor="let action of userDashboard.availableActions" 
-            [class]="getActionClass(action)"
-            (click)="executeAction(action)">
-            <mat-icon>{{ action.icon }}</mat-icon>
-            <span>{{ action.title }}</span>
-          </button>
-        </div>
-      </section>
+    
 
       <!-- System Info -->
       <section class="system-info">
@@ -214,7 +225,11 @@
           <div class="info-section">
             <h4>Sesión Actual</h4>
             <div class="info-details">
-              <div>Último acceso: {{ userDashboard.userStats.lastLoginFormatted }}</div>
+              <div>Último acceso: {{ getLastLoginInfo().formatted }}</div>
+              <div *ngIf="getLastLoginInfo().timeAgo !== 'Sin registros de acceso'" 
+                   [class]="isRecentAccess() ? 'recent-access' : ''">
+                {{ getLastLoginInfo().timeAgo }}
+              </div>
               <div>Días como miembro: {{ userDashboard.userStats.daysSinceCreation }}</div>
               <div>Autenticación: Google OAuth 2.0</div>
               <div class="status-connected">Estado: Conectado</div>
@@ -226,7 +241,7 @@
             <div class="info-details">
               <div>Rol: {{ userDashboard.userInfo.role }}</div>
               <div>Permisos: {{ userDashboard.userStats.totalPermissions }}</div>
-              <div>Proyectos: {{ userDashboard.userStats.totalProjects }}</div>
+              <div>Módulos: {{ userDashboard.userStats.totalModules }}</div>
               <div>Estado: {{ userDashboard.userInfo.isActive ? 'Activo' : 'Inactivo' }}</div>
             </div>
           </div>

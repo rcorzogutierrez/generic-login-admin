@@ -53,6 +53,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.loadUserDashboard();
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   /**
    * Actualiza el último acceso del usuario al cargar el dashboard
    */
@@ -61,45 +66,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (currentUser?.uid) {
       await this.userDashboardService.updateCurrentUserLastLogin(currentUser.uid);
     }
-  }
-
-  /**
-   * Obtiene información detallada del último acceso
-   */
-  getLastLoginInfo() {
-    if (!this.userDashboard?.userInfo.lastLogin) {
-      return {
-        formatted: 'Nunca',
-        timeAgo: 'Sin registros de acceso',
-        isRecent: false
-      };
-    }
-    return this.userDashboardService.getLastLoginInfo(this.userDashboard.userInfo.lastLogin);
-  }
-
-  /**
-   * Obtiene el mensaje de último acceso con estilo
-   */
-  getLastAccessMessage(): string {
-    const loginInfo = this.getLastLoginInfo();
-    
-    if (loginInfo.isRecent) {
-      return `Acceso reciente (${loginInfo.timeAgo})`;
-    }
-    
-    return `${loginInfo.timeAgo}`;
-  }
-
-  /**
-   * Verifica si el último acceso es reciente (para styling)
-   */
-  isRecentAccess(): boolean {
-    return this.getLastLoginInfo().isRecent;
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   /**
@@ -182,6 +148,40 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Obtiene información detallada del último acceso
+   */
+  getLastLoginInfo() {
+    if (!this.userDashboard?.userInfo.lastLogin) {
+      return {
+        formatted: 'Nunca',
+        timeAgo: 'Sin registros de acceso',
+        isRecent: false
+      };
+    }
+    return this.userDashboardService.getLastLoginInfo(this.userDashboard.userInfo.lastLogin);
+  }
+
+  /**
+   * Obtiene el mensaje de último acceso con estilo
+   */
+  getLastAccessMessage(): string {
+    const loginInfo = this.getLastLoginInfo();
+    
+    if (loginInfo.isRecent) {
+      return `Acceso reciente (${loginInfo.timeAgo})`;
+    }
+    
+    return `${loginInfo.timeAgo}`;
+  }
+
+  /**
+   * Verifica si el último acceso es reciente (para styling)
+   */
+  isRecentAccess(): boolean {
+    return this.getLastLoginInfo().isRecent;
+  }
+
+  /**
    * Obtiene el color del chip según el rol
    */
   getRoleColor(role: string | undefined): string {
@@ -211,7 +211,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     switch (type) {
       case 'login': return 'login';
       case 'permission_granted': return 'security';
-      case 'project_assigned': return 'work';
+      case 'module_assigned': return 'apps';
       case 'profile_updated': return 'person';
       default: return 'info';
     }
@@ -224,7 +224,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     switch (type) {
       case 'login': return 'primary';
       case 'permission_granted': return 'accent';
-      case 'project_assigned': return 'warn';
+      case 'module_assigned': return 'warn';
       case 'profile_updated': return 'primary';
       default: return '';
     }
@@ -280,6 +280,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Verifica si el usuario tiene acceso a un módulo específico
+   */
+  hasModuleAccess(moduleId: string): boolean {
+    return this.userDashboard?.userInfo.modules?.includes(moduleId) || this.isAdmin();
+  }
+
+  /**
+   * Obtiene la cantidad de módulos asignados al usuario
+   */
+  getModuleCount(): number {
+    return this.userDashboard?.userStats.totalModules || 0;
+  }
+
+  /**
+   * Obtiene la lista de módulos del usuario
+   */
+  getUserModules(): string[] {
+    return this.userDashboard?.userInfo.modules || [];
+  }
+
+  /**
    * Cierra sesión del usuario
    */
   async logout() {
@@ -311,6 +332,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else {
       console.warn('🚫 Sin permisos para gestionar usuarios');
     }
+  }
+
+  /**
+   * Navega a los módulos del usuario
+   */
+  viewModules() {
+    console.log('📱 Ver módulos...');
+    this.router.navigate(['/modules']);
   }
 
   /**

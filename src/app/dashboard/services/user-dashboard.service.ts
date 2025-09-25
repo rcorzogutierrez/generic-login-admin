@@ -22,16 +22,18 @@ export interface UserDashboardData {
     displayName: string;
     role: string;
     permissions: string[];
-    projects: string[];
+    modules: string[];
     isActive: boolean;
     lastLogin: any;
     createdAt: any;
   };
   userStats: {
     totalPermissions: number;
-    totalProjects: number;
+    totalModules: number;
     daysSinceCreation: number;
     lastLoginFormatted: string;
+    isRecentLogin: boolean;
+    lastLoginTimestamp: any;
   };
   availableActions: DashboardAction[];
   recentActivity: UserActivity[];
@@ -50,7 +52,7 @@ export interface DashboardAction {
 
 export interface UserActivity {
   id: string;
-  type: 'login' | 'permission_granted' | 'project_assigned' | 'profile_updated';
+  type: 'login' | 'permission_granted' | 'module_assigned' | 'profile_updated';
   description: string;
   timestamp: any;
   details?: any;
@@ -85,7 +87,7 @@ export class UserDashboardService {
             displayName: userData.displayName || userData.email || 'Usuario',
             role: userData.role || 'user',
             permissions: userData.permissions || [],
-            projects: userData.projects || [],
+            modules: userData.modules || userData.projects || [], // Fallback para compatibilidad
             isActive: userData.isActive !== false,
             lastLogin: userData.lastLogin,
             createdAt: userData.createdAt
@@ -186,12 +188,146 @@ export class UserDashboardService {
 
     return {
       totalPermissions: userData.permissions?.length || 0,
-      totalProjects: userData.projects?.length || 0,
+      totalModules: (userData.modules || userData.projects || []).length,
       daysSinceCreation,
       lastLoginFormatted,
       isRecentLogin,
       lastLoginTimestamp: userData.lastLogin
     };
+  }
+
+  /**
+   * Determina las acciones disponibles según el rol del usuario
+   */
+  private getAvailableActions(userData: any): DashboardAction[] {
+    const role = userData.role || 'user';
+    const permissions = userData.permissions || [];
+    
+    const actions: DashboardAction[] = [
+      {
+        id: 'profile',
+        title: 'Mi Perfil',
+        description: 'Ver y editar información personal',
+        icon: 'account_circle',
+        route: '/profile',
+        color: 'default',
+        visible: true
+      },
+      {
+        id: 'activity',
+        title: 'Mi Actividad',
+        description: 'Ver historial de acciones',
+        icon: 'history',
+        route: '/activity',
+        color: 'default',
+        visible: true
+      },
+      {
+        id: 'settings',
+        title: 'Configuración',
+        description: 'Preferencias de la cuenta',
+        icon: 'settings',
+        route: '/settings',
+        color: 'default',
+        visible: true
+      }
+    ];
+
+    // Acciones específicas para administradores
+    if (role === 'admin' || permissions.includes('manage_users')) {
+      actions.unshift(
+        {
+          id: 'admin_panel',
+          title: 'Panel Admin',
+          description: 'Gestión administrativa del sistema',
+          icon: 'admin_panel_settings',
+          route: '/admin',
+          color: 'primary',
+          visible: true
+        },
+        {
+          id: 'manage_users',
+          title: 'Gestionar Usuarios',
+          description: 'Administrar cuentas de usuario',
+          icon: 'group',
+          route: '/admin/users',
+          color: 'secondary',
+          visible: true
+        }
+      );
+    }
+
+    // Acciones para usuarios con permisos de escritura
+    if (permissions.includes('write') || role === 'admin') {
+      actions.splice(3, 0, {
+        id: 'modules',
+        title: 'Mis Módulos',
+        description: 'Acceder a módulos asignados',
+        icon: 'apps',
+        route: '/modules',
+        color: 'default',
+        visible: (userData.modules || userData.projects || []).length > 0
+      });
+    }
+
+    return actions.filter(action => action.visible);
+  }
+
+  /**
+   * Genera actividad reciente del usuario
+   */
+  private generateUserActivity(userData: any): UserActivity[] {
+    const activities: UserActivity[] = [];
+
+    // Actividad de creación de cuenta
+    if (userData.createdAt) {
+      activities.push({
+        id: 'account_created',
+        type: 'profile_updated',
+        description: 'Cuenta creada exitosamente',
+        timestamp: userData.createdAt,
+        details: { role: userData.role }
+      });
+    }
+
+    // Último login
+    if (userData.lastLogin) {
+      activities.push({
+        id: 'last_login',
+        type: 'login',
+        description: 'Último inicio de sesión',
+        timestamp: userData.lastLogin
+      });
+    }
+
+    // Permisos asignados
+    if (userData.permissions && userData.permissions.length > 0) {
+      activities.push({
+        id: 'permissions_granted',
+        type: 'permission_granted',
+        description: `${userData.permissions.length} permisos asignados`,
+        timestamp: userData.createdAt || new Date(),
+        details: { permissions: userData.permissions }
+      });
+    }
+
+    // Módulos asignados
+    if ((userData.modules || userData.projects || []).length > 0) {
+      activities.push({
+        id: 'modules_assigned',
+        type: 'module_assigned',
+        description: `Asignado a ${(userData.modules || userData.projects || []).length} módulos`,
+        timestamp: userData.createdAt || new Date(),
+        details: { modules: userData.modules || userData.projects }
+      });
+    }
+
+    // Ordenar por timestamp descendente
+    return activities.sort((a, b) => {
+      const timestampA = a.timestamp?.seconds || 0;
+      const timestampB = b.timestamp?.seconds || 0;
+      return timestampB - timestampA;
+    });
   }
 
   /**
@@ -265,186 +401,6 @@ export class UserDashboardService {
   }
 
   /**
-   * Determina las acciones disponibles según el rol del usuario
-   */
-  private getAvailableActions(userData: any): DashboardAction[] {
-    const role = userData.role || 'user';
-    const permissions = userData.permissions || [];
-    
-    const actions: DashboardAction[] = [
-      {
-        id: 'profile',
-        title: 'Mi Perfil',
-        description: 'Ver y editar información personal',
-        icon: 'account_circle',
-        route: '/profile',
-        color: 'default',
-        visible: true
-      },
-      {
-        id: 'activity',
-        title: 'Mi Actividad',
-        description: 'Ver historial de acciones',
-        icon: 'history',
-        route: '/activity',
-        color: 'default',
-        visible: true
-      },
-      {
-        id: 'settings',
-        title: 'Configuración',
-        description: 'Preferencias de la cuenta',
-        icon: 'settings',
-        route: '/settings',
-        color: 'default',
-        visible: true
-      }
-    ];
-
-    // Acciones específicas para administradores
-    if (role === 'admin' || permissions.includes('manage_users')) {
-      actions.unshift(
-        {
-          id: 'admin_panel',
-          title: 'Panel Admin',
-          description: 'Gestión administrativa del sistema',
-          icon: 'admin_panel_settings',
-          route: '/admin',
-          color: 'primary',
-          visible: true
-        },
-        {
-          id: 'manage_users',
-          title: 'Gestionar Usuarios',
-          description: 'Administrar cuentas de usuario',
-          icon: 'group',
-          route: '/admin/users',
-          color: 'secondary',
-          visible: true
-        }
-      );
-    }
-
-    // Acciones para usuarios con permisos de escritura
-    if (permissions.includes('write') || role === 'admin') {
-      actions.splice(3, 0, {
-        id: 'projects',
-        title: 'Mis Proyectos',
-        description: 'Acceder a proyectos asignados',
-        icon: 'work',
-        route: '/projects',
-        color: 'default',
-        visible: userData.projects?.length > 0
-      });
-    }
-
-    return actions.filter(action => action.visible);
-  }
-
-  /**
-   * Genera actividad reciente del usuario
-   */
-  private generateUserActivity(userData: any): UserActivity[] {
-    const activities: UserActivity[] = [];
-
-    // Actividad de creación de cuenta
-    if (userData.createdAt) {
-      activities.push({
-        id: 'account_created',
-        type: 'profile_updated',
-        description: 'Cuenta creada exitosamente',
-        timestamp: userData.createdAt,
-        details: { role: userData.role }
-      });
-    }
-
-    // Último login
-    if (userData.lastLogin) {
-      activities.push({
-        id: 'last_login',
-        type: 'login',
-        description: 'Último inicio de sesión',
-        timestamp: userData.lastLogin
-      });
-    }
-
-    // Permisos asignados
-    if (userData.permissions && userData.permissions.length > 0) {
-      activities.push({
-        id: 'permissions_granted',
-        type: 'permission_granted',
-        description: `${userData.permissions.length} permisos asignados`,
-        timestamp: userData.createdAt || new Date(),
-        details: { permissions: userData.permissions }
-      });
-    }
-
-    // Proyectos asignados
-    if (userData.projects && userData.projects.length > 0) {
-      activities.push({
-        id: 'projects_assigned',
-        type: 'project_assigned',
-        description: `Asignado a ${userData.projects.length} proyectos`,
-        timestamp: userData.createdAt || new Date(),
-        details: { projects: userData.projects }
-      });
-    }
-
-    // Ordenar por timestamp descendente
-    return activities.sort((a, b) => {
-      const timestampA = a.timestamp?.seconds || 0;
-      const timestampB = b.timestamp?.seconds || 0;
-      return timestampB - timestampA;
-    });
-  }
-
-  /**
-   * Datos por defecto en caso de error
-   */
-  private getDefaultDashboardData(): UserDashboardData {
-    return {
-      userInfo: {
-        email: '',
-        displayName: 'Usuario',
-        role: 'user',
-        permissions: [],
-        projects: [],
-        isActive: true,
-        lastLogin: null,
-        createdAt: null
-      },
-      userStats: {
-        totalPermissions: 0,
-        totalProjects: 0,
-        daysSinceCreation: 0,
-        lastLoginFormatted: 'No disponible'
-      },
-      availableActions: [
-        {
-          id: 'profile',
-          title: 'Mi Perfil',
-          description: 'Ver información personal',
-          icon: 'account_circle',
-          color: 'default',
-          visible: true
-        }
-      ],
-      recentActivity: []
-    };
-  }
-
-  /**
-   * Obtiene las actividades específicas del usuario desde Firebase (opcional)
-   */
-  getUserActivities(userId: string, limit: number = 10): Observable<UserActivity[]> {
-    // Esta función podría consultar una colección de logs específica del usuario
-    // Por ahora devolvemos actividad basada en los datos del usuario
-    return this.getUserDashboardData(userId).pipe(
-      map(data => data.recentActivity.slice(0, limit))
-    );
-  }
-
-  /**
    * Formatea fechas para mostrar
    */
   formatDate(timestamp: any): string {
@@ -462,5 +418,42 @@ export class UserDashboardService {
     } catch {
       return 'Fecha no válida';
     }
+  }
+
+  /**
+   * Datos por defecto en caso de error
+   */
+  private getDefaultDashboardData(): UserDashboardData {
+    return {
+      userInfo: {
+        email: '',
+        displayName: 'Usuario',
+        role: 'user',
+        permissions: [],
+        modules: [],
+        isActive: true,
+        lastLogin: null,
+        createdAt: null
+      },
+      userStats: {
+        totalPermissions: 0,
+        totalModules: 0,
+        daysSinceCreation: 0,
+        lastLoginFormatted: 'No disponible',
+        isRecentLogin: false,
+        lastLoginTimestamp: null
+      },
+      availableActions: [
+        {
+          id: 'profile',
+          title: 'Mi Perfil',
+          description: 'Ver información personal',
+          icon: 'account_circle',
+          color: 'default',
+          visible: true
+        }
+      ],
+      recentActivity: []
+    };
   }
 }

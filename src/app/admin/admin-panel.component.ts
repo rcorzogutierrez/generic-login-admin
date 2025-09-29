@@ -378,9 +378,13 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   /**
    * Abrir dialog para agregar usuario
    */
-  addUser() {
-    console.log('➕ Abriendo dialog para agregar usuario...');
-    
+  // En admin-panel.component.ts
+addUser() {
+  console.log('➕ Abriendo dialog para agregar usuario...');
+  console.log('🔍 MatDialog está disponible:', !!this.dialog);
+  console.log('🔍 AddUserDialogComponent:', AddUserDialogComponent);
+  
+  try {
     const dialogRef = this.dialog.open(AddUserDialogComponent, {
       width: '600px',
       maxWidth: '90vw',
@@ -389,14 +393,21 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       panelClass: 'custom-dialog-container',
       autoFocus: false
     });
+    
+    console.log('✅ DialogRef creado:', !!dialogRef);
+    console.log('🔍 DialogRef completo:', dialogRef);
 
     dialogRef.afterClosed().subscribe(result => {
+      console.log('🔔 Dialog cerrado:', result);
       if (result?.success) {
-        console.log('✅ Usuario creado exitosamente:', result.user);
-        this.refreshData(); // Recargar datos
+        console.log('✅ Usuario creado:', result.user);
+        this.refreshData();
       }
     });
+  } catch (error) {
+    console.error('❌ ERROR al abrir dialog:', error);
   }
+}
 
   /**
    * Ver detalles completos de un usuario

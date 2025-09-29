@@ -1,0 +1,113 @@
+<!-- src/app/admin/components/add-user-dialog/add-user-dialog.component.html - OPTIMIZADO -->
+<div class="dialog-container">
+    <!-- Header -->
+    <div class="dialog-header">
+      <div class="header-content">
+        <mat-icon class="header-icon">person_add</mat-icon>
+        <div class="header-text">
+          <h2>Agregar Nuevo Usuario</h2>
+          <p>Complete la información del usuario</p>
+        </div>
+      </div>
+      <button mat-icon-button (click)="onCancel()" class="close-button" [disabled]="isLoading">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  
+    <!-- Form Content -->
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+      <mat-dialog-content class="dialog-content">
+        
+        <!-- Grid de 2 columnas -->
+        <div class="form-grid">
+          
+          <!-- Columna 1: Info Personal + Rol -->
+          <div class="form-column">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input matInput type="email" formControlName="email" placeholder="usuario@empresa.com">
+              <mat-icon matSuffix>email</mat-icon>
+              <mat-error *ngIf="isFieldInvalid('email')">{{ getErrorMessage('email') }}</mat-error>
+            </mat-form-field>
+  
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nombre Completo</mat-label>
+              <input matInput formControlName="displayName" placeholder="Nombre Apellido">
+              <mat-icon matSuffix>badge</mat-icon>
+              <mat-error *ngIf="isFieldInvalid('displayName')">{{ getErrorMessage('displayName') }}</mat-error>
+            </mat-form-field>
+  
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Rol</mat-label>
+              <mat-select formControlName="role">
+                <mat-option *ngFor="let role of roleOptions" [value]="role.value">
+                  {{ role.label }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>admin_panel_settings</mat-icon>
+            </mat-form-field>
+  
+            <mat-checkbox formControlName="isActive" class="checkbox-field">
+              Usuario activo
+            </mat-checkbox>
+          </div>
+  
+          <!-- Columna 2: Permisos + Módulos -->
+          <div class="form-column">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Permisos</mat-label>
+              <mat-select formControlName="permissions" multiple>
+                <mat-option *ngFor="let permission of permissionOptions" [value]="permission.value">
+                  {{ permission.label }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>lock</mat-icon>
+            </mat-form-field>
+  
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Módulos</mat-label>
+              <mat-select formControlName="modules" multiple>
+                <mat-option *ngFor="let module of moduleOptions" [value]="module.value">
+                  <mat-icon class="option-icon">{{ module.icon }}</mat-icon>
+                  {{ module.label }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>apps</mat-icon>
+            </mat-form-field>
+  
+            <!-- Chips compactos -->
+            <div class="chips-compact" *ngIf="userForm.get('modules')?.value?.length">
+              <mat-chip-set>
+                <mat-chip *ngFor="let module of userForm.get('modules')?.value?.slice(0, 3)">
+                  <mat-icon matChipAvatar>{{ getModuleIcon(module) }}</mat-icon>
+                  {{ getModuleLabel(module) }}
+                </mat-chip>
+                <mat-chip *ngIf="userForm.get('modules')?.value?.length > 3">
+                  +{{ userForm.get('modules')?.value.length - 3 }}
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Info compacta -->
+        <div class="info-compact">
+          <mat-icon>info</mat-icon>
+          <span>Se enviará un email al usuario para configurar su contraseña</span>
+        </div>
+  
+      </mat-dialog-content>
+  
+      <!-- Actions -->
+      <mat-dialog-actions class="dialog-actions">
+        <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading">
+          Cancelar
+        </button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="userForm.invalid || isLoading">
+          <mat-icon *ngIf="!isLoading">person_add</mat-icon>
+          <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+          {{ isLoading ? 'Creando...' : 'Crear Usuario' }}
+        </button>
+      </mat-dialog-actions>
+    </form>
+  </div>

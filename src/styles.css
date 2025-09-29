@@ -149,3 +149,36 @@
    .mat-mdc-form-field .mat-mdc-text-field-wrapper {
      border-radius: 8px !important;
    }
+
+   /* Asegurar que el overlay y dialog tengan z-index correcto */
+.cdk-overlay-container {
+  z-index: 1000 !important;
+}
+
+.cdk-overlay-backdrop {
+  z-index: 1000 !important;
+}
+
+.cdk-overlay-pane {
+  z-index: 1001 !important;
+}
+
+/* Dialog container visible */
+.mat-mdc-dialog-container {
+  position: relative !important;
+  display: block !important;
+}
+
+/* Custom dialog styles */
+.custom-dialog-container .mat-mdc-dialog-container {
+  padding: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  background: white !important;
+}
+
+/* Asegurar que el contenido sea visible */
+.mat-mdc-dialog-surface {
+  display: block !important;
+  background: white !important;
+}

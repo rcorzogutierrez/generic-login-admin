@@ -557,6 +557,351 @@
   }
 }
 
+/* ===== ESTADOS VACÍO Y CARGA ===== */
+.empty-state,
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: white;
+  border-radius: 12px;
+  margin: 1rem 0;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  width: 4rem;
+  height: 4rem;
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.empty-state p {
+  margin: 0 0 1.5rem 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.loading-state {
+  gap: 1rem;
+}
+
+.loading-state p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* ===== ESTILOS ADICIONALES PARA MÓDULOS - Agregar al final de admin-panel.component.css ===== */
+
+/* ===== MÓDULOS EN TABLA ===== */
+.modules-cell {
+  min-width: 200px;
+  max-width: 250px;
+}
+
+.modules-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  align-items: center;
+}
+
+.module-chip {
+  background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+  color: #7c3aed;
+  border: 1px solid #c4b5fd;
+  font-size: 0.6875rem;
+  padding: 2px 6px;
+  height: 24px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 100px;
+  overflow: hidden;
+}
+
+.module-chip mat-icon {
+  font-size: 0.875rem;
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.more-modules {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.no-modules {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* ===== DETALLES DE USUARIO EN TABLA ===== */
+.user-details-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.user-name-small {
+  font-size: 0.6875rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.user-avatar-small {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ===== ICONOS DE ROLES ===== */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role-icon {
+  font-size: 0.875rem;
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* ===== INFORMACIÓN DE FECHA ===== */
+.date-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.date-relative {
+  font-size: 0.6875rem;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+/* ===== ACCIONES DE TABLA ===== */
+.table-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #f1f5f9;
+  background: #fafbfc;
+  border-radius: 0 0 12px 12px;
+}
+
+.table-info {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.table-buttons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* ===== SECCIÓN DE INFORMACIÓN ===== */
+.info-section {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 1px solid #93c5fd;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.info-icon {
+  color: #2563eb;
+  font-size: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+
+.info-section h4 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.info-section p {
+  margin: 0 0 1rem 0;
+  color: #1e40af;
+  line-height: 1.6;
+}
+
+.popular-modules {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.popular-modules .label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e40af;
+  min-width: max-content;
+}
+
+.popular-modules mat-chip-set {
+  flex: 1;
+}
+
+.popular-modules mat-chip {
+  background: rgba(255, 255, 255, 0.8);
+  color: #3730a3;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  font-size: 0.75rem;
+}
+
+/* ===== MENU ITEMS ESPECIALES ===== */
+.assign-modules {
+  background: rgba(139, 92, 246, 0.1);
+  color: #7c3aed;
+}
+
+.assign-modules:hover {
+  background: rgba(139, 92, 246, 0.2);
+}
+
+/* ===== MEJORAS RESPONSIVAS ===== */
+@media (max-width: 768px) {
+  .modules-cell {
+    min-width: 150px;
+    max-width: 180px;
+  }
+  
+  .module-chip {
+    font-size: 0.625rem;
+    padding: 1px 4px;
+    height: 20px;
+    max-width: 80px;
+  }
+  
+  .table-actions {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .table-buttons {
+    justify-content: center;
+  }
+  
+  .popular-modules {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .user-details-table {
+    display: none; /* Ocultar nombre en móvil para ahorrar espacio */
+  }
+}
+
+@media (max-width: 480px) {
+  .modules-list {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .module-chip {
+    max-width: 120px;
+  }
+}
+
+/* ===== ANIMACIONES PARA MÓDULOS ===== */
+.module-chip {
+  transition: all 0.2s ease;
+}
+
+.module-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2);
+}
+
+.modules-list {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== ESTADOS DE CARGA ===== */
+.loading-modules {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.loading-modules mat-spinner {
+  width: 16px;
+  height: 16px;
+}
+
+/* ===== TOOLTIPS PARA MÓDULOS (si usas CDK) ===== */
+.module-tooltip {
+  background: #1e293b;
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  max-width: 200px;
+}
+
 /* ===== MATERIAL OVERRIDES ===== */
 ::ng-deep .mat-mdc-menu-panel {
   background: white;

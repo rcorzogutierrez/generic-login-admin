@@ -1,4 +1,4 @@
-<!-- src/app/admin/admin-panel.component.html - MEJORADO -->
+<!-- src/app/admin/admin-panel.component.html - VERSIÓN CORREGIDA SIN ERRORES -->
 <div class="admin-container">
   <!-- Header -->
   <header class="admin-header">
@@ -40,6 +40,10 @@
             <mat-icon>dashboard</mat-icon>
             Dashboard
           </button>
+          <button mat-menu-item (click)="refreshData()">
+            <mat-icon>refresh</mat-icon>
+            Actualizar Datos
+          </button>
           <button mat-menu-item (click)="logout()">
             <mat-icon>logout</mat-icon>
             Cerrar Sesión
@@ -54,7 +58,7 @@
     <!-- Welcome Section -->
     <section class="welcome-section">
       <h2 class="welcome-title">Centro de Control Administrativo</h2>
-      <p class="welcome-subtitle">Gestiona usuarios, proyectos y configuraciones del sistema</p>
+      <p class="welcome-subtitle">Gestiona usuarios, módulos y configuraciones del sistema</p>
     </section>
 
     <!-- Stats Grid -->
@@ -82,18 +86,18 @@
           </div>
         </div>
 
-        <!-- Projects -->
-        <div class="stat-card projects-card">
+        <!-- Total Modules -->
+        <div class="stat-card modules-card">
           <div class="stat-icon">
-            <mat-icon>work</mat-icon>
+            <mat-icon>apps</mat-icon>
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ totalProjects }}</div>
-            <div class="stat-label">Proyectos</div>
+            <div class="stat-number">{{ totalModules }}</div>
+            <div class="stat-label">Módulos Activos</div>
           </div>
         </div>
 
-        <!-- Admins -->
+        <!-- Admin Users -->
         <div class="stat-card admins-card">
           <div class="stat-icon">
             <mat-icon>security</mat-icon>
@@ -110,28 +114,38 @@
     <section class="actions-section">
       <div class="section-header">
         <h3>Acciones Rápidas</h3>
-        <p>Gestión del sistema</p>
+        <p>Gestión del sistema y usuarios</p>
       </div>
       
       <div class="actions-grid">
-        <button class="action-button primary" (click)="addUser()">
+        <button class="action-button primary" (click)="addUser()" title="Crear nuevo usuario en el sistema">
           <mat-icon>person_add</mat-icon>
           <span>Agregar Usuario</span>
         </button>
         
-        <button class="action-button secondary" (click)="manageRoles()">
+        <button class="action-button secondary" (click)="manageRoles()" title="Gestionar roles y permisos">
           <mat-icon>admin_panel_settings</mat-icon>
           <span>Gestionar Roles</span>
         </button>
         
-        <button class="action-button" (click)="viewLogs()">
+        <button class="action-button" (click)="manageModules()" title="Configurar módulos del sistema">
+          <mat-icon>apps</mat-icon>
+          <span>Gestionar Módulos</span>
+        </button>
+        
+        <button class="action-button" (click)="viewLogs()" title="Ver registros de actividad">
           <mat-icon>list_alt</mat-icon>
           <span>Ver Logs</span>
         </button>
         
-        <button class="action-button" (click)="systemSettings()">
+        <button class="action-button" (click)="systemSettings()" title="Configuración general del sistema">
           <mat-icon>settings</mat-icon>
           <span>Configuración</span>
+        </button>
+        
+        <button class="action-button" (click)="exportData()" title="Exportar datos de usuarios">
+          <mat-icon>download</mat-icon>
+          <span>Exportar Datos</span>
         </button>
       </div>
     </section>
@@ -151,23 +165,28 @@
                 <th>Usuario</th>
                 <th>Rol</th>
                 <th>Estado</th>
+                <th>Módulos Asignados</th>
                 <th>Último Acceso</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let user of mockUsers; trackBy: trackByEmail" class="table-row">
+              <tr *ngFor="let user of displayedUsers; trackBy: trackByUid" class="table-row">
                 <td class="user-cell">
                   <div class="user-info">
-                    <div class="user-avatar-small">
+                    <div class="user-avatar-small" [style.background]="getUserAvatarColor(user.email)">
                       <mat-icon>{{ getUserIcon(user.role) }}</mat-icon>
                     </div>
-                    <span class="user-email">{{ user.email }}</span>
+                    <div class="user-details-table">
+                      <span class="user-email">{{ user.email }}</span>
+                      <span class="user-name-small">{{ user.displayName || 'Sin nombre' }}</span>
+                    </div>
                   </div>
                 </td>
                 <td>
                   <div class="role-badge" [ngClass]="'role-' + user.role">
-                    {{ user.role.toUpperCase() }}
+                    <mat-icon class="role-icon">{{ getRoleIcon(user.role) }}</mat-icon>
+                    <span>{{ user.role.toUpperCase() }}</span>
                   </div>
                 </td>
                 <td>
@@ -176,21 +195,52 @@
                     <span>{{ user.isActive ? 'ACTIVO' : 'INACTIVO' }}</span>
                   </div>
                 </td>
+                <td class="modules-cell">
+                  <div class="modules-list" *ngIf="getUserModules(user.email)?.length; else noModules">
+                    <mat-chip 
+                      *ngFor="let module of getUserModules(user.email)?.slice(0, 3)" 
+                      class="module-chip">
+                      <mat-icon matChipAvatar>{{ getModuleIcon(module) }}</mat-icon>
+                      {{ getModuleName(module) }}
+                    </mat-chip>
+                    <span *ngIf="getUserModules(user.email).length > 3" class="more-modules">
+                      +{{ getUserModules(user.email).length - 3 }} más
+                    </span>
+                  </div>
+                  <ng-template #noModules>
+                    <span class="no-modules">Sin módulos</span>
+                  </ng-template>
+                </td>
                 <td class="date-cell">
-                  <span class="date-text">{{ formatDate(user.lastLogin) }}</span>
+                  <div class="date-info">
+                    <span class="date-text">{{ formatDate(user.lastLogin) }}</span>
+                    <span class="date-relative">{{ getRelativeTime(user.lastLogin) }}</span>
+                  </div>
                 </td>
                 <td>
                   <button mat-icon-button [matMenuTriggerFor]="userMenu" class="action-menu-button">
                     <mat-icon>more_vert</mat-icon>
                   </button>
                   <mat-menu #userMenu="matMenu">
+                    <button mat-menu-item (click)="viewUserDetails(user)">
+                      <mat-icon>visibility</mat-icon>
+                      Ver Detalles
+                    </button>
                     <button mat-menu-item (click)="editUser(user)">
                       <mat-icon>edit</mat-icon>
-                      Editar
+                      Editar Usuario
+                    </button>
+                    <button mat-menu-item (click)="resetUserPassword(user)">
+                      <mat-icon>lock_reset</mat-icon>
+                      Restablecer Contraseña
                     </button>
                     <button mat-menu-item (click)="toggleUserStatus(user)">
                       <mat-icon>{{ user.isActive ? 'block' : 'check_circle' }}</mat-icon>
                       {{ user.isActive ? 'Desactivar' : 'Activar' }}
+                    </button>
+                    <button mat-menu-item (click)="assignModules(user)" class="assign-modules">
+                      <mat-icon>apps</mat-icon>
+                      Asignar Módulos
                     </button>
                   </mat-menu>
                 </td>
@@ -198,6 +248,61 @@
             </tbody>
           </table>
         </div>
+      </div>
+      
+      <!-- Table Actions -->
+      <div class="table-actions" *ngIf="users.length > 0">
+        <div class="table-info">
+          <span>Mostrando {{ displayedUsers.length }} de {{ totalUsers }} usuarios</span>
+        </div>
+        <div class="table-buttons">
+          <button mat-button (click)="loadMoreUsers()" *ngIf="displayedUsers.length < users.length">
+            <mat-icon>expand_more</mat-icon>
+            Ver Más Usuarios
+          </button>
+          <button mat-raised-button color="primary" (click)="addUser()">
+            <mat-icon>person_add</mat-icon>
+            Nuevo Usuario
+          </button>
+        </div>
+      </div>
+      
+      <!-- Estado cuando no hay usuarios -->
+      <div class="empty-state" *ngIf="users.length === 0 && !isLoading">
+        <mat-icon class="empty-icon">people_outline</mat-icon>
+        <h3>No hay usuarios registrados</h3>
+        <p>Comienza agregando el primer usuario al sistema</p>
+        <button mat-raised-button color="primary" (click)="addUser()">
+          <mat-icon>person_add</mat-icon>
+          Agregar Primer Usuario
+        </button>
+      </div>
+      
+      <!-- Estado de carga -->
+      <div class="loading-state" *ngIf="isLoading">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Cargando usuarios...</p>
+      </div>
+    </section>
+
+    <!-- Sistema de Módulos Info -->
+    <section class="info-section" *ngIf="totalModules > 0">
+      <div class="info-header">
+        <mat-icon class="info-icon">info</mat-icon>
+        <h4>Sistema Modular</h4>
+      </div>
+      <p>
+        El sistema cuenta con <strong>{{ totalModules }} módulos activos</strong> que pueden ser asignados a los usuarios según sus roles y responsabilidades. 
+        Cada módulo proporciona funcionalidades específicas y puede tener permisos granulares.
+      </p>
+      <div class="popular-modules" *ngIf="getPopularModules()?.length">
+        <span class="label">Módulos más utilizados:</span>
+        <mat-chip-set>
+          <mat-chip *ngFor="let module of getPopularModules()">
+            <mat-icon matChipAvatar>{{ module.icon }}</mat-icon>
+            {{ module.name }}
+          </mat-chip>
+        </mat-chip-set>
       </div>
     </section>
   </main>

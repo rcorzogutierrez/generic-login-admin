@@ -77,153 +77,139 @@ export class AdminService {
   /**
    * Crea un nuevo usuario con autenticación y datos en Firestore
    */
-  async createUser(userData: CreateUserRequest): Promise<{ success: boolean; message: string; uid?: string }> {
-    try {
-      // 1. Validar datos de entrada
-      const validation = this.validateUserData(userData);
-      if (!validation.isValid) {
-        return {
-          success: false,
-          message: `Datos inválidos: ${validation.errors.join(', ')}`
-        };
-      }
+  // admin.service.ts - MÉTODO createUser() MEJORADO
 
-      // 2. Verificar si el email ya existe
-      const existingUsers = this.usersSubject.value;
-      const emailExists = existingUsers.some(user => 
-        this.normalizeEmail(user.email) === this.normalizeEmail(userData.email)
-      );
-
-      if (emailExists) {
-        return {
-          success: false,
-          message: 'Ya existe un usuario con este email'
-        };
-      }
-
-      // 3. Validar módulos
-      if (!userData.modules || userData.modules.length === 0) {
-        return {
-          success: false,
-          message: 'Debe asignar al menos un módulo al usuario'
-        };
-      }
-
-      // 4. Normalizar datos
-      const normalizedData = {
-        ...userData,
-        email: this.normalizeEmail(userData.email),
-        displayName: this.formatDisplayName(userData.displayName)
-      };
-
-      // 5. Crear usuario en Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(
-        this.auth,
-        normalizedData.email,
-        this.generateSecureTemporaryPassword()
-      );
-
-      const newUser = userCredential.user;
-
-      // 6. Actualizar el perfil del usuario
-      await updateProfile(newUser, {
-        displayName: normalizedData.displayName
-      });
-
-      // 7. Crear documento en Firestore con la estructura que manejas
-      const userDocData = {
-        createdAt: new Date(),
-        createdBy: this.auth.currentUser?.uid || 'system',
-        displayName: normalizedData.displayName,
-        email: normalizedData.email,
-        isActive: normalizedData.isActive,
-        lastLogin: null,
-        lastLoginDate: null,
-        permissions: normalizedData.permissions,
-        modules: normalizedData.modules, // ← MÓDULOS EN LUGAR DE PROYECTOS
-        role: normalizedData.role,
-        uid: newUser.uid,
-        // Campos adicionales para auditoría
-        createdByEmail: this.auth.currentUser?.email || 'system',
-        initialPasswordSent: false,
-        profileComplete: false,
-        avatarColor: this.getAvatarColor(normalizedData.email),
-        initials: this.getInitials(normalizedData.displayName)
-      };
-
-      await setDoc(doc(this.db, 'authorized_users', newUser.uid), userDocData);
-
-      // 8. Enviar email de restablecimiento de contraseña
-      try {
-        await sendPasswordResetEmail(this.auth, normalizedData.email);
-        
-        // Marcar que el email fue enviado
-        await updateDoc(doc(this.db, 'authorized_users', newUser.uid), {
-          initialPasswordSent: true,
-          passwordEmailSentAt: new Date()
-        });
-      } catch (emailError) {
-        console.warn('Error enviando email de contraseña:', emailError);
-        // No fallar la creación por el email, pero notificar
-      }
-
-      // 9. Actualizar la lista local
-      await this.loadUsers();
-
-      // 10. Log de auditoría
-      await this.logUserAction('create', newUser.uid, {
-        createdUser: normalizedData.email,
-        role: normalizedData.role,
-        modules: normalizedData.modules,
-        permissions: normalizedData.permissions
-      });
-
-      return {
-        success: true,
-        message: `Usuario ${normalizedData.displayName} creado exitosamente. Se ha enviado un email para establecer la contraseña.`,
-        uid: newUser.uid
-      };
-
-    } catch (error: any) {
-      console.error('Error creando usuario:', error);
-      
-      let errorMessage = 'Error desconocido al crear el usuario';
-      
-      switch (error.code) {
-        case 'auth/email-already-in-use':
-          errorMessage = 'El email ya está registrado en el sistema de autenticación';
-          break;
-        case 'auth/invalid-email':
-          errorMessage = 'El formato del email no es válido';
-          break;
-        case 'auth/weak-password':
-          errorMessage = 'La contraseña generada es muy débil';
-          break;
-        case 'auth/operation-not-allowed':
-          errorMessage = 'El registro de usuarios no está habilitado';
-          break;
-        case 'permission-denied':
-          errorMessage = 'No tienes permisos para crear usuarios';
-          break;
-        case 'unavailable':
-          errorMessage = 'Servicio temporalmente no disponible, intenta más tarde';
-          break;
-        default:
-          errorMessage = error.message || 'Error al crear el usuario';
-      }
-
-      // Log del error para auditoría
-      await this.logUserAction('create_failed', '', {
-        error: errorMessage,
-        userData: { email: userData.email, role: userData.role }
-      });
-
+/**
+ * Crea un nuevo usuario PRE-AUTORIZADO (solo en Firestore)
+ * El usuario hará login por primera vez con Google OAuth
+ */
+async createUser(userData: CreateUserRequest): Promise<{ success: boolean; message: string; uid?: string }> {
+  try {
+    // 1. Validar datos de entrada
+    const validation = this.validateUserData(userData);
+    if (!validation.isValid) {
       return {
         success: false,
-        message: errorMessage
+        message: `Datos inválidos: ${validation.errors.join(', ')}`
       };
     }
+
+    // 2. Verificar si el email ya existe
+    const existingUsers = this.usersSubject.value;
+    const emailExists = existingUsers.some(user => 
+      this.normalizeEmail(user.email) === this.normalizeEmail(userData.email)
+    );
+
+    if (emailExists) {
+      return {
+        success: false,
+        message: 'Ya existe un usuario autorizado con este email'
+      };
+    }
+
+    // 3. Validar módulos
+    if (!userData.modules || userData.modules.length === 0) {
+      return {
+        success: false,
+        message: 'Debe asignar al menos un módulo al usuario'
+      };
+    }
+
+    // 4. Normalizar datos
+    const normalizedData = {
+      ...userData,
+      email: this.normalizeEmail(userData.email),
+      displayName: this.formatDisplayName(userData.displayName)
+    };
+
+    // 5. Generar un UID temporal basado en el email
+    // Cuando el usuario haga login con Google, se actualizará con su UID real
+    const tempUid = `pre_${Date.now()}_${this.generateShortId()}`;
+
+    // 6. Crear documento en Firestore (SIN crear en Firebase Auth)
+    const userDocData = {
+      createdAt: new Date(),
+      createdBy: this.auth.currentUser?.uid || 'system',
+      displayName: normalizedData.displayName,
+      email: normalizedData.email,
+      isActive: normalizedData.isActive,
+      lastLogin: null,
+      lastLoginDate: null,
+      permissions: normalizedData.permissions,
+      modules: normalizedData.modules,
+      role: normalizedData.role,
+      uid: tempUid, // UID temporal, se actualizará en primer login
+      
+      // Campos adicionales para tracking
+      createdByEmail: this.auth.currentUser?.email || 'system',
+      accountStatus: 'pending_first_login', // Estado: esperando primer login
+      profileComplete: false,
+      avatarColor: this.getAvatarColor(normalizedData.email),
+      initials: this.getInitials(normalizedData.displayName),
+      
+      // Metadata
+      preAuthorized: true, // Marca que fue pre-autorizado por admin
+      firstLoginDate: null // Se llenará cuando haga login por primera vez
+    };
+
+    // 7. Guardar en Firestore con el email como ID del documento
+    // Esto facilita la búsqueda por email durante el login
+    const docId = this.normalizeEmail(normalizedData.email).replace(/[@.]/g, '_');
+    await setDoc(doc(this.db, 'authorized_users', docId), userDocData);
+
+    // 8. Actualizar la lista local
+    await this.loadUsers();
+
+    // 9. Log de auditoría
+    await this.logUserAction('pre_authorize_user', docId, {
+      authorizedUser: normalizedData.email,
+      role: normalizedData.role,
+      modules: normalizedData.modules,
+      permissions: normalizedData.permissions,
+      status: 'pending_first_login'
+    });
+
+    return {
+      success: true,
+      message: `Usuario ${normalizedData.displayName} pre-autorizado exitosamente. Podrá acceder con su cuenta de Google asociada a ${normalizedData.email}`,
+      uid: docId
+    };
+
+  } catch (error: any) {
+    console.error('Error pre-autorizando usuario:', error);
+    
+    let errorMessage = 'Error desconocido al pre-autorizar el usuario';
+    
+    switch (error.code) {
+      case 'permission-denied':
+        errorMessage = 'No tienes permisos para crear usuarios';
+        break;
+      case 'unavailable':
+        errorMessage = 'Servicio temporalmente no disponible, intenta más tarde';
+        break;
+      default:
+        errorMessage = error.message || 'Error al pre-autorizar el usuario';
+    }
+
+    // Log del error para auditoría
+    await this.logUserAction('pre_authorize_failed', '', {
+      error: errorMessage,
+      userData: { email: userData.email, role: userData.role }
+    });
+
+    return {
+      success: false,
+      message: errorMessage
+    };
   }
+}
+
+/**
+ * Genera un ID corto aleatorio
+ */
+private generateShortId(): string {
+  return Math.random().toString(36).substring(2, 9);
+}
 
   /**
    * Obtiene todos los usuarios con paginación y filtros

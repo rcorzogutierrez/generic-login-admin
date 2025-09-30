@@ -1,17 +1,19 @@
-// src/app/admin/components/add-user-dialog/add-user-dialog.component.ts
+// add-user-dialog.component.ts - VERSIÓN MEJORADA
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AdminService, CreateUserRequest } from '../../services/admin.service';
 
@@ -26,10 +28,12 @@ import { AdminService, CreateUserRequest } from '../../services/admin.service';
     MatInputModule,
     MatSelectModule,
     MatCheckboxModule,
+    MatRadioModule,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatChipsModule
+    MatChipsModule,
+    MatTabsModule
   ],
   templateUrl: './add-user-dialog.component.html',
   styleUrls: ['./add-user-dialog.component.css']
@@ -42,6 +46,7 @@ export class AddUserDialogComponent implements OnInit {
 
   userForm!: FormGroup;
   isLoading = false;
+  selectedTabIndex = 0;
 
   // Opciones para los selects
   roleOptions = this.adminService.getRoleOptions();
@@ -59,28 +64,162 @@ export class AddUserDialogComponent implements OnInit {
       role: ['user', [Validators.required]],
       isActive: [true],
       permissions: [['read'], [Validators.required]],
-      modules: [['dashboard'], [Validators.required]] // ← MÓDULOS, no proyectos
+      modules: [['dashboard'], [Validators.required]]
     });
 
-    // Escuchar cambios en el rol para ajustar permisos automáticamente
+    // Auto-actualizar permisos al cambiar rol
     this.userForm.get('role')?.valueChanges.subscribe(role => {
       this.updatePermissionsForRole(role);
     });
   }
 
-  /**
-   * Actualiza permisos automáticamente según el rol seleccionado
-   */
-  private updatePermissionsForRole(role: string) {
-    const defaultPermissions = this.getDefaultPermissionsForRole(role);
-    this.userForm.patchValue({ 
-      permissions: defaultPermissions 
-    }, { emitEvent: false });
+  // ===== MÉTODOS DE NAVEGACIÓN DE TABS =====
+
+  onTabChange(event: any) {
+    this.selectedTabIndex = event.index;
   }
 
-  /**
-   * Obtiene permisos por defecto según el rol
-   */
+  nextTab() {
+    if (this.selectedTabIndex < 2) {
+      this.selectedTabIndex++;
+    }
+  }
+
+  previousTab() {
+    if (this.selectedTabIndex > 0) {
+      this.selectedTabIndex--;
+    }
+  }
+
+ // add-user-dialog.component.ts - MÉTODOS CORREGIDOS
+
+canProceedToNextTab(): boolean {
+  switch (this.selectedTabIndex) {
+    case 0: // Info básica
+      return !!(
+        this.userForm.get('email')?.valid && 
+        this.userForm.get('displayName')?.valid &&
+        this.userForm.get('role')?.valid
+      );
+    case 1: // Permisos
+      const perms = this.userForm.get('permissions')?.value;
+      return !!(perms && perms.length > 0);
+    case 2: // Módulos
+      const mods = this.userForm.get('modules')?.value;
+      return !!(mods && mods.length > 0);
+    default:
+      return false;
+  }
+}
+
+isTabValid(tabIndex: number): boolean {
+  switch (tabIndex) {
+    case 0:
+      return !!(
+        this.userForm.get('email')?.valid && 
+        this.userForm.get('displayName')?.valid &&
+        this.userForm.get('role')?.valid
+      );
+    case 1:
+      const perms = this.userForm.get('permissions')?.value;
+      return !!(perms && perms.length > 0);
+    case 2:
+      const mods = this.userForm.get('modules')?.value;
+      return !!(mods && mods.length > 0);
+    default:
+      return false;
+  }
+}
+
+  // ===== MÉTODOS DE PERMISOS =====
+
+  isPermissionSelected(permission: string): boolean {
+    const permissions = this.userForm.get('permissions')?.value || [];
+    return permissions.includes(permission);
+  }
+
+  togglePermission(permission: string) {
+    const permissions = this.userForm.get('permissions')?.value || [];
+    const index = permissions.indexOf(permission);
+    
+    if (index >= 0) {
+      permissions.splice(index, 1);
+    } else {
+      permissions.push(permission);
+    }
+    
+    this.userForm.patchValue({ permissions });
+  }
+
+  getSelectedPermissions(): string[] {
+    return this.userForm.get('permissions')?.value || [];
+  }
+
+  getPermissionLabel(permission: string): string {
+    const option = this.permissionOptions.find(p => p.value === permission);
+    return option?.label || permission;
+  }
+
+  getPermissionIcon(permission: string): string {
+    const icons: { [key: string]: string } = {
+      'read': 'visibility',
+      'write': 'edit',
+      'delete': 'delete',
+      'manage_users': 'group'
+    };
+    return icons[permission] || 'check_circle';
+  }
+
+  // ===== MÉTODOS DE MÓDULOS =====
+
+  isModuleSelected(module: string): boolean {
+    const modules = this.userForm.get('modules')?.value || [];
+    return modules.includes(module);
+  }
+
+  toggleModule(module: string) {
+    const modules = this.userForm.get('modules')?.value || [];
+    const index = modules.indexOf(module);
+    
+    if (index >= 0) {
+      modules.splice(index, 1);
+    } else {
+      modules.push(module);
+    }
+    
+    this.userForm.patchValue({ modules });
+  }
+
+  getSelectedModules(): string[] {
+    return this.userForm.get('modules')?.value || [];
+  }
+
+  getModuleLabel(module: string): string {
+    const option = this.moduleOptions.find(m => m.value === module);
+    return option?.label || module;
+  }
+
+  getModuleIcon(module: string): string {
+    const option = this.moduleOptions.find(m => m.value === module);
+    return option?.icon || 'extension';
+  }
+
+  // ===== MÉTODOS DE ROLES =====
+
+  getRoleIcon(role: string): string {
+    const icons: { [key: string]: string } = {
+      'admin': 'shield',
+      'user': 'person',
+      'viewer': 'visibility'
+    };
+    return icons[role] || 'person';
+  }
+
+  private updatePermissionsForRole(role: string) {
+    const defaultPermissions = this.getDefaultPermissionsForRole(role);
+    this.userForm.patchValue({ permissions: defaultPermissions }, { emitEvent: false });
+  }
+
   private getDefaultPermissionsForRole(role: string): string[] {
     switch (role) {
       case 'admin':
@@ -94,6 +233,8 @@ export class AddUserDialogComponent implements OnInit {
     }
   }
 
+  // ===== SUBMIT =====
+
   async onSubmit() {
     if (this.userForm.valid && !this.isLoading) {
       this.isLoading = true;
@@ -106,7 +247,7 @@ export class AddUserDialogComponent implements OnInit {
           role: formValue.role,
           isActive: formValue.isActive,
           permissions: formValue.permissions || [],
-          modules: formValue.modules || [] // ← MÓDULOS
+          modules: formValue.modules || []
         };
 
         const result = await this.adminService.createUser(createUserData);
@@ -134,7 +275,6 @@ export class AddUserDialogComponent implements OnInit {
         this.isLoading = false;
       }
     } else {
-      // Mostrar errores de validación
       this.markFormGroupTouched();
     }
   }
@@ -143,7 +283,8 @@ export class AddUserDialogComponent implements OnInit {
     this.dialogRef.close({ success: false });
   }
 
-  // Helpers para validación
+  // ===== HELPERS =====
+
   getErrorMessage(field: string): string {
     const control = this.userForm.get(field);
     if (control?.hasError('required')) {
@@ -169,7 +310,7 @@ export class AddUserDialogComponent implements OnInit {
       displayName: 'Nombre completo',
       role: 'Rol',
       permissions: 'Permisos',
-      modules: 'Módulos' // ← MÓDULOS
+      modules: 'Módulos'
     };
     return labels[field] || field;
   }
@@ -181,58 +322,8 @@ export class AddUserDialogComponent implements OnInit {
     });
   }
 
-  // Helpers para el template
   isFieldInvalid(field: string): boolean {
     const control = this.userForm.get(field);
     return !!(control?.invalid && (control?.dirty || control?.touched));
-  }
-
-  getRoleDescription(role: string): string {
-    const option = this.roleOptions.find(opt => opt.value === role);
-    return option?.description || '';
-  }
-
-  // Para chips de permisos
-  removePermission(permission: string) {
-    const permissions = this.userForm.get('permissions')?.value || [];
-    const index = permissions.indexOf(permission);
-    if (index >= 0) {
-      permissions.splice(index, 1);
-      this.userForm.patchValue({ permissions });
-    }
-  }
-
-  // Para chips de módulos
-  removeModule(module: string) {
-    const modules = this.userForm.get('modules')?.value || [];
-    const index = modules.indexOf(module);
-    if (index >= 0) {
-      modules.splice(index, 1);
-      this.userForm.patchValue({ modules });
-    }
-  }
-
-  /**
-   * Obtiene el label de un permiso
-   */
-  getPermissionLabel(permission: string): string {
-    const option = this.permissionOptions.find(p => p.value === permission);
-    return option?.label || permission;
-  }
-
-  /**
-   * Obtiene el label de un módulo
-   */
-  getModuleLabel(module: string): string {
-    const option = this.moduleOptions.find(m => m.value === module);
-    return option?.label || module;
-  }
-
-  /**
-   * Obtiene el icono de un módulo
-   */
-  getModuleIcon(module: string): string {
-    const option = this.moduleOptions.find(m => m.value === module);
-    return option?.icon || 'extension';
   }
 }

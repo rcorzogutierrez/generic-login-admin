@@ -1,113 +1,344 @@
-<!-- src/app/admin/components/add-user-dialog/add-user-dialog.component.html - OPTIMIZADO -->
-<div class="dialog-container">
-    <!-- Header -->
-    <div class="dialog-header">
-      <div class="header-content">
-        <mat-icon class="header-icon">person_add</mat-icon>
-        <div class="header-text">
-          <h2>Agregar Nuevo Usuario</h2>
-          <p>Complete la información del usuario</p>
+<!-- add-user-dialog.component.html - VERSIÓN MEJORADA CON TABS -->
+<div class="dialog-modern-container">
+  
+    <!-- Header Mejorado -->
+    <div class="dialog-modern-header">
+      <div class="flex items-center gap-4">
+        <div class="header-icon-modern">
+          <mat-icon>person_add</mat-icon>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-1">Agregar Nuevo Usuario</h2>
+          <p class="text-blue-100 text-sm">Complete la información en cada pestaña</p>
         </div>
       </div>
-      <button mat-icon-button (click)="onCancel()" class="close-button" [disabled]="isLoading">
+      <button 
+        mat-icon-button 
+        (click)="onCancel()" 
+        class="close-button-modern"
+        [disabled]="isLoading">
         <mat-icon>close</mat-icon>
       </button>
     </div>
   
-    <!-- Form Content -->
-    <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
-      <mat-dialog-content class="dialog-content">
-        
-        <!-- Grid de 2 columnas -->
-        <div class="form-grid">
-          
-          <!-- Columna 1: Info Personal + Rol -->
-          <div class="form-column">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email</mat-label>
-              <input matInput type="email" formControlName="email" placeholder="usuario@empresa.com">
-              <mat-icon matSuffix>email</mat-icon>
-              <mat-error *ngIf="isFieldInvalid('email')">{{ getErrorMessage('email') }}</mat-error>
-            </mat-form-field>
-  
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Nombre Completo</mat-label>
-              <input matInput formControlName="displayName" placeholder="Nombre Apellido">
-              <mat-icon matSuffix>badge</mat-icon>
-              <mat-error *ngIf="isFieldInvalid('displayName')">{{ getErrorMessage('displayName') }}</mat-error>
-            </mat-form-field>
-  
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Rol</mat-label>
-              <mat-select formControlName="role">
-                <mat-option *ngFor="let role of roleOptions" [value]="role.value">
-                  {{ role.label }}
-                </mat-option>
-              </mat-select>
-              <mat-icon matSuffix>admin_panel_settings</mat-icon>
-            </mat-form-field>
-  
-            <mat-checkbox formControlName="isActive" class="checkbox-field">
-              Usuario activo
-            </mat-checkbox>
+    <!-- Tabs Navigation -->
+    <mat-tab-group 
+      class="modern-tabs"
+      [(selectedIndex)]="selectedTabIndex"
+      (selectedTabChange)="onTabChange($event)"
+      animationDuration="300ms">
+      
+      <!-- TAB 1: Información Básica -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <div class="tab-label-content">
+            <mat-icon class="tab-icon">person</mat-icon>
+            <span class="tab-text">Información</span>
+            <mat-icon 
+              *ngIf="isTabValid(0)" 
+              class="tab-check">
+              check_circle
+            </mat-icon>
           </div>
+        </ng-template>
+        
+        <div class="tab-content-modern">
+          <form [formGroup]="userForm">
+            
+            <!-- Email & Nombre en Grid -->
+            <div class="form-grid-2">
+              <mat-form-field appearance="outline" class="modern-field">
+                <mat-label>Email Corporativo</mat-label>
+                <input 
+                  matInput 
+                  type="email" 
+                  formControlName="email"
+                  placeholder="usuario@empresa.com">
+                <mat-icon matPrefix class="field-icon">email</mat-icon>
+                <mat-error *ngIf="isFieldInvalid('email')">
+                  {{ getErrorMessage('email') }}
+                </mat-error>
+              </mat-form-field>
   
-          <!-- Columna 2: Permisos + Módulos -->
-          <div class="form-column">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Permisos</mat-label>
-              <mat-select formControlName="permissions" multiple>
-                <mat-option *ngFor="let permission of permissionOptions" [value]="permission.value">
-                  {{ permission.label }}
-                </mat-option>
-              </mat-select>
-              <mat-icon matSuffix>lock</mat-icon>
-            </mat-form-field>
+              <mat-form-field appearance="outline" class="modern-field">
+                <mat-label>Nombre Completo</mat-label>
+                <input 
+                  matInput 
+                  formControlName="displayName"
+                  placeholder="Juan Pérez">
+                <mat-icon matPrefix class="field-icon">badge</mat-icon>
+                <mat-error *ngIf="isFieldInvalid('displayName')">
+                  {{ getErrorMessage('displayName') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
   
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Módulos</mat-label>
-              <mat-select formControlName="modules" multiple>
-                <mat-option *ngFor="let module of moduleOptions" [value]="module.value">
-                  <mat-icon class="option-icon">{{ module.icon }}</mat-icon>
-                  {{ module.label }}
-                </mat-option>
-              </mat-select>
-              <mat-icon matSuffix>apps</mat-icon>
-            </mat-form-field>
+            <!-- Rol con descripciones visuales -->
+            <div class="role-section">
+              <label class="section-label">
+                <mat-icon class="label-icon">admin_panel_settings</mat-icon>
+                Rol del Usuario
+              </label>
+              
+              <mat-radio-group 
+                formControlName="role" 
+                class="role-radio-group">
+                <mat-radio-button 
+                  *ngFor="let role of roleOptions" 
+                  [value]="role.value"
+                  class="role-radio-card">
+                  <div class="role-card-content">
+                    <div class="role-header">
+                      <mat-icon [class]="'role-icon-' + role.value">
+                        {{ getRoleIcon(role.value) }}
+                      </mat-icon>
+                      <span class="role-name">{{ role.label }}</span>
+                    </div>
+                    <p class="role-description">{{ role.description }}</p>
+                  </div>
+                </mat-radio-button>
+              </mat-radio-group>
+            </div>
   
-            <!-- Chips compactos -->
-            <div class="chips-compact" *ngIf="userForm.get('modules')?.value?.length">
-              <mat-chip-set>
-                <mat-chip *ngFor="let module of userForm.get('modules')?.value?.slice(0, 3)">
-                  <mat-icon matChipAvatar>{{ getModuleIcon(module) }}</mat-icon>
-                  {{ getModuleLabel(module) }}
-                </mat-chip>
-                <mat-chip *ngIf="userForm.get('modules')?.value?.length > 3">
-                  +{{ userForm.get('modules')?.value.length - 3 }}
+            <!-- Estado Activo -->
+            <div class="status-section">
+              <mat-checkbox 
+                formControlName="isActive"
+                class="status-checkbox"
+                color="primary">
+                <div class="checkbox-content">
+                  <span class="checkbox-label">Usuario Activo</span>
+                  <span class="checkbox-hint">El usuario podrá acceder al sistema inmediatamente</span>
+                </div>
+              </mat-checkbox>
+            </div>
+  
+          </form>
+        </div>
+      </mat-tab>
+  
+      <!-- TAB 2: Permisos -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <div class="tab-label-content">
+            <mat-icon class="tab-icon">security</mat-icon>
+            <span class="tab-text">Permisos</span>
+            <mat-icon 
+              *ngIf="isTabValid(1)" 
+              class="tab-check">
+              check_circle
+            </mat-icon>
+          </div>
+        </ng-template>
+        
+        <div class="tab-content-modern">
+          <form [formGroup]="userForm">
+            
+            <div class="permissions-header">
+              <mat-icon class="section-icon">lock</mat-icon>
+              <div>
+                <h3 class="section-title">Permisos de Acceso</h3>
+                <p class="section-subtitle">
+                  Selecciona los permisos que tendrá este usuario
+                </p>
+              </div>
+            </div>
+  
+            <!-- Permisos como Cards Seleccionables -->
+            <div class="permissions-grid">
+              <div 
+                *ngFor="let permission of permissionOptions" 
+                class="permission-card"
+                [class.selected]="isPermissionSelected(permission.value)"
+                (click)="togglePermission(permission.value)">
+                
+                <mat-checkbox 
+                  [checked]="isPermissionSelected(permission.value)"
+                  (change)="togglePermission(permission.value)"
+                  (click)="$event.stopPropagation()"
+                  color="primary"
+                  class="permission-checkbox">
+                </mat-checkbox>
+                
+                <div class="permission-content">
+                  <mat-icon class="permission-icon">
+                    {{ getPermissionIcon(permission.value) }}
+                  </mat-icon>
+                  <div>
+                    <h4 class="permission-name">{{ permission.label }}</h4>
+                    <p class="permission-desc">{{ permission.description }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+  
+            <!-- Selected Permissions Preview -->
+            <div 
+              *ngIf="getSelectedPermissions().length > 0" 
+              class="selected-preview">
+              <span class="preview-label">Permisos seleccionados:</span>
+              <mat-chip-set class="modern-chip-set">
+                <mat-chip 
+                  *ngFor="let perm of getSelectedPermissions()"
+                  class="modern-chip permission-chip"
+                  (removed)="togglePermission(perm)">
+                  <mat-icon matChipAvatar>{{ getPermissionIcon(perm) }}</mat-icon>
+                  {{ getPermissionLabel(perm) }}
+                  <button matChipRemove>
+                    <mat-icon>cancel</mat-icon>
+                  </button>
                 </mat-chip>
               </mat-chip-set>
             </div>
+  
+          </form>
+        </div>
+      </mat-tab>
+  
+      <!-- TAB 3: Módulos -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <div class="tab-label-content">
+            <mat-icon class="tab-icon">apps</mat-icon>
+            <span class="tab-text">Módulos</span>
+            <mat-icon 
+              *ngIf="isTabValid(2)" 
+              class="tab-check">
+              check_circle
+            </mat-icon>
           </div>
+        </ng-template>
+        
+        <div class="tab-content-modern">
+          <form [formGroup]="userForm">
+            
+            <div class="modules-header">
+              <mat-icon class="section-icon">extension</mat-icon>
+              <div>
+                <h3 class="section-title">Módulos del Sistema</h3>
+                <p class="section-subtitle">
+                  Selecciona las funcionalidades a las que tendrá acceso
+                </p>
+              </div>
+            </div>
+  
+            <!-- Módulos como Cards Visuales -->
+            <div class="modules-grid">
+              <div 
+                *ngFor="let module of moduleOptions" 
+                class="module-card"
+                [class.selected]="isModuleSelected(module.value)"
+                (click)="toggleModule(module.value)">
+                
+                <div class="module-card-header">
+                  <mat-checkbox 
+                    [checked]="isModuleSelected(module.value)"
+                    (change)="toggleModule(module.value)"
+                    (click)="$event.stopPropagation()"
+                    color="primary"
+                    class="module-checkbox">
+                  </mat-checkbox>
+                  <mat-icon class="module-icon-large">{{ module.icon }}</mat-icon>
+                </div>
+                
+                <div class="module-card-body">
+                  <h4 class="module-name">{{ module.label }}</h4>
+                  <p class="module-description">{{ module.description }}</p>
+                </div>
+              </div>
+            </div>
+  
+            <!-- Selected Modules Preview -->
+            <div 
+              *ngIf="getSelectedModules().length > 0" 
+              class="selected-preview modules-preview">
+              <span class="preview-label">
+                {{ getSelectedModules().length }} módulos seleccionados
+              </span>
+              <mat-chip-set class="modern-chip-set">
+                <mat-chip 
+                  *ngFor="let mod of getSelectedModules()"
+                  class="modern-chip module-chip"
+                  (removed)="toggleModule(mod)">
+                  <mat-icon matChipAvatar>{{ getModuleIcon(mod) }}</mat-icon>
+                  {{ getModuleLabel(mod) }}
+                  <button matChipRemove>
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+  
+          </form>
+        </div>
+      </mat-tab>
+  
+    </mat-tab-group>
+  
+    <!-- Footer con Navegación y Acciones -->
+    <mat-dialog-actions class="dialog-modern-footer">
+      <div class="footer-content">
+        
+        <!-- Navegación entre tabs (izquierda) -->
+        <div class="footer-navigation">
+          <button 
+            mat-button 
+            *ngIf="selectedTabIndex > 0"
+            (click)="previousTab()"
+            class="nav-button">
+            <mat-icon>arrow_back</mat-icon>
+            Anterior
+          </button>
         </div>
   
-        <!-- Info compacta -->
-        <div class="info-compact">
-          <mat-icon>info</mat-icon>
-          <span>Se enviará un email al usuario para configurar su contraseña</span>
+        <!-- Acciones principales (derecha) -->
+        <div class="footer-actions">
+          <button 
+            mat-button 
+            (click)="onCancel()" 
+            [disabled]="isLoading"
+            class="cancel-button-modern">
+            Cancelar
+          </button>
+  
+          <button 
+            mat-button
+            *ngIf="selectedTabIndex < 2"
+            (click)="nextTab()"
+            [disabled]="!canProceedToNextTab()"
+            class="next-button"
+            color="primary">
+            Siguiente
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+  
+          <button 
+            mat-raised-button
+            *ngIf="selectedTabIndex === 2"
+            type="button"
+            (click)="onSubmit()"
+            [disabled]="userForm.invalid || isLoading"
+            class="create-button-modern"
+            color="primary">
+            <mat-icon *ngIf="!isLoading">person_add</mat-icon>
+            <mat-spinner 
+              *ngIf="isLoading" 
+              diameter="20"
+              class="button-spinner">
+            </mat-spinner>
+            {{ isLoading ? 'Creando...' : 'Crear Usuario' }}
+          </button>
         </div>
+      </div>
+    </mat-dialog-actions>
   
-      </mat-dialog-content>
+    <!-- Info Footer -->
+    <div class="info-footer" *ngIf="!isLoading">
+      <mat-icon class="info-icon">info_outline</mat-icon>
+      <span class="info-text">
+        Se enviará un email a {{ userForm.get('email')?.value || 'este usuario' }} 
+        para configurar su contraseña
+      </span>
+    </div>
   
-      <!-- Actions -->
-      <mat-dialog-actions class="dialog-actions">
-        <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading">
-          Cancelar
-        </button>
-        <button mat-raised-button color="primary" type="submit" [disabled]="userForm.invalid || isLoading">
-          <mat-icon *ngIf="!isLoading">person_add</mat-icon>
-          <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
-          {{ isLoading ? 'Creando...' : 'Crear Usuario' }}
-        </button>
-      </mat-dialog-actions>
-    </form>
   </div>

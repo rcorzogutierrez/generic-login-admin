@@ -1,11 +1,11 @@
-<!-- src/app/auth/login.component.html - VERSIÓN FINAL LIMPIA -->
+<!-- src/app/auth/login.component.html - VERSIÓN OPTIMIZADA -->
 <div class="auth-page">
   <div class="auth-wrapper">
     
     <!-- Header con logo -->
     <div class="auth-header">
       <div class="auth-logo">
-        <mat-icon class="text-white text-2xl">admin_panel_settings</mat-icon>
+        <mat-icon>admin_panel_settings</mat-icon>
       </div>
       <h1 class="auth-title">{{ appInfo.name }}</h1>
       <p class="auth-subtitle">{{ appInfo.description }}</p>
@@ -18,14 +18,14 @@
         <!-- Estado: Cargando -->
         <div class="text-center py-12">
           <div class="loading-spinner-material mx-auto mb-4"></div>
-          <p class="text-gray-600 auth-typography">Verificando acceso...</p>
+          <p class="text-gray-600">Verificando acceso...</p>
         </div>
       } @else if (authService.isAuthenticated() && authService.isAuthorized()) {
         <!-- Estado: Ya autenticado, redirigiendo -->
         <div class="text-center py-12">
           <div class="loading-spinner-material mx-auto mb-4"></div>
           <p class="text-green-600 font-semibold mb-2">Sesión activa</p>
-          <p class="text-gray-600 auth-typography">Redirigiendo al dashboard...</p>
+          <p class="text-gray-600">Redirigiendo al dashboard...</p>
         </div>
       } @else {
         <!-- Estado: Mostrar formulario de login -->
@@ -37,7 +37,7 @@
               Iniciar Sesión
             </h2>
             <p class="text-sm text-gray-600 leading-relaxed">
-              Usa tu cuenta de Google autorizada para continuar
+              Accede con tu cuenta de Google autorizada
             </p>
           </div>
 
@@ -46,7 +46,6 @@
             class="google-signin-button"
             (click)="loginWithGoogle()"
             [disabled]="isLoggingIn()"
-            [class.auth-loading]="isLoggingIn()"
           >
             <div class="flex items-center justify-center gap-3">
               <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -67,22 +66,10 @@
             </div>
           </button>
 
-          <!-- Divider -->
-          <div class="auth-divider">
-            <span class="auth-divider-text">Información del sistema</span>
-          </div>
-
-          <!-- Información adicional -->
-          <div class="text-center space-y-3">
-            <div class="protected-indicator">
-              <mat-icon class="w-4 h-4 mr-2">verified_user</mat-icon>
-              <span>Solo usuarios autorizados por el administrador pueden acceder</span>
-            </div>
-            
-            <div class="firebase-connected">
-              <mat-icon class="w-4 h-4 mr-2">security</mat-icon>
-              <span>Protegido con Firebase Auth</span>
-            </div>
+          <!-- Badge simple -->
+          <div class="protected-indicator">
+            <mat-icon>verified_user</mat-icon>
+            <span>Solo usuarios autorizados</span>
           </div>
         </div>
       }
@@ -91,7 +78,7 @@
     <!-- Mensajes de estado -->
     @if (loginMessage()) {
       <div
-        class="auth-message animate-fadeInUp"
+        class="auth-message"
         [ngClass]="{
           'auth-error': loginMessage()?.type === 'error',
           'auth-success': loginMessage()?.type === 'success'
@@ -113,17 +100,12 @@
 
     <!-- Footer -->
     <div class="auth-footer">
-      <p class="font-medium">¿Problemas de acceso?</p>
+      <p>¿Problemas de acceso?</p>
       <p class="mt-2">
         <a [href]="'mailto:' + appInfo.supportEmail" class="auth-link">
           {{ appInfo.supportEmail }}
         </a>
       </p>
-      
-      <div class="mt-4 pt-4 border-t border-gray-200 flex items-center justify-center gap-2">
-        <mat-icon class="w-3 h-3 text-gray-400">code</mat-icon>
-        <span class="text-gray-400 text-xs">Angular {{ angularVersion }} + Firebase + Tailwind CSS</span>
-      </div>
     </div>
   </div>
 </div>

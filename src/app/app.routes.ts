@@ -1,4 +1,4 @@
-// src/app/app.routes.ts
+// src/app/app.routes.ts - VERSIÓN FINAL
 import { Routes } from '@angular/router';
 import { LoginComponent } from './auth/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -6,23 +6,22 @@ import { AccessDeniedComponent } from './shared/access-denied.component';
 import { AdminPanelComponent } from './admin/admin-panel.component';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { loginGuard } from './core/guards/login.guard';
 
 export const routes: Routes = [
-  // Ruta raíz - redirige a login
   {
     path: '',
-    redirectTo: '/login',
+    redirectTo: '/dashboard',
     pathMatch: 'full',
   },
 
-  // Ruta de login - acceso público
   {
     path: 'login',
     component: LoginComponent,
+    canActivate: [loginGuard],
     title: 'Iniciar Sesión',
   },
 
-  // Dashboard - requiere autenticación
   {
     path: 'dashboard',
     component: DashboardComponent,
@@ -30,7 +29,6 @@ export const routes: Routes = [
     title: 'Dashboard',
   },
 
-  // Panel de administración - solo admins
   {
     path: 'admin',
     component: AdminPanelComponent,
@@ -38,16 +36,14 @@ export const routes: Routes = [
     title: 'Panel de Administración',
   },
 
-  // Acceso denegado
   {
     path: 'access-denied',
     component: AccessDeniedComponent,
     title: 'Acceso Denegado',
   },
 
-  // Ruta comodín - cualquier ruta no encontrada va a login
   {
     path: '**',
-    redirectTo: '/login',
+    redirectTo: '/dashboard',
   },
 ];

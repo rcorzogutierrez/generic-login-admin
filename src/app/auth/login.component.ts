@@ -1,5 +1,5 @@
-// src/app/auth/login.component.ts
-import { Component, OnInit, signal } from '@angular/core';
+// src/app/auth/login.component.ts - VERSIÓN FINAL
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -23,21 +23,20 @@ import { AuthService } from '../core/services/auth.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
-export class LoginComponent implements OnInit {
-  // Signals privados
+export class LoginComponent implements OnInit, OnDestroy {
   private _isLoggingIn = signal(false);
   private _loginMessage = signal<{
     type: 'error' | 'success';
     message: string;
   } | null>(null);
 
-  // Getters públicos para el template
   isLoggingIn = this._isLoggingIn.asReadonly();
   loginMessage = this._loginMessage.asReadonly();
 
-  // Propiedades del componente
   appInfo = this.authService.getAppInfo();
   angularVersion = '20';
+
+  private checkInterval: any;
 
   constructor(
     public authService: AuthService,
@@ -47,14 +46,34 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Limpiar mensajes al cargar
     this._loginMessage.set(null);
 
-    // Redirigir si ya está autenticado y autorizado
-    if (this.authService.isAuthenticated() && this.authService.isAuthorized()) {
-      const returnUrl =
-        this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-      console.log('🔄 Usuario ya autenticado, redirigiendo a:', returnUrl);
+    // Verificar estado y redirigir si ya está autenticado
+    this.checkAuthAndRedirect();
+    
+    this.checkInterval = setInterval(() => {
+      this.checkAuthAndRedirect();
+    }, 200);
+  }
+
+  ngOnDestroy() {
+    if (this.checkInterval) {
+      clearInterval(this.checkInterval);
+    }
+  }
+
+  private checkAuthAndRedirect(): void {
+    const isLoading = this.authService.loading();
+    const isAuth = this.authService.isAuthenticated();
+    const isAuthorized = this.authService.isAuthorized();
+
+    if (!isLoading && isAuth && isAuthorized) {
+      if (this.checkInterval) {
+        clearInterval(this.checkInterval);
+        this.checkInterval = null;
+      }
+
+      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
       this.router.navigate([returnUrl]);
     }
   }
@@ -66,43 +85,33 @@ export class LoginComponent implements OnInit {
     this._loginMessage.set(null);
 
     try {
-      console.log('🚀 Iniciando proceso de login...');
       const result = await this.authService.loginWithGoogle();
 
       if (result.success) {
         this._loginMessage.set({
           type: 'success',
-          message: '¡Bienvenido! Redirigiendo al dashboard...',
+          message: '¡Bienvenido! Redirigiendo...',
         });
 
-        // Obtener URL de retorno o ir al dashboard
-        const returnUrl =
-          this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-
-        // Pequeño delay para mostrar el mensaje de éxito
         setTimeout(() => {
-          console.log('✅ Login exitoso, redirigiendo a:', returnUrl);
-          this.router.navigate([returnUrl]);
-        }, 1500);
+          this.checkAuthAndRedirect();
+        }, 1000);
+
       } else {
         this._loginMessage.set({
           type: 'error',
           message: result.message,
         });
 
-        // Mostrar snackbar también para errores importantes
         this.snackBar.open(result.message, 'Cerrar', {
           duration: 8000,
           panelClass: ['error-snackbar'],
-          horizontalPosition: 'center',
-          verticalPosition: 'top',
         });
       }
-    } catch (error) {
-      console.error('💥 Error inesperado en login:', error);
+    } catch (error: any) {
       this._loginMessage.set({
         type: 'error',
-        message: 'Error inesperado. Por favor, intenta nuevamente.',
+        message: error.message || 'Error inesperado',
       });
     } finally {
       this._isLoggingIn.set(false);

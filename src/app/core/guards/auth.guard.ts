@@ -7,20 +7,21 @@ export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Si está cargando, esperar
-  if (authService.loading()) {
-    return false;
+  const isAuth = authService.isAuthenticated();
+  const isAuthorized = authService.isAuthorized();
+
+  console.log('🛡️ Auth Guard:', { isAuth, isAuthorized });
+
+  // Si está autenticado Y autorizado, permitir acceso
+  if (isAuth && isAuthorized) {
+    console.log('✅ Auth Guard: Acceso permitido');
+    return true;
   }
 
-  // Si no está autenticado o no está autorizado
-  if (!authService.isAuthenticated() || !authService.isAuthorized()) {
-    console.log('🚫 Acceso denegado - redirigiendo a login');
-    router.navigate(['/login'], {
-      queryParams: { returnUrl: state.url },
-    });
-    return false;
-  }
-
-  console.log('✅ Auth Guard: Acceso permitido');
-  return true;
+  // Si NO está autenticado, redirigir a login
+  console.log('🚫 Auth Guard: Redirigiendo a /login');
+  router.navigate(['/login'], {
+    queryParams: { returnUrl: state.url }
+  });
+  return false;
 };

@@ -1,262 +1,227 @@
-<!-- src/app/dashboard/dashboard.component.html - DASHBOARD PERSONAL CON MÓDULOS -->
+<!-- src/app/dashboard/dashboard.component.html - VERSIÓN OPTIMIZADA -->
 <div class="dashboard-container">
-  <!-- Header -->
-  <header class="dashboard-header">
-    <div class="header-content">
-      <div class="header-left">
-        <div class="logo-section">
-          <mat-icon class="logo-icon">dashboard</mat-icon>
-          <div class="logo-text">
-            <h1>Dashboard</h1>
-            <span>Panel Personal</span>
-          </div>
+  
+  <!-- ============================================
+       HEADER COMPACTO - UNA SOLA LÍNEA
+       ============================================ -->
+  <header class="header">
+    <div class="header-left">
+      <h1>¡Bienvenido de nuevo! 👋</h1>
+      <p *ngIf="!loading && userDashboard">
+        <span class="status-dot" [class.recent]="isRecentSession()"></span>
+        Última sesión: {{ getLastSession() }}
+      </p>
+    </div>
+    
+    <div class="header-right">
+      <!-- User Badge -->
+      <div class="user-badge" *ngIf="!loading && userDashboard">
+        <div class="user-avatar">{{ getUserInitials() }}</div>
+        <div class="user-info-header">
+          <span class="user-name">{{ userDashboard.userInfo.displayName }}</span>
+          <span class="user-role-badge">{{ userDashboard.userInfo.role.toUpperCase() }}</span>
         </div>
       </div>
       
-      <div class="header-right">
-        <div class="user-info">
-          <div class="user-avatar">
-            <mat-icon>person</mat-icon>
-          </div>
-          <div class="user-details">
-            <span class="user-name">{{ userDashboard?.userInfo?.displayName || user()?.displayName }}</span>
-            <span class="user-role">{{ (userDashboard?.userInfo?.role || '')?.toUpperCase() }}</span>
-          </div>
-        </div>
-        
-        <!-- Botón refresh -->
-        <button mat-icon-button (click)="refreshData()" class="refresh-button" title="Actualizar datos">
+      <!-- Action Buttons -->
+      <button mat-icon-button 
+              class="icon-button" 
+              [matBadge]="getNotificationCount()"
+              [matBadgeHidden]="getNotificationCount() === 0"
+              matBadgeColor="warn"
+              matTooltip="Notificaciones"
+              (click)="goToNotifications()">
+        <mat-icon>notifications</mat-icon>
+      </button>
+      
+      <button mat-icon-button 
+              class="icon-button" 
+              matTooltip="Configuración"
+              (click)="goToSettings()">
+        <mat-icon>settings</mat-icon>
+      </button>
+      
+      <button mat-icon-button 
+              [matMenuTriggerFor]="userMenu" 
+              class="icon-button"
+              matTooltip="Menú">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item *ngIf="isAdmin()" (click)="goToAdmin()">
+          <mat-icon>admin_panel_settings</mat-icon>
+          Panel Admin
+        </button>
+        <button mat-menu-item (click)="refreshData()">
           <mat-icon>refresh</mat-icon>
+          Actualizar
         </button>
-        
-        <button mat-icon-button [matMenuTriggerFor]="userMenu" class="menu-button">
-          <mat-icon>more_vert</mat-icon>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          Cerrar Sesión
         </button>
-        
-        <mat-menu #userMenu="matMenu">
-          <button mat-menu-item *ngIf="isAdmin()" (click)="goToAdmin()">
-            <mat-icon>admin_panel_settings</mat-icon>
-            Panel Admin
-          </button>
-          <button mat-menu-item (click)="logout()">
-            <mat-icon>logout</mat-icon>
-            Cerrar Sesión
-          </button>
-        </mat-menu>
-      </div>
+      </mat-menu>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="dashboard-main">
-    
-    <!-- Loading State -->
-    <div *ngIf="loading" class="loading-section">
-      <mat-spinner diameter="50"></mat-spinner>
-      <p>Cargando tu información personal...</p>
-    </div>
+  <!-- ============================================
+       LOADING STATE
+       ============================================ -->
+  <div *ngIf="loading" class="loading-section">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Cargando tu dashboard...</p>
+  </div>
 
-    <!-- Error State -->
-    <div *ngIf="error && !loading" class="error-section">
-      <mat-icon>error_outline</mat-icon>
-      <p>{{ error }}</p>
-      <button mat-raised-button color="primary" (click)="refreshData()">
-        Reintentar
-      </button>
-    </div>
+  <!-- ============================================
+       ERROR STATE
+       ============================================ -->
+  <div *ngIf="error && !loading" class="error-section">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="refreshData()">
+      Reintentar
+    </button>
+  </div>
 
-    <!-- Dashboard Content -->
-    <div *ngIf="!loading && !error && userDashboard">
+  <!-- ============================================
+       DASHBOARD CONTENT
+       ============================================ -->
+  <div *ngIf="!loading && !error && userDashboard">
+
+    <!-- ============================================
+         QUICK ACTIONS - PRIORIDAD MÁXIMA
+         ============================================ -->
+    <section class="quick-actions">
+      <div *ngFor="let action of quickActions" 
+           class="action-card"
+           [class.has-badge]="action.badge"
+           (click)="executeQuickAction(action)">
+        <div class="action-icon" [class]="action.color">
+          <mat-icon>{{ action.icon }}</mat-icon>
+          <span *ngIf="action.badge" class="action-badge">{{ action.badge }}</span>
+        </div>
+        <h3>{{ action.title }}</h3>
+        <p>{{ action.description }}</p>
+      </div>
+    </section>
+
+    <!-- ============================================
+         MAIN GRID - 2 COLUMNAS
+         ============================================ -->
+    <div class="main-grid">
       
-      <!-- Welcome Section -->
-      <section class="welcome-section">
-        <h2 class="welcome-title">Bienvenido, {{ userDashboard.userInfo.displayName }}</h2>
-        <p class="welcome-subtitle">{{ getMembershipMessage() }}</p>
-        <div class="status-indicator">
-          <mat-icon>check_circle</mat-icon>
-          <span>Sesión activa</span>
-        </div>
-      </section>
-        <!-- Actions Section -->
-        <section class="actions-section">
-          <div class="section-header">
-            <h3>Acciones Disponibles</h3>
-            <p>Funciones disponibles según tu rol</p>
-          </div>
-          
-          <div class="actions-grid">
-            <button 
-              *ngFor="let action of userDashboard.availableActions" 
-              [class]="getActionClass(action)"
-              (click)="executeAction(action)">
-              <mat-icon>{{ action.icon }}</mat-icon>
-              <span>{{ action.title }}</span>
-            </button>
-          </div>
-        </section>
-
-      <!-- Personal Stats Grid -->
-      <section class="stats-grid">
+      <!-- ============================================
+           LEFT COLUMN - OVERVIEW + MÉTRICAS
+           ============================================ -->
+      <section class="overview-section">
+        <h2 class="section-title">
+          <mat-icon>dashboard</mat-icon>
+          Tu Panel de Control
+        </h2>
         
-        <!-- User Info Card -->
-        <div class="stat-card">
-          <div class="card-header">
-            <div class="card-icon user-icon">
-              <mat-icon>person</mat-icon>
+        <!-- Key Metrics Grid -->
+        <div class="stats-grid">
+          <div *ngFor="let metric of keyMetrics" class="stat-item">
+            <div class="stat-label">
+              <mat-icon>{{ metric.icon }}</mat-icon>
+              {{ metric.label }}
             </div>
-            <div class="card-title">
-              <h3>Tu Información</h3>
-              <p>Detalles de tu cuenta</p>
-            </div>
-          </div>
-          <div class="card-content">
-            <div class="info-row">
-              <span>Email:</span>
-              <span>{{ userDashboard.userInfo.email }}</span>
-            </div>
-            <div class="info-row">
-              <span>Rol:</span>
-              <span class="role-badge">{{ (userDashboard.userInfo.role || 'N/A').toUpperCase() }}</span>
-            </div>
-            <div class="info-row">
-              <span>Estado:</span>
-              <span class="status-active">{{ userDashboard.userInfo.isActive ? 'ACTIVO' : 'INACTIVO' }}</span>
-            </div>
-            <div class="info-row">
-              <span>Último acceso:</span>
-              <span [class]="isRecentAccess() ? 'last-access-recent' : 'last-access-normal'">
-                {{ getLastLoginInfo().formatted }}
-              </span>
-            </div>
-            <div class="info-row" *ngIf="getLastLoginInfo().timeAgo !== 'Sin registros de acceso'">
-              <span>Hace:</span>
-              <span [class]="isRecentAccess() ? 'time-ago-recent' : 'time-ago-normal'">
-                {{ getLastLoginInfo().timeAgo }}
-              </span>
-            </div>
-          </div>
-        </div>
-       
-
-        <!-- Permissions Card -->
-        <div class="stat-card">
-          <div class="card-header">
-            <div class="card-icon permissions-icon">
-              <mat-icon>security</mat-icon>
-            </div>
-            <div class="card-title">
-              <h3>Tus Permisos</h3>
-              <p>{{ userDashboard.userStats.totalPermissions }} permisos asignados</p>
-            </div>
-          </div>
-          <div class="card-content">
-            <div class="permission-list" *ngIf="userDashboard.userInfo.permissions.length > 0; else noPermissions">
-              <div *ngFor="let permission of userDashboard.userInfo.permissions" class="permission-item">
-                <mat-icon>{{ getPermissionIcon(permission) }}</mat-icon>
-                <span>{{ permission }}</span>
-              </div>
-            </div>
-            <ng-template #noPermissions>
-              <div class="info-row">
-                <span>No tienes permisos especiales asignados</span>
-              </div>
-            </ng-template>
+            <div class="stat-value">{{ metric.value }}</div>
+            <div class="stat-change">{{ metric.change }}</div>
           </div>
         </div>
 
-        <!-- Modules Card -->
-        <div class="stat-card">
-          <div class="card-header">
-            <div class="card-icon projects-icon">
-              <mat-icon>apps</mat-icon>
+        <!-- Permisos Compactos -->
+        <div class="compact-section">
+          <h3 class="section-subtitle">
+            <mat-icon>verified</mat-icon>
+            Tus Permisos
+          </h3>
+          <div class="compact-list">
+            <div *ngFor="let permission of userDashboard.userInfo.permissions" 
+                 class="compact-chip">
+              <mat-icon>{{ getPermissionIcon(permission) }}</mat-icon>
+              {{ getPermissionLabel(permission) }}
             </div>
-            <div class="card-title">
-              <h3>Tus Módulos</h3>
-              <p>{{ userDashboard.userStats.totalModules }} módulos asignados</p>
+            <div *ngIf="userDashboard.userInfo.permissions.length === 0" 
+                 class="empty-state-chip">
+              Sin permisos asignados
             </div>
           </div>
-          <div class="card-content">
-            <div class="project-list" *ngIf="userDashboard.userInfo.modules.length > 0; else noModules">
-              <div *ngFor="let module of userDashboard.userInfo.modules" class="project-item">
-                <mat-icon>apps</mat-icon>
-                <span>{{ module }}</span>
-              </div>
+        </div>
+
+        <!-- Módulos Compactos -->
+        <div class="compact-section">
+          <h3 class="section-subtitle">
+            <mat-icon>apps</mat-icon>
+            Módulos Activos
+          </h3>
+          <div class="compact-list">
+            <div *ngFor="let module of userDashboard.userInfo.modules" 
+                 class="compact-chip">
+              <mat-icon>dashboard</mat-icon>
+              {{ module }}
             </div>
-            <ng-template #noModules>
-              <div class="info-row">
-                <span>No tienes módulos asignados</span>
-              </div>
-            </ng-template>
+            <div *ngIf="userDashboard.userInfo.modules.length === 0" 
+                 class="empty-state-chip">
+              Sin módulos asignados
+            </div>
           </div>
         </div>
       </section>
-       
 
-      <!-- User Activity Section -->
-      <section class="activity-section" *ngIf="userDashboard.recentActivity.length > 0">
-        <div class="section-header">
-          <h3>Tu Actividad Reciente</h3>
-          <p>Últimas acciones en tu cuenta</p>
-        </div>
+      <!-- ============================================
+           RIGHT COLUMN - ACTIVIDAD RECIENTE
+           ============================================ -->
+      <section class="activity-section">
+        <h2 class="section-title">
+          <mat-icon>history</mat-icon>
+          Actividad Reciente
+        </h2>
         
-        <div class="activity-list">
-          <div *ngFor="let activity of userDashboard.recentActivity" class="activity-item">
-            <div class="activity-icon" [ngClass]="getActivityIconColor(activity.type)">
+        <div class="activity-timeline" *ngIf="recentActivities.length > 0">
+          <div *ngFor="let activity of recentActivities; let last = last" 
+               class="activity-item"
+               [class.last]="last">
+            <div class="activity-icon-wrapper" [class]="getActivityColor(activity.type)">
               <mat-icon>{{ getActivityIcon(activity.type) }}</mat-icon>
             </div>
             <div class="activity-content">
-              <div class="activity-description">{{ activity.description }}</div>
-              <div class="activity-time">{{ formatDate(activity.timestamp) }}</div>
+              <div class="activity-title">{{ activity.description }}</div>
+              <div class="activity-time">{{ getRelativeTime(activity.timestamp) }}</div>
             </div>
           </div>
+        </div>
+
+        <div *ngIf="recentActivities.length === 0" class="empty-state">
+          <mat-icon>inbox</mat-icon>
+          <p>No hay actividad reciente</p>
         </div>
       </section>
-
-    
-
-      <!-- System Info -->
-      <section class="system-info">
-        <div class="section-header">
-          <h3>Información de tu Sesión</h3>
-          <p>Detalles técnicos y estado de la conexión</p>
-        </div>
-        
-        <div class="info-grid">
-          <div class="info-section">
-            <h4>Sesión Actual</h4>
-            <div class="info-details">
-              <div>Último acceso: {{ getLastLoginInfo().formatted }}</div>
-              <div *ngIf="getLastLoginInfo().timeAgo !== 'Sin registros de acceso'" 
-                   [class]="isRecentAccess() ? 'recent-access' : ''">
-                {{ getLastLoginInfo().timeAgo }}
-              </div>
-              <div>Días como miembro: {{ userDashboard.userStats.daysSinceCreation }}</div>
-              <div>Autenticación: Google OAuth 2.0</div>
-              <div class="status-connected">Estado: Conectado</div>
-            </div>
-          </div>
-          
-          <div class="info-section">
-            <h4>Tu Cuenta</h4>
-            <div class="info-details">
-              <div>Rol: {{ userDashboard.userInfo.role }}</div>
-              <div>Permisos: {{ userDashboard.userStats.totalPermissions }}</div>
-              <div>Módulos: {{ userDashboard.userStats.totalModules }}</div>
-              <div>Estado: {{ userDashboard.userInfo.isActive ? 'Activo' : 'Inactivo' }}</div>
-            </div>
-          </div>
-          
-          <div class="info-section">
-            <h4>Sistema</h4>
-            <div class="info-details">
-              <div>Framework: Angular 20</div>
-              <div>Backend: Firebase</div>
-              <div>Versión: {{ appInfo.name }} v1.0.0</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
     </div>
-  </main>
+
+    <!-- ============================================
+         INSIGHTS - INFORMACIÓN CONTEXTUAL
+         ============================================ -->
+    <section class="insights-section">
+     
+      
+      <!-- Contact Info -->
+      <div class="contact-card">
+        <h4>
+          <mat-icon>email</mat-icon>
+          Contacto
+        </h4>
+        <p>
+          <strong>Email:</strong> {{ userDashboard.userInfo.email }}
+        </p>
+        <p class="help-text">
+          ¿Necesitas ayuda? Contacta al administrador del sistema o revisa la documentación en el panel de configuración.
+        </p>
+      </div>
+    </section>
+
+  </div>
 </div>

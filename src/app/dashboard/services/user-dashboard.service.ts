@@ -1,20 +1,8 @@
-// src/app/dashboard/services/user-dashboard.service.ts
+// src/app/dashboard/services/user-dashboard.service.ts - REFACTORIZADO
 import { Injectable } from '@angular/core';
-import { Observable, of, from } from 'rxjs';
+import { Observable, from, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { 
-  getFirestore, 
-  doc, 
-  getDoc,
-  updateDoc,
-  collection,
-  query,
-  where,
-  orderBy,
-  limit,
-  getDocs,
-  Timestamp 
-} from 'firebase/firestore';
+import { FirestoreUserService, FirestoreUser } from '../../core/services/firestore-user.service';
 
 export interface UserDashboardData {
   userInfo: {
@@ -62,104 +50,57 @@ export interface UserActivity {
   providedIn: 'root'
 })
 export class UserDashboardService {
-  private db = getFirestore();
 
-  constructor() {}
+  constructor(private firestoreUserService: FirestoreUserService) {}
 
   /**
-   * Obtiene todos los datos del dashboard para el usuario actual
+   * Obtiene datos del dashboard por email (identificador más confiable)
    */
-  getUserDashboardData(userId: string): Observable<UserDashboardData> {
-    console.log('🔍 Buscando datos para userId:', userId);
-    
-    return from(this.fetchUserData(userId)).pipe(
-      map(userData => {
-        console.log('📊 Datos obtenidos de Firebase:', userData);
-        
-        if (!userData) {
-          console.warn('⚠️ No se encontró usuario con ID:', userId);
+  getUserDashboardData(email: string): Observable<UserDashboardData> {
+    return from(this.firestoreUserService.findUserByEmail(email)).pipe(
+      map(result => {
+        if (!result) {
           throw new Error('Usuario no encontrado');
         }
-
-        const dashboardData = {
-          userInfo: {
-            email: userData.email || '',
-            displayName: userData.displayName || userData.email || 'Usuario',
-            role: userData.role || 'user',
-            permissions: userData.permissions || [],
-            modules: userData.modules || userData.projects || [], // Fallback para compatibilidad
-            isActive: userData.isActive !== false,
-            lastLogin: userData.lastLogin,
-            createdAt: userData.createdAt
-          },
-          userStats: this.calculateUserStats(userData),
-          availableActions: this.getAvailableActions(userData),
-          recentActivity: this.generateUserActivity(userData)
-        };
-
-        console.log('✅ Dashboard data procesada:', dashboardData);
-        return dashboardData;
+        return this.buildDashboardData(result.data);
       }),
       catchError(error => {
-        console.error('💥 Error obteniendo datos del dashboard del usuario:', error);
+        console.error('Error obteniendo datos del dashboard:', error);
         return of(this.getDefaultDashboardData());
       })
     );
   }
 
   /**
-   * Obtiene los datos del usuario desde Firebase
+   * Construye los datos del dashboard a partir de los datos del usuario
    */
-  private async fetchUserData(userId: string): Promise<any> {
-    console.log('🔍 Consultando Firebase para userId:', userId);
-    
-    try {
-      const userRef = doc(this.db, 'authorized_users', userId);
-      const userSnap = await getDoc(userRef);
-      
-      if (userSnap.exists()) {
-        const userData = { id: userSnap.id, ...userSnap.data() };
-        console.log('✅ Usuario encontrado en Firebase:', userData);
-        return userData;
-      } else {
-        console.warn('⚠️ Documento no existe para userId:', userId);
-        
-        // Intentar buscar por email como fallback
-        const usersRef = collection(this.db, 'authorized_users');
-        const querySnapshot = await getDocs(usersRef);
-        
-        console.log('🔍 Buscando en toda la colección authorized_users...');
-        let foundUser = null;
-        
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          console.log('📄 Usuario encontrado:', { id: doc.id, ...data });
-          
-          // Si coincide con algún criterio, usar este usuario
-          if (doc.id === userId || data['uid'] === userId) {
-            foundUser = { id: doc.id, ...data };
-            console.log('✅ Usuario coincidente encontrado:', foundUser);
-          }
-        });
-        
-        return foundUser;
-      }
-    } catch (error) {
-      console.error('💥 Error consultando Firebase:', error);
-      throw error;
-    }
+  private buildDashboardData(userData: FirestoreUser): UserDashboardData {
+    return {
+      userInfo: {
+        email: userData.email,
+        displayName: userData.displayName || userData.email,
+        role: userData.role,
+        permissions: userData.permissions || [],
+        modules: userData.modules || [],
+        isActive: userData.isActive,
+        lastLogin: userData.lastLogin,
+        createdAt: userData.createdAt
+      },
+      userStats: this.calculateUserStats(userData),
+      availableActions: this.getAvailableActions(userData),
+      recentActivity: this.generateUserActivity(userData)
+    };
   }
 
   /**
    * Calcula estadísticas del usuario
    */
-  private calculateUserStats(userData: any): any {
-    const createdAt = userData.createdAt;
+  private calculateUserStats(userData: FirestoreUser): UserDashboardData['userStats'] {
     const now = new Date();
     
     let daysSinceCreation = 0;
-    if (createdAt) {
-      const createdDate = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
+    if (userData.createdAt) {
+      const createdDate = userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt);
       daysSinceCreation = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
     }
 
@@ -177,18 +118,16 @@ export class UserDashboardService {
           minute: '2-digit'
         });
         
-        // Verificar si el login es reciente (menos de 1 hora)
         const hoursDiff = (now.getTime() - lastLoginDate.getTime()) / (1000 * 60 * 60);
         isRecentLogin = hoursDiff < 1;
-        
-      } catch (e) {
+      } catch {
         lastLoginFormatted = 'Fecha no válida';
       }
     }
 
     return {
       totalPermissions: userData.permissions?.length || 0,
-      totalModules: (userData.modules || userData.projects || []).length,
+      totalModules: userData.modules?.length || 0,
       daysSinceCreation,
       lastLoginFormatted,
       isRecentLogin,
@@ -197,13 +136,47 @@ export class UserDashboardService {
   }
 
   /**
-   * Determina las acciones disponibles según el rol del usuario
+   * Determina acciones disponibles según el rol
    */
-  private getAvailableActions(userData: any): DashboardAction[] {
-    const role = userData.role || 'user';
-    const permissions = userData.permissions || [];
-    
-    const actions: DashboardAction[] = [
+  private getAvailableActions(userData: FirestoreUser): DashboardAction[] {
+    const actions: DashboardAction[] = [];
+    const isAdmin = userData.role === 'admin' || userData.permissions?.includes('manage_users');
+
+    // Acciones de admin
+    if (isAdmin) {
+      actions.push(
+        {
+          id: 'admin_panel',
+          title: 'Panel Admin',
+          description: 'Gestión administrativa del sistema',
+          icon: 'admin_panel_settings',
+          route: '/admin',
+          color: 'primary',
+          visible: true
+        },
+        {
+          id: 'manage_users',
+          title: 'Gestionar Usuarios',
+          description: 'Administrar cuentas de usuario',
+          icon: 'group',
+          route: '/admin',
+          color: 'secondary',
+          visible: true
+        }
+      );
+    }
+
+    // Acciones comunes
+    actions.push(
+      {
+        id: 'modules',
+        title: 'Mis Módulos',
+        description: 'Acceder a módulos asignados',
+        icon: 'apps',
+        route: '/modules',
+        color: 'default',
+        visible: userData.modules && userData.modules.length > 0
+      },
       {
         id: 'profile',
         title: 'Mi Perfil',
@@ -231,44 +204,7 @@ export class UserDashboardService {
         color: 'default',
         visible: true
       }
-    ];
-
-    // Acciones específicas para administradores
-    if (role === 'admin' || permissions.includes('manage_users')) {
-      actions.unshift(
-        {
-          id: 'admin_panel',
-          title: 'Panel Admin',
-          description: 'Gestión administrativa del sistema',
-          icon: 'admin_panel_settings',
-          route: '/admin',
-          color: 'primary',
-          visible: true
-        },
-        {
-          id: 'manage_users',
-          title: 'Gestionar Usuarios',
-          description: 'Administrar cuentas de usuario',
-          icon: 'group',
-          route: '/admin/users',
-          color: 'secondary',
-          visible: true
-        }
-      );
-    }
-
-    // Acciones para usuarios con permisos de escritura
-    if (permissions.includes('write') || role === 'admin') {
-      actions.splice(3, 0, {
-        id: 'modules',
-        title: 'Mis Módulos',
-        description: 'Acceder a módulos asignados',
-        icon: 'apps',
-        route: '/modules',
-        color: 'default',
-        visible: (userData.modules || userData.projects || []).length > 0
-      });
-    }
+    );
 
     return actions.filter(action => action.visible);
   }
@@ -276,10 +212,9 @@ export class UserDashboardService {
   /**
    * Genera actividad reciente del usuario
    */
-  private generateUserActivity(userData: any): UserActivity[] {
+  private generateUserActivity(userData: FirestoreUser): UserActivity[] {
     const activities: UserActivity[] = [];
 
-    // Actividad de creación de cuenta
     if (userData.createdAt) {
       activities.push({
         id: 'account_created',
@@ -290,7 +225,6 @@ export class UserDashboardService {
       });
     }
 
-    // Último login
     if (userData.lastLogin) {
       activities.push({
         id: 'last_login',
@@ -300,7 +234,6 @@ export class UserDashboardService {
       });
     }
 
-    // Permisos asignados
     if (userData.permissions && userData.permissions.length > 0) {
       activities.push({
         id: 'permissions_granted',
@@ -311,18 +244,16 @@ export class UserDashboardService {
       });
     }
 
-    // Módulos asignados
-    if ((userData.modules || userData.projects || []).length > 0) {
+    if (userData.modules && userData.modules.length > 0) {
       activities.push({
         id: 'modules_assigned',
         type: 'module_assigned',
-        description: `Asignado a ${(userData.modules || userData.projects || []).length} módulos`,
+        description: `Asignado a ${userData.modules.length} módulos`,
         timestamp: userData.createdAt || new Date(),
-        details: { modules: userData.modules || userData.projects }
+        details: { modules: userData.modules }
       });
     }
 
-    // Ordenar por timestamp descendente
     return activities.sort((a, b) => {
       const timestampA = a.timestamp?.seconds || 0;
       const timestampB = b.timestamp?.seconds || 0;
@@ -331,26 +262,7 @@ export class UserDashboardService {
   }
 
   /**
-   * Actualiza el último acceso del usuario actual
-   */
-  async updateCurrentUserLastLogin(userId: string): Promise<void> {
-    try {
-      const userRef = doc(this.db, 'authorized_users', userId);
-      const now = Timestamp.now();
-      
-      await updateDoc(userRef, {
-        lastLogin: now,
-        lastLoginDate: new Date().toISOString()
-      });
-      
-      console.log('✅ Último acceso actualizado para usuario:', userId);
-    } catch (error) {
-      console.error('❌ Error actualizando último acceso:', error);
-    }
-  }
-
-  /**
-   * Obtiene información detallada sobre el último acceso
+   * Obtiene información detallada del último login
    */
   getLastLoginInfo(lastLogin: any): { formatted: string, timeAgo: string, isRecent: boolean } {
     if (!lastLogin) {
@@ -373,11 +285,11 @@ export class UserDashboardService {
       if (diffMins < 1) {
         timeAgo = 'Ahora mismo';
       } else if (diffMins < 60) {
-        timeAgo = `Hace ${diffMins} minutos`;
+        timeAgo = `Hace ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
       } else if (diffHours < 24) {
-        timeAgo = `Hace ${diffHours} horas`;
+        timeAgo = `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
       } else {
-        timeAgo = `Hace ${diffDays} días`;
+        timeAgo = `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
       }
 
       return {
@@ -389,9 +301,9 @@ export class UserDashboardService {
           minute: '2-digit'
         }),
         timeAgo,
-        isRecent: diffMins < 60 // Consideramos reciente si es menos de 1 hora
+        isRecent: diffMins < 60
       };
-    } catch (e) {
+    } catch {
       return {
         formatted: 'Fecha no válida',
         timeAgo: 'Error al calcular tiempo',

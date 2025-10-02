@@ -67,7 +67,7 @@ export class LoginComponent implements OnInit {
 
     try {
       console.log('🚀 Iniciando proceso de login...');
-      const result = await this.authService.loginWithGoogle('generic-admin');
+      const result = await this.authService.loginWithGoogle();
 
       if (result.success) {
         this._loginMessage.set({

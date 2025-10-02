@@ -11,10 +11,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   
-  <!-- Google Fonts - Inter para tipografía moderna -->
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Material Icons - CRÍTICO para que los iconos funcionen -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   
   <!-- Meta tags para SEO y PWA -->
@@ -26,12 +24,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Generic Admin">
   
-  <!-- Preload crítico para mejor performance -->
-  <link rel="preload" href="https://fonts.googleapis.com/icon?family=Material+Icons" as="style">
-  
-  <!-- Prevent FOUC (Flash of Unstyled Content) -->
+  <!-- Critical CSS inline -->
   <style>
-    /* Critical CSS inline para evitar flash */
     body {
       margin: 0;
       padding: 0;
@@ -39,11 +33,33 @@
       background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
       overflow-x: hidden;
     }
+    
+    /* Animaciones del loader */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes progress {
+      0% { transform: translateX(-100%); }
+      50% { transform: translateX(0%); }
+      100% { transform: translateX(100%); }
+    }
   </style>
 </head>
 <body>
   <app-root>
-    <!-- Loading mejorado mientras carga la app -->
+    <!-- Loading screen -->
     <div id="initial-loader" style="
       position: fixed;
       top: 0;
@@ -59,7 +75,7 @@
       z-index: 9999;
     ">
       <div style="text-align: center; animation: fadeInUp 0.6s ease-out;">
-        <!-- Logo o ícono -->
+        <!-- Logo -->
         <div style="
           width: 80px; 
           height: 80px; 
@@ -85,7 +101,7 @@
           margin: 0 auto 24px;
         "></div>
         
-        <!-- Textos -->
+        <!-- Texto -->
         <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: #374151;">
           Cargando aplicación...
         </div>
@@ -93,7 +109,7 @@
           Generic Admin Login - Dev
         </div>
         
-        <!-- Barra de progreso simulada -->
+        <!-- Barra de progreso -->
         <div style="
           width: 200px;
           height: 2px;
@@ -112,68 +128,47 @@
         </div>
       </div>
     </div>
-    
-    <!-- Estilos para las animaciones -->
-    <style>
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-      
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      
-      @keyframes progress {
-        0% { transform: translateX(-100%); }
-        50% { transform: translateX(0%); }
-        100% { transform: translateX(100%); }
-      }
-      
-      /* Ocultar loader cuando Angular carga - Simplificado */
-      app-root > *:not(#initial-loader) ~ #initial-loader {
-        display: none;
-      }
-    </style>
   </app-root>
 
-  <!-- Script para ocultar loader cuando Angular esté listo - Simplificado -->
+  <!-- Script para ocultar loader -->
   <script>
-    // Ocultar loader después de 3 segundos máximo
-    setTimeout(function() {
+    (function() {
       const loader = document.getElementById('initial-loader');
-      if (loader) {
+      if (!loader) return;
+      
+      function hideLoader() {
         loader.style.opacity = '0';
         loader.style.transition = 'opacity 0.3s ease-out';
         setTimeout(() => loader.remove(), 300);
       }
-    }, 3000);
-    
-    // También ocultar cuando detecte contenido de Angular
-    const observer = new MutationObserver(function(mutations) {
-      const appRoot = document.querySelector('app-root');
-      if (appRoot && appRoot.children.length > 1) {
-        const loader = document.getElementById('initial-loader');
-        if (loader) {
-          loader.style.opacity = '0';
-          loader.style.transition = 'opacity 0.3s ease-out';
-          setTimeout(() => loader.remove(), 300);
+      
+      // Timeout de seguridad (3 segundos)
+      const timeoutId = setTimeout(hideLoader, 3000);
+      
+      // Observer para detectar cuando Angular carga
+      const observer = new MutationObserver(() => {
+        const appRoot = document.querySelector('app-root');
+        if (appRoot && appRoot.children.length > 1) {
+          clearTimeout(timeoutId);
+          hideLoader();
           observer.disconnect();
         }
-      }
-    });
-    
-    observer.observe(document.querySelector('app-root'), {
-      childList: true,
-      subtree: true
-    });
+      });
+      
+      observer.observe(document.querySelector('app-root'), {
+        childList: true,
+        subtree: true
+      });
+    })();
   </script>
+  
+  <!-- Mensaje para navegadores sin JavaScript -->
+  <noscript>
+    <div style="padding: 2rem; text-align: center; font-family: 'Inter', sans-serif;">
+      <h1>JavaScript Requerido</h1>
+      <p>Esta aplicación requiere JavaScript para funcionar correctamente.</p>
+      <p>Por favor, habilita JavaScript en tu navegador.</p>
+    </div>
+  </noscript>
 </body>
 </html>

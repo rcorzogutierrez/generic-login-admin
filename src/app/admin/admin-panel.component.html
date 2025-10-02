@@ -1,37 +1,45 @@
-<!-- src/app/admin/admin-panel.component.html - VERSIÓN CORREGIDA SIN ERRORES -->
+<!-- src/app/admin/admin-panel.component.html - VERSIÓN OPTIMIZADA -->
 <div class="admin-container">
-  <!-- Header -->
+  <!-- Header Compacto - Igual al Dashboard -->
   <header class="admin-header">
     <div class="header-content">
       <div class="header-left">
-        <div class="logo-section">
-          <mat-icon class="admin-logo-icon">admin_panel_settings</mat-icon>
-          <div class="logo-text">
-            <h1>Panel de Administración</h1>
-            <span>Gestión completa del sistema</span>
-          </div>
-          <div class="admin-badge">
-            <span>ADMIN</span>
-          </div>
-        </div>
+        <h1>¡Bienvenido de nuevo! 👋</h1>
+        <p *ngIf="!isLoading && currentUser()">
+          <span class="status-dot" [class.recent]="isRecentSession()"></span>
+          Última sesión: {{ getLastSession() }}
+        </p>
       </div>
       
       <div class="header-right">
-        <div class="admin-user-info">
-          <div class="user-avatar">
-            <mat-icon>shield</mat-icon>
-          </div>
-          <div class="user-details">
+        <!-- User Badge -->
+        <div class="user-badge" *ngIf="!isLoading && currentUser()">
+          <div class="user-avatar">{{ getUserInitials() }}</div>
+          <div class="user-info-header">
             <span class="user-name">{{ currentUser()?.displayName }}</span>
-            <span class="user-role">ADMINISTRADOR</span>
+            <span class="user-role-badge">ADMIN</span>
           </div>
         </div>
         
-        <button mat-icon-button (click)="goToDashboard()" class="nav-button" title="Ir al Dashboard">
-          <mat-icon>dashboard</mat-icon>
+        <!-- Action Buttons -->
+        <button mat-icon-button 
+                class="icon-button" 
+                matTooltip="Notificaciones"
+                (click)="goToNotifications()">
+          <mat-icon>notifications</mat-icon>
         </button>
         
-        <button mat-icon-button [matMenuTriggerFor]="adminMenu" class="menu-button">
+        <button mat-icon-button 
+                class="icon-button" 
+                matTooltip="Configuración"
+                (click)="systemSettings()">
+          <mat-icon>settings</mat-icon>
+        </button>
+        
+        <button mat-icon-button 
+                [matMenuTriggerFor]="adminMenu" 
+                class="icon-button"
+                matTooltip="Menú">
           <mat-icon>more_vert</mat-icon>
         </button>
         
@@ -44,6 +52,7 @@
             <mat-icon>refresh</mat-icon>
             Actualizar Datos
           </button>
+          <mat-divider></mat-divider>
           <button mat-menu-item (click)="logout()">
             <mat-icon>logout</mat-icon>
             Cerrar Sesión
@@ -55,17 +64,12 @@
 
   <!-- Main Content -->
   <main class="admin-main">
-    <!-- Welcome Section -->
-    <section class="welcome-section">
-      <h2 class="welcome-title">Centro de Control Administrativo</h2>
-      <p class="welcome-subtitle">Gestiona usuarios, módulos y configuraciones del sistema</p>
-    </section>
-
-    <!-- Stats Grid -->
+    
+    <!-- Stats Grid - Clicables -->
     <section class="stats-section">
       <div class="stats-grid">
         <!-- Total Users -->
-        <div class="stat-card users-card">
+        <div class="stat-card users-card" (click)="filterByAll()">
           <div class="stat-icon">
             <mat-icon>group</mat-icon>
           </div>
@@ -76,7 +80,7 @@
         </div>
 
         <!-- Active Users -->
-        <div class="stat-card active-card">
+        <div class="stat-card active-card" (click)="filterByActive()">
           <div class="stat-icon">
             <mat-icon>check_circle</mat-icon>
           </div>
@@ -87,7 +91,7 @@
         </div>
 
         <!-- Total Modules -->
-        <div class="stat-card modules-card">
+        <div class="stat-card modules-card" (click)="filterByModules()">
           <div class="stat-icon">
             <mat-icon>apps</mat-icon>
           </div>
@@ -98,7 +102,7 @@
         </div>
 
         <!-- Admin Users -->
-        <div class="stat-card admins-card">
+        <div class="stat-card admins-card" (click)="filterByAdmin()">
           <div class="stat-icon">
             <mat-icon>security</mat-icon>
           </div>
@@ -111,52 +115,96 @@
     </section>
 
     <!-- Quick Actions -->
-    <section class="actions-section">
-      <div class="section-header">
+    <section class="quick-actions-section">
+      <div class="quick-actions-header">
         <h3>Acciones Rápidas</h3>
-        <p>Gestión del sistema y usuarios</p>
+        <p>Gestión del sistema y configuración</p>
       </div>
       
-      <div class="actions-grid">
-        <button class="action-button primary" (click)="addUser()" title="Crear nuevo usuario en el sistema">
-          <mat-icon>person_add</mat-icon>
+      <div class="quick-actions-grid">
+        <button class="quick-action-btn primary" (click)="addUser()">
+          <mat-icon class="quick-action-icon">person_add</mat-icon>
           <span>Agregar Usuario</span>
         </button>
         
-        <button class="action-button secondary" (click)="manageRoles()" title="Gestionar roles y permisos">
-          <mat-icon>admin_panel_settings</mat-icon>
+        <button class="quick-action-btn secondary" (click)="manageRoles()">
+          <mat-icon class="quick-action-icon">admin_panel_settings</mat-icon>
           <span>Gestionar Roles</span>
         </button>
         
-        <button class="action-button" (click)="manageModules()" title="Configurar módulos del sistema">
-          <mat-icon>apps</mat-icon>
+        <button class="quick-action-btn" (click)="manageModules()">
+          <mat-icon class="quick-action-icon">apps</mat-icon>
           <span>Gestionar Módulos</span>
         </button>
         
-        <button class="action-button" (click)="viewLogs()" title="Ver registros de actividad">
-          <mat-icon>list_alt</mat-icon>
+        <button class="quick-action-btn" (click)="viewLogs()">
+          <mat-icon class="quick-action-icon">list_alt</mat-icon>
           <span>Ver Logs</span>
         </button>
         
-        <button class="action-button" (click)="systemSettings()" title="Configuración general del sistema">
-          <mat-icon>settings</mat-icon>
+        <button class="quick-action-btn" (click)="systemSettings()">
+          <mat-icon class="quick-action-icon">settings</mat-icon>
           <span>Configuración</span>
         </button>
         
-        <button class="action-button" (click)="exportData()" title="Exportar datos de usuarios">
-          <mat-icon>download</mat-icon>
+        <button class="quick-action-btn" (click)="exportData()">
+          <mat-icon class="quick-action-icon">download</mat-icon>
           <span>Exportar Datos</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Toolbar - Búsqueda y Acciones -->
+    <section class="toolbar-section">
+      <div class="search-box">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Buscar usuarios por nombre o email..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearch()"
+        >
+      </div>
+      
+      <div class="filters-group">
+        <button 
+          class="filter-btn" 
+          [class.active]="currentFilter === 'all'"
+          (click)="setFilter('all')">
+          <mat-icon>people</mat-icon>
+          Todos
+        </button>
+        <button 
+          class="filter-btn"
+          [class.active]="currentFilter === 'admin'"
+          (click)="setFilter('admin')">
+          <mat-icon>shield</mat-icon>
+          Admins
+        </button>
+        <button 
+          class="filter-btn"
+          [class.active]="currentFilter === 'modules'"
+          (click)="setFilter('modules')">
+          <mat-icon>apps</mat-icon>
+          Con Módulos
+        </button>
+      </div>
+
+      <div class="toolbar-actions">
+        <button class="btn-secondary-toolbar" (click)="exportData()">
+          <mat-icon>download</mat-icon>
+          Exportar
+        </button>
+        <button class="btn-primary-toolbar" (click)="addUser()">
+          <mat-icon>person_add</mat-icon>
+          Nuevo Usuario
         </button>
       </div>
     </section>
 
     <!-- Users Table -->
     <section class="table-section">
-      <div class="section-header">
-        <h3>Usuarios Recientes</h3>
-        <p>Últimos usuarios que han accedido al sistema</p>
-      </div>
-      
       <div class="table-container">
         <div class="table-wrapper">
           <table class="users-table">
@@ -167,7 +215,7 @@
                 <th>Estado</th>
                 <th>Módulos Asignados</th>
                 <th>Último Acceso</th>
-                <th>Acciones</th>
+                <th style="text-align: center;">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -214,12 +262,12 @@
                 <td class="date-cell">
                   <div class="date-info">
                     <span class="date-text">{{ formatDate(user.lastLogin) }}</span>
-                    <span class="date-relative">{{ getRelativeTime(user.lastLogin) }}</span>
+                    <span class="date-relative" *ngIf="user.lastLogin">{{ getRelativeTime(user.lastLogin) }}</span>
                   </div>
                 </td>
-                <td>
+                <td style="text-align: center;">
                   <button mat-icon-button [matMenuTriggerFor]="userMenu" class="action-menu-button">
-                    <mat-icon>more_vert</mat-icon>
+                    <mat-icon>more_horiz</mat-icon>
                   </button>
                   <mat-menu #userMenu="matMenu">
                     <button mat-menu-item (click)="viewUserDetails(user)">
@@ -260,10 +308,6 @@
             <mat-icon>expand_more</mat-icon>
             Ver Más Usuarios
           </button>
-          <button mat-raised-button color="primary" (click)="addUser()">
-            <mat-icon>person_add</mat-icon>
-            Nuevo Usuario
-          </button>
         </div>
       </div>
       
@@ -285,25 +329,5 @@
       </div>
     </section>
 
-    <!-- Sistema de Módulos Info -->
-    <section class="info-section" *ngIf="totalModules > 0">
-      <div class="info-header">
-        <mat-icon class="info-icon">info</mat-icon>
-        <h4>Sistema Modular</h4>
-      </div>
-      <p>
-        El sistema cuenta con <strong>{{ totalModules }} módulos activos</strong> que pueden ser asignados a los usuarios según sus roles y responsabilidades. 
-        Cada módulo proporciona funcionalidades específicas y puede tener permisos granulares.
-      </p>
-      <div class="popular-modules" *ngIf="getPopularModules()?.length">
-        <span class="label">Módulos más utilizados:</span>
-        <mat-chip-set>
-          <mat-chip *ngFor="let module of getPopularModules()">
-            <mat-icon matChipAvatar>{{ module.icon }}</mat-icon>
-            {{ module.name }}
-          </mat-chip>
-        </mat-chip-set>
-      </div>
-    </section>
   </main>
 </div>

@@ -1,6 +1,7 @@
-// src/app/admin/admin-panel.component.ts - USANDO SOLO DATOS REALES DE FIREBASE
+// src/app/admin/admin-panel.component.ts - VERSIÓN OPTIMIZADA
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +11,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
@@ -24,6 +27,7 @@ import { AddUserDialogComponent } from './components/add-user-dialog/add-user-di
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
@@ -33,6 +37,8 @@ import { AddUserDialogComponent } from './components/add-user-dialog/add-user-di
     MatMenuModule,
     MatBadgeModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
+    MatDividerModule,
   ],
   templateUrl: './admin-panel.component.html',
   styleUrls: ['./admin-panel.component.css'],
@@ -40,28 +46,23 @@ import { AddUserDialogComponent } from './components/add-user-dialog/add-user-di
 export class AdminPanelComponent implements OnInit, OnDestroy {
   currentUser = this.authService.authorizedUser;
   
-  // Stats del dashboard - DATOS REALES
+  // Stats del dashboard
   totalUsers = 0;
   activeUsers = 0;
   totalModules = 0;
   adminUsers = 0;
 
-  // Usuarios reales desde Firebase
+  // Usuarios
   users: User[] = [];
-  displayedUsers: User[] = []; // Para paginación en la tabla
+  displayedUsers: User[] = [];
+  filteredUsers: User[] = [];
+  
+  // Control de filtros y búsqueda
+  currentFilter: 'all' | 'admin' | 'modules' | 'active' = 'all';
+  searchTerm = '';
   
   // Control de carga
   isLoading = false;
-  
-  // Configuración de tabla
-  displayedColumns: string[] = [
-    'email',
-    'role',
-    'status',
-    'modules',
-    'lastLogin',
-    'actions',
-  ];
 
   private subscriptions = new Subscription();
 
@@ -78,15 +79,13 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     
     this.isLoading = true;
     
-    // Cargar datos iniciales
     await this.loadData();
     
-    // Suscribirse a cambios en usuarios
     this.subscriptions.add(
       this.adminService.users$.subscribe(users => {
         this.users = users;
-        this.updateDisplayedUsers();
-        console.log('👥 Usuarios actualizados desde Firebase:', users.length);
+        this.applyFilters();
+        console.log('👥 Usuarios actualizados:', users.length);
       })
     );
     
@@ -98,14 +97,12 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Cargar todos los datos del panel desde Firebase
+   * Cargar todos los datos
    */
   private async loadData() {
     try {
-      // Cargar usuarios
       await this.adminService.loadUsers();
       
-      // Cargar estadísticas
       const stats = await this.adminService.getAdminStats();
       this.totalUsers = stats.totalUsers;
       this.activeUsers = stats.activeUsers;
@@ -116,109 +113,196 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('❌ Error cargando datos:', error);
       this.snackBar.open('Error cargando datos del panel', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
+        duration: 3000
       });
     }
   }
 
   /**
-   * Actualizar usuarios mostrados en la tabla (primeros 5)
+   * NUEVO: Aplicar filtros y búsqueda
    */
-  private updateDisplayedUsers() {
-    // Mostrar los 5 usuarios más recientes
-    this.displayedUsers = this.users.slice(0, 5);
+  private applyFilters() {
+    let filtered = [...this.users];
+
+    // Aplicar filtro por tipo
+    switch (this.currentFilter) {
+      case 'admin':
+        filtered = filtered.filter(u => u.role === 'admin');
+        break;
+      case 'modules':
+        filtered = filtered.filter(u => u.modules && u.modules.length > 0);
+        break;
+      case 'active':
+        filtered = filtered.filter(u => u.isActive);
+        break;
+      case 'all':
+      default:
+        // No filtrar
+        break;
+    }
+
+    // Aplicar búsqueda
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(u => 
+        u.email.toLowerCase().includes(term) ||
+        (u.displayName && u.displayName.toLowerCase().includes(term))
+      );
+    }
+
+    this.filteredUsers = filtered;
+    this.updateDisplayedUsers();
   }
 
   /**
-   * Cargar más usuarios en la tabla
+   * Actualizar usuarios mostrados (primeros 10)
+   */
+  private updateDisplayedUsers() {
+    this.displayedUsers = this.filteredUsers.slice(0, 10);
+  }
+
+  /**
+   * NUEVO: Establecer filtro
+   */
+  setFilter(filter: 'all' | 'admin' | 'modules' | 'active') {
+    this.currentFilter = filter;
+    this.applyFilters();
+    
+    const filterNames = {
+      all: 'Todos los usuarios',
+      admin: 'Administradores',
+      modules: 'Usuarios con módulos',
+      active: 'Usuarios activos'
+    };
+    
+    this.snackBar.open(`Filtro: ${filterNames[filter]}`, '', { duration: 2000 });
+  }
+
+  /**
+   * NUEVO: Filtros rápidos desde stats
+   */
+  filterByAll() {
+    this.setFilter('all');
+  }
+
+  filterByActive() {
+    this.setFilter('active');
+  }
+
+  filterByAdmin() {
+    this.setFilter('admin');
+  }
+
+  filterByModules() {
+    this.setFilter('modules');
+  }
+
+  /**
+   * NUEVO: Búsqueda en tiempo real
+   */
+  onSearch() {
+    this.applyFilters();
+  }
+
+  /**
+   * Cargar más usuarios
    */
   loadMoreUsers() {
-    console.log('📄 Cargando más usuarios...');
-    
     const currentLength = this.displayedUsers.length;
-    const nextBatch = this.users.slice(0, Math.min(currentLength + 5, this.users.length));
+    const nextBatch = this.filteredUsers.slice(0, Math.min(currentLength + 10, this.filteredUsers.length));
     
     if (nextBatch.length > this.displayedUsers.length) {
       this.displayedUsers = nextBatch;
-      this.snackBar.open(`Mostrando ${this.displayedUsers.length} de ${this.users.length} usuarios`, 'Cerrar', { 
-        duration: 2000 
-      });
-    } else {
-      this.snackBar.open('Todos los usuarios están siendo mostrados', 'Cerrar', { 
+      this.snackBar.open(`Mostrando ${this.displayedUsers.length} de ${this.filteredUsers.length} usuarios`, '', { 
         duration: 2000 
       });
     }
   }
 
   /**
-   * Refrescar datos del panel
+   * Refrescar datos
    */
   async refreshData() {
-    console.log('🔄 Refrescando datos del panel...');
+    console.log('🔄 Refrescando datos...');
     this.isLoading = true;
     
     try {
       await this.loadData();
-      this.snackBar.open('Datos actualizados correctamente', 'Cerrar', { 
-        duration: 2000,
-        panelClass: ['success-snackbar']
+      this.snackBar.open('Datos actualizados', 'Cerrar', { 
+        duration: 2000
       });
     } catch (error) {
-      this.snackBar.open('Error al actualizar datos', 'Cerrar', { 
-        duration: 2000,
-        panelClass: ['error-snackbar']
+      this.snackBar.open('Error al actualizar', 'Cerrar', { 
+        duration: 2000
       });
     } finally {
       this.isLoading = false;
     }
   }
 
-  // ===== TRACKING Y UTILIDADES =====
+  /**
+   * Obtiene iniciales del usuario
+   */
+  getUserInitials(): string {
+    const name = this.currentUser()?.displayName || '';
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  }
 
+  /**
+   * Obtiene última sesión simplificada
+   */
+  getLastSession(): string {
+    // Por ahora retornamos un valor simulado
+    // TODO: Implementar lógica real desde Firebase
+    return 'Hace 6 horas';
+  }
+
+  /**
+   * Verifica si la sesión es reciente
+   */
+  isRecentSession(): boolean {
+    // TODO: Implementar lógica real
+    return true;
+  }
+
+  /**
+   * Navega a notificaciones
+   */
+  goToNotifications() {
+    console.log('🔔 Notificaciones...');
+    this.snackBar.open('Centro de notificaciones - Próximamente', 'Cerrar', { duration: 2000 });
+  }
+
+  /**
+   * Tracking
+   */
   trackByUid(index: number, user: User): string {
     return user.uid || user.email;
   }
-
-  trackByEmail(index: number, user: User): string {
-    return user.email;
-  }
-
-  // ===== MÉTODOS PARA UI =====
 
   /**
    * Obtiene el icono según el rol
    */
   getUserIcon(role: string): string {
-    switch (role) {
-      case 'admin': return 'shield';
-      case 'user': return 'person';
-      case 'viewer': return 'visibility';
-      default: return 'person';
-    }
+    const icons: Record<string, string> = {
+      admin: 'shield',
+      user: 'person',
+      viewer: 'visibility'
+    };
+    return icons[role] || 'person';
   }
 
-  /**
-   * Obtiene icono según el rol
-   */
   getRoleIcon(role: string): string {
     return this.getUserIcon(role);
   }
 
   /**
-   * Obtiene el color del rol
-   */
-  getRoleColor(role: string): string {
-    switch (role) {
-      case 'admin': return 'warn';
-      case 'user': return 'primary';
-      case 'viewer': return 'accent';
-      default: return '';
-    }
-  }
-
-  /**
-   * Formatea la fecha de forma legible
+   * Formatea fecha
    */
   formatDate(date: Date | null | undefined): string {
     if (!date) return 'Nunca';
@@ -230,21 +314,20 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     if (diffHours < 1) {
       return 'Hace pocos minutos';
     } else if (diffHours < 24) {
-      return `Hace ${diffHours} horas`;
+      return `Hace ${diffHours}h`;
     } else {
       const days = Math.floor(diffHours / 24);
       if (days === 1) return 'Ayer';
-      if (days < 7) return `Hace ${days} días`;
+      if (days < 7) return `Hace ${days}d`;
       return new Date(date).toLocaleDateString('es-ES', {
         day: '2-digit',
-        month: 'short',
-        year: 'numeric'
+        month: 'short'
       });
     }
   }
 
   /**
-   * Obtiene tiempo relativo corto
+   * Tiempo relativo
    */
   getRelativeTime(date: Date | null | undefined): string {
     if (!date) return '';
@@ -253,21 +336,14 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     const diffMs = now.getTime() - new Date(date).getTime();
     const diffMinutes = Math.floor(diffMs / (1000 * 60));
 
-    if (diffMinutes < 5) {
-      return 'Ahora';
-    } else if (diffMinutes < 60) {
-      return `${diffMinutes}m`;
-    } else if (diffMinutes < 1440) {
-      return `${Math.floor(diffMinutes / 60)}h`;
-    } else {
-      return `${Math.floor(diffMinutes / 1440)}d`;
-    }
+    if (diffMinutes < 5) return 'Ahora';
+    if (diffMinutes < 60) return `${diffMinutes}m`;
+    if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h`;
+    return `${Math.floor(diffMinutes / 1440)}d`;
   }
 
-  // ===== MÉTODOS PARA MÓDULOS =====
-
   /**
-   * Obtiene los módulos asignados a un usuario
+   * Módulos del usuario
    */
   getUserModules(email: string): string[] {
     const user = this.users.find(u => u.email === email);
@@ -275,30 +351,26 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Obtiene el nombre corto de un módulo
+   * Nombre del módulo
    */
   getModuleName(moduleValue: string): string {
     const moduleOptions = this.adminService.getModuleOptions();
     const module = moduleOptions.find(m => m.value === moduleValue);
     
-    if (module) {
-      // Versión corta para la tabla
-      const shortNames: { [key: string]: string } = {
-        'dashboard': 'Dashboard',
-        'user-management': 'Usuarios',
-        'analytics': 'Analytics',
-        'settings': 'Config',
-        'notifications': 'Notif',
-        'audit-logs': 'Logs'
-      };
-      return shortNames[moduleValue] || module.label;
-    }
+    const shortNames: { [key: string]: string } = {
+      'dashboard': 'Dashboard',
+      'user-management': 'Usuarios',
+      'analytics': 'Analytics',
+      'settings': 'Config',
+      'notifications': 'Notif',
+      'audit-logs': 'Logs'
+    };
     
-    return moduleValue;
+    return shortNames[moduleValue] || module?.label || moduleValue;
   }
 
   /**
-   * Obtiene el icono de un módulo
+   * Icono del módulo
    */
   getModuleIcon(moduleValue: string): string {
     const moduleOptions = this.adminService.getModuleOptions();
@@ -307,18 +379,16 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Obtiene el color del avatar basado en el email
+   * Color del avatar
    */
   getUserAvatarColor(email: string): string {
     const colors = [
-      'linear-gradient(135deg, #ef4444, #dc2626)',
-      'linear-gradient(135deg, #f97316, #ea580c)',
-      'linear-gradient(135deg, #eab308, #ca8a04)',
-      'linear-gradient(135deg, #22c55e, #16a34a)',
-      'linear-gradient(135deg, #06b6d4, #0891b2)',
       'linear-gradient(135deg, #3b82f6, #2563eb)',
-      'linear-gradient(135deg, #6366f1, #4f46e5)',
+      'linear-gradient(135deg, #10b981, #059669)',
+      'linear-gradient(135deg, #f59e0b, #d97706)',
+      'linear-gradient(135deg, #ef4444, #dc2626)',
       'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+      'linear-gradient(135deg, #06b6d4, #0891b2)',
       'linear-gradient(135deg, #ec4899, #db2777)'
     ];
 
@@ -331,40 +401,8 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Obtiene el nombre para mostrar de un usuario
+   * Navegación
    */
-  getUserDisplayName(email: string): string {
-    const user = this.users.find(u => u.email === email);
-    return user?.displayName || email.split('@')[0];
-  }
-
-  /**
-   * Obtiene módulos más populares
-   */
-  getPopularModules(): { name: string; icon: string }[] {
-    if (this.users.length === 0) return [];
-
-    // Contar frecuencia de módulos
-    const moduleFrequency: { [key: string]: number } = {};
-    this.users.forEach(user => {
-      user.modules?.forEach(module => {
-        moduleFrequency[module] = (moduleFrequency[module] || 0) + 1;
-      });
-    });
-
-    // Obtener los 3 más populares
-    const sortedModules = Object.entries(moduleFrequency)
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 3);
-
-    return sortedModules.map(([moduleValue]) => ({
-      name: this.getModuleName(moduleValue),
-      icon: this.getModuleIcon(moduleValue)
-    }));
-  }
-
-  // ===== ACCIONES DE NAVEGACIÓN =====
-
   goToDashboard() {
     this.router.navigate(['/dashboard']);
   }
@@ -373,156 +411,100 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     await this.authService.logout();
   }
 
-  // ===== ACCIONES ADMINISTRATIVAS =====
-
   /**
-   * Abrir dialog para agregar usuario
+   * Agregar usuario
    */
-  // En admin-panel.component.ts
-addUser() {
-  console.log('➕ Abriendo dialog para agregar usuario...');
-  console.log('🔍 MatDialog está disponible:', !!this.dialog);
-  console.log('🔍 AddUserDialogComponent:', AddUserDialogComponent);
-  
-  try {
+  addUser() {
+    console.log('➕ Abriendo dialog...');
+    
     const dialogRef = this.dialog.open(AddUserDialogComponent, {
       width: '600px',
       maxWidth: '90vw',
-      maxHeight: '90vh',
-      disableClose: true,
-      panelClass: 'custom-dialog-container',
-      autoFocus: false
+      disableClose: true
     });
-    
-    console.log('✅ DialogRef creado:', !!dialogRef);
-    console.log('🔍 DialogRef completo:', dialogRef);
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('🔔 Dialog cerrado:', result);
       if (result?.success) {
-        console.log('✅ Usuario creado:', result.user);
         this.refreshData();
       }
     });
-  } catch (error) {
-    console.error('❌ ERROR al abrir dialog:', error);
   }
-}
 
   /**
-   * Ver detalles completos de un usuario
+   * Ver detalles
    */
   viewUserDetails(user: User) {
-    console.log('👁️ Ver detalles del usuario:', user.email);
-    
-    // TODO: Abrir dialog de detalles con información completa
-    const details = `
-      Email: ${user.email}
-      Nombre: ${user.displayName}
-      Rol: ${user.role}
-      Estado: ${user.isActive ? 'Activo' : 'Inactivo'}
-      Módulos: ${user.modules?.join(', ') || 'Ninguno'}
-      Permisos: ${user.permissions?.join(', ') || 'Ninguno'}
-      Creado: ${user.createdAt.toLocaleDateString('es-ES')}
-      Último acceso: ${this.formatDate(user.lastLogin)}
-    `;
-    
-    this.snackBar.open(details, 'Cerrar', { 
-      duration: 5000 
+    console.log('👁️ Ver detalles:', user.email);
+    this.snackBar.open(`Detalles de ${user.displayName || user.email}`, 'Cerrar', { 
+      duration: 3000 
     });
   }
 
   /**
-   * Editar usuario existente
+   * Editar usuario
    */
   editUser(user: User) {
-    console.log('✏️ Editar usuario:', user.email);
-    
-    // TODO: Abrir dialog de edición con datos del usuario
-    this.snackBar.open(`Edición de usuario: ${user.displayName || user.email} - Próximamente`, 'Cerrar', { 
-      duration: 3000 
-    });
+    console.log('✏️ Editar:', user.email);
+    this.snackBar.open('Edición - Próximamente', 'Cerrar', { duration: 2000 });
   }
 
   /**
-   * Restablecer contraseña de usuario
+   * Reset password
    */
   async resetUserPassword(user: User) {
-    console.log('🔐 Restablecer contraseña para:', user.email);
-    
-    try {
-      const result = await this.adminService.resetUserPassword(user.email);
-      
-      if (result.success) {
-        this.snackBar.open(result.message, 'Cerrar', {
-          duration: 4000,
-          panelClass: ['success-snackbar']
-        });
-      } else {
-        this.snackBar.open(result.message, 'Cerrar', {
-          duration: 4000,
-          panelClass: ['error-snackbar']
-        });
-      }
-    } catch (error) {
-      console.error('Error restableciendo contraseña:', error);
-      this.snackBar.open('Error al enviar email de restablecimiento', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-    }
+    const result = await this.adminService.resetUserPassword(user.email);
+    this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
   }
 
   /**
-   * Cambiar estado activo/inactivo del usuario
+   * Toggle status
    */
   async toggleUserStatus(user: User) {
-    console.log('🔄 Cambiar estado usuario:', user.email);
+    if (!user.uid) return;
     
-    if (!user.uid) {
-      this.snackBar.open('Error: Usuario sin ID', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-      return;
-    }
-
-    try {
-      const result = await this.adminService.toggleUserStatus(user.uid);
-      
-      if (result.success) {
-        this.snackBar.open(result.message, 'Cerrar', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
-        
-        // Recargar datos para reflejar cambios
-        await this.refreshData();
-      } else {
-        this.snackBar.open(result.message, 'Cerrar', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
-      }
-    } catch (error) {
-      console.error('Error cambiando estado:', error);
-      this.snackBar.open('Error al cambiar el estado del usuario', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
+    const result = await this.adminService.toggleUserStatus(user.uid);
+    this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
+    
+    if (result.success) {
+      await this.refreshData();
     }
   }
 
   /**
-   * Asignar módulos a un usuario
+   * Asignar módulos
    */
   assignModules(user: User) {
-    console.log('🧩 Asignar módulos a:', user.email);
+    console.log('🧩 Asignar módulos:', user.email);
+    this.snackBar.open('Gestión de módulos - Próximamente', 'Cerrar', { duration: 2000 });
+  }
+
+  /**
+   * Exportar datos
+   */
+  async exportData() {
+    console.log('📥 Exportando...');
     
-    // TODO: Abrir dialog para gestionar módulos del usuario
-    this.snackBar.open(`Gestión de módulos para ${user.displayName || user.email} - Próximamente`, 'Cerrar', { 
-      duration: 3000 
-    });
+    try {
+      const result = await this.adminService.exportUsers();
+      
+      if (result.success && result.data) {
+        const dataStr = JSON.stringify(result.data, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `usuarios_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
+      }
+    } catch (error) {
+      this.snackBar.open('Error al exportar', 'Cerrar', { duration: 3000 });
+    }
   }
 
   /**
@@ -555,47 +537,5 @@ addUser() {
   systemSettings() {
     console.log('⚙️ Configuración del sistema...');
     this.snackBar.open('Configuración del sistema - Próximamente', 'Cerrar', { duration: 2000 });
-  }
-
-  /**
-   * Exportar datos de usuarios
-   */
-  async exportData() {
-    console.log('📥 Exportando datos de usuarios...');
-    
-    try {
-      const result = await this.adminService.exportUsers();
-      
-      if (result.success && result.data) {
-        // Crear y descargar archivo JSON
-        const dataStr = JSON.stringify(result.data, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(dataBlob);
-        
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `usuarios_${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        this.snackBar.open(result.message, 'Cerrar', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
-      } else {
-        this.snackBar.open(result.message, 'Cerrar', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
-      }
-    } catch (error) {
-      console.error('Error exportando datos:', error);
-      this.snackBar.open('Error al exportar los datos', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-    }
   }
 }

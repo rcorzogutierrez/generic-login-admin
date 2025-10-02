@@ -2,7 +2,7 @@
 
 A modern, scalable user management system built with Angular 20 and Firebase, featuring Google Material Design and Tailwind CSS for enterprise-level user and project access control.
 
-[![Claude Code](https://img.shields.io/badge/Powered%20by-Claude%20Code-orange?style=for-the-badge)](https://claude.ai/code)
+[![Claude Code](https://img.shields.io/badge/Powered%20by-Claude%20Code-orange?style=for-the-badge&logo=claude&logoColor=orange)](https://claude.ai/code)
 [![TypeScript](https://img.shields.io/badge/Built%20with-TypeScript-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 ![Angular](https://img.shields.io/badge/Framework-Angular-red?logo=angular&logoColor=white&style=for-the-badge)
 ![Firebase](https://img.shields.io/badge/Backend-Firebase-ffca28?logo=firebase&logoColor=white&style=for-the-badge)

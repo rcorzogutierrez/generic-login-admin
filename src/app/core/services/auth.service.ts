@@ -1,4 +1,4 @@
-// src/app/core/services/auth.service.ts - VERSIÓN REFACTORIZADA
+// src/app/core/services/auth.service.ts - VERSIÓN CON ACTUALIZACIÓN DE LASTLOGIN
 
 import { Injectable, signal } from '@angular/core';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, User } from 'firebase/auth';
@@ -50,6 +50,8 @@ export class AuthService {
         const authResult = await this.checkUserAuthorization(result.user);
 
         if (authResult.authorized) {
+          // ✅ ACTUALIZAR LASTLOGIN DESPUÉS DE LOGIN EXITOSO
+          await this.updateUserLastLogin(result.user.email!);
           return { success: true, message: 'Login exitoso' };
         } else {
           await this.logout();
@@ -122,6 +124,23 @@ export class AuthService {
     }
   }
 
+  /**
+   * ✅ NUEVA FUNCIÓN: Actualiza lastLogin en cada sesión
+   */
+  private async updateUserLastLogin(email: string): Promise<void> {
+    try {
+      await this.firestoreUserService.updateLastLogin(email);
+      
+      // Actualizar el signal con la información más reciente
+      const userResult = await this.firestoreUserService.findUserByEmail(email);
+      if (userResult) {
+        this._authorizedUser.set(userResult.data);
+      }
+    } catch (error) {
+      console.warn('Error actualizando lastLogin (no crítico):', error);
+    }
+  }
+
   private async logFirstLogin(uid: string, email: string): Promise<void> {
     try {
       await addDoc(collection(this.firestore, 'admin_logs'), {
@@ -163,6 +182,10 @@ export class AuthService {
           if (userResult && userResult.data.isActive) {
             this._authorizedUser.set(userResult.data);
             this._isAuthorized.set(true);
+            
+            // ✅ ACTUALIZAR LASTLOGIN EN CADA CAMBIO DE ESTADO DE AUTENTICACIÓN
+            // Esto cubre casos de refresh de página o reautenticación automática
+            await this.updateUserLastLogin(user.email!);
           } else {
             await this.logout();
           }

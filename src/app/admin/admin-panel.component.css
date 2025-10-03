@@ -943,6 +943,45 @@
       justify-content: center;
     }
   }
+
+  /* ============================================
+   PAGE BREADCRUMB - INDICADOR DE UBICACIÓN
+   ============================================ */
+.page-breadcrumb {
+  max-width: 1400px;
+  margin: 0 auto 20px auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.breadcrumb-icon {
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+  color: #3b82f6;
+}
+
+.breadcrumb-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-breadcrumb {
+    padding: 0 12px;
+    margin-bottom: 16px;
+  }
+  
+  .breadcrumb-text {
+    font-size: 13px;
+  }
+}
   
   /* ============================================
      MATERIAL DESIGN OVERRIDES

@@ -1020,6 +1020,37 @@
     gap: 6px;
     flex-wrap: wrap;
   }
+
+  /* ============================================
+   BOTÓN VOLVER AL DASHBOARD
+   ============================================ */
+.back-to-dashboard-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border: 2px solid #3b82f6;
+  border-radius: 10px;
+  background: white;
+  color: #3b82f6;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  height: 40px;
+}
+
+.back-to-dashboard-button:hover {
+  background: #3b82f6;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.back-to-dashboard-button mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
   
   /* ============================================
      MATERIAL ICONS FIX

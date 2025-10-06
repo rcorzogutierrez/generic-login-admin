@@ -287,6 +287,14 @@
                       <mat-icon>apps</mat-icon>
                       Asignar Módulos
                     </button>
+                    <mat-divider></mat-divider>
+                    <button 
+                      mat-menu-item 
+                      (click)="deleteUser(user)" 
+                      class="delete-menu-item">
+                      <mat-icon class="delete-icon">delete_forever</mat-icon>
+                      Eliminar Usuario
+                    </button>
                   </mat-menu>
                 </td>
               </tr>

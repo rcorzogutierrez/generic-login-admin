@@ -1072,6 +1072,47 @@
     -webkit-font-smoothing: antialiased !important;
     text-rendering: optimizeLegibility !important;
   }
+
+  /* Agregar estos estilos al final de admin-panel.component.css */
+
+/* ============================================
+   DELETE MENU ITEM - ESTILO PELIGRO
+   ============================================ */
+
+::ng-deep .delete-menu-item {
+  color: #dc2626 !important;
+  font-weight: 600 !important;
+}
+
+::ng-deep .delete-menu-item:hover {
+  background: #fee2e2 !important;
+}
+
+::ng-deep .delete-menu-item .delete-icon {
+  color: #dc2626 !important;
+}
+
+/* ============================================
+   SNACKBAR PERSONALIZADO
+   ============================================ */
+
+::ng-deep .success-snackbar {
+  background: #10b981 !important;
+  color: white !important;
+}
+
+::ng-deep .success-snackbar .mat-simple-snackbar-action {
+  color: white !important;
+}
+
+::ng-deep .error-snackbar {
+  background: #dc2626 !important;
+  color: white !important;
+}
+
+::ng-deep .error-snackbar .mat-simple-snackbar-action {
+  color: white !important;
+}
   
   /* ============================================
      ANIMATIONS

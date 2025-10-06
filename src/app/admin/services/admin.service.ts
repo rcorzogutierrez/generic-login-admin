@@ -738,6 +738,157 @@ private generateShortId(): string {
     return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
   }
 
+  // Agregar este método en admin.service.ts
+
+/**
+ * Elimina un usuario del sistema con validaciones de seguridad
+ */
+async deleteUser(uid: string): Promise<{ success: boolean; message: string }> {
+  try {
+    const user = await this.getUserById(uid);
+    
+    if (!user) {
+      return { success: false, message: 'Usuario no encontrado' };
+    }
+
+    // 🔒 VALIDACIÓN 1: Prevenir auto-eliminación
+    if (this.auth.currentUser?.uid === uid) {
+      return {
+        success: false,
+        message: 'No puedes eliminar tu propia cuenta'
+      };
+    }
+
+    // 🔒 VALIDACIÓN 2: Prevenir eliminar el último administrador
+    if (user.role === 'admin') {
+      const activeAdmins = this.usersSubject.value.filter(u => 
+        u.role === 'admin' && u.uid !== uid
+      );
+      
+      if (activeAdmins.length === 0) {
+        return { 
+          success: false, 
+          message: 'No se puede eliminar el último administrador del sistema' 
+        };
+      }
+    }
+
+    // 🔒 VALIDACIÓN 3: Verificar permisos del usuario actual
+    const currentUser = this.usersSubject.value.find(
+      u => u.email === this.auth.currentUser?.email
+    );
+    
+    if (!currentUser || currentUser.role !== 'admin') {
+      return {
+        success: false,
+        message: 'No tienes permisos para eliminar usuarios'
+      };
+    }
+
+    // 📝 Log antes de eliminar (para mantener registro)
+    await this.logUserAction('delete_user_attempt', uid, {
+      deletedUser: {
+        email: user.email,
+        displayName: user.displayName,
+        role: user.role,
+        modules: user.modules,
+        createdAt: user.createdAt,
+        lastLogin: user.lastLogin
+      },
+      deletedBy: this.auth.currentUser?.email
+    });
+
+    // 🗑️ Eliminar documento de Firestore
+    const userDocRef = doc(this.db, 'authorized_users', uid);
+    await deleteDoc(userDocRef);
+
+    // 📊 Actualizar lista local
+    await this.loadUsers();
+
+    // ✅ Log de éxito
+    await this.logUserAction('delete_user_success', uid, {
+      deletedUserEmail: user.email,
+      deletedUserRole: user.role
+    });
+
+    return {
+      success: true,
+      message: `Usuario ${user.displayName} (${user.email}) eliminado correctamente`
+    };
+
+  } catch (error: any) {
+    console.error('❌ Error eliminando usuario:', error);
+    
+    let errorMessage = 'Error al eliminar el usuario';
+    
+    switch (error.code) {
+      case 'permission-denied':
+        errorMessage = 'No tienes permisos para eliminar este usuario';
+        break;
+      case 'not-found':
+        errorMessage = 'El usuario ya no existe en el sistema';
+        break;
+      case 'unavailable':
+        errorMessage = 'Servicio temporalmente no disponible';
+        break;
+      default:
+        errorMessage = error.message || 'Error desconocido al eliminar usuario';
+    }
+
+    // Log del error
+    await this.logUserAction('delete_user_failed', uid, {
+      error: errorMessage,
+      errorCode: error.code
+    });
+
+    return {
+      success: false,
+      message: errorMessage
+    };
+  }
+}
+
+/**
+ * Eliminación en lote de usuarios (opcional)
+ */
+async deleteMultipleUsers(uids: string[]): Promise<{ 
+  success: boolean; 
+  message: string;
+  deleted: number;
+  failed: number;
+  errors: string[];
+}> {
+  let deleted = 0;
+  let failed = 0;
+  const errors: string[] = [];
+
+  for (const uid of uids) {
+    const result = await this.deleteUser(uid);
+    
+    if (result.success) {
+      deleted++;
+    } else {
+      failed++;
+      errors.push(`${uid}: ${result.message}`);
+    }
+  }
+
+  await this.logUserAction('delete_multiple_users', '', {
+    totalAttempted: uids.length,
+    deleted,
+    failed,
+    errors
+  });
+
+  return {
+    success: deleted > 0,
+    message: `${deleted} usuario(s) eliminado(s), ${failed} fallido(s)`,
+    deleted,
+    failed,
+    errors
+  };
+}
+
   /**
    * Genera color de avatar basado en el email
    */

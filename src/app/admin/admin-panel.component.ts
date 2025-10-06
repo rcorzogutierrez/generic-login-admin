@@ -21,6 +21,7 @@ import { Subscription } from 'rxjs';
 import { AuthService } from '../core/services/auth.service';
 import { AdminService, User, AdminStats } from './services/admin.service';
 import { AddUserDialogComponent } from './components/add-user-dialog/add-user-dialog.component';
+import { DeleteUserDialogComponent } from './components/delete-user-dialog/delete-user-dialog.component';
 
 @Component({
   selector: 'app-admin-panel',
@@ -477,6 +478,130 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     console.log('🧩 Asignar módulos:', user.email);
     this.snackBar.open('Gestión de módulos - Próximamente', 'Cerrar', { duration: 2000 });
   }
+
+  /**
+ * Elimina un usuario del sistema con confirmación
+ */
+async deleteUser(user: User) {
+  console.log('🗑️ Iniciando proceso de eliminación:', user.email);
+
+  // Validaciones previas antes de abrir el dialog
+  if (!user.uid) {
+    this.snackBar.open('Error: Usuario sin UID válido', 'Cerrar', { 
+      duration: 3000 
+    });
+    return;
+  }
+
+  // Prevenir auto-eliminación
+  if (this.currentUser()?.email === user.email) {
+    this.snackBar.open('❌ No puedes eliminar tu propia cuenta', 'Cerrar', { 
+      duration: 4000,
+      panelClass: ['error-snackbar']
+    });
+    return;
+  }
+
+  // Advertencia especial para administradores
+  if (user.role === 'admin') {
+    const adminCount = this.users.filter(u => u.role === 'admin').length;
+    
+    if (adminCount === 1) {
+      this.snackBar.open('❌ No puedes eliminar el último administrador', 'Cerrar', { 
+        duration: 4000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+  }
+
+  // Abrir dialog de confirmación
+  const dialogRef = this.dialog.open(DeleteUserDialogComponent, {
+    width: '600px',
+    maxWidth: '90vw',
+    disableClose: true,
+    data: {
+      user: user,
+      currentUserEmail: this.currentUser()?.email
+    }
+  });
+
+  dialogRef.afterClosed().subscribe(async (result) => {
+    if (result?.confirmed) {
+      await this.performUserDeletion(user);
+    } else {
+      console.log('❌ Eliminación cancelada por el usuario');
+    }
+  });
+}
+
+/**
+ * Ejecuta la eliminación del usuario
+ */
+private async performUserDeletion(user: User) {
+  console.log('⚙️ Ejecutando eliminación de:', user.email);
+
+  // Mostrar loading
+  this.isLoading = true;
+  
+  const loadingSnackBar = this.snackBar.open(
+    `Eliminando usuario ${user.displayName}...`, 
+    '', 
+    { duration: 0 }
+  );
+
+  try {
+    // Llamar al servicio de eliminación
+    const result = await this.adminService.deleteUser(user.uid!);
+
+    loadingSnackBar.dismiss();
+
+    if (result.success) {
+      // Mostrar mensaje de éxito
+      this.snackBar.open(
+        `✅ ${result.message}`, 
+        'Cerrar', 
+        { 
+          duration: 5000,
+          panelClass: ['success-snackbar']
+        }
+      );
+
+      // Refrescar los datos
+      await this.refreshData();
+
+      console.log('✅ Usuario eliminado exitosamente:', user.email);
+    } else {
+      // Mostrar mensaje de error
+      this.snackBar.open(
+        `❌ ${result.message}`, 
+        'Cerrar', 
+        { 
+          duration: 5000,
+          panelClass: ['error-snackbar']
+        }
+      );
+
+      console.error('❌ Error en eliminación:', result.message);
+    }
+
+  } catch (error: any) {
+    loadingSnackBar.dismiss();
+
+    console.error('❌ Error inesperado al eliminar usuario:', error);
+    
+    this.snackBar.open(
+      `❌ Error inesperado: ${error.message || 'No se pudo eliminar el usuario'}`, 
+      'Cerrar', 
+      { 
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      }
+    );
+  } finally {
+    this.isLoading = false;
+  }
+}
 
   /**
    * Exportar datos

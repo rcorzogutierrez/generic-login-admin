@@ -872,8 +872,8 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
    * Ver logs del sistema
    */
   viewLogs() {
-    console.log('📋 Ver logs del sistema...');
-    this.snackBar.open('Logs del sistema - Próximamente', 'Cerrar', { duration: 2000 });
+    console.log('📋 Navegando a logs del sistema...');
+    this.router.navigate(['/admin/logs']);
   }
 
   /**

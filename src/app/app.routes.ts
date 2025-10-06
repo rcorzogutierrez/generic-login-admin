@@ -1,4 +1,4 @@
-// src/app/app.routes.ts - VERSIÓN FINAL
+// src/app/app.routes.ts - VERSIÓN FINAL CON LOGS
 import { Routes } from '@angular/router';
 import { LoginComponent } from './auth/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -29,11 +29,26 @@ export const routes: Routes = [
     title: 'Dashboard',
   },
 
+  // ============================================
+  // RUTAS DE ADMINISTRACIÓN - CON LAZY LOADING
+  // ============================================
   {
     path: 'admin',
-    component: AdminPanelComponent,
     canActivate: [roleGuard(['admin'])],
-    title: 'Panel de Administración',
+    children: [
+      {
+        path: '',
+        component: AdminPanelComponent,
+        title: 'Panel de Administración',
+      },
+      {
+        path: 'logs',
+        loadComponent: () => 
+          import('./admin/components/admin-logs/admin-logs.component')
+            .then(m => m.AdminLogsComponent),
+        title: 'Logs de Auditoría',
+      },
+    ],
   },
 
   {

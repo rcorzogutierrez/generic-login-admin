@@ -25,7 +25,7 @@
   }
   
   /* ============================================
-     HEADER - IGUAL AL DASHBOARD
+     HEADER - MEJORADO CON ICONO
      ============================================ */
   .admin-header {
     background: rgba(255, 255, 255, 0.98);
@@ -48,11 +48,42 @@
     width: 100%;
   }
   
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .header-icon-container {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    flex-shrink: 0;
+  }
+  
+  .header-icon-container mat-icon {
+    font-size: 28px !important;
+    width: 28px !important;
+    height: 28px !important;
+    color: white;
+  }
+  
+  .header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
   .header-left h1 {
     font-size: 24px;
     font-weight: 700;
     color: #1e293b;
-    margin: 0 0 4px 0;
+    margin: 0;
   }
   
   .header-left p {
@@ -167,10 +198,35 @@
   }
   
   /* ============================================
-     ELIMINAR WELCOME SECTION
+     BOTÓN VOLVER
      ============================================ */
-  .welcome-section {
-    display: none; /* Eliminado para ahorrar espacio */
+  .back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    background: white;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    height: 40px;
+  }
+  
+  .back-button:hover {
+    background: #f8fafc;
+    border-color: #3b82f6;
+    color: #3b82f6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  }
+  
+  .back-button mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
   }
   
   /* ============================================

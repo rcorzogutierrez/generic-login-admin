@@ -1,120 +1,120 @@
 <!-- src/app/admin/components/log-details-dialog/log-details-dialog.component.html -->
 <div class="dialog-container">
-    <!-- Header -->
-    <div class="dialog-header">
-      <div class="header-left">
-        <div class="header-icon">
-          <mat-icon>info</mat-icon>
-        </div>
-        <div>
-          <h2>Detalles del Log</h2>
-          <p class="subtitle">Información completa del registro de auditoría</p>
-        </div>
+  <!-- Header -->
+  <div class="dialog-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <mat-icon>info</mat-icon>
       </div>
-      <button 
-        mat-icon-button 
-        class="close-button"
-        (click)="close()">
-        <mat-icon>close</mat-icon>
-      </button>
+      <div>
+        <h2>Detalles del Log</h2>
+        <p class="subtitle">Información completa del registro de auditoría</p>
+      </div>
     </div>
-  
-    <!-- Content -->
-    <mat-dialog-content class="dialog-content">
-      <div class="details-grid">
-        
-        <!-- ID del Log -->
-        <div class="detail-item">
-          <mat-icon class="detail-icon">tag</mat-icon>
-          <div class="detail-content">
-            <span class="detail-label">ID del Log</span>
-            <span class="detail-value code">{{ data.log.id }}</span>
-          </div>
+    <button 
+      mat-icon-button 
+      class="close-button"
+      (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <mat-dialog-content class="dialog-content">
+    <div class="details-grid">
+      
+      <!-- ID del Log -->
+      <div class="detail-item">
+        <mat-icon class="detail-icon">tag</mat-icon>
+        <div class="detail-content">
+          <span class="detail-label">ID del Log</span>
+          <span class="detail-value code">{{ data.log.id }}</span>
         </div>
-  
-        <!-- Acción -->
-        <div class="detail-item">
-          <mat-icon class="detail-icon">flash_on</mat-icon>
-          <div class="detail-content">
-            <span class="detail-label">Acción</span>
-            <span class="detail-value">{{ formatActionName(data.log.action) }}</span>
-          </div>
-        </div>
-  
-        <!-- Usuario que realizó la acción -->
-        <div class="detail-item">
-          <mat-icon class="detail-icon">person</mat-icon>
-          <div class="detail-content">
-            <span class="detail-label">Realizado por</span>
-            <span class="detail-value">{{ data.log.performedByEmail }}</span>
-          </div>
-        </div>
-  
-        <!-- UID del usuario -->
-        <div class="detail-item">
-          <mat-icon class="detail-icon">fingerprint</mat-icon>
-          <div class="detail-content">
-            <span class="detail-label">UID del Usuario</span>
-            <span class="detail-value code">{{ data.log.performedBy }}</span>
-          </div>
-        </div>
-  
-        <!-- Usuario objetivo (si existe) -->
-        @if (data.log.targetUserId && data.log.targetUserId !== '') {
-          <div class="detail-item">
-            <mat-icon class="detail-icon">person_outline</mat-icon>
-            <div class="detail-content">
-              <span class="detail-label">Usuario Objetivo</span>
-              <span class="detail-value code">{{ data.log.targetUserId }}</span>
-            </div>
-          </div>
-        }
-  
-        <!-- Fecha y Hora -->
-        <div class="detail-item">
-          <mat-icon class="detail-icon">schedule</mat-icon>
-          <div class="detail-content">
-            <span class="detail-label">Fecha y Hora</span>
-            <span class="detail-value">{{ formatFullDateTime(data.log.timestamp) }}</span>
-          </div>
-        </div>
-  
-        <!-- Dirección IP -->
-        <div class="detail-item">
-          <mat-icon class="detail-icon">location_on</mat-icon>
-          <div class="detail-content">
-            <span class="detail-label">Dirección IP</span>
-            <span class="detail-value code">{{ data.log.ip }}</span>
-          </div>
-        </div>
-        
       </div>
-  
-      <!-- Detalles JSON -->
-      @if (data.log.detailsObject && hasDetails()) {
-        <div class="json-section">
-          <div class="json-header">
-            <mat-icon>data_object</mat-icon>
-            <span>Detalles Adicionales (JSON)</span>
+
+      <!-- Acción -->
+      <div class="detail-item">
+        <mat-icon class="detail-icon">flash_on</mat-icon>
+        <div class="detail-content">
+          <span class="detail-label">Acción</span>
+          <span class="detail-value">{{ formatActionName(data.log.action) }}</span>
+        </div>
+      </div>
+
+      <!-- Usuario que realizó la acción -->
+      <div class="detail-item">
+        <mat-icon class="detail-icon">person</mat-icon>
+        <div class="detail-content">
+          <span class="detail-label">Realizado por</span>
+          <span class="detail-value">{{ data.log.performedByEmail }}</span>
+        </div>
+      </div>
+
+      <!-- UID del usuario -->
+      <div class="detail-item">
+        <mat-icon class="detail-icon">fingerprint</mat-icon>
+        <div class="detail-content">
+          <span class="detail-label">UID del Usuario</span>
+          <span class="detail-value code">{{ data.log.performedBy }}</span>
+        </div>
+      </div>
+
+      <!-- Usuario objetivo (si existe) -->
+      @if (data.log.targetUserId && data.log.targetUserId !== '') {
+        <div class="detail-item">
+          <mat-icon class="detail-icon">person_outline</mat-icon>
+          <div class="detail-content">
+            <span class="detail-label">Usuario Objetivo</span>
+            <span class="detail-value code">{{ data.log.targetUserId }}</span>
           </div>
-          <pre class="json-content">{{ formatJSON(data.log.detailsObject) }}</pre>
         </div>
       }
-    </mat-dialog-content>
-  
-    <!-- Actions -->
-    <mat-dialog-actions class="dialog-actions">
-      <button 
-        mat-button 
-        (click)="copyToClipboard()">
-        <mat-icon>content_copy</mat-icon>
-        Copiar JSON
-      </button>
-      <button 
-        mat-raised-button 
-        color="primary"
-        (click)="close()">
-        Cerrar
-      </button>
-    </mat-dialog-actions>
-  </div>
+
+      <!-- Fecha y Hora -->
+      <div class="detail-item">
+        <mat-icon class="detail-icon">schedule</mat-icon>
+        <div class="detail-content">
+          <span class="detail-label">Fecha y Hora</span>
+          <span class="detail-value">{{ formatFullDateTime(data.log.timestamp) }}</span>
+        </div>
+      </div>
+
+      <!-- Dirección IP -->
+      <div class="detail-item">
+        <mat-icon class="detail-icon">location_on</mat-icon>
+        <div class="detail-content">
+          <span class="detail-label">Dirección IP</span>
+          <span class="detail-value code">{{ data.log.ip }}</span>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- Detalles JSON -->
+    @if (data.log.detailsObject && hasDetails()) {
+      <div class="json-section">
+        <div class="json-header">
+          <mat-icon>data_object</mat-icon>
+          <span>Detalles Adicionales (JSON)</span>
+        </div>
+        <pre class="json-content">{{ formatJSON(data.log.detailsObject) }}</pre>
+      </div>
+    }
+  </mat-dialog-content>
+
+  <!-- Actions -->
+  <mat-dialog-actions class="dialog-actions">
+    <button 
+      mat-button 
+      (click)="copyToClipboard()">
+      <mat-icon>content_copy</mat-icon>
+      Copiar JSON
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary"
+      (click)="close()">
+      Cerrar
+    </button>
+  </mat-dialog-actions>
+</div>

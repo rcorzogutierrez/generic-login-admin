@@ -12,6 +12,7 @@ import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { AdminLogsService, AdminLog, LogsFilter } from '../../services/admin-logs.service';
 import { Router } from '@angular/router';
 import { DeleteLogsDialogComponent } from '../delete-logs-dialog/delete-logs-dialog.component';
+import { LogDetailsDialogComponent } from '../log-details-dialog/log-details-dialog.component';
 
 @Component({
   selector: 'app-admin-logs',
@@ -273,20 +274,19 @@ export class AdminLogsComponent implements OnInit, OnDestroy {
    * Ver detalles de un log
    */
   viewLogDetails(log: AdminLog) {
-    console.log('👁️ Ver detalles del log:', log);
+    console.log('👁️ Abriendo detalles del log:', log);
     
-    const details = log.detailsObject || {};
-    const message = `
-      Acción: ${this.getActionName(log.action)}
-      Usuario: ${log.performedByEmail}
-      Fecha: ${this.formatDateTime(log.timestamp)}
-      IP: ${log.ip}
-      
-      Detalles:
-      ${JSON.stringify(details, null, 2)}
-    `;
-    
-    alert(message); // Puedes reemplazar con un dialog más elegante
+    const dialogRef = this.dialog.open(LogDetailsDialogComponent, {
+      width: '700px',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      data: { log },
+      panelClass: 'log-details-dialog' // Opcional: para estilos personalizados
+    });
+  
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('Dialog cerrado');
+    });
   }
 
   /**

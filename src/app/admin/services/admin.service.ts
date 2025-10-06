@@ -1,4 +1,4 @@
-// src/app/admin/services/admin.service.ts - VERSIÓN FINAL CON MÓDULOS
+// src/app/admin/services/admin.service.ts - VERSIÓN COMPLETA CON LOGS MEJORADOS
 import { Injectable } from '@angular/core';
 import { 
   getFirestore, 
@@ -75,141 +75,205 @@ export class AdminService {
   }
 
   /**
-   * Crea un nuevo usuario con autenticación y datos en Firestore
+   * Crea un nuevo usuario PRE-AUTORIZADO (solo en Firestore)
+   * El usuario hará login por primera vez con Google OAuth
    */
-  // admin.service.ts - MÉTODO createUser() MEJORADO
+  async createUser(userData: CreateUserRequest): Promise<{ success: boolean; message: string; uid?: string }> {
+    try {
+      // 1. Validar datos de entrada
+      const validation = this.validateUserData(userData);
+      if (!validation.isValid) {
+        // Log de validación fallida
+        await this.logUserAction('create_user_failed', '', {
+          reason: 'validation_error',
+          errors: validation.errors,
+          attemptedData: {
+            email: userData.email,
+            displayName: userData.displayName,
+            role: userData.role
+          },
+          performedBy: this.auth.currentUser?.email || 'system',
+          timestamp: new Date().toISOString()
+        });
 
-/**
- * Crea un nuevo usuario PRE-AUTORIZADO (solo en Firestore)
- * El usuario hará login por primera vez con Google OAuth
- */
-async createUser(userData: CreateUserRequest): Promise<{ success: boolean; message: string; uid?: string }> {
-  try {
-    // 1. Validar datos de entrada
-    const validation = this.validateUserData(userData);
-    if (!validation.isValid) {
-      return {
-        success: false,
-        message: `Datos inválidos: ${validation.errors.join(', ')}`
+        return {
+          success: false,
+          message: `Datos inválidos: ${validation.errors.join(', ')}`
+        };
+      }
+
+      // 2. Verificar si el email ya existe
+      const existingUsers = this.usersSubject.value;
+      const emailExists = existingUsers.some(user => 
+        this.normalizeEmail(user.email) === this.normalizeEmail(userData.email)
+      );
+
+      if (emailExists) {
+        // Log de intento fallido por email duplicado
+        await this.logUserAction('create_user_failed', '', {
+          reason: 'email_already_exists',
+          attemptedEmail: this.normalizeEmail(userData.email),
+          performedBy: this.auth.currentUser?.email || 'system',
+          timestamp: new Date().toISOString()
+        });
+
+        return {
+          success: false,
+          message: 'Ya existe un usuario autorizado con este email'
+        };
+      }
+
+      // 3. Validar módulos
+      if (!userData.modules || userData.modules.length === 0) {
+        // Log de validación de módulos fallida
+        await this.logUserAction('create_user_failed', '', {
+          reason: 'no_modules_assigned',
+          attemptedEmail: userData.email,
+          performedBy: this.auth.currentUser?.email || 'system',
+          timestamp: new Date().toISOString()
+        });
+
+        return {
+          success: false,
+          message: 'Debe asignar al menos un módulo al usuario'
+        };
+      }
+
+      // 4. Normalizar datos
+      const normalizedData = {
+        ...userData,
+        email: this.normalizeEmail(userData.email),
+        displayName: this.formatDisplayName(userData.displayName)
       };
-    }
 
-    // 2. Verificar si el email ya existe
-    const existingUsers = this.usersSubject.value;
-    const emailExists = existingUsers.some(user => 
-      this.normalizeEmail(user.email) === this.normalizeEmail(userData.email)
-    );
+      // 5. Generar un UID temporal basado en el email
+      const tempUid = `pre_${Date.now()}_${this.generateShortId()}`;
 
-    if (emailExists) {
-      return {
-        success: false,
-        message: 'Ya existe un usuario autorizado con este email'
+      // 6. Crear documento en Firestore (SIN crear en Firebase Auth)
+      const userDocData = {
+        createdAt: new Date(),
+        createdBy: this.auth.currentUser?.uid || 'system',
+        displayName: normalizedData.displayName,
+        email: normalizedData.email,
+        isActive: normalizedData.isActive,
+        lastLogin: null,
+        lastLoginDate: null,
+        permissions: normalizedData.permissions,
+        modules: normalizedData.modules,
+        role: normalizedData.role,
+        uid: tempUid,
+        
+        // Campos adicionales para tracking
+        createdByEmail: this.auth.currentUser?.email || 'system',
+        accountStatus: 'pending_first_login',
+        profileComplete: false,
+        avatarColor: this.getAvatarColor(normalizedData.email),
+        initials: this.getInitials(normalizedData.displayName),
+        
+        // Metadata
+        preAuthorized: true,
+        firstLoginDate: null
       };
-    }
 
-    // 3. Validar módulos
-    if (!userData.modules || userData.modules.length === 0) {
-      return {
-        success: false,
-        message: 'Debe asignar al menos un módulo al usuario'
-      };
-    }
-
-    // 4. Normalizar datos
-    const normalizedData = {
-      ...userData,
-      email: this.normalizeEmail(userData.email),
-      displayName: this.formatDisplayName(userData.displayName)
-    };
-
-    // 5. Generar un UID temporal basado en el email
-    // Cuando el usuario haga login con Google, se actualizará con su UID real
-    const tempUid = `pre_${Date.now()}_${this.generateShortId()}`;
-
-    // 6. Crear documento en Firestore (SIN crear en Firebase Auth)
-    const userDocData = {
-      createdAt: new Date(),
-      createdBy: this.auth.currentUser?.uid || 'system',
-      displayName: normalizedData.displayName,
-      email: normalizedData.email,
-      isActive: normalizedData.isActive,
-      lastLogin: null,
-      lastLoginDate: null,
-      permissions: normalizedData.permissions,
-      modules: normalizedData.modules,
-      role: normalizedData.role,
-      uid: tempUid, // UID temporal, se actualizará en primer login
+      // 7. Guardar en Firestore con el email como ID del documento
+      const docId = this.normalizeEmail(normalizedData.email).replace(/[@.]/g, '_');
       
-      // Campos adicionales para tracking
-      createdByEmail: this.auth.currentUser?.email || 'system',
-      accountStatus: 'pending_first_login', // Estado: esperando primer login
-      profileComplete: false,
-      avatarColor: this.getAvatarColor(normalizedData.email),
-      initials: this.getInitials(normalizedData.displayName),
+      // 🔥 LOG ANTES DE CREAR (con todos los detalles)
+      await this.logUserAction('create_user_attempt', docId, {
+        targetUser: {
+          email: normalizedData.email,
+          displayName: normalizedData.displayName,
+          role: normalizedData.role,
+          modules: normalizedData.modules,
+          permissions: normalizedData.permissions,
+          isActive: normalizedData.isActive
+        },
+        performedBy: this.auth.currentUser?.email || 'system',
+        performedByUid: this.auth.currentUser?.uid || 'system',
+        timestamp: new Date().toISOString()
+      });
+
+      // Guardar en Firestore
+      await setDoc(doc(this.db, 'authorized_users', docId), userDocData);
+
+      // 8. Actualizar la lista local
+      await this.loadUsers();
+
+      // 🔥 LOG DE ÉXITO (después de crear exitosamente)
+      await this.logUserAction('create_user_success', docId, {
+        createdUser: {
+          email: normalizedData.email,
+          displayName: normalizedData.displayName,
+          role: normalizedData.role,
+          modules: normalizedData.modules,
+          permissions: normalizedData.permissions,
+          isActive: normalizedData.isActive,
+          docId: docId,
+          tempUid: tempUid
+        },
+        performedBy: this.auth.currentUser?.email || 'system',
+        performedByUid: this.auth.currentUser?.uid || 'system',
+        message: 'Usuario pre-autorizado exitosamente',
+        timestamp: new Date().toISOString()
+      });
+
+      console.log('✅ Usuario creado exitosamente:', normalizedData.email);
+
+      return {
+        success: true,
+        message: `Usuario ${normalizedData.displayName} pre-autorizado exitosamente. Podrá acceder con su cuenta de Google asociada a ${normalizedData.email}`,
+        uid: docId
+      };
+
+    } catch (error: any) {
+      console.error('❌ Error pre-autorizando usuario:', error);
       
-      // Metadata
-      preAuthorized: true, // Marca que fue pre-autorizado por admin
-      firstLoginDate: null // Se llenará cuando haga login por primera vez
-    };
+      let errorMessage = 'Error desconocido al pre-autorizar el usuario';
+      
+      switch (error.code) {
+        case 'permission-denied':
+          errorMessage = 'No tienes permisos para crear usuarios';
+          break;
+        case 'unavailable':
+          errorMessage = 'Servicio temporalmente no disponible, intenta más tarde';
+          break;
+        case 'not-found':
+          errorMessage = 'Colección no encontrada en Firestore';
+          break;
+        default:
+          errorMessage = error.message || 'Error al pre-autorizar el usuario';
+      }
 
-    // 7. Guardar en Firestore con el email como ID del documento
-    // Esto facilita la búsqueda por email durante el login
-    const docId = this.normalizeEmail(normalizedData.email).replace(/[@.]/g, '_');
-    await setDoc(doc(this.db, 'authorized_users', docId), userDocData);
+      // 🔥 LOG DEL ERROR (con detalles completos del error)
+      await this.logUserAction('create_user_error', '', {
+        error: errorMessage,
+        errorCode: error.code || 'unknown',
+        errorMessage: error.message,
+        attemptedUserData: { 
+          email: userData.email, 
+          displayName: userData.displayName,
+          role: userData.role,
+          modules: userData.modules,
+          permissions: userData.permissions
+        },
+        performedBy: this.auth.currentUser?.email || 'system',
+        performedByUid: this.auth.currentUser?.uid || 'system',
+        timestamp: new Date().toISOString()
+      });
 
-    // 8. Actualizar la lista local
-    await this.loadUsers();
-
-    // 9. Log de auditoría
-    await this.logUserAction('pre_authorize_user', docId, {
-      authorizedUser: normalizedData.email,
-      role: normalizedData.role,
-      modules: normalizedData.modules,
-      permissions: normalizedData.permissions,
-      status: 'pending_first_login'
-    });
-
-    return {
-      success: true,
-      message: `Usuario ${normalizedData.displayName} pre-autorizado exitosamente. Podrá acceder con su cuenta de Google asociada a ${normalizedData.email}`,
-      uid: docId
-    };
-
-  } catch (error: any) {
-    console.error('Error pre-autorizando usuario:', error);
-    
-    let errorMessage = 'Error desconocido al pre-autorizar el usuario';
-    
-    switch (error.code) {
-      case 'permission-denied':
-        errorMessage = 'No tienes permisos para crear usuarios';
-        break;
-      case 'unavailable':
-        errorMessage = 'Servicio temporalmente no disponible, intenta más tarde';
-        break;
-      default:
-        errorMessage = error.message || 'Error al pre-autorizar el usuario';
+      return {
+        success: false,
+        message: errorMessage
+      };
     }
-
-    // Log del error para auditoría
-    await this.logUserAction('pre_authorize_failed', '', {
-      error: errorMessage,
-      userData: { email: userData.email, role: userData.role }
-    });
-
-    return {
-      success: false,
-      message: errorMessage
-    };
   }
-}
 
-/**
- * Genera un ID corto aleatorio
- */
-private generateShortId(): string {
-  return Math.random().toString(36).substring(2, 9);
-}
+  /**
+   * Genera un ID corto aleatorio
+   */
+  private generateShortId(): string {
+    return Math.random().toString(36).substring(2, 9);
+  }
 
   /**
    * Obtiene todos los usuarios con paginación y filtros
@@ -240,7 +304,7 @@ private generateShortId(): string {
           role: data['role'] || 'user',
           isActive: data['isActive'] || false,
           permissions: data['permissions'] || [],
-          modules: data['modules'] || [], // ← MÓDULOS
+          modules: data['modules'] || [],
           createdAt: data['createdAt']?.toDate() || new Date(),
           createdBy: data['createdBy'] || '',
           lastLogin: data['lastLogin']?.toDate(),
@@ -274,7 +338,7 @@ private generateShortId(): string {
           role: data['role'] || 'user',
           isActive: data['isActive'] || false,
           permissions: data['permissions'] || [],
-          modules: data['modules'] || [], // ← MÓDULOS
+          modules: data['modules'] || [],
           createdAt: data['createdAt']?.toDate() || new Date(),
           createdBy: data['createdBy'] || '',
           lastLogin: data['lastLogin']?.toDate(),
@@ -310,7 +374,6 @@ private generateShortId(): string {
       }
       
       if (updateData.role !== undefined) {
-        // Validar que el rol sea válido
         if (!['admin', 'user', 'viewer'].includes(updateData.role)) {
           return { success: false, message: 'Rol no válido' };
         }
@@ -325,7 +388,7 @@ private generateShortId(): string {
         dataToUpdate.permissions = updateData.permissions;
       }
       
-      if (updateData.modules !== undefined) { // ← MÓDULOS
+      if (updateData.modules !== undefined) {
         if (updateData.modules.length === 0) {
           return { success: false, message: 'El usuario debe tener al menos un módulo asignado' };
         }
@@ -448,7 +511,7 @@ private generateShortId(): string {
         totalUsers: users.length,
         activeUsers: users.filter(u => u.isActive).length,
         adminUsers: users.filter(u => u.role === 'admin').length,
-        totalModules: this.getUniqueModulesCount(users) // ← MÓDULOS
+        totalModules: this.getUniqueModulesCount(users)
       };
 
       return stats;
@@ -495,7 +558,7 @@ private generateShortId(): string {
   }
 
   /**
-   * Opciones de módulos disponibles - ACTUALIZADO
+   * Opciones de módulos disponibles
    */
   getModuleOptions(): ModuleOption[] {
     return [
@@ -594,7 +657,7 @@ private generateShortId(): string {
         role: user.role,
         isActive: user.isActive,
         permissions: user.permissions,
-        modules: user.modules, // ← MÓDULOS EN EXPORT
+        modules: user.modules,
         createdAt: user.createdAt.toISOString(),
         lastLogin: user.lastLogin?.toISOString() || null
       }));
@@ -618,34 +681,154 @@ private generateShortId(): string {
     }
   }
 
-  // ===== MÉTODOS PRIVADOS DE UTILIDAD =====
+  /**
+   * Elimina un usuario del sistema con validaciones de seguridad
+   */
+  async deleteUser(uid: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const user = await this.getUserById(uid);
+      
+      if (!user) {
+        return { success: false, message: 'Usuario no encontrado' };
+      }
+
+      // Validaciones de seguridad
+      if (this.auth.currentUser?.uid === uid) {
+        return {
+          success: false,
+          message: 'No puedes eliminar tu propia cuenta'
+        };
+      }
+
+      if (user.role === 'admin') {
+        const activeAdmins = this.usersSubject.value.filter(u => 
+          u.role === 'admin' && u.uid !== uid
+        );
+        
+        if (activeAdmins.length === 0) {
+          return { 
+            success: false, 
+            message: 'No se puede eliminar el último administrador del sistema' 
+          };
+        }
+      }
+
+      const currentUser = this.usersSubject.value.find(
+        u => u.email === this.auth.currentUser?.email
+      );
+      
+      if (!currentUser || currentUser.role !== 'admin') {
+        return {
+          success: false,
+          message: 'No tienes permisos para eliminar usuarios'
+        };
+      }
+
+      // Log antes de eliminar
+      await this.logUserAction('delete_user_attempt', uid, {
+        deletedUser: {
+          email: user.email,
+          displayName: user.displayName,
+          role: user.role,
+          modules: user.modules,
+          createdAt: user.createdAt,
+          lastLogin: user.lastLogin
+        },
+        deletedBy: this.auth.currentUser?.email
+      });
+
+      // Eliminar documento de Firestore
+      const userDocRef = doc(this.db, 'authorized_users', uid);
+      await deleteDoc(userDocRef);
+
+      // Actualizar lista local
+      await this.loadUsers();
+
+      // Log de éxito
+      await this.logUserAction('delete_user_success', uid, {
+        deletedUserEmail: user.email,
+        deletedUserRole: user.role
+      });
+
+      return {
+        success: true,
+        message: `Usuario ${user.displayName} (${user.email}) eliminado correctamente`
+      };
+
+    } catch (error: any) {
+      console.error('❌ Error eliminando usuario:', error);
+      
+      let errorMessage = 'Error al eliminar el usuario';
+      
+      switch (error.code) {
+        case 'permission-denied':
+          errorMessage = 'No tienes permisos para eliminar este usuario';
+          break;
+        case 'not-found':
+          errorMessage = 'El usuario ya no existe en el sistema';
+          break;
+        case 'unavailable':
+          errorMessage = 'Servicio temporalmente no disponible';
+          break;
+        default:
+          errorMessage = error.message || 'Error desconocido al eliminar usuario';
+      }
+
+      // Log del error
+      await this.logUserAction('delete_user_failed', uid, {
+        error: errorMessage,
+        errorCode: error.code
+      });
+
+      return {
+        success: false,
+        message: errorMessage
+      };
+    }
+  }
 
   /**
-   * Genera una contraseña temporal más segura
+   * Eliminación en lote de usuarios
    */
-  private generateSecureTemporaryPassword(): string {
-    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-    const numbers = '0123456789';
-    const symbols = '!@#$%^&*';
-    const allChars = uppercase + lowercase + numbers + symbols;
-    
-    let password = '';
-    
-    // Asegurar al menos un carácter de cada tipo
-    password += uppercase[Math.floor(Math.random() * uppercase.length)];
-    password += lowercase[Math.floor(Math.random() * lowercase.length)];
-    password += numbers[Math.floor(Math.random() * numbers.length)];
-    password += symbols[Math.floor(Math.random() * symbols.length)];
-    
-    // Completar hasta 12 caracteres
-    for (let i = 4; i < 12; i++) {
-      password += allChars[Math.floor(Math.random() * allChars.length)];
+  async deleteMultipleUsers(uids: string[]): Promise<{ 
+    success: boolean; 
+    message: string;
+    deleted: number;
+    failed: number;
+    errors: string[];
+  }> {
+    let deleted = 0;
+    let failed = 0;
+    const errors: string[] = [];
+
+    for (const uid of uids) {
+      const result = await this.deleteUser(uid);
+      
+      if (result.success) {
+        deleted++;
+      } else {
+        failed++;
+        errors.push(`${uid}: ${result.message}`);
+      }
     }
-    
-    // Mezclar los caracteres
-    return password.split('').sort(() => 0.5 - Math.random()).join('');
+
+    await this.logUserAction('delete_multiple_users', '', {
+      totalAttempted: uids.length,
+      deleted,
+      failed,
+      errors
+    });
+
+    return {
+      success: deleted > 0,
+      message: `${deleted} usuario(s) eliminado(s), ${failed} fallido(s)`,
+      deleted,
+      failed,
+      errors
+    };
   }
+
+  // ===== MÉTODOS PRIVADOS DE UTILIDAD =====
 
   /**
    * Log de acciones para auditoría
@@ -659,13 +842,12 @@ private generateShortId(): string {
         performedByEmail: this.auth.currentUser?.email || 'system',
         timestamp: new Date(),
         details: JSON.stringify(details),
-        ip: 'unknown' // En producción podrías obtener la IP real
+        ip: 'unknown'
       };
 
       await addDoc(collection(this.db, 'admin_logs'), logData);
     } catch (error) {
       console.warn('Error logging user action:', error);
-      // No fallar la operación principal por error de logging
     }
   }
 
@@ -694,7 +876,7 @@ private generateShortId(): string {
     }
 
     if (!userData.modules || !Array.isArray(userData.modules) || userData.modules.length === 0) {
-      errors.push('Al menos un módulo es requerido'); // ← VALIDACIÓN DE MÓDULOS
+      errors.push('Al menos un módulo es requerido');
     }
 
     return {
@@ -737,157 +919,6 @@ private generateShortId(): string {
     
     return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
   }
-
-  // Agregar este método en admin.service.ts
-
-/**
- * Elimina un usuario del sistema con validaciones de seguridad
- */
-async deleteUser(uid: string): Promise<{ success: boolean; message: string }> {
-  try {
-    const user = await this.getUserById(uid);
-    
-    if (!user) {
-      return { success: false, message: 'Usuario no encontrado' };
-    }
-
-    // 🔒 VALIDACIÓN 1: Prevenir auto-eliminación
-    if (this.auth.currentUser?.uid === uid) {
-      return {
-        success: false,
-        message: 'No puedes eliminar tu propia cuenta'
-      };
-    }
-
-    // 🔒 VALIDACIÓN 2: Prevenir eliminar el último administrador
-    if (user.role === 'admin') {
-      const activeAdmins = this.usersSubject.value.filter(u => 
-        u.role === 'admin' && u.uid !== uid
-      );
-      
-      if (activeAdmins.length === 0) {
-        return { 
-          success: false, 
-          message: 'No se puede eliminar el último administrador del sistema' 
-        };
-      }
-    }
-
-    // 🔒 VALIDACIÓN 3: Verificar permisos del usuario actual
-    const currentUser = this.usersSubject.value.find(
-      u => u.email === this.auth.currentUser?.email
-    );
-    
-    if (!currentUser || currentUser.role !== 'admin') {
-      return {
-        success: false,
-        message: 'No tienes permisos para eliminar usuarios'
-      };
-    }
-
-    // 📝 Log antes de eliminar (para mantener registro)
-    await this.logUserAction('delete_user_attempt', uid, {
-      deletedUser: {
-        email: user.email,
-        displayName: user.displayName,
-        role: user.role,
-        modules: user.modules,
-        createdAt: user.createdAt,
-        lastLogin: user.lastLogin
-      },
-      deletedBy: this.auth.currentUser?.email
-    });
-
-    // 🗑️ Eliminar documento de Firestore
-    const userDocRef = doc(this.db, 'authorized_users', uid);
-    await deleteDoc(userDocRef);
-
-    // 📊 Actualizar lista local
-    await this.loadUsers();
-
-    // ✅ Log de éxito
-    await this.logUserAction('delete_user_success', uid, {
-      deletedUserEmail: user.email,
-      deletedUserRole: user.role
-    });
-
-    return {
-      success: true,
-      message: `Usuario ${user.displayName} (${user.email}) eliminado correctamente`
-    };
-
-  } catch (error: any) {
-    console.error('❌ Error eliminando usuario:', error);
-    
-    let errorMessage = 'Error al eliminar el usuario';
-    
-    switch (error.code) {
-      case 'permission-denied':
-        errorMessage = 'No tienes permisos para eliminar este usuario';
-        break;
-      case 'not-found':
-        errorMessage = 'El usuario ya no existe en el sistema';
-        break;
-      case 'unavailable':
-        errorMessage = 'Servicio temporalmente no disponible';
-        break;
-      default:
-        errorMessage = error.message || 'Error desconocido al eliminar usuario';
-    }
-
-    // Log del error
-    await this.logUserAction('delete_user_failed', uid, {
-      error: errorMessage,
-      errorCode: error.code
-    });
-
-    return {
-      success: false,
-      message: errorMessage
-    };
-  }
-}
-
-/**
- * Eliminación en lote de usuarios (opcional)
- */
-async deleteMultipleUsers(uids: string[]): Promise<{ 
-  success: boolean; 
-  message: string;
-  deleted: number;
-  failed: number;
-  errors: string[];
-}> {
-  let deleted = 0;
-  let failed = 0;
-  const errors: string[] = [];
-
-  for (const uid of uids) {
-    const result = await this.deleteUser(uid);
-    
-    if (result.success) {
-      deleted++;
-    } else {
-      failed++;
-      errors.push(`${uid}: ${result.message}`);
-    }
-  }
-
-  await this.logUserAction('delete_multiple_users', '', {
-    totalAttempted: uids.length,
-    deleted,
-    failed,
-    errors
-  });
-
-  return {
-    success: deleted > 0,
-    message: `${deleted} usuario(s) eliminado(s), ${failed} fallido(s)`,
-    deleted,
-    failed,
-    errors
-  };
-}
 
   /**
    * Genera color de avatar basado en el email

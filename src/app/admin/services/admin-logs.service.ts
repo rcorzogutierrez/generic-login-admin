@@ -1,4 +1,4 @@
-// src/app/admin/services/admin-logs.service.ts
+// src/app/admin/services/admin-logs.service.ts - CON FUNCIONALIDAD DE ELIMINACIÓN
 import { Injectable } from '@angular/core';
 import {
   getFirestore,
@@ -9,6 +9,9 @@ import {
   limit,
   startAfter,
   getDocs,
+  deleteDoc,
+  doc,
+  writeBatch,
   QueryDocumentSnapshot,
   DocumentData,
   Timestamp
@@ -24,7 +27,6 @@ export interface AdminLog {
   timestamp: Date;
   details: string;
   ip: string;
-  // Campos adicionales parseados
   detailsObject?: any;
 }
 
@@ -43,6 +45,13 @@ export interface LogsFilter {
   searchTerm?: string;
 }
 
+export interface DeleteLogsResult {
+  success: boolean;
+  message: string;
+  deletedCount: number;
+  errors?: string[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -52,6 +61,7 @@ export class AdminLogsService {
   public logs$ = this.logsSubject.asObservable();
 
   private readonly LOGS_PER_PAGE = 15;
+  private readonly BATCH_SIZE = 500; // Firestore batch limit
 
   constructor() {}
 
@@ -66,14 +76,12 @@ export class AdminLogsService {
     try {
       const logsRef = collection(this.db, 'admin_logs');
       
-      // Construir query base con ordenamiento
       let q = query(
         logsRef,
         orderBy('timestamp', 'desc'),
-        limit(pageSize + 1) // +1 para saber si hay más páginas
+        limit(pageSize + 1)
       );
 
-      // Aplicar filtros
       if (filters?.action && filters.action !== 'all') {
         q = query(q, where('action', '==', filters.action));
       }
@@ -90,24 +98,16 @@ export class AdminLogsService {
         q = query(q, where('timestamp', '<=', Timestamp.fromDate(filters.endDate)));
       }
 
-      // Paginación: continuar desde el último documento
       if (lastDoc) {
         q = query(q, startAfter(lastDoc));
       }
 
-      // Ejecutar query
       const querySnapshot = await getDocs(q);
       
-      // Verificar si hay más resultados
       const hasMore = querySnapshot.docs.length > pageSize;
-      
-      // Tomar solo los documentos necesarios
       const docs = querySnapshot.docs.slice(0, pageSize);
-      
-      // Mapear a objetos AdminLog
       const logs: AdminLog[] = docs.map(doc => this.mapDocToLog(doc));
 
-      // Filtrar por término de búsqueda en cliente (si existe)
       let filteredLogs = logs;
       if (filters?.searchTerm) {
         const term = filters.searchTerm.toLowerCase();
@@ -127,6 +127,271 @@ export class AdminLogsService {
     } catch (error) {
       console.error('❌ Error obteniendo logs paginados:', error);
       throw error;
+    }
+  }
+
+  /**
+   * NUEVO: Cuenta el total de logs en la base de datos
+   */
+  async getTotalLogsCount(filters?: LogsFilter): Promise<number> {
+    try {
+      const logsRef = collection(this.db, 'admin_logs');
+      let q = query(logsRef);
+
+      if (filters?.action && filters.action !== 'all') {
+        q = query(q, where('action', '==', filters.action));
+      }
+
+      if (filters?.startDate) {
+        q = query(q, where('timestamp', '>=', Timestamp.fromDate(filters.startDate)));
+      }
+
+      if (filters?.endDate) {
+        q = query(q, where('timestamp', '<=', Timestamp.fromDate(filters.endDate)));
+      }
+
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.size;
+    } catch (error) {
+      console.error('❌ Error contando logs:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * NUEVO: Elimina TODOS los logs del sistema
+   */
+  async deleteAllLogs(): Promise<DeleteLogsResult> {
+    try {
+      console.log('🗑️ Iniciando eliminación de TODOS los logs...');
+
+      const logsRef = collection(this.db, 'admin_logs');
+      const q = query(logsRef);
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        return {
+          success: true,
+          message: 'No hay logs para eliminar',
+          deletedCount: 0
+        };
+      }
+
+      const totalLogs = querySnapshot.size;
+      console.log(`📊 Total de logs a eliminar: ${totalLogs}`);
+
+      let deletedCount = 0;
+      const errors: string[] = [];
+
+      // Eliminar en lotes (Firestore permite max 500 operaciones por batch)
+      const batches = Math.ceil(totalLogs / this.BATCH_SIZE);
+
+      for (let i = 0; i < batches; i++) {
+        const batch = writeBatch(this.db);
+        const startIndex = i * this.BATCH_SIZE;
+        const endIndex = Math.min(startIndex + this.BATCH_SIZE, totalLogs);
+        const docsToDelete = querySnapshot.docs.slice(startIndex, endIndex);
+
+        docsToDelete.forEach(docSnapshot => {
+          batch.delete(docSnapshot.ref);
+        });
+
+        try {
+          await batch.commit();
+          deletedCount += docsToDelete.length;
+          console.log(`✅ Batch ${i + 1}/${batches} completado: ${docsToDelete.length} logs eliminados`);
+        } catch (error: any) {
+          console.error(`❌ Error en batch ${i + 1}:`, error);
+          errors.push(`Batch ${i + 1}: ${error.message}`);
+        }
+      }
+
+      const result: DeleteLogsResult = {
+        success: deletedCount > 0,
+        message: `${deletedCount} log(s) eliminado(s) exitosamente de ${totalLogs} totales`,
+        deletedCount
+      };
+
+      if (errors.length > 0) {
+        result.errors = errors;
+        result.message += ` (con ${errors.length} error(es))`;
+      }
+
+      console.log('✅ Eliminación completada:', result);
+      return result;
+
+    } catch (error: any) {
+      console.error('❌ Error eliminando todos los logs:', error);
+      return {
+        success: false,
+        message: `Error: ${error.message}`,
+        deletedCount: 0,
+        errors: [error.message]
+      };
+    }
+  }
+
+  /**
+   * NUEVO: Elimina logs más antiguos que X días
+   */
+  async deleteLogsOlderThan(days: number): Promise<DeleteLogsResult> {
+    try {
+      console.log(`🗑️ Eliminando logs con más de ${days} días...`);
+
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - days);
+
+      const logsRef = collection(this.db, 'admin_logs');
+      const q = query(
+        logsRef,
+        where('timestamp', '<', Timestamp.fromDate(cutoffDate))
+      );
+      
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        return {
+          success: true,
+          message: `No hay logs con más de ${days} días`,
+          deletedCount: 0
+        };
+      }
+
+      const totalLogs = querySnapshot.size;
+      console.log(`📊 Logs a eliminar (>${days} días): ${totalLogs}`);
+
+      let deletedCount = 0;
+      const errors: string[] = [];
+
+      const batches = Math.ceil(totalLogs / this.BATCH_SIZE);
+
+      for (let i = 0; i < batches; i++) {
+        const batch = writeBatch(this.db);
+        const startIndex = i * this.BATCH_SIZE;
+        const endIndex = Math.min(startIndex + this.BATCH_SIZE, totalLogs);
+        const docsToDelete = querySnapshot.docs.slice(startIndex, endIndex);
+
+        docsToDelete.forEach(docSnapshot => {
+          batch.delete(docSnapshot.ref);
+        });
+
+        try {
+          await batch.commit();
+          deletedCount += docsToDelete.length;
+          console.log(`✅ Batch ${i + 1}/${batches} completado`);
+        } catch (error: any) {
+          console.error(`❌ Error en batch ${i + 1}:`, error);
+          errors.push(`Batch ${i + 1}: ${error.message}`);
+        }
+      }
+
+      const result: DeleteLogsResult = {
+        success: deletedCount > 0,
+        message: `${deletedCount} log(s) eliminado(s) (más de ${days} días)`,
+        deletedCount
+      };
+
+      if (errors.length > 0) {
+        result.errors = errors;
+        result.message += ` (con ${errors.length} error(es))`;
+      }
+
+      return result;
+
+    } catch (error: any) {
+      console.error('❌ Error eliminando logs antiguos:', error);
+      return {
+        success: false,
+        message: `Error: ${error.message}`,
+        deletedCount: 0,
+        errors: [error.message]
+      };
+    }
+  }
+
+  /**
+   * NUEVO: Elimina logs por filtros específicos
+   */
+  async deleteLogsByFilter(filters: LogsFilter): Promise<DeleteLogsResult> {
+    try {
+      console.log('🗑️ Eliminando logs por filtros:', filters);
+
+      const logsRef = collection(this.db, 'admin_logs');
+      let q = query(logsRef);
+
+      if (filters.action && filters.action !== 'all') {
+        q = query(q, where('action', '==', filters.action));
+      }
+
+      if (filters.performedBy) {
+        q = query(q, where('performedBy', '==', filters.performedBy));
+      }
+
+      if (filters.startDate) {
+        q = query(q, where('timestamp', '>=', Timestamp.fromDate(filters.startDate)));
+      }
+
+      if (filters.endDate) {
+        q = query(q, where('timestamp', '<=', Timestamp.fromDate(filters.endDate)));
+      }
+
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        return {
+          success: true,
+          message: 'No hay logs que coincidan con los filtros',
+          deletedCount: 0
+        };
+      }
+
+      const totalLogs = querySnapshot.size;
+      console.log(`📊 Logs que coinciden con filtros: ${totalLogs}`);
+
+      let deletedCount = 0;
+      const errors: string[] = [];
+
+      const batches = Math.ceil(totalLogs / this.BATCH_SIZE);
+
+      for (let i = 0; i < batches; i++) {
+        const batch = writeBatch(this.db);
+        const startIndex = i * this.BATCH_SIZE;
+        const endIndex = Math.min(startIndex + this.BATCH_SIZE, totalLogs);
+        const docsToDelete = querySnapshot.docs.slice(startIndex, endIndex);
+
+        docsToDelete.forEach(docSnapshot => {
+          batch.delete(docSnapshot.ref);
+        });
+
+        try {
+          await batch.commit();
+          deletedCount += docsToDelete.length;
+        } catch (error: any) {
+          errors.push(`Batch ${i + 1}: ${error.message}`);
+        }
+      }
+
+      const result: DeleteLogsResult = {
+        success: deletedCount > 0,
+        message: `${deletedCount} log(s) eliminado(s) según filtros`,
+        deletedCount
+      };
+
+      if (errors.length > 0) {
+        result.errors = errors;
+        result.message += ` (con ${errors.length} error(es))`;
+      }
+
+      return result;
+
+    } catch (error: any) {
+      console.error('❌ Error eliminando logs por filtros:', error);
+      return {
+        success: false,
+        message: `Error: ${error.message}`,
+        deletedCount: 0,
+        errors: [error.message]
+      };
     }
   }
 
@@ -183,12 +448,10 @@ export class AdminLogsService {
         const action = data['action'];
         const user = data['performedByEmail'];
 
-        // Contar por acción
         if (action) {
           stats.byAction[action] = (stats.byAction[action] || 0) + 1;
         }
 
-        // Contar por usuario
         if (user) {
           stats.byUser[user] = (stats.byUser[user] || 0) + 1;
         }

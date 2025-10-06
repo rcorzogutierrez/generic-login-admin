@@ -1,4 +1,4 @@
-// src/app/admin/components/admin-logs/admin-logs.component.ts
+// src/app/admin/components/admin-logs/admin-logs.component.ts - COMPLETO CON DELETE
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { AdminLogsService, AdminLog, LogsFilter } from '../../services/admin-logs.service';
 import { Router } from '@angular/router';
+import { DeleteLogsDialogComponent } from '../delete-logs-dialog/delete-logs-dialog.component';
 
 @Component({
   selector: 'app-admin-logs',
@@ -49,7 +50,8 @@ export class AdminLogsComponent implements OnInit, OnDestroy {
   constructor(
     private logsService: AdminLogsService,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog
   ) {}
 
   async ngOnInit() {
@@ -190,6 +192,45 @@ export class AdminLogsComponent implements OnInit, OnDestroy {
     console.log('🔄 Refrescando logs...');
     await this.loadLogs(true);
     this.snackBar.open('Logs actualizados', '', { duration: 2000 });
+  }
+
+  /**
+   * NUEVO: Abre el dialog para eliminar logs
+   */
+  openDeleteLogsDialog() {
+    console.log('🗑️ Abriendo dialog de eliminación de logs...');
+    
+    const dialogRef = this.dialog.open(DeleteLogsDialogComponent, {
+      width: '700px',
+      maxWidth: '90vw',
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result?.success && result?.result) {
+        const deleteResult = result.result;
+        
+        console.log('✅ Resultado de eliminación:', deleteResult);
+        
+        // Mostrar resultado
+        this.snackBar.open(
+          deleteResult.message,
+          'Cerrar',
+          {
+            duration: 6000,
+            panelClass: deleteResult.success ? ['success-snackbar'] : ['error-snackbar']
+          }
+        );
+
+        // Si fue exitoso, recargar logs
+        if (deleteResult.success && deleteResult.deletedCount > 0) {
+          console.log('🔄 Recargando logs después de eliminación...');
+          await this.refreshLogs();
+        }
+      } else {
+        console.log('❌ Eliminación cancelada o falló');
+      }
+    });
   }
 
   /**

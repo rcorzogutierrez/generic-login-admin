@@ -1,235 +1,245 @@
-<!-- src/app/admin/components/admin-logs/admin-logs.component.html -->
+<!-- src/app/admin/components/admin-logs/admin-logs.component.html - COMPLETO CON BOTÓN DELETE -->
 <div class="logs-container">
   
-    <!-- Header -->
-    <header class="logs-header">
-      <div class="header-content">
-        <div class="header-left">
-          <div class="header-icon">
-            <mat-icon>history</mat-icon>
-          </div>
-          <div class="header-info">
-            <h1>Logs de Auditoría</h1>
-            <p class="header-subtitle">
-              <span class="status-dot"></span>
-              Monitoreo en tiempo real del sistema
-            </p>
-          </div>
+  <!-- Header -->
+  <header class="logs-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <mat-icon>history</mat-icon>
         </div>
-  
-        <div class="header-right">
-          <button 
-            mat-stroked-button 
-            class="back-button"
-            (click)="goBackToAdmin()">
-            <mat-icon>arrow_back</mat-icon>
-            Volver
-          </button>
-  
-          <button 
-            mat-icon-button 
-            class="icon-button"
-            (click)="refreshLogs()"
-            [disabled]="isLoading"
-            matTooltip="Actualizar logs">
-            <mat-icon [class.spinning]="isLoading">refresh</mat-icon>
-          </button>
-  
+        <div class="header-info">
+          <h1>Logs de Auditoría</h1>
+          <p class="header-subtitle">
+            <span class="status-dot"></span>
+            Monitoreo en tiempo real del sistema
+          </p>
+        </div>
+      </div>
+ 
+      <div class="header-right">
+        <button 
+          mat-stroked-button 
+          class="back-button"
+          (click)="goBackToAdmin()">
+          <mat-icon>arrow_back</mat-icon>
+          Volver
+        </button>
+
+        <button 
+          mat-icon-button 
+          class="icon-button"
+          (click)="refreshLogs()"
+          [disabled]="isLoading"
+          matTooltip="Actualizar logs">
+          <mat-icon [class.spinning]="isLoading">refresh</mat-icon>
+        </button>
+
+        <!-- BOTÓN DE ELIMINAR LOGS - ESTE ES EL IMPORTANTE -->
+        <button 
+          mat-icon-button 
+          class="icon-button delete-logs-button"
+          (click)="openDeleteLogsDialog()"
+          [disabled]="isLoading"
+          matTooltip="Eliminar logs del sistema">
+          <mat-icon>delete_sweep</mat-icon>
+        </button>
+
+        <button 
+          mat-raised-button 
+          color="primary"
+          class="export-button"
+          (click)="exportLogs()"
+          [disabled]="isLoading">
+          <mat-icon>download</mat-icon>
+          Exportar
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Filtros y Búsqueda -->
+  <section class="filters-section">
+    <div class="filters-grid">
+      <!-- Búsqueda -->
+      <div class="search-box">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input 
+          type="text" 
+          class="search-input"
+          placeholder="Buscar por usuario, acción o ID..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearch()"
+          [disabled]="isLoading">
+      </div>
+
+      <!-- Filtro de Acción -->
+      <div class="filter-select-box">
+        <mat-icon class="filter-icon">filter_list</mat-icon>
+        <select 
+          class="filter-select"
+          [(ngModel)]="selectedAction"
+          (change)="onActionFilterChange()"
+          [disabled]="isLoading">
+          <option value="all">Todas las acciones</option>
+          @for (action of availableActions; track action) {
+            <option [value]="action">{{ getActionName(action) }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Info de filtros activos -->
+    @if (hasActiveFilters()) {
+      <div class="filters-info">
+        <mat-icon>info</mat-icon>
+        <span>Filtros activos aplicados</span>
+        <button 
+          mat-button 
+          class="clear-filters-btn"
+          (click)="clearFilters()"
+          [disabled]="isLoading">
+          Limpiar filtros
+        </button>
+      </div>
+    }
+  </section>
+
+  <!-- Tabla de Logs -->
+  <section class="table-section">
+    @if (isLoading && logs.length === 0) {
+      <!-- Loading inicial -->
+      <div class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Cargando logs de auditoría...</p>
+      </div>
+    } @else if (logs.length === 0) {
+      <!-- Estado vacío -->
+      <div class="empty-state">
+        <mat-icon class="empty-icon">history_toggle_off</mat-icon>
+        <h3>No hay logs disponibles</h3>
+        <p>No se encontraron registros con los filtros aplicados</p>
+        @if (hasActiveFilters()) {
           <button 
             mat-raised-button 
             color="primary"
-            class="export-button"
-            (click)="exportLogs()"
-            [disabled]="isLoading">
-            <mat-icon>download</mat-icon>
-            Exportar
+            (click)="clearFilters()">
+            Limpiar Filtros
           </button>
-        </div>
+        }
       </div>
-    </header>
-  
-    <!-- Filtros y Búsqueda -->
-    <section class="filters-section">
-      <div class="filters-grid">
-        <!-- Búsqueda -->
-        <div class="search-box">
-          <mat-icon class="search-icon">search</mat-icon>
-          <input 
-            type="text" 
-            class="search-input"
-            placeholder="Buscar por usuario, acción o ID..."
-            [(ngModel)]="searchTerm"
-            (input)="onSearch()"
-            [disabled]="isLoading">
-        </div>
-  
-        <!-- Filtro de Acción -->
-        <div class="filter-select-box">
-          <mat-icon class="filter-icon">filter_list</mat-icon>
-          <select 
-            class="filter-select"
-            [(ngModel)]="selectedAction"
-            (change)="onActionFilterChange()"
-            [disabled]="isLoading">
-            <option value="all">Todas las acciones</option>
-            @for (action of availableActions; track action) {
-              <option [value]="action">{{ getActionName(action) }}</option>
-            }
-          </select>
-        </div>
-      </div>
-  
-      <!-- Info de filtros activos -->
-      @if (hasActiveFilters()) {
-        <div class="filters-info">
-          <mat-icon>info</mat-icon>
-          <span>Filtros activos aplicados</span>
-          <button 
-            mat-button 
-            class="clear-filters-btn"
-            (click)="clearFilters()"
-            [disabled]="isLoading">
-            Limpiar filtros
-          </button>
-        </div>
-      }
-    </section>
-  
-    <!-- Tabla de Logs -->
-    <section class="table-section">
-      @if (isLoading && logs.length === 0) {
-        <!-- Loading inicial -->
-        <div class="loading-state">
-          <mat-spinner diameter="40"></mat-spinner>
-          <p>Cargando logs de auditoría...</p>
-        </div>
-      } @else if (logs.length === 0) {
-        <!-- Estado vacío -->
-        <div class="empty-state">
-          <mat-icon class="empty-icon">history_toggle_off</mat-icon>
-          <h3>No hay logs disponibles</h3>
-          <p>No se encontraron registros con los filtros aplicados</p>
-          @if (hasActiveFilters()) {
-            <button 
-              mat-raised-button 
-              color="primary"
-              (click)="clearFilters()">
-              Limpiar Filtros
-            </button>
-          }
-        </div>
-      } @else {
-        <!-- Tabla con logs -->
-        <div class="table-container">
-          <div class="table-wrapper">
-            <table class="logs-table">
-              <thead>
-                <tr>
-                  <th>Acción</th>
-                  <th>Usuario</th>
-                  <th>Fecha y Hora</th>
-                  <th>IP</th>
-                  <th>Detalles</th>
+    } @else {
+      <!-- Tabla con logs -->
+      <div class="table-container">
+        <div class="table-wrapper">
+          <table class="logs-table">
+            <thead>
+              <tr>
+                <th>Acción</th>
+                <th>Usuario</th>
+                <th>Fecha y Hora</th>
+                <th>IP</th>
+                <th>Detalles</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (log of logs; track trackByLogId($index, log)) {
+                <tr class="table-row">
+                  <!-- Acción -->
+                  <td class="action-cell">
+                    <div class="action-content">
+                      <mat-icon [class]="'action-icon ' + getActionBadgeClass(log.action)">
+                        {{ getActionIcon(log.action) }}
+                      </mat-icon>
+                      <span [class]="'action-badge ' + getActionBadgeClass(log.action)">
+                        {{ getActionName(log.action) }}
+                      </span>
+                    </div>
+                  </td>
+
+                  <!-- Usuario -->
+                  <td class="user-cell">
+                    <div class="user-info">
+                      <div class="user-avatar" [style.background]="getUserColor(log.performedByEmail)">
+                        {{ getUserInitials(log.performedByEmail) }}
+                      </div>
+                      <div class="user-details">
+                        <span class="user-email">{{ log.performedByEmail }}</span>
+                        <span class="user-id">ID: {{ log.performedBy }}</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Fecha -->
+                  <td class="date-cell">
+                    <div class="date-info">
+                      <span class="date-text">{{ formatDateTime(log.timestamp) }}</span>
+                      <span class="date-relative">{{ getRelativeTime(log.timestamp) }} atrás</span>
+                    </div>
+                  </td>
+
+                  <!-- IP -->
+                  <td class="ip-cell">
+                    <span class="ip-badge">{{ log.ip }}</span>
+                  </td>
+
+                  <!-- Detalles -->
+                  <td class="details-cell">
+                    <button 
+                      mat-button 
+                      class="details-button"
+                      (click)="viewLogDetails(log)">
+                      Ver detalles
+                      <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                @for (log of logs; track trackByLogId($index, log)) {
-                  <tr class="table-row">
-                    <!-- Acción -->
-                    <td class="action-cell">
-                      <div class="action-content">
-                        <mat-icon [class]="'action-icon ' + getActionBadgeClass(log.action)">
-                          {{ getActionIcon(log.action) }}
-                        </mat-icon>
-                        <span [class]="'action-badge ' + getActionBadgeClass(log.action)">
-                          {{ getActionName(log.action) }}
-                        </span>
-                      </div>
-                    </td>
-  
-                    <!-- Usuario -->
-                    <td class="user-cell">
-                      <div class="user-info">
-                        <div class="user-avatar" [style.background]="getUserColor(log.performedByEmail)">
-                          {{ getUserInitials(log.performedByEmail) }}
-                        </div>
-                        <div class="user-details">
-                          <span class="user-email">{{ log.performedByEmail }}</span>
-                          <span class="user-id">ID: {{ log.performedBy }}</span>
-                        </div>
-                      </div>
-                    </td>
-  
-                    <!-- Fecha -->
-                    <td class="date-cell">
-                      <div class="date-info">
-                        <span class="date-text">{{ formatDateTime(log.timestamp) }}</span>
-                        <span class="date-relative">{{ getRelativeTime(log.timestamp) }} atrás</span>
-                      </div>
-                    </td>
-  
-                    <!-- IP -->
-                    <td class="ip-cell">
-                      <span class="ip-badge">{{ log.ip }}</span>
-                    </td>
-  
-                    <!-- Detalles -->
-                    <td class="details-cell">
-                      <button 
-                        mat-button 
-                        class="details-button"
-                        (click)="viewLogDetails(log)">
-                        Ver detalles
-                        <mat-icon>arrow_forward</mat-icon>
-                      </button>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+              }
+            </tbody>
+          </table>
         </div>
-  
-        <!-- Paginación -->
-        <div class="pagination-section">
-          <div class="pagination-info">
-            <span>Mostrando página <strong>{{ currentPage }}</strong></span>
-            <span class="separator">•</span>
-            <span><strong>{{ logs.length }}</strong> registros</span>
-          </div>
-  
-          <div class="pagination-controls">
-            <button 
-              mat-stroked-button
-              class="pagination-btn"
-              (click)="previousPage()"
-              [disabled]="currentPage === 1 || isLoadingMore">
-              <mat-icon>chevron_left</mat-icon>
-              Anterior
-            </button>
-  
-            <div class="page-indicator">
-              <span class="page-number">{{ currentPage }}</span>
-            </div>
-  
-            <button 
-              mat-stroked-button
-              class="pagination-btn"
-              (click)="nextPage()"
-              [disabled]="!hasMorePages || isLoadingMore">
-              Siguiente
-              <mat-icon>chevron_right</mat-icon>
-            </button>
-          </div>
-  
-          @if (isLoadingMore) {
-            <div class="loading-more">
-              <mat-spinner diameter="20"></mat-spinner>
-              <span>Cargando más logs...</span>
-            </div>
-          }
+      </div>
+
+      <!-- Paginación -->
+      <div class="pagination-section">
+        <div class="pagination-info">
+          <span>Mostrando página <strong>{{ currentPage }}</strong></span>
+          <span class="separator">•</span>
+          <span><strong>{{ logs.length }}</strong> registros</span>
         </div>
-      }
-    </section>
-  
-  </div>
+
+        <div class="pagination-controls">
+          <button 
+            mat-stroked-button
+            class="pagination-btn"
+            (click)="previousPage()"
+            [disabled]="currentPage === 1 || isLoadingMore">
+            <mat-icon>chevron_left</mat-icon>
+            Anterior
+          </button>
+
+          <div class="page-indicator">
+            <span class="page-number">{{ currentPage }}</span>
+          </div>
+
+          <button 
+            mat-stroked-button
+            class="pagination-btn"
+            (click)="nextPage()"
+            [disabled]="!hasMorePages || isLoadingMore">
+            Siguiente
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+
+        @if (isLoadingMore) {
+          <div class="loading-more">
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>Cargando más logs...</span>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+</div>

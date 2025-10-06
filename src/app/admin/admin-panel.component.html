@@ -1,22 +1,29 @@
-<!-- src/app/admin/admin-panel.component.html - VERSIÓN COMPLETA CON BULK DELETE -->
+<!-- src/app/admin/admin-panel.component.html - VERSIÓN COMPLETA CON BULK DELETE Y WARNINGS CORREGIDOS -->
 <div class="admin-container">
   <!-- Header Compacto - Igual al Dashboard -->
   <header class="admin-header">
     <div class="header-content">
       <div class="header-left">
-        <h1>¡Bienvenido de nuevo! 👋</h1>
-       
+        <div class="header-icon-container">
+          <mat-icon>admin_panel_settings</mat-icon>
+        </div>
+        <div class="header-info">
+          <h1>Panel de Administración</h1>
+          <p>
+            <span class="status-dot"></span>
+            Herramienta de Administración del sistema
+          </p>
+        </div>
       </div>
-       <!-- Botón para volver al dashboard -->
-    <button 
-    mat-stroked-button 
-    class="back-to-dashboard-button"
-    (click)="goToDashboard()">
-    <mat-icon>dashboard</mat-icon>
-    Dashboard
-  </button>
       
       <div class="header-right">
+        <button 
+        mat-stroked-button 
+        class="back-button"
+        (click)="goToDashboard()">
+        <mat-icon>arrow_back</mat-icon>
+        Volver
+      </button>
         <!-- User Badge -->
         @if (!isLoading && currentUser()) {
           <div class="user-badge">
@@ -282,9 +289,9 @@
                     </div>
                   </td>
                   <td class="modules-cell">
-                    @if (getUserModules(user.email)?.length) {
+                    @if (getUserModules(user.email).length) {
                       <div class="modules-list">
-                        @for (module of getUserModules(user.email)?.slice(0, 3); track module) {
+                        @for (module of getUserModules(user.email).slice(0, 3); track module) {
                           <mat-chip class="module-chip">
                             <mat-icon matChipAvatar>{{ getModuleIcon(module) }}</mat-icon>
                             {{ getModuleName(module) }}

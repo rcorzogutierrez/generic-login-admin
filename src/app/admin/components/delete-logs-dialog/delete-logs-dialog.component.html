@@ -1,0 +1,181 @@
+<!-- src/app/admin/components/delete-logs-dialog/delete-logs-dialog.component.html -->
+<div class="delete-logs-dialog">
+  <!-- Header -->
+  <div class="dialog-header">
+    <div class="warning-icon">
+      <mat-icon>delete_sweep</mat-icon>
+    </div>
+    <h2 mat-dialog-title>🗑️ Eliminar Logs del Sistema</h2>
+  </div>
+
+  <!-- Content -->
+  <mat-dialog-content class="dialog-content">
+    <div class="warning-message">
+      
+      <!-- Información de logs totales -->
+      <div class="info-box">
+        <mat-icon class="info-icon">info</mat-icon>
+        <div class="info-content">
+          @if (isLoadingCount) {
+            <span>Cargando información...</span>
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            <span class="info-label">Total de logs en el sistema:</span>
+            <span class="info-value">{{ totalLogs }} registros</span>
+          }
+        </div>
+      </div>
+
+      <!-- Opciones de eliminación -->
+      <div class="options-section">
+        <label class="section-label">
+          <mat-icon>tune</mat-icon>
+          Selecciona el método de eliminación:
+        </label>
+
+        <mat-radio-group 
+          [(ngModel)]="selectedOption" 
+          class="options-radio-group">
+          
+          <!-- Opción: Eliminar logs antiguos -->
+          <mat-radio-button 
+            value="older_than" 
+            class="option-card">
+            <div class="option-content">
+              <div class="option-header">
+                <mat-icon class="option-icon">schedule</mat-icon>
+                <span class="option-title">Eliminar logs antiguos</span>
+              </div>
+              <p class="option-description">
+                Elimina logs con más de X días de antigüedad (recomendado)
+              </p>
+              
+              @if (selectedOption === 'older_than') {
+                <div class="days-input-wrapper">
+                  <label class="days-label">
+                    <mat-icon class="days-label-icon">calendar_today</mat-icon>
+                    Días de antigüedad
+                  </label>
+                  <div class="days-input-container">
+                    <input 
+                      type="number" 
+                      class="days-input"
+                      [(ngModel)]="daysInput"
+                      min="1"
+                      max="365"
+                      placeholder="30">
+                    <mat-icon class="days-suffix-icon">event</mat-icon>
+                  </div>
+                  <span class="hint-text">
+                    💡 Se recomienda mantener logs de al menos 30 días
+                  </span>
+                </div>
+              }
+            </div>
+          </mat-radio-button>
+
+          <!-- Opción: Eliminar TODOS -->
+          <mat-radio-button 
+            value="all" 
+            class="option-card danger-option">
+            <div class="option-content">
+              <div class="option-header">
+                <mat-icon class="option-icon danger">warning</mat-icon>
+                <span class="option-title">Eliminar TODOS los logs</span>
+              </div>
+              <p class="option-description danger-text">
+                ⚠️ PELIGRO: Esto eliminará TODOS los {{ totalLogs }} logs del sistema sin excepción
+              </p>
+            </div>
+          </mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <!-- Advertencias -->
+      <div class="warning-list">
+        <div class="warning-item">
+          <mat-icon class="danger-icon">error</mat-icon>
+          <span>Esta acción <strong>NO se puede deshacer</strong></span>
+        </div>
+        <div class="warning-item">
+          <mat-icon class="danger-icon">delete_forever</mat-icon>
+          <span>{{ getWarningMessage() }}</span>
+        </div>
+        <div class="warning-item">
+          <mat-icon class="danger-icon">history</mat-icon>
+          <span>Se perderá el historial de auditoría de estas acciones</span>
+        </div>
+      </div>
+
+      <!-- Confirmación de seguridad -->
+      <div class="confirmation-section">
+        <p class="confirmation-label">
+          Para confirmar, escribe: 
+          <span class="keyword-badge">{{ getRequiredKeyword() }}</span>
+        </p>
+        
+        <div class="confirmation-input-wrapper">
+          <div class="input-container">
+            <div class="input-icon-wrapper">
+              <mat-icon class="input-icon">
+                {{ confirmationText.toUpperCase() === getRequiredKeyword().toUpperCase() ? 'check_circle' : 'edit' }}
+              </mat-icon>
+            </div>
+            <input 
+              class="confirmation-input-custom"
+              [(ngModel)]="confirmationText"
+              [disabled]="isDeleting"
+              (keyup.enter)="onConfirm()"
+              [placeholder]="'Escribe ' + getRequiredKeyword() + ' aquí...'"
+              autocomplete="off"
+              [class.valid]="confirmationText.toUpperCase() === getRequiredKeyword().toUpperCase()"
+              [class.invalid]="confirmationText.length > 0 && confirmationText.toUpperCase() !== getRequiredKeyword().toUpperCase()">
+          </div>
+          
+          @if (confirmationText.length > 0) {
+            <div class="input-status">
+              @if (confirmationText.toUpperCase() === getRequiredKeyword().toUpperCase()) {
+                <span class="status-text">✓ Correcto</span>
+              } @else {
+                <span class="status-text error">✗ Incorrecto</span>
+              }
+            </div>
+          }
+        </div>
+
+        @if (confirmationText.length === 0) {
+          <div class="hint-text">
+            💡 Escribe exactamente la frase indicada para continuar
+          </div>
+        }
+      </div>
+
+    </div>
+  </mat-dialog-content>
+
+  <!-- Actions -->
+  <mat-dialog-actions class="dialog-actions">
+    <button 
+      mat-stroked-button 
+      (click)="onCancel()"
+      [disabled]="isDeleting"
+      class="cancel-btn">
+      <mat-icon>close</mat-icon>
+      Cancelar
+    </button>
+    
+    <button 
+      mat-raised-button 
+      color="warn"
+      (click)="onConfirm()"
+      [disabled]="!canConfirm() || isDeleting"
+      class="delete-btn">
+      @if (isDeleting) {
+        <mat-spinner diameter="20"></mat-spinner>
+      } @else {
+        <mat-icon>delete_sweep</mat-icon>
+      }
+      {{ isDeleting ? 'Eliminando...' : 'Confirmar Eliminación' }}
+    </button>
+  </mat-dialog-actions>
+</div>

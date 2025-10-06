@@ -1,14 +1,16 @@
-<!-- src/app/admin/admin-panel.component.html - VERSIÓN OPTIMIZADA -->
+<!-- src/app/admin/admin-panel.component.html - VERSIÓN COMPLETA CON BULK DELETE -->
 <div class="admin-container">
   <!-- Header Compacto - Igual al Dashboard -->
   <header class="admin-header">
     <div class="header-content">
       <div class="header-left">
         <h1>¡Bienvenido de nuevo! 👋</h1>
-        <p *ngIf="!isLoading && currentUser()">
-          <span class="status-dot" [class.recent]="isRecentSession()"></span>
-          Última sesión: {{ getLastSession() }}
-        </p>
+        @if (!isLoading && currentUser()) {
+          <p>
+            <span class="status-dot" [class.recent]="isRecentSession()"></span>
+            Última sesión: {{ getLastSession() }}
+          </p>        
+        }
       </div>
        <!-- Botón para volver al dashboard -->
     <button 
@@ -21,13 +23,15 @@
       
       <div class="header-right">
         <!-- User Badge -->
-        <div class="user-badge" *ngIf="!isLoading && currentUser()">
-          <div class="user-avatar">{{ getUserInitials() }}</div>
-          <div class="user-info-header">
-            <span class="user-name">{{ currentUser()?.displayName }}</span>
-            <span class="user-role-badge">ADMIN</span>
+        @if (!isLoading && currentUser()) {
+          <div class="user-badge">
+            <div class="user-avatar">{{ getUserInitials() }}</div>
+            <div class="user-info-header">
+              <span class="user-name">{{ currentUser()?.displayName }}</span>
+              <span class="user-role-badge">ADMIN</span>
+            </div>
           </div>
-        </div>
+        }
         
         <!-- Action Buttons -->
         <button mat-icon-button 
@@ -44,16 +48,13 @@
           <mat-icon>settings</mat-icon>
         </button>
         
-     
-        <button mat-icon-button class="icon-button" matTooltip="Cerrar sessión" (click)="logout()">
+        <button mat-icon-button class="icon-button" matTooltip="Cerrar sesión" (click)="logout()">
           <mat-icon>logout</mat-icon>
-       
         </button>
-        
-     
       </div>
     </div>
   </header>
+
   <div class="page-breadcrumb">
     <mat-icon class="breadcrumb-icon">admin_panel_settings</mat-icon>
     <span class="breadcrumb-text">Panel de Administración</span>
@@ -189,14 +190,36 @@
       </div>
 
       <div class="toolbar-actions">
-        <button class="btn-secondary-toolbar" (click)="exportData()">
-          <mat-icon>download</mat-icon>
-          Exportar
-        </button>
-        <button class="btn-primary-toolbar" (click)="addUser()">
-          <mat-icon>person_add</mat-icon>
-          Nuevo Usuario
-        </button>
+        <!-- Mostrar acciones masivas si hay usuarios seleccionados -->
+        @if (selectedUsers.size > 0) {
+          <div class="bulk-actions">
+            <span class="selected-count">{{ selectedUsers.size }} seleccionado(s)</span>
+            <button 
+              class="btn-danger-toolbar" 
+              (click)="deleteSelectedUsers()"
+              matTooltip="Eliminar usuarios seleccionados">
+              <mat-icon>delete_sweep</mat-icon>
+              Eliminar Seleccionados
+            </button>
+            <button 
+              class="btn-secondary-toolbar" 
+              (click)="clearSelection()"
+              matTooltip="Cancelar selección">
+              <mat-icon>clear</mat-icon>
+              Cancelar
+            </button>
+          </div>
+        } @else {
+          <!-- Acciones normales cuando no hay selección -->
+          <button class="btn-secondary-toolbar" (click)="exportData()">
+            <mat-icon>download</mat-icon>
+            Exportar
+          </button>
+          <button class="btn-primary-toolbar" (click)="addUser()">
+            <mat-icon>person_add</mat-icon>
+            Nuevo Usuario
+          </button>
+        }
       </div>
     </section>
 
@@ -207,6 +230,17 @@
           <table class="users-table">
             <thead>
               <tr>
+                <!-- Checkbox para seleccionar todos -->
+                <th style="width: 50px;">
+                  <input 
+                    type="checkbox" 
+                    class="checkbox-select-all"
+                    [checked]="isAllSelected()"
+                    [indeterminate]="isSomeSelected()"
+                    (change)="toggleSelectAll()"
+                    matTooltip="Seleccionar todos"
+                  >
+                </th>
                 <th>Usuario</th>
                 <th>Rol</th>
                 <th>Estado</th>
@@ -216,122 +250,152 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let user of displayedUsers; trackBy: trackByUid" class="table-row">
-                <td class="user-cell">
-                  <div class="user-info">
-                    <div class="user-avatar-small" [style.background]="getUserAvatarColor(user.email)">
-                      <mat-icon>{{ getUserIcon(user.role) }}</mat-icon>
+              @for (user of displayedUsers; track trackByUid($index, user)) {
+                <tr class="table-row" [class.selected-row]="isUserSelected(user.uid!)">
+                  <!-- Checkbox individual -->
+                  <td>
+                    <input 
+                      type="checkbox" 
+                      class="checkbox-select"
+                      [checked]="isUserSelected(user.uid!)"
+                      (change)="toggleUserSelection(user.uid!)"
+                      [disabled]="!canSelectUser(user)"
+                      [matTooltip]="getSelectionTooltip(user)"
+                    >
+                  </td>
+                  <td class="user-cell">
+                    <div class="user-info">
+                      <div class="user-avatar-small" [style.background]="getUserAvatarColor(user.email)">
+                        <mat-icon>{{ getUserIcon(user.role) }}</mat-icon>
+                      </div>
+                      <div class="user-details-table">
+                        <span class="user-email">{{ user.email }}</span>
+                        <span class="user-name-small">{{ user.displayName || 'Sin nombre' }}</span>
+                      </div>
                     </div>
-                    <div class="user-details-table">
-                      <span class="user-email">{{ user.email }}</span>
-                      <span class="user-name-small">{{ user.displayName || 'Sin nombre' }}</span>
+                  </td>
+                  <td>
+                    <div class="role-badge" [class]="'role-' + user.role">
+                      <mat-icon class="role-icon">{{ getRoleIcon(user.role) }}</mat-icon>
+                      <span>{{ user.role.toUpperCase() }}</span>
                     </div>
-                  </div>
-                </td>
-                <td>
-                  <div class="role-badge" [ngClass]="'role-' + user.role">
-                    <mat-icon class="role-icon">{{ getRoleIcon(user.role) }}</mat-icon>
-                    <span>{{ user.role.toUpperCase() }}</span>
-                  </div>
-                </td>
-                <td>
-                  <div class="status-badge" [ngClass]="user.isActive ? 'status-active' : 'status-inactive'">
-                    <mat-icon>{{ user.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
-                    <span>{{ user.isActive ? 'ACTIVO' : 'INACTIVO' }}</span>
-                  </div>
-                </td>
-                <td class="modules-cell">
-                  <div class="modules-list" *ngIf="getUserModules(user.email)?.length; else noModules">
-                    <mat-chip 
-                      *ngFor="let module of getUserModules(user.email)?.slice(0, 3)" 
-                      class="module-chip">
-                      <mat-icon matChipAvatar>{{ getModuleIcon(module) }}</mat-icon>
-                      {{ getModuleName(module) }}
-                    </mat-chip>
-                    <span *ngIf="getUserModules(user.email).length > 3" class="more-modules">
-                      +{{ getUserModules(user.email).length - 3 }} más
-                    </span>
-                  </div>
-                  <ng-template #noModules>
-                    <span class="no-modules">Sin módulos</span>
-                  </ng-template>
-                </td>
-                <td class="date-cell">
-                  <div class="date-info">
-                    <span class="date-text">{{ formatDate(user.lastLogin) }}</span>
-                    <span class="date-relative" *ngIf="user.lastLogin">{{ getRelativeTime(user.lastLogin) }}</span>
-                  </div>
-                </td>
-                <td style="text-align: center;">
-                  <button mat-icon-button [matMenuTriggerFor]="userMenu" class="action-menu-button">
-                    <mat-icon>more_horiz</mat-icon>
-                  </button>
-                  <mat-menu #userMenu="matMenu">
-                    <button mat-menu-item (click)="viewUserDetails(user)">
-                      <mat-icon>visibility</mat-icon>
-                      Ver Detalles
+                  </td>
+                  <td>
+                    <div class="status-badge" [class]="user.isActive ? 'status-active' : 'status-inactive'">
+                      <mat-icon>{{ user.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
+                      <span>{{ user.isActive ? 'ACTIVO' : 'INACTIVO' }}</span>
+                    </div>
+                  </td>
+                  <td class="modules-cell">
+                    @if (getUserModules(user.email)?.length) {
+                      <div class="modules-list">
+                        @for (module of getUserModules(user.email)?.slice(0, 3); track module) {
+                          <mat-chip class="module-chip">
+                            <mat-icon matChipAvatar>{{ getModuleIcon(module) }}</mat-icon>
+                            {{ getModuleName(module) }}
+                          </mat-chip>
+                        }
+                        @if (getUserModules(user.email).length > 3) {
+                          <span class="more-modules">
+                            +{{ getUserModules(user.email).length - 3 }} más
+                          </span>
+                        }
+                      </div>
+                    } @else {
+                      <span class="no-modules">Sin módulos</span>
+                    }
+                  </td>
+                  <td class="date-cell">
+                    <div class="date-info">
+                      <span class="date-text">{{ formatDate(user.lastLogin) }}</span>
+                      @if (user.lastLogin) {
+                        <span class="date-relative">{{ getRelativeTime(user.lastLogin) }}</span>
+                      }
+                    </div>
+                  </td>
+                  <td style="text-align: center;">
+                    <button mat-icon-button [matMenuTriggerFor]="userMenu" class="action-menu-button">
+                      <mat-icon>more_horiz</mat-icon>
                     </button>
-                    <button mat-menu-item (click)="editUser(user)">
-                      <mat-icon>edit</mat-icon>
-                      Editar Usuario
-                    </button>
-                    <button mat-menu-item (click)="resetUserPassword(user)">
-                      <mat-icon>lock_reset</mat-icon>
-                      Restablecer Contraseña
-                    </button>
-                    <button mat-menu-item (click)="toggleUserStatus(user)">
-                      <mat-icon>{{ user.isActive ? 'block' : 'check_circle' }}</mat-icon>
-                      {{ user.isActive ? 'Desactivar' : 'Activar' }}
-                    </button>
-                    <button mat-menu-item (click)="assignModules(user)" class="assign-modules">
-                      <mat-icon>apps</mat-icon>
-                      Asignar Módulos
-                    </button>
-                    <mat-divider></mat-divider>
-                    <button 
-                      mat-menu-item 
-                      (click)="deleteUser(user)" 
-                      class="delete-menu-item">
-                      <mat-icon class="delete-icon">delete_forever</mat-icon>
-                      Eliminar Usuario
-                    </button>
-                  </mat-menu>
-                </td>
-              </tr>
+                    <mat-menu #userMenu="matMenu">
+                      <button mat-menu-item (click)="viewUserDetails(user)">
+                        <mat-icon>visibility</mat-icon>
+                        Ver Detalles
+                      </button>
+                      <button mat-menu-item (click)="editUser(user)">
+                        <mat-icon>edit</mat-icon>
+                        Editar Usuario
+                      </button>
+                      <button mat-menu-item (click)="resetUserPassword(user)">
+                        <mat-icon>lock_reset</mat-icon>
+                        Restablecer Contraseña
+                      </button>
+                      <button mat-menu-item (click)="toggleUserStatus(user)">
+                        <mat-icon>{{ user.isActive ? 'block' : 'check_circle' }}</mat-icon>
+                        {{ user.isActive ? 'Desactivar' : 'Activar' }}
+                      </button>
+                      <button mat-menu-item (click)="assignModules(user)" class="assign-modules">
+                        <mat-icon>apps</mat-icon>
+                        Asignar Módulos
+                      </button>
+                      
+                      <mat-divider></mat-divider>
+                      <button 
+                        mat-menu-item 
+                        (click)="deleteUser(user)" 
+                        class="delete-menu-item">
+                        <mat-icon class="delete-icon">delete_forever</mat-icon>
+                        Eliminar Usuario
+                      </button>
+                    </mat-menu>
+                  </td>
+                </tr>
+              }
             </tbody>
           </table>
         </div>
       </div>
       
       <!-- Table Actions -->
-      <div class="table-actions" *ngIf="users.length > 0">
-        <div class="table-info">
-          <span>Mostrando {{ displayedUsers.length }} de {{ totalUsers }} usuarios</span>
+      @if (users.length > 0) {
+        <div class="table-actions">
+          <div class="table-info">
+            <span>Mostrando {{ displayedUsers.length }} de {{ totalUsers }} usuarios</span>
+            @if (selectedUsers.size > 0) {
+              <span class="selection-info"> • {{ selectedUsers.size }} seleccionado(s)</span>
+            }
+          </div>
+          <div class="table-buttons">
+            @if (displayedUsers.length < users.length) {
+              <button mat-button (click)="loadMoreUsers()">
+                <mat-icon>expand_more</mat-icon>
+                Ver Más Usuarios
+              </button>
+            }
+          </div>
         </div>
-        <div class="table-buttons">
-          <button mat-button (click)="loadMoreUsers()" *ngIf="displayedUsers.length < users.length">
-            <mat-icon>expand_more</mat-icon>
-            Ver Más Usuarios
-          </button>
-        </div>
-      </div>
+      }
       
       <!-- Estado cuando no hay usuarios -->
-      <div class="empty-state" *ngIf="users.length === 0 && !isLoading">
-        <mat-icon class="empty-icon">people_outline</mat-icon>
-        <h3>No hay usuarios registrados</h3>
-        <p>Comienza agregando el primer usuario al sistema</p>
-        <button mat-raised-button color="primary" (click)="addUser()">
-          <mat-icon>person_add</mat-icon>
-          Agregar Primer Usuario
-        </button>
-      </div>
+      @if (users.length === 0 && !isLoading) {
+        <div class="empty-state">
+          <mat-icon class="empty-icon">people_outline</mat-icon>
+          <h3>No hay usuarios registrados</h3>
+          <p>Comienza agregando el primer usuario al sistema</p>
+          <button mat-raised-button color="primary" (click)="addUser()">
+            <mat-icon>person_add</mat-icon>
+            Agregar Primer Usuario
+          </button>
+        </div>
+      }
       
       <!-- Estado de carga -->
-      <div class="loading-state" *ngIf="isLoading">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p>Cargando usuarios...</p>
-      </div>
+      @if (isLoading) {
+        <div class="loading-state">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Cargando usuarios...</p>
+        </div>
+      }
     </section>
 
   </main>

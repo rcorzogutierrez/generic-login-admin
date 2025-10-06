@@ -1,4 +1,4 @@
-// src/app/admin/admin-panel.component.ts - VERSIÓN OPTIMIZADA
+// src/app/admin/admin-panel.component.ts - VERSIÓN COMPLETA CON BULK DELETE
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -22,6 +22,7 @@ import { AuthService } from '../core/services/auth.service';
 import { AdminService, User, AdminStats } from './services/admin.service';
 import { AddUserDialogComponent } from './components/add-user-dialog/add-user-dialog.component';
 import { DeleteUserDialogComponent } from './components/delete-user-dialog/delete-user-dialog.component';
+import { DeleteMultipleUsersDialogComponent } from './components/delete-multiple-users-dialog/delete-multiple-users-dialog.component';
 
 @Component({
   selector: 'app-admin-panel',
@@ -42,7 +43,7 @@ import { DeleteUserDialogComponent } from './components/delete-user-dialog/delet
     MatDividerModule,
   ],
   templateUrl: './admin-panel.component.html',
-  styleUrls: ['./admin-panel.component.css'],
+  styleUrl: './admin-panel.component.css',
 })
 export class AdminPanelComponent implements OnInit, OnDestroy {
   currentUser = this.authService.authorizedUser;
@@ -64,6 +65,9 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   
   // Control de carga
   isLoading = false;
+
+  // Control de selección múltiple
+  selectedUsers = new Set<string>();
 
   private subscriptions = new Subscription();
 
@@ -120,7 +124,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * NUEVO: Aplicar filtros y búsqueda
+   * Aplicar filtros y búsqueda
    */
   private applyFilters() {
     let filtered = [...this.users];
@@ -163,7 +167,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * NUEVO: Establecer filtro
+   * Establecer filtro
    */
   setFilter(filter: 'all' | 'admin' | 'modules' | 'active') {
     this.currentFilter = filter;
@@ -180,7 +184,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * NUEVO: Filtros rápidos desde stats
+   * Filtros rápidos desde stats
    */
   filterByAll() {
     this.setFilter('all');
@@ -199,7 +203,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * NUEVO: Búsqueda en tiempo real
+   * Búsqueda en tiempo real
    */
   onSearch() {
     this.applyFilters();
@@ -240,6 +244,232 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       this.isLoading = false;
     }
   }
+
+  // ============================================
+  // MÉTODOS DE SELECCIÓN MÚLTIPLE
+  // ============================================
+
+  /**
+   * Verifica si un usuario puede ser seleccionado
+   */
+  canSelectUser(user: User): boolean {
+    // No permitir seleccionar tu propia cuenta
+    if (this.currentUser()?.email === user.email) {
+      return false;
+    }
+    
+    // No permitir seleccionar el último admin
+    if (user.role === 'admin') {
+      const adminCount = this.users.filter(u => u.role === 'admin').length;
+      if (adminCount === 1) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  /**
+   * Obtiene el tooltip para el checkbox de selección
+   */
+  getSelectionTooltip(user: User): string {
+    if (this.currentUser()?.email === user.email) {
+      return 'No puedes seleccionar tu propia cuenta';
+    }
+    
+    if (user.role === 'admin') {
+      const adminCount = this.users.filter(u => u.role === 'admin').length;
+      if (adminCount === 1) {
+        return 'No se puede seleccionar el último administrador';
+      }
+    }
+    
+    return 'Seleccionar usuario';
+  }
+
+  /**
+   * Toggle selección de un usuario individual
+   */
+  toggleUserSelection(uid: string) {
+    if (this.selectedUsers.has(uid)) {
+      this.selectedUsers.delete(uid);
+    } else {
+      this.selectedUsers.add(uid);
+    }
+  }
+
+  /**
+   * Verifica si un usuario está seleccionado
+   */
+  isUserSelected(uid: string): boolean {
+    return this.selectedUsers.has(uid);
+  }
+
+  /**
+   * Verifica si todos los usuarios están seleccionados
+   */
+  isAllSelected(): boolean {
+    const selectableUsers = this.displayedUsers.filter(u => 
+      u.uid && this.canSelectUser(u)
+    );
+    
+    if (selectableUsers.length === 0) return false;
+    
+    return selectableUsers.every(u => this.selectedUsers.has(u.uid!));
+  }
+
+  /**
+   * Verifica si algunos usuarios están seleccionados (para indeterminate)
+   */
+  isSomeSelected(): boolean {
+    const selectableUsers = this.displayedUsers.filter(u => 
+      u.uid && this.canSelectUser(u)
+    );
+    
+    if (selectableUsers.length === 0) return false;
+    
+    const selectedCount = selectableUsers.filter(u => 
+      this.selectedUsers.has(u.uid!)
+    ).length;
+    
+    return selectedCount > 0 && selectedCount < selectableUsers.length;
+  }
+
+  /**
+   * Toggle seleccionar/deseleccionar todos
+   */
+  toggleSelectAll() {
+    if (this.isAllSelected()) {
+      // Deseleccionar todos
+      this.clearSelection();
+    } else {
+      // Seleccionar todos los que se pueden seleccionar
+      this.displayedUsers
+        .filter(u => u.uid && this.canSelectUser(u))
+        .forEach(u => this.selectedUsers.add(u.uid!));
+    }
+  }
+
+  /**
+   * Limpia la selección
+   */
+  clearSelection() {
+    this.selectedUsers.clear();
+  }
+
+  /**
+   * Elimina los usuarios seleccionados
+   */
+  async deleteSelectedUsers() {
+    if (this.selectedUsers.size === 0) {
+      this.snackBar.open('No hay usuarios seleccionados', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    const selectedCount = this.selectedUsers.size;
+    const selectedUsersList = this.users.filter(u => 
+      u.uid && this.selectedUsers.has(u.uid)
+    );
+
+    // Abrir dialog de confirmación para eliminación múltiple
+    const dialogRef = this.dialog.open(DeleteMultipleUsersDialogComponent, {
+      width: '700px',
+      maxWidth: '90vw',
+      disableClose: true,
+      data: {
+        users: selectedUsersList,
+        count: selectedCount
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result?.confirmed) {
+        await this.performBulkDeletion(Array.from(this.selectedUsers));
+      }
+    });
+  }
+
+  /**
+   * Ejecuta la eliminación masiva
+   */
+  private async performBulkDeletion(uids: string[]) {
+    console.log('⚙️ Ejecutando eliminación masiva de', uids.length, 'usuarios');
+
+    this.isLoading = true;
+    
+    const loadingSnackBar = this.snackBar.open(
+      `Eliminando ${uids.length} usuario(s)...`, 
+      '', 
+      { duration: 0 }
+    );
+
+    try {
+      const result = await this.adminService.deleteMultipleUsers(uids);
+
+      loadingSnackBar.dismiss();
+
+      if (result.success) {
+        this.snackBar.open(
+          `✅ ${result.message}`, 
+          'Cerrar', 
+          { 
+            duration: 6000,
+            panelClass: ['success-snackbar']
+          }
+        );
+
+        // Limpiar selección
+        this.clearSelection();
+
+        // Refrescar datos
+        await this.refreshData();
+
+        console.log('✅ Eliminación masiva exitosa:', result);
+      } else {
+        // Mostrar errores
+        let errorMessage = `❌ ${result.message}`;
+        
+        if (result.errors && result.errors.length > 0) {
+          errorMessage += `\n\nErrores:\n${result.errors.slice(0, 3).join('\n')}`;
+          
+          if (result.errors.length > 3) {
+            errorMessage += `\n... y ${result.errors.length - 3} más`;
+          }
+        }
+
+        this.snackBar.open(
+          errorMessage, 
+          'Cerrar', 
+          { 
+            duration: 8000,
+            panelClass: ['error-snackbar']
+          }
+        );
+
+        console.error('❌ Error en eliminación masiva:', result);
+      }
+
+    } catch (error: any) {
+      loadingSnackBar.dismiss();
+
+      console.error('❌ Error inesperado en eliminación masiva:', error);
+      
+      this.snackBar.open(
+        `❌ Error inesperado: ${error.message || 'No se pudieron eliminar los usuarios'}`, 
+        'Cerrar', 
+        { 
+          duration: 6000,
+          panelClass: ['error-snackbar']
+        }
+      );
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  // ============================================
+  // MÉTODOS DE USUARIO
+  // ============================================
 
   /**
    * Obtiene iniciales del usuario
@@ -401,9 +631,10 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     return colors[Math.abs(hash) % colors.length];
   }
 
-  /**
-   * Navegación
-   */
+  // ============================================
+  // NAVEGACIÓN
+  // ============================================
+
   goToDashboard() {
     this.router.navigate(['/dashboard']);
   }
@@ -411,6 +642,10 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   async logout() {
     await this.authService.logout();
   }
+
+  // ============================================
+  // ACCIONES DE USUARIO
+  // ============================================
 
   /**
    * Agregar usuario
@@ -480,128 +715,128 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   /**
- * Elimina un usuario del sistema con confirmación
- */
-async deleteUser(user: User) {
-  console.log('🗑️ Iniciando proceso de eliminación:', user.email);
+   * Elimina un usuario del sistema con confirmación
+   */
+  async deleteUser(user: User) {
+    console.log('🗑️ Iniciando proceso de eliminación:', user.email);
 
-  // Validaciones previas antes de abrir el dialog
-  if (!user.uid) {
-    this.snackBar.open('Error: Usuario sin UID válido', 'Cerrar', { 
-      duration: 3000 
-    });
-    return;
-  }
+    // Validaciones previas antes de abrir el dialog
+    if (!user.uid) {
+      this.snackBar.open('Error: Usuario sin UID válido', 'Cerrar', { 
+        duration: 3000 
+      });
+      return;
+    }
 
-  // Prevenir auto-eliminación
-  if (this.currentUser()?.email === user.email) {
-    this.snackBar.open('❌ No puedes eliminar tu propia cuenta', 'Cerrar', { 
-      duration: 4000,
-      panelClass: ['error-snackbar']
-    });
-    return;
-  }
-
-  // Advertencia especial para administradores
-  if (user.role === 'admin') {
-    const adminCount = this.users.filter(u => u.role === 'admin').length;
-    
-    if (adminCount === 1) {
-      this.snackBar.open('❌ No puedes eliminar el último administrador', 'Cerrar', { 
+    // Prevenir auto-eliminación
+    if (this.currentUser()?.email === user.email) {
+      this.snackBar.open('❌ No puedes eliminar tu propia cuenta', 'Cerrar', { 
         duration: 4000,
         panelClass: ['error-snackbar']
       });
       return;
     }
+
+    // Advertencia especial para administradores
+    if (user.role === 'admin') {
+      const adminCount = this.users.filter(u => u.role === 'admin').length;
+      
+      if (adminCount === 1) {
+        this.snackBar.open('❌ No puedes eliminar el último administrador', 'Cerrar', { 
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        });
+        return;
+      }
+    }
+
+    // Abrir dialog de confirmación
+    const dialogRef = this.dialog.open(DeleteUserDialogComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      disableClose: true,
+      data: {
+        user: user,
+        currentUserEmail: this.currentUser()?.email
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result?.confirmed) {
+        await this.performUserDeletion(user);
+      } else {
+        console.log('❌ Eliminación cancelada por el usuario');
+      }
+    });
   }
 
-  // Abrir dialog de confirmación
-  const dialogRef = this.dialog.open(DeleteUserDialogComponent, {
-    width: '600px',
-    maxWidth: '90vw',
-    disableClose: true,
-    data: {
-      user: user,
-      currentUserEmail: this.currentUser()?.email
-    }
-  });
+  /**
+   * Ejecuta la eliminación del usuario
+   */
+  private async performUserDeletion(user: User) {
+    console.log('⚙️ Ejecutando eliminación de:', user.email);
 
-  dialogRef.afterClosed().subscribe(async (result) => {
-    if (result?.confirmed) {
-      await this.performUserDeletion(user);
-    } else {
-      console.log('❌ Eliminación cancelada por el usuario');
-    }
-  });
-}
+    // Mostrar loading
+    this.isLoading = true;
+    
+    const loadingSnackBar = this.snackBar.open(
+      `Eliminando usuario ${user.displayName}...`, 
+      '', 
+      { duration: 0 }
+    );
 
-/**
- * Ejecuta la eliminación del usuario
- */
-private async performUserDeletion(user: User) {
-  console.log('⚙️ Ejecutando eliminación de:', user.email);
+    try {
+      // Llamar al servicio de eliminación
+      const result = await this.adminService.deleteUser(user.uid!);
 
-  // Mostrar loading
-  this.isLoading = true;
-  
-  const loadingSnackBar = this.snackBar.open(
-    `Eliminando usuario ${user.displayName}...`, 
-    '', 
-    { duration: 0 }
-  );
+      loadingSnackBar.dismiss();
 
-  try {
-    // Llamar al servicio de eliminación
-    const result = await this.adminService.deleteUser(user.uid!);
+      if (result.success) {
+        // Mostrar mensaje de éxito
+        this.snackBar.open(
+          `✅ ${result.message}`, 
+          'Cerrar', 
+          { 
+            duration: 5000,
+            panelClass: ['success-snackbar']
+          }
+        );
 
-    loadingSnackBar.dismiss();
+        // Refrescar los datos
+        await this.refreshData();
 
-    if (result.success) {
-      // Mostrar mensaje de éxito
+        console.log('✅ Usuario eliminado exitosamente:', user.email);
+      } else {
+        // Mostrar mensaje de error
+        this.snackBar.open(
+          `❌ ${result.message}`, 
+          'Cerrar', 
+          { 
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          }
+        );
+
+        console.error('❌ Error en eliminación:', result.message);
+      }
+
+    } catch (error: any) {
+      loadingSnackBar.dismiss();
+
+      console.error('❌ Error inesperado al eliminar usuario:', error);
+      
       this.snackBar.open(
-        `✅ ${result.message}`, 
-        'Cerrar', 
-        { 
-          duration: 5000,
-          panelClass: ['success-snackbar']
-        }
-      );
-
-      // Refrescar los datos
-      await this.refreshData();
-
-      console.log('✅ Usuario eliminado exitosamente:', user.email);
-    } else {
-      // Mostrar mensaje de error
-      this.snackBar.open(
-        `❌ ${result.message}`, 
+        `❌ Error inesperado: ${error.message || 'No se pudo eliminar el usuario'}`, 
         'Cerrar', 
         { 
           duration: 5000,
           panelClass: ['error-snackbar']
         }
       );
-
-      console.error('❌ Error en eliminación:', result.message);
+    } finally {
+      this.isLoading = false;
     }
-
-  } catch (error: any) {
-    loadingSnackBar.dismiss();
-
-    console.error('❌ Error inesperado al eliminar usuario:', error);
-    
-    this.snackBar.open(
-      `❌ Error inesperado: ${error.message || 'No se pudo eliminar el usuario'}`, 
-      'Cerrar', 
-      { 
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      }
-    );
-  } finally {
-    this.isLoading = false;
   }
-}
 
   /**
    * Exportar datos

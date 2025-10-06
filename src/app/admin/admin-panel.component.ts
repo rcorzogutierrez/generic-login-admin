@@ -484,22 +484,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       .toUpperCase();
   }
 
-  /**
-   * Obtiene última sesión simplificada
-   */
-  getLastSession(): string {
-    // Por ahora retornamos un valor simulado
-    // TODO: Implementar lógica real desde Firebase
-    return 'Hace 6 horas';
-  }
 
-  /**
-   * Verifica si la sesión es reciente
-   */
-  isRecentSession(): boolean {
-    // TODO: Implementar lógica real
-    return true;
-  }
 
   /**
    * Navega a notificaciones

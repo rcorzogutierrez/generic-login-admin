@@ -5,12 +5,7 @@
     <div class="header-content">
       <div class="header-left">
         <h1>¡Bienvenido de nuevo! 👋</h1>
-        @if (!isLoading && currentUser()) {
-          <p>
-            <span class="status-dot" [class.recent]="isRecentSession()"></span>
-            Última sesión: {{ getLastSession() }}
-          </p>        
-        }
+       
       </div>
        <!-- Botón para volver al dashboard -->
     <button 

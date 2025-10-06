@@ -31,8 +31,12 @@ A modern, scalable user management system built with Angular 20 and Firebase, fe
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
+- Node.js (v18 or higher) - [Download](https://nodejs.org/)
+- npm (comes with Node.js) or yarn
 - Angular CLI
+```bash
+  npm install -g @angular/cli
+```  
 - Firebase account and project
 
 ### Installation
@@ -50,8 +54,21 @@ npm install
 
 3. Configure Firebase:
    - Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
-   - Enable Authentication and Firestore
-   - Copy your Firebase config to `src/environments/environment.ts`
+   - Enable Authentication and Firestore  
+
+4. Create Environment Files for different stages (production & development):
+
+**Windows (PowerShell):**
+```powershell
+mkdir src\environments && (echo. > src\environments\environment.ts) && (echo. > src\environments\environment.development.ts)
+```
+
+**Mac/Linux/Git Bash/Stackblitz:**
+```powershell
+mkdir -p src/environments && touch src/environments/environment.ts src/environments/environment.development.ts
+```
+
+**Copy your Firebase config to environments files**
 
 ```typescript
 export const environment = {
@@ -66,12 +83,6 @@ export const environment = {
   }
 };
 ```
-
-4. Run the development server:
-```bash
-ng serve
-```
-
 Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
 ## 🔧 Configuration
@@ -82,11 +93,54 @@ Navigate to `http://localhost:4200/`. The app will automatically reload if you c
 2. **Firestore Rules**: Update security rules based on your requirements
 3. **Indexes**: Create composite indexes for complex queries if needed
 
-### Environment Variables
+### Initial Admin User Setup
 
-Create environment files for different stages:
-- `environment.ts` (development)
-- `environment.prod.ts` (production)
+Before running the project for the first time, you must manually create an initial admin user in Firebase. All subsequent users can be created through the application.
+
+#### Steps to Create the Initial Admin User:
+
+1. **Create a user in Firebase Authentication:**
+   - Go to [Firebase Console](https://console.firebase.google.com/)
+   - Navigate to Authentication > Users
+   - Click "Add user"
+   - Enter email and password
+   - Copy the generated UID
+
+2. **Create the user document in Firestore:**
+   - Go to Firestore Database
+   - Navigate to or create the `authorized_users` collection
+   - Click "Add document"
+   - Use the copied UID as the document ID
+   - Add the following fields:
+```json
+{
+  "accountStatus": "active",
+  "createdAt": Timestamp (use Firebase server timestamp),
+  "createdBy": "system",
+  "displayName": "Your Name (admin)",
+  "email": "your-email@example.com",
+  "firstLoginDate": Timestamp (use Firebase server timestamp),
+  "isActive": true,
+  "lastLogin": Timestamp (use Firebase server timestamp),
+  "lastLoginDate": "2025-10-06T12:00:00.000Z",
+  "modules": {
+    "0": "dashboard",
+    "1": "admin"
+  },
+  "permissions": {
+    "0": "read",
+    "1": "write",
+    "2": "manage_users",
+    "3": "delete"
+  },
+  "profileComplete": true,
+  "role": "admin",
+  "uid": "YOUR_COPIED_UID"
+}
+```
+3. **Sign in with the created user:**
+- Run the application (`ng serve`)
+- Use the email and password you created to sign in
 
 ## 📱 Usage
 

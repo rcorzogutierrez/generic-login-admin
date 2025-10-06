@@ -1,61 +1,65 @@
-<!-- src/app/dashboard/dashboard.component.html - VERSIÓN OPTIMIZADA -->
+<!-- src/app/dashboard/dashboard.component.html - VERSIÓN CON HEADER MEJORADO -->
 <div class="dashboard-container">
   
   <!-- ============================================
-       HEADER COMPACTO - UNA SOLA LÍNEA
+       HEADER MEJORADO - IGUAL AL ADMIN
        ============================================ -->
   <header class="header">
-    <div class="header-left">
-      <h1>¡Bienvenido de nuevo! 👋</h1>
-      <p *ngIf="!loading && userDashboard">
-        <span class="status-dot" [class.recent]="isRecentSession()"></span>
-        Última sesión: {{ getLastSession() }}
-      </p>
-    </div>
-    
-    <div class="header-right">
-      <!-- User Badge -->
-      <div class="user-badge" *ngIf="!loading && userDashboard">
-        <div class="user-avatar">{{ getUserInitials() }}</div>
-        <div class="user-info-header">
-          <span class="user-name">{{ userDashboard.userInfo.displayName }}</span>
-          <span class="user-role-badge">{{ userDashboard.userInfo.role.toUpperCase() }}</span>
+    <div class="header-content">
+      <div class="header-left">
+        <!-- NUEVO: Contenedor del icono -->
+        <div class="header-icon-container">
+          <mat-icon>dashboard</mat-icon>
+        </div>
+        <!-- Información del header -->
+        <div class="header-info">
+          <h1>¡Bienvenido de nuevo! 👋</h1>
+          <p *ngIf="!loading && userDashboard">
+            <span class="status-dot" [class.recent]="isRecentSession()"></span>
+            Última sesión: {{ getLastSession() }}
+          </p>
         </div>
       </div>
       
-      <!-- Action Buttons -->
-      <button mat-icon-button 
-              class="icon-button" 
-              [matBadge]="getNotificationCount()"
-              [matBadgeHidden]="getNotificationCount() === 0"
-              matBadgeColor="warn"
-              matTooltip="Notificaciones"
-              (click)="goToNotifications()">
-        <mat-icon>notifications</mat-icon>
-      </button>
-      
-      <button mat-icon-button 
-              class="icon-button" 
-              matTooltip="Configuración"
-              (click)="goToSettings()">
-        <mat-icon>settings</mat-icon>
-      </button>
+      <div class="header-right">
+        <!-- User Badge -->
+        <div class="user-badge" *ngIf="!loading && userDashboard">
+          <div class="user-avatar">{{ getUserInitials() }}</div>
+          <div class="user-info-header">
+            <span class="user-name">{{ userDashboard.userInfo.displayName }}</span>
+            <span class="user-role-badge">{{ userDashboard.userInfo.role.toUpperCase() }}</span>
+          </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <button mat-icon-button 
+                class="icon-button" 
+                [matBadge]="getNotificationCount()"
+                [matBadgeHidden]="getNotificationCount() === 0"
+                matBadgeColor="warn"
+                matTooltip="Notificaciones"
+                (click)="goToNotifications()">
+          <mat-icon>notifications</mat-icon>
+        </button>
+        
+        <button mat-icon-button 
+                class="icon-button" 
+                matTooltip="Configuración"
+                (click)="goToSettings()">
+          <mat-icon>settings</mat-icon>
+        </button>
 
-      <button mat-icon-button class="icon-button" matTooltip="Cerrar sessión" (click)="logout()">
-        <mat-icon>logout</mat-icon>
-     
-      </button>
-      
-    
+        <button mat-icon-button 
+                class="icon-button" 
+                matTooltip="Cerrar sesión" 
+                (click)="logout()">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
     </div>
   </header>
 
-  <div class="page-breadcrumb">
-    <mat-icon class="breadcrumb-icon">dashboard</mat-icon>
-    <span class="breadcrumb-text">Dashboard</span>
-  </div>
-
-  <!-- ============================================
+   <!-- ============================================
        LOADING STATE
        ============================================ -->
   <div *ngIf="loading" class="loading-section">
@@ -195,8 +199,6 @@
          INSIGHTS - INFORMACIÓN CONTEXTUAL
          ============================================ -->
     <section class="insights-section">
-     
-      
       <!-- Contact Info -->
       <div class="contact-card">
         <h4>

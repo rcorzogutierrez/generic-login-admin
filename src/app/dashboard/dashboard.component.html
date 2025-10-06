@@ -40,29 +40,13 @@
               (click)="goToSettings()">
         <mat-icon>settings</mat-icon>
       </button>
-      
-      <button mat-icon-button 
-              [matMenuTriggerFor]="userMenu" 
-              class="icon-button"
-              matTooltip="Menú">
-        <mat-icon>more_vert</mat-icon>
+
+      <button mat-icon-button class="icon-button" matTooltip="Cerrar sessión" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+     
       </button>
       
-      <mat-menu #userMenu="matMenu">
-        <button mat-menu-item *ngIf="isAdmin()" (click)="goToAdmin()">
-          <mat-icon>admin_panel_settings</mat-icon>
-          Panel Admin
-        </button>
-        <button mat-menu-item (click)="refreshData()">
-          <mat-icon>refresh</mat-icon>
-          Actualizar
-        </button>
-        <mat-divider></mat-divider>
-        <button mat-menu-item (click)="logout()">
-          <mat-icon>logout</mat-icon>
-          Cerrar Sesión
-        </button>
-      </mat-menu>
+    
     </div>
   </header>
 

@@ -161,18 +161,20 @@
                 <tr class="border-t border-slate-100 hover:bg-slate-50 transition-colors logs-table-row">
                   
                   <!-- Acción -->
-                  <td class="px-6 py-4">
+                  <td class="px-6 py-5">
                     <div class="flex items-center gap-3">
-                      <mat-icon class="!text-2xl flex-shrink-0"
-                                [ngClass]="{
-                                  'text-green-600': getActionBadgeClass(log.action) === 'badge-success',
-                                  'text-red-600': getActionBadgeClass(log.action) === 'badge-error',
-                                  'text-amber-600': getActionBadgeClass(log.action) === 'badge-warning',
-                                  'text-blue-600': getActionBadgeClass(log.action) === 'badge-info',
-                                  'text-slate-600': getActionBadgeClass(log.action) === 'badge-default'
-                                }">
-                        {{ getActionIcon(log.action) }}
-                      </mat-icon>
+                      <div class="w-10 h-10 flex items-center justify-center flex-shrink-0">
+                        <mat-icon class="!text-[26px] !w-[26px] !h-[26px]"
+                                  [ngClass]="{
+                                    'text-green-600': getActionBadgeClass(log.action) === 'badge-success',
+                                    'text-red-600': getActionBadgeClass(log.action) === 'badge-error',
+                                    'text-amber-600': getActionBadgeClass(log.action) === 'badge-warning',
+                                    'text-blue-600': getActionBadgeClass(log.action) === 'badge-info',
+                                    'text-slate-600': getActionBadgeClass(log.action) === 'badge-default'
+                                  }">
+                          {{ getActionIcon(log.action) }}
+                        </mat-icon>
+                      </div>
                       <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase border"
                             [ngClass]="{
                               'bg-emerald-100 text-emerald-800 border-emerald-200': getActionBadgeClass(log.action) === 'badge-success',
@@ -187,7 +189,7 @@
                   </td>
 
                   <!-- Usuario -->
-                  <td class="px-6 py-4">
+                  <td class="px-6 py-5">
                     <div class="flex items-center gap-3">
                       <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
                            [style.background]="getUserColor(log.performedByEmail)">
@@ -201,7 +203,7 @@
                   </td>
 
                   <!-- Fecha -->
-                  <td class="px-6 py-4">
+                  <td class="px-6 py-5">
                     <div class="flex flex-col gap-0.5">
                       <span class="font-semibold text-sm text-slate-800">{{ formatDateTime(log.timestamp) }}</span>
                       <span class="text-xs text-slate-500">{{ getRelativeTime(log.timestamp) }} atrás</span>
@@ -209,14 +211,14 @@
                   </td>
 
                   <!-- IP -->
-                  <td class="px-6 py-4">
+                  <td class="px-6 py-5">
                     <span class="inline-block px-3 py-1.5 bg-slate-100 border border-slate-300 rounded-lg font-mono text-xs text-slate-700 font-semibold">
                       {{ log.ip }}
                     </span>
                   </td>
 
                   <!-- Detalles -->
-                  <td class="px-6 py-4 text-center">
+                  <td class="px-6 py-5 text-center">
                     <button mat-button 
                             class="!h-9 !px-4 !rounded-lg !text-sm !font-semibold !text-blue-600 hover:!bg-blue-50"
                             (click)="viewLogDetails(log)">

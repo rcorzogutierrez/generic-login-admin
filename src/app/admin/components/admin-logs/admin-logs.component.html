@@ -1,196 +1,227 @@
-<!-- src/app/admin/components/admin-logs/admin-logs.component.html - COMPLETO CON BOTÓN DELETE -->
-<div class="logs-container">
-  
-  <!-- Header -->
-  <header class="logs-header">
-    <div class="header-content">
-      <div class="header-left">
-        <div class="header-icon">
-          <mat-icon>history</mat-icon>
+<!-- admin-logs.component.html - REFACTORIZADO CON TAILWIND + MATERIAL -->
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
+  <div class="max-w-[1400px] mx-auto p-5">
+    
+    <!-- ============================================
+         HEADER
+         ============================================ -->
+    <header class="page-header">
+      <div class="flex items-center justify-between gap-5 flex-wrap">
+        
+        <!-- Left Section -->
+        <div class="flex items-center gap-4">
+          <div class="header-icon-container">
+            <mat-icon>history</mat-icon>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-slate-800 mb-1">Logs de Auditoría</h1>
+            <p class="text-sm text-slate-600 flex items-center gap-2 font-medium">
+              <span class="status-dot"></span>
+              Monitoreo en tiempo real del sistema
+            </p>
+          </div>
         </div>
-        <div class="header-info">
-          <h1>Logs de Auditoría</h1>
-          <p class="header-subtitle">
-            <span class="status-dot"></span>
-            Monitoreo en tiempo real del sistema
-          </p>
-        </div>
-      </div>
- 
-      <div class="header-right">
-        <button 
-          mat-stroked-button 
-          class="back-button"
-          (click)="goBackToAdmin()">
-          <mat-icon>arrow_back</mat-icon>
-          Volver
-        </button>
-
-        <button 
-          mat-icon-button 
-          class="icon-button"
-          (click)="refreshLogs()"
-          [disabled]="isLoading"
-          matTooltip="Actualizar logs">
-          <mat-icon [class.spinning]="isLoading">refresh</mat-icon>
-        </button>
-
-        <!-- BOTÓN DE ELIMINAR LOGS - ESTE ES EL IMPORTANTE -->
-        <button 
-          mat-icon-button 
-          class="icon-button delete-logs-button"
-          (click)="openDeleteLogsDialog()"
-          [disabled]="isLoading"
-          matTooltip="Eliminar logs del sistema">
-          <mat-icon>delete_sweep</mat-icon>
-        </button>
-
-        <button 
-          mat-raised-button 
-          color="primary"
-          class="export-button"
-          (click)="exportLogs()"
-          [disabled]="isLoading">
-          <mat-icon>download</mat-icon>
-          Exportar
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Filtros y Búsqueda -->
-  <section class="filters-section">
-    <div class="filters-grid">
-      <!-- Búsqueda -->
-      <div class="search-box">
-        <mat-icon class="search-icon">search</mat-icon>
-        <input 
-          type="text" 
-          class="search-input"
-          placeholder="Buscar por usuario, acción o ID..."
-          [(ngModel)]="searchTerm"
-          (input)="onSearch()"
-          [disabled]="isLoading">
-      </div>
-
-      <!-- Filtro de Acción -->
-      <div class="filter-select-box">
-        <mat-icon class="filter-icon">filter_list</mat-icon>
-        <select 
-          class="filter-select"
-          [(ngModel)]="selectedAction"
-          (change)="onActionFilterChange()"
-          [disabled]="isLoading">
-          <option value="all">Todas las acciones</option>
-          @for (action of availableActions; track action) {
-            <option [value]="action">{{ getActionName(action) }}</option>
-          }
-        </select>
-      </div>
-    </div>
-
-    <!-- Info de filtros activos -->
-    @if (hasActiveFilters()) {
-      <div class="filters-info">
-        <mat-icon>info</mat-icon>
-        <span>Filtros activos aplicados</span>
-        <button 
-          mat-button 
-          class="clear-filters-btn"
-          (click)="clearFilters()"
-          [disabled]="isLoading">
-          Limpiar filtros
-        </button>
-      </div>
-    }
-  </section>
-
-  <!-- Tabla de Logs -->
-  <section class="table-section">
-    @if (isLoading && logs.length === 0) {
-      <!-- Loading inicial -->
-      <div class="loading-state">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p>Cargando logs de auditoría...</p>
-      </div>
-    } @else if (logs.length === 0) {
-      <!-- Estado vacío -->
-      <div class="empty-state">
-        <mat-icon class="empty-icon">history_toggle_off</mat-icon>
-        <h3>No hay logs disponibles</h3>
-        <p>No se encontraron registros con los filtros aplicados</p>
-        @if (hasActiveFilters()) {
-          <button 
-            mat-raised-button 
-            color="primary"
-            (click)="clearFilters()">
-            Limpiar Filtros
+        
+        <!-- Right Section -->
+        <div class="flex items-center gap-3 flex-wrap">
+          <!-- Back Button -->
+          <button mat-stroked-button 
+                  class="!h-10 !px-5 !rounded-xl !border-2 !font-semibold !text-sm"
+                  (click)="goBackToAdmin()">
+            <mat-icon class="!mr-2">arrow_back</mat-icon>
+            Volver
           </button>
-        }
+
+          <!-- Refresh Button -->
+          <button mat-icon-button 
+                  class="icon-btn"
+                  (click)="refreshLogs()"
+                  [disabled]="isLoading"
+                  matTooltip="Actualizar logs">
+            <mat-icon [class.spinning]="isLoading">refresh</mat-icon>
+          </button>
+
+          <!-- Delete Logs Button -->
+          <button mat-icon-button 
+                  class="icon-btn !border-red-200 !text-red-600 hover:!bg-red-50 hover:!border-red-500"
+                  (click)="openDeleteLogsDialog()"
+                  [disabled]="isLoading"
+                  matTooltip="Eliminar logs del sistema">
+            <mat-icon>delete_sweep</mat-icon>
+          </button>
+
+          <!-- Export Button -->
+          <button mat-raised-button 
+                  color="primary"
+                  class="!h-10 !px-5 !rounded-xl !text-sm !font-semibold"
+                  (click)="exportLogs()"
+                  [disabled]="isLoading">
+            <mat-icon class="!mr-2">download</mat-icon>
+            Exportar
+          </button>
+        </div>
       </div>
-    } @else {
-      <!-- Tabla con logs -->
-      <div class="table-container">
-        <div class="table-wrapper">
-          <table class="logs-table">
-            <thead>
+    </header>
+
+    <!-- ============================================
+         FILTROS Y BÚSQUEDA
+         ============================================ -->
+    <section class="bg-white rounded-2xl p-5 mb-6 border border-slate-200 shadow-soft">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- Search Box -->
+        <div class="relative">
+          <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</mat-icon>
+          <input 
+            type="text" 
+            class="w-full h-12 pl-12 pr-4 border-2 border-slate-200 rounded-xl text-sm font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+            placeholder="Buscar por usuario, acción o ID..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+            [disabled]="isLoading">
+        </div>
+
+        <!-- Filter by Action -->
+        <div class="relative">
+          <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10">filter_list</mat-icon>
+          <select 
+            class="w-full h-12 pl-12 pr-10 border-2 border-slate-200 rounded-xl text-sm font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all appearance-none bg-white cursor-pointer"
+            style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 24 24%27 stroke=%27%2364748b%27%3E%3Cpath stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M19 9l-7 7-7-7%27%3E%3C/path%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px;"
+            [(ngModel)]="selectedAction"
+            (change)="onActionFilterChange()"
+            [disabled]="isLoading">
+            <option value="all">Todas las acciones</option>
+            @for (action of availableActions; track action) {
+              <option [value]="action">{{ getActionName(action) }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Info de filtros activos -->
+      @if (hasActiveFilters()) {
+        <div class="flex items-center gap-2 mt-4 px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-800 font-medium">
+          <mat-icon class="!text-lg text-blue-600">info</mat-icon>
+          <span class="flex-1">Filtros activos aplicados</span>
+          <button mat-button 
+                  class="!h-8 !px-3 !rounded-lg !text-xs !font-semibold !text-blue-600"
+                  (click)="clearFilters()"
+                  [disabled]="isLoading">
+            Limpiar filtros
+          </button>
+        </div>
+      }
+    </section>
+
+    <!-- ============================================
+         TABLA DE LOGS
+         ============================================ -->
+    <section class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-soft">
+      
+      @if (isLoading && logs.length === 0) {
+        <!-- Loading inicial -->
+        <div class="empty-state">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="mt-4 text-slate-600 font-medium">Cargando logs de auditoría...</p>
+        </div>
+      } 
+      
+      @else if (logs.length === 0) {
+        <!-- Estado vacío -->
+        <div class="empty-state">
+          <mat-icon class="!text-6xl text-slate-300 mb-4">history_toggle_off</mat-icon>
+          <h3 class="text-lg font-semibold text-slate-800 mb-2">No hay logs disponibles</h3>
+          <p class="text-sm text-slate-600">No se encontraron registros con los filtros aplicados</p>
+          @if (hasActiveFilters()) {
+            <button mat-raised-button 
+                    color="primary"
+                    class="!h-10 !px-5 !rounded-xl !text-sm !font-semibold !mt-6"
+                    (click)="clearFilters()">
+              Limpiar Filtros
+            </button>
+          }
+        </div>
+      } 
+      
+      @else {
+        <!-- Tabla con logs -->
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-slate-50">
               <tr>
-                <th>Acción</th>
-                <th>Usuario</th>
-                <th>Fecha y Hora</th>
-                <th>IP</th>
-                <th>Detalles</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Acción</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Usuario</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Fecha y Hora</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">IP</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Detalles</th>
               </tr>
             </thead>
             <tbody>
               @for (log of logs; track trackByLogId($index, log)) {
-                <tr class="table-row">
+                <tr class="border-t border-slate-100 hover:bg-slate-50 transition-colors logs-table-row">
+                  
                   <!-- Acción -->
-                  <td class="action-cell">
-                    <div class="action-content">
-                      <mat-icon [class]="'action-icon ' + getActionBadgeClass(log.action)">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <mat-icon class="!text-2xl flex-shrink-0"
+                                [ngClass]="{
+                                  'text-green-600': getActionBadgeClass(log.action) === 'badge-success',
+                                  'text-red-600': getActionBadgeClass(log.action) === 'badge-error',
+                                  'text-amber-600': getActionBadgeClass(log.action) === 'badge-warning',
+                                  'text-blue-600': getActionBadgeClass(log.action) === 'badge-info',
+                                  'text-slate-600': getActionBadgeClass(log.action) === 'badge-default'
+                                }">
                         {{ getActionIcon(log.action) }}
                       </mat-icon>
-                      <span [class]="'action-badge ' + getActionBadgeClass(log.action)">
+                      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase border"
+                            [ngClass]="{
+                              'bg-emerald-100 text-emerald-800 border-emerald-200': getActionBadgeClass(log.action) === 'badge-success',
+                              'bg-red-100 text-red-800 border-red-200': getActionBadgeClass(log.action) === 'badge-error',
+                              'bg-amber-100 text-amber-800 border-amber-200': getActionBadgeClass(log.action) === 'badge-warning',
+                              'bg-blue-100 text-blue-800 border-blue-200': getActionBadgeClass(log.action) === 'badge-info',
+                              'bg-slate-100 text-slate-700 border-slate-200': getActionBadgeClass(log.action) === 'badge-default'
+                            }">
                         {{ getActionName(log.action) }}
                       </span>
                     </div>
                   </td>
 
                   <!-- Usuario -->
-                  <td class="user-cell">
-                    <div class="user-info">
-                      <div class="user-avatar" [style.background]="getUserColor(log.performedByEmail)">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+                           [style.background]="getUserColor(log.performedByEmail)">
                         {{ getUserInitials(log.performedByEmail) }}
                       </div>
-                      <div class="user-details">
-                        <span class="user-email">{{ log.performedByEmail }}</span>
-                        <span class="user-id">ID: {{ log.performedBy }}</span>
+                      <div>
+                        <div class="font-medium text-sm text-slate-800">{{ log.performedByEmail }}</div>
+                        <div class="text-xs text-slate-500 font-mono">ID: {{ log.performedBy }}</div>
                       </div>
                     </div>
                   </td>
 
                   <!-- Fecha -->
-                  <td class="date-cell">
-                    <div class="date-info">
-                      <span class="date-text">{{ formatDateTime(log.timestamp) }}</span>
-                      <span class="date-relative">{{ getRelativeTime(log.timestamp) }} atrás</span>
+                  <td class="px-6 py-4">
+                    <div class="flex flex-col gap-0.5">
+                      <span class="font-semibold text-sm text-slate-800">{{ formatDateTime(log.timestamp) }}</span>
+                      <span class="text-xs text-slate-500">{{ getRelativeTime(log.timestamp) }} atrás</span>
                     </div>
                   </td>
 
                   <!-- IP -->
-                  <td class="ip-cell">
-                    <span class="ip-badge">{{ log.ip }}</span>
+                  <td class="px-6 py-4">
+                    <span class="inline-block px-3 py-1.5 bg-slate-100 border border-slate-300 rounded-lg font-mono text-xs text-slate-700 font-semibold">
+                      {{ log.ip }}
+                    </span>
                   </td>
 
                   <!-- Detalles -->
-                  <td class="details-cell">
-                    <button 
-                      mat-button 
-                      class="details-button"
-                      (click)="viewLogDetails(log)">
+                  <td class="px-6 py-4 text-center">
+                    <button mat-button 
+                            class="!h-9 !px-4 !rounded-lg !text-sm !font-semibold !text-blue-600 hover:!bg-blue-50"
+                            (click)="viewLogDetails(log)">
                       Ver detalles
-                      <mat-icon>arrow_forward</mat-icon>
+                      <mat-icon class="!ml-1 !text-lg">arrow_forward</mat-icon>
                     </button>
                   </td>
                 </tr>
@@ -198,48 +229,46 @@
             </tbody>
           </table>
         </div>
-      </div>
 
-      <!-- Paginación -->
-      <div class="pagination-section">
-        <div class="pagination-info">
-          <span>Mostrando página <strong>{{ currentPage }}</strong></span>
-          <span class="separator">•</span>
-          <span><strong>{{ logs.length }}</strong> registros</span>
-        </div>
-
-        <div class="pagination-controls">
-          <button 
-            mat-stroked-button
-            class="pagination-btn"
-            (click)="previousPage()"
-            [disabled]="currentPage === 1 || isLoadingMore">
-            <mat-icon>chevron_left</mat-icon>
-            Anterior
-          </button>
-
-          <div class="page-indicator">
-            <span class="page-number">{{ currentPage }}</span>
+        <!-- Paginación -->
+        <div class="flex flex-col gap-4 px-6 py-5 border-t border-slate-200 bg-slate-50">
+          <div class="flex items-center justify-center gap-2 text-sm text-slate-600 font-medium">
+            <span>Mostrando página <strong class="text-slate-800">{{ currentPage }}</strong></span>
+            <span class="text-slate-400">•</span>
+            <span><strong class="text-slate-800">{{ logs.length }}</strong> registros</span>
           </div>
 
-          <button 
-            mat-stroked-button
-            class="pagination-btn"
-            (click)="nextPage()"
-            [disabled]="!hasMorePages || isLoadingMore">
-            Siguiente
-            <mat-icon>chevron_right</mat-icon>
-          </button>
-        </div>
+          <div class="flex items-center justify-center gap-3">
+            <button mat-stroked-button
+                    class="!h-10 !px-5 !rounded-xl !border-2 !text-sm !font-semibold"
+                    (click)="previousPage()"
+                    [disabled]="currentPage === 1 || isLoadingMore">
+              <mat-icon class="!mr-2">chevron_left</mat-icon>
+              Anterior
+            </button>
 
-        @if (isLoadingMore) {
-          <div class="loading-more">
-            <mat-spinner diameter="20"></mat-spinner>
-            <span>Cargando más logs...</span>
+            <div class="flex items-center justify-center min-w-[48px] h-12 bg-blue-500 rounded-xl shadow-[0_4px_12px_rgba(59,130,246,0.25)]">
+              <span class="text-lg font-bold text-white">{{ currentPage }}</span>
+            </div>
+
+            <button mat-stroked-button
+                    class="!h-10 !px-5 !rounded-xl !border-2 !text-sm !font-semibold"
+                    (click)="nextPage()"
+                    [disabled]="!hasMorePages || isLoadingMore">
+              Siguiente
+              <mat-icon class="!ml-2">chevron_right</mat-icon>
+            </button>
           </div>
-        }
-      </div>
-    }
-  </section>
 
+          @if (isLoadingMore) {
+            <div class="flex items-center justify-center gap-3 px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-600 font-semibold">
+              <mat-spinner diameter="20"></mat-spinner>
+              <span>Cargando más logs...</span>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+  </div>
 </div>

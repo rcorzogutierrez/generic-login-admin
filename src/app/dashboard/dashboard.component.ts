@@ -1,4 +1,4 @@
-// src/app/dashboard/dashboard.component.ts - VERSIÓN OPTIMIZADA COMPLETA
+// src/app/dashboard/dashboard.component.ts - OPTIMIZADO PARA TAILWIND + MATERIAL
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -303,24 +303,42 @@ export class DashboardComponent implements OnInit, OnDestroy {
   getActivityIcon(type: string): string {
     const icons: Record<string, string> = {
       login: 'login',
+      logout: 'logout',
       permission_granted: 'security',
+      permission_revoked: 'block',
       module_assigned: 'apps',
-      profile_updated: 'person'
+      module_removed: 'remove_circle',
+      profile_updated: 'person',
+      status_changed: 'sync',
+      created: 'add_circle',
+      deleted: 'delete'
     };
     return icons[type] || 'info';
   }
 
   /**
    * Obtiene color para el icono de actividad
+   * MODIFICADO: Retorna valores que coinciden con las clases CSS
+   * - '' (vacío) = azul (primary)
+   * - 'accent' = verde (success)
+   * - 'warn' = ámbar (warning)
    */
-  getActivityColor(type: string): string {
-    const colors: Record<string, string> = {
-      login: 'primary',
-      permission_granted: 'accent',
-      module_assigned: 'warn',
-      profile_updated: 'primary'
-    };
-    return colors[type] || 'primary';
+  getActivityColor(type: string): '' | 'accent' | 'warn' {
+    // Tipos que usan verde (success)
+    const successTypes = ['login', 'permission_granted', 'module_assigned', 'created'];
+    
+    // Tipos que usan ámbar (warning)
+    const warningTypes = ['logout', 'permission_revoked', 'module_removed', 'status_changed'];
+    
+    if (successTypes.includes(type)) {
+      return 'accent'; // Usará .activity-icon-success (verde)
+    }
+    
+    if (warningTypes.includes(type)) {
+      return 'warn'; // Usará .activity-icon-warning (ámbar)
+    }
+    
+    return ''; // Usará .activity-icon-primary (azul) por defecto
   }
 
   /**

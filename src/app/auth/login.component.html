@@ -1,111 +1,156 @@
-<!-- src/app/auth/login.component.html - VERSIÓN OPTIMIZADA -->
-<div class="auth-page">
-  <div class="auth-wrapper">
+<!-- login.component.html - REFACTORIZADO CON TAILWIND + MATERIAL -->
+<div class="min-h-screen flex items-center justify-center p-5">
+  <div class="w-full max-w-md">
     
-    <!-- Header con logo -->
-    <div class="auth-header">
-      <div class="auth-logo">
+    <!-- ============================================
+         HEADER CON LOGO Y TÍTULO
+         ============================================ -->
+    <div class="text-center mb-8 animate-fadeInDown">
+      <!-- Logo usando clase global -->
+      <div class="header-icon-container mx-auto mb-6 animate-fadeInScale">
         <mat-icon>admin_panel_settings</mat-icon>
       </div>
-      <h1 class="auth-title">{{ appInfo.name }}</h1>
-      <p class="auth-subtitle">{{ appInfo.description }}</p>
-    </div>
-
-    <!-- Card principal -->
-    <div class="auth-main-card">
       
-      @if (authService.loading()) {
-        <!-- Estado: Cargando -->
-        <div class="text-center py-12">
-          <div class="loading-spinner-material mx-auto mb-4"></div>
-          <p class="text-gray-600">Verificando acceso...</p>
-        </div>
-      } @else if (authService.isAuthenticated() && authService.isAuthorized()) {
-        <!-- Estado: Ya autenticado, redirigiendo -->
-        <div class="text-center py-12">
-          <div class="loading-spinner-material mx-auto mb-4"></div>
-          <p class="text-green-600 font-semibold mb-2">Sesión activa</p>
-          <p class="text-gray-600">Redirigiendo al dashboard...</p>
-        </div>
-      } @else {
-        <!-- Estado: Mostrar formulario de login -->
-        <div class="auth-slide-in">
-          
-          <!-- Título del formulario -->
-          <div class="text-center mb-8">
-            <h2 class="text-xl font-semibold text-gray-900 mb-3">
-              Iniciar Sesión
-            </h2>
-            <p class="text-sm text-gray-600 leading-relaxed">
-              Accede con tu cuenta de Google autorizada
-            </p>
-          </div>
-
-          <!-- Botón de Google -->
-          <button
-            class="google-signin-button"
-            (click)="loginWithGoogle()"
-            [disabled]="isLoggingIn()"
-          >
-            <div class="flex items-center justify-center gap-3">
-              <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-              </svg>
-
-              @if (!isLoggingIn()) {
-                <span class="font-medium">Continuar con Google</span>
-              } @else {
-                <span class="flex items-center gap-2">
-                  <div class="auth-spinner"></div>
-                  <span class="font-medium">Verificando acceso...</span>
-                </span>
-              }
-            </div>
-          </button>
-
-          <!-- Badge simple -->
-          <div class="protected-indicator">
-            <mat-icon>verified_user</mat-icon>
-            <span>Solo usuarios autorizados</span>
-          </div>
-        </div>
-      }
+      <h1 class="text-3xl font-bold text-slate-800 mb-2">
+        {{ appInfo.name }}
+      </h1>
+      <p class="text-sm text-slate-600 font-medium">
+        {{ appInfo.description }}
+      </p>
     </div>
 
-    <!-- Mensajes de estado -->
+    <!-- ============================================
+         CARD PRINCIPAL CON MATERIAL
+         ============================================ -->
+    <mat-card class="animate-fadeInUp">
+      <mat-card-content class="p-8">
+        
+        <!-- ============================================
+             ESTADO: CARGANDO
+             ============================================ -->
+        @if (authService.loading()) {
+          <div class="text-center py-12">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-slate-600 font-medium">Verificando acceso...</p>
+          </div>
+        }
+        
+        <!-- ============================================
+             ESTADO: YA AUTENTICADO
+             ============================================ -->
+        @else if (authService.isAuthenticated() && authService.isAuthorized()) {
+          <div class="text-center py-12">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-green-600 font-semibold mb-2">Sesión activa</p>
+            <p class="text-slate-600">Redirigiendo al dashboard...</p>
+          </div>
+        }
+        
+        <!-- ============================================
+             ESTADO: FORMULARIO DE LOGIN
+             ============================================ -->
+        @else {
+          <div class="animate-fadeInUp">
+            
+            <!-- Título del formulario -->
+            <div class="text-center mb-8">
+              <h2 class="text-xl font-semibold text-slate-800 mb-2">
+                Iniciar Sesión
+              </h2>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                Accede con tu cuenta de Google autorizada
+              </p>
+            </div>
+
+            <!-- Botón de Google con Material -->
+            <button
+              mat-raised-button
+              color="primary"
+              class="w-full !h-12 !text-base !font-semibold"
+              (click)="loginWithGoogle()"
+              [disabled]="isLoggingIn()">
+              
+              <div class="flex items-center justify-center gap-3">
+                <!-- Logo de Google -->
+                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+
+                <!-- Texto del botón -->
+                @if (!isLoggingIn()) {
+                  <span class="font-semibold">Continuar con Google</span>
+                } @else {
+                  <span class="flex items-center gap-2">
+                    <div class="loading-spinner-sm"></div>
+                    <span class="font-semibold">Verificando acceso...</span>
+                  </span>
+                }
+              </div>
+            </button>
+
+            <!-- Badge de protección usando clase global -->
+            <div class="protected-indicator w-full justify-center mt-6">
+              <mat-icon class="text-blue-600">verified_user</mat-icon>
+              <span>Solo usuarios autorizados</span>
+            </div>
+            
+          </div>
+        }
+        
+      </mat-card-content>
+    </mat-card>
+
+    <!-- ============================================
+         MENSAJES DE ERROR/ÉXITO
+         ============================================ -->
     @if (loginMessage()) {
       <div
-        class="auth-message"
+        class="mt-6 p-4 rounded-xl border flex items-start gap-3 animate-fadeInUp"
         [ngClass]="{
-          'auth-error': loginMessage()?.type === 'error',
-          'auth-success': loginMessage()?.type === 'success'
-        }"
-      >
-        <mat-icon class="auth-message-icon">
+          'bg-red-50 border-red-200': loginMessage()?.type === 'error',
+          'bg-green-50 border-green-200': loginMessage()?.type === 'success'
+        }">
+        
+        <!-- Icono -->
+        <mat-icon [ngClass]="{
+          'text-red-600': loginMessage()?.type === 'error',
+          'text-green-600': loginMessage()?.type === 'success'
+        }">
           {{ loginMessage()?.type === 'error' ? 'error_outline' : 'check_circle_outline' }}
         </mat-icon>
+        
+        <!-- Contenido -->
         <div class="flex-1">
-          <p class="font-medium text-sm mb-1">
+          <p class="font-semibold text-sm mb-1" [ngClass]="{
+            'text-red-800': loginMessage()?.type === 'error',
+            'text-green-800': loginMessage()?.type === 'success'
+          }">
             {{ loginMessage()?.type === 'error' ? 'Error de Acceso' : 'Acceso Autorizado' }}
           </p>
-          <p class="text-sm opacity-90">
+          <p class="text-sm opacity-90" [ngClass]="{
+            'text-red-700': loginMessage()?.type === 'error',
+            'text-green-700': loginMessage()?.type === 'success'
+          }">
             {{ loginMessage()?.message }}
           </p>
         </div>
       </div>
     }
 
-    <!-- Footer -->
-    <div class="auth-footer">
-      <p>¿Problemas de acceso?</p>
-      <p class="mt-2">
-        <a [href]="'mailto:' + appInfo.supportEmail" class="auth-link">
-          {{ appInfo.supportEmail }}
-        </a>
-      </p>
+    <!-- ============================================
+         FOOTER
+         ============================================ -->
+    <div class="text-center mt-6 animate-fadeInUp">
+      <p class="text-sm text-slate-600 mb-2">¿Problemas de acceso?</p>
+      <a 
+        [href]="'mailto:' + appInfo.supportEmail" 
+        class="text-blue-600 hover:text-blue-700 font-semibold text-sm transition-colors inline-block">
+        {{ appInfo.supportEmail }}
+      </a>
     </div>
+    
   </div>
 </div>

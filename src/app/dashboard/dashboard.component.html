@@ -1,39 +1,47 @@
-<!-- src/app/dashboard/dashboard.component.html - VERSIÓN CON HEADER MEJORADO -->
-<div class="dashboard-container">
+<!-- dashboard.component.html - REFACTORIZADO CON TAILWIND + MATERIAL -->
+<div class="max-w-[1400px] mx-auto p-5">
   
   <!-- ============================================
-       HEADER MEJORADO - IGUAL AL ADMIN
+       HEADER - USANDO CLASES GLOBALES
        ============================================ -->
-  <header class="header">
-    <div class="header-content">
-      <div class="header-left">
-        <!-- NUEVO: Contenedor del icono -->
+  <header class="page-header">
+    <div class="flex items-center justify-between gap-5 flex-wrap">
+      
+      <!-- Left Section -->
+      <div class="flex items-center gap-4">
         <div class="header-icon-container">
           <mat-icon>dashboard</mat-icon>
         </div>
-        <!-- Información del header -->
-        <div class="header-info">
-          <h1>¡Bienvenido de nuevo! 👋</h1>
-          <p *ngIf="!loading && userDashboard">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-800 mb-1">¡Bienvenido de nuevo! 👋</h1>
+          <p *ngIf="!loading && userDashboard" class="text-sm text-slate-600 flex items-center gap-2 font-medium">
             <span class="status-dot" [class.recent]="isRecentSession()"></span>
             Última sesión: {{ getLastSession() }}
           </p>
         </div>
       </div>
       
-      <div class="header-right">
+      <!-- Right Section -->
+      <div class="flex items-center gap-3 flex-wrap">
         <!-- User Badge -->
-        <div class="user-badge" *ngIf="!loading && userDashboard">
-          <div class="user-avatar">{{ getUserInitials() }}</div>
-          <div class="user-info-header">
-            <span class="user-name">{{ userDashboard.userInfo.displayName }}</span>
-            <span class="user-role-badge">{{ userDashboard.userInfo.role.toUpperCase() }}</span>
+        <div *ngIf="!loading && userDashboard" 
+             class="flex items-center gap-3 bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-blue-500 transition-all">
+          <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm">
+            {{ getUserInitials() }}
+          </div>
+          <div>
+            <div class="font-semibold text-sm text-slate-800 leading-tight">
+              {{ userDashboard.userInfo.displayName }}
+            </div>
+            <span class="inline-block mt-0.5 bg-blue-100 text-blue-800 px-2 py-0.5 rounded-md text-xs font-semibold uppercase">
+              {{ userDashboard.userInfo.role }}
+            </span>
           </div>
         </div>
         
         <!-- Action Buttons -->
         <button mat-icon-button 
-                class="icon-button" 
+                class="icon-btn"
                 [matBadge]="getNotificationCount()"
                 [matBadgeHidden]="getNotificationCount() === 0"
                 matBadgeColor="warn"
@@ -43,14 +51,14 @@
         </button>
         
         <button mat-icon-button 
-                class="icon-button" 
+                class="icon-btn"
                 matTooltip="Configuración"
                 (click)="goToSettings()">
           <mat-icon>settings</mat-icon>
         </button>
 
         <button mat-icon-button 
-                class="icon-button" 
+                class="icon-btn"
                 matTooltip="Cerrar sesión" 
                 (click)="logout()">
           <mat-icon>logout</mat-icon>
@@ -59,21 +67,23 @@
     </div>
   </header>
 
-   <!-- ============================================
+  <!-- ============================================
        LOADING STATE
        ============================================ -->
-  <div *ngIf="loading" class="loading-section">
+  <div *ngIf="loading" class="empty-state">
     <mat-spinner diameter="50"></mat-spinner>
-    <p>Cargando tu dashboard...</p>
+    <p class="mt-4 text-slate-600 font-medium">Cargando tu dashboard...</p>
   </div>
 
   <!-- ============================================
        ERROR STATE
        ============================================ -->
-  <div *ngIf="error && !loading" class="error-section">
-    <mat-icon>error_outline</mat-icon>
-    <p>{{ error }}</p>
+  <div *ngIf="error && !loading" class="empty-state">
+    <mat-icon class="text-red-500 text-5xl mb-4">error_outline</mat-icon>
+    <h3 class="text-lg font-semibold text-slate-800 mb-2">Error al cargar</h3>
+    <p class="text-slate-600 mb-6">{{ error }}</p>
     <button mat-raised-button color="primary" (click)="refreshData()">
+      <mat-icon>refresh</mat-icon>
       Reintentar
     </button>
   </div>
@@ -84,81 +94,95 @@
   <div *ngIf="!loading && !error && userDashboard">
 
     <!-- ============================================
-         QUICK ACTIONS - PRIORIDAD MÁXIMA
+         QUICK ACTIONS - CON TAILWIND
          ============================================ -->
-    <section class="quick-actions">
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       <div *ngFor="let action of quickActions" 
-           class="action-card"
-           [class.has-badge]="action.badge"
+           class="card-corporate cursor-pointer group relative"
            (click)="executeQuickAction(action)">
-        <div class="action-icon" [class]="action.color">
+        
+        <!-- Gradient top bar on hover -->
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-t-2xl"></div>
+        
+        <!-- Icon -->
+        <div class="header-icon-container mb-4 relative">
           <mat-icon>{{ action.icon }}</mat-icon>
-          <span *ngIf="action.badge" class="action-badge">{{ action.badge }}</span>
+          <span *ngIf="action.badge" 
+                class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-lg border-2 border-white min-w-[22px] text-center">
+            {{ action.badge }}
+          </span>
         </div>
-        <h3>{{ action.title }}</h3>
-        <p>{{ action.description }}</p>
+        
+        <!-- Content -->
+        <h3 class="text-base font-semibold text-slate-800 mb-1.5">{{ action.title }}</h3>
+        <p class="text-sm text-slate-600 leading-snug">{{ action.description }}</p>
       </div>
     </section>
 
     <!-- ============================================
          MAIN GRID - 2 COLUMNAS
          ============================================ -->
-    <div class="main-grid">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
       
       <!-- ============================================
-           LEFT COLUMN - OVERVIEW + MÉTRICAS
+           LEFT COLUMN - OVERVIEW (2/3 width)
            ============================================ -->
-      <section class="overview-section">
-        <h2 class="section-title">
-          <mat-icon>dashboard</mat-icon>
+      <section class="lg:col-span-2 bg-white rounded-2xl p-8 border border-slate-200 shadow-soft">
+        <h2 class="flex items-center gap-2.5 text-xl font-bold text-slate-800 mb-6">
+          <mat-icon class="text-blue-500">dashboard</mat-icon>
           Tu Panel de Control
         </h2>
         
         <!-- Key Metrics Grid -->
-        <div class="stats-grid">
-          <div *ngFor="let metric of keyMetrics" class="stat-item">
-            <div class="stat-label">
-              <mat-icon>{{ metric.icon }}</mat-icon>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div *ngFor="let metric of keyMetrics" 
+               class="bg-slate-50 p-5 rounded-xl border border-slate-200 hover:bg-white hover:border-blue-500 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
+            <div class="flex items-center gap-2 text-xs text-slate-600 uppercase font-semibold mb-2.5 tracking-wider">
+              <mat-icon class="!text-base text-blue-500">{{ metric.icon }}</mat-icon>
               {{ metric.label }}
             </div>
-            <div class="stat-value">{{ metric.value }}</div>
-            <div class="stat-change">{{ metric.change }}</div>
+            <div class="text-3xl font-bold text-slate-800 mb-1.5 leading-none">
+              {{ metric.value }}
+            </div>
+            <div class="text-xs text-green-600 font-semibold">
+              {{ metric.change }}
+            </div>
           </div>
         </div>
 
-        <!-- Permisos Compactos -->
-        <div class="compact-section">
-          <h3 class="section-subtitle">
-            <mat-icon>verified</mat-icon>
+        <!-- Permisos Section -->
+        <div class="mb-8">
+          <h3 class="flex items-center gap-2 text-base font-semibold text-slate-800 mb-3.5">
+            <mat-icon class="!text-xl text-blue-500">verified</mat-icon>
             Tus Permisos
           </h3>
-          <div class="compact-list">
+          <div class="flex flex-wrap gap-2.5">
             <div *ngFor="let permission of userDashboard.userInfo.permissions" 
-                 class="compact-chip">
-              <mat-icon>{{ getPermissionIcon(permission) }}</mat-icon>
+                 class="bg-slate-50 px-4 py-2.5 rounded-lg text-sm text-slate-700 border border-slate-200 flex items-center gap-1.5 font-medium hover:bg-white hover:border-blue-500 hover:-translate-y-0.5 transition-all duration-200">
+              <mat-icon class="!text-lg text-blue-500">{{ getPermissionIcon(permission) }}</mat-icon>
               {{ getPermissionLabel(permission) }}
             </div>
             <div *ngIf="userDashboard.userInfo.permissions.length === 0" 
-                 class="empty-state-chip">
+                 class="bg-amber-50 text-amber-700 px-4 py-2.5 rounded-lg text-sm font-medium border border-amber-200">
               Sin permisos asignados
             </div>
           </div>
         </div>
 
-        <!-- Módulos Compactos -->
-        <div class="compact-section">
-          <h3 class="section-subtitle">
-            <mat-icon>apps</mat-icon>
+        <!-- Módulos Section -->
+        <div>
+          <h3 class="flex items-center gap-2 text-base font-semibold text-slate-800 mb-3.5">
+            <mat-icon class="!text-xl text-blue-500">apps</mat-icon>
             Módulos Activos
           </h3>
-          <div class="compact-list">
+          <div class="flex flex-wrap gap-2.5">
             <div *ngFor="let module of userDashboard.userInfo.modules" 
-                 class="compact-chip">
-              <mat-icon>dashboard</mat-icon>
+                 class="bg-slate-50 px-4 py-2.5 rounded-lg text-sm text-slate-700 border border-slate-200 flex items-center gap-1.5 font-medium hover:bg-white hover:border-blue-500 hover:-translate-y-0.5 transition-all duration-200">
+              <mat-icon class="!text-lg text-blue-500">dashboard</mat-icon>
               {{ module }}
             </div>
             <div *ngIf="userDashboard.userInfo.modules.length === 0" 
-                 class="empty-state-chip">
+                 class="bg-amber-50 text-amber-700 px-4 py-2.5 rounded-lg text-sm font-medium border border-amber-200">
               Sin módulos asignados
             </div>
           </div>
@@ -166,31 +190,47 @@
       </section>
 
       <!-- ============================================
-           RIGHT COLUMN - ACTIVIDAD RECIENTE
+           RIGHT COLUMN - ACTIVIDAD RECIENTE (1/3 width)
            ============================================ -->
-      <section class="activity-section">
-        <h2 class="section-title">
-          <mat-icon>history</mat-icon>
+      <section class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft">
+        <h2 class="flex items-center gap-2.5 text-xl font-bold text-slate-800 mb-6">
+          <mat-icon class="text-blue-500">history</mat-icon>
           Actividad Reciente
         </h2>
         
-        <div class="activity-timeline" *ngIf="recentActivities.length > 0">
+        <div *ngIf="recentActivities.length > 0" class="space-y-5">
           <div *ngFor="let activity of recentActivities; let last = last" 
-               class="activity-item"
-               [class.last]="last">
-            <div class="activity-icon-wrapper" [class]="getActivityColor(activity.type)">
-              <mat-icon>{{ getActivityIcon(activity.type) }}</mat-icon>
-            </div>
-            <div class="activity-content">
-              <div class="activity-title">{{ activity.description }}</div>
-              <div class="activity-time">{{ getRelativeTime(activity.timestamp) }}</div>
+               class="relative">
+            
+            <!-- Timeline line -->
+            <div *ngIf="!last" 
+                 class="absolute left-5 top-12 w-0.5 h-full bg-gradient-to-b from-slate-200 to-transparent"></div>
+            
+            <!-- Activity item -->
+            <div class="flex gap-4 relative z-10">
+              <!-- Icon wrapper - Siempre tiene fondo azul por defecto -->
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white flex-shrink-0 activity-icon-primary"
+                   [class.activity-icon-success]="getActivityColor(activity.type) === 'accent'"
+                   [class.activity-icon-warning]="getActivityColor(activity.type) === 'warn'">
+                <mat-icon class="!text-xl">{{ getActivityIcon(activity.type) }}</mat-icon>
+              </div>
+              
+              <!-- Content -->
+              <div class="flex-1 pt-1.5">
+                <div class="font-semibold text-sm text-slate-800 leading-snug mb-1">
+                  {{ activity.description }}
+                </div>
+                <div class="text-xs text-slate-500 font-medium">
+                  {{ getRelativeTime(activity.timestamp) }}
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div *ngIf="recentActivities.length === 0" class="empty-state">
-          <mat-icon>inbox</mat-icon>
-          <p>No hay actividad reciente</p>
+        <div *ngIf="recentActivities.length === 0" class="text-center py-12">
+          <mat-icon class="!text-5xl text-slate-300 mb-3">inbox</mat-icon>
+          <p class="text-sm text-slate-500">No hay actividad reciente</p>
         </div>
       </section>
     </div>
@@ -198,17 +238,17 @@
     <!-- ============================================
          INSIGHTS - INFORMACIÓN CONTEXTUAL
          ============================================ -->
-    <section class="insights-section">
+    <section class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft">
       <!-- Contact Info -->
-      <div class="contact-card">
-        <h4>
-          <mat-icon>email</mat-icon>
+      <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+        <h4 class="flex items-center gap-2 text-base font-semibold text-slate-800 mb-4">
+          <mat-icon class="!text-xl text-blue-500">email</mat-icon>
           Contacto
         </h4>
-        <p>
-          <strong>Email:</strong> {{ userDashboard.userInfo.email }}
+        <p class="text-sm text-slate-700 mb-2">
+          <strong class="font-semibold text-slate-800">Email:</strong> {{ userDashboard.userInfo.email }}
         </p>
-        <p class="help-text">
+        <p class="text-xs text-slate-500 leading-relaxed mt-4 pt-4 border-t border-slate-200">
           ¿Necesitas ayuda? Contacta al administrador del sistema o revisa la documentación en el panel de configuración.
         </p>
       </div>

@@ -1,184 +1,471 @@
-/* ===================================
-   IMPORTACIONES DE TAILWIND
-   =================================== */
+/* =====================================================
+   ARCHIVO: src/styles.css 
+   ARQUITECTURA: Material + Tailwind Optimizada
+   ===================================================== */
 
-   @import 'tailwindcss/base';
-   @import 'tailwindcss/components';
-   @import 'tailwindcss/utilities';
-   
-   /* ===================================
-      ESTILOS PRINCIPALES - STYLE.CSS
-      =================================== */
-   
-   /* Angular Material Overrides */
-   .mat-mdc-outlined-button {
-     border-radius: 8px !important;
-     font-weight: 500 !important;
-     text-transform: none !important;
-   }
-   
-   /* ===================================
-      FONDO CORPORATIVO GLOBAL
-      =================================== */
-   
-   /* Fondo corporativo para toda la aplicación - Versión más sutil */
-   body {
-     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%) !important;
-     min-height: 100vh;
-     font-family: 'Inter', 'Roboto', sans-serif;
-   }
-   
-   /* Alternativa aún más neutra (descomenta si prefieres esta) */
-   /* 
-   body {
-     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e5e7eb 100%) !important;
-     min-height: 100vh;
-     font-family: 'Inter', 'Roboto', sans-serif;
-   }
-   */
-   
-   /* ===================================
-      TAILWIND CUSTOM UTILITIES
-      =================================== */
-   
-   @layer utilities {
-     /* Efectos de cristal */
-     .glass-effect {
-       @apply backdrop-blur-sm bg-white/70 border border-white/20;
-     }
-   
-     /* Degradados corporativos */
-     .gradient-primary {
-       @apply bg-gradient-to-br from-slate-50 to-blue-50;
-     }
-     
-     .gradient-corporate {
-       background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
-     }
-     
-     .gradient-neutral {
-       background: linear-gradient(135deg, #f9fafb 0%, #f1f5f9 50%, #e5e7eb 100%);
-     }
-   
-     /* Sombras suaves */
-     .shadow-soft {
-       box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1),
-         0 4px 6px -2px rgb(0 0 0 / 0.05);
-     }
-     
-     .shadow-corporate {
-       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 
-                   0 2px 4px -2px rgb(0 0 0 / 0.1);
-     }
-     
-     /* Colores corporativos */
-     .bg-corporate {
-       @apply bg-slate-50;
-     }
-     
-     .bg-corporate-light {
-       @apply bg-blue-50;
-     }
-     
-     .text-corporate-primary {
-       @apply text-slate-700;
-     }
-     
-     .text-corporate-secondary {
-       @apply text-slate-500;
-     }
-     
-     .text-corporate-accent {
-       @apply text-blue-600;
-     }
-     
-     .border-corporate {
-       @apply border-slate-200;
-     }
-   }
-   
-   /* ===================================
-      COMPONENTES ESPECÍFICOS
-      =================================== */
-   
-   /* Estilos para el componente de login - Menos azul */
-   .login-container {
-     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%) !important;
-     min-height: 100vh;
-   }
-   
-   /* Estilos para el panel de administración */
-   .admin-container {
-     background: #f8fafc;
-     min-height: 100vh;
-   }
-   
-   /* ===================================
-      ANGULAR MATERIAL CUSTOMIZATION
-      =================================== */
-   
-   /* Cards */
-   .mat-mdc-card {
-     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 
-                 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
-     border-radius: 12px !important;
-     border: 1px solid rgb(226 232 240) !important;
-   }
-   
-   /* Botones primarios */
-   .mat-mdc-raised-button.mat-primary {
-     background-color: #3b82f6 !important;
-     color: white !important;
-   }
-   
-   .mat-mdc-raised-button.mat-primary:hover {
-     background-color: #2563eb !important;
-   }
-   
-   /* Botones outlined */
-   .mat-mdc-outlined-button.mat-primary {
-     border-color: #3b82f6 !important;
-     color: #3b82f6 !important;
-   }
-   
-   .mat-mdc-outlined-button.mat-primary:hover {
-     background-color: #eff6ff !important;
-   }
-   
-   /* Form fields */
-   .mat-mdc-form-field .mat-mdc-text-field-wrapper {
-     border-radius: 8px !important;
-   }
+/* 1. TAILWIND BASE - Importación obligatoria */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-   /* Asegurar que el overlay y dialog tengan z-index correcto */
-.cdk-overlay-container {
-  z-index: 1000 !important;
+/* 2. CONFIGURACIÓN BASE CON TAILWIND */
+@layer base {
+  body {
+    @apply m-0 p-0 min-h-screen overflow-x-hidden;
+    @apply bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200;
+    @apply text-slate-800;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  
+  * {
+    @apply box-border;
+  }
 }
 
-.cdk-overlay-backdrop {
-  z-index: 1000 !important;
+/* 3. MATERIAL DESIGN OVERRIDES GLOBALES */
+@layer components {
+  
+  /* ========== MATERIAL CARDS ========== */
+  .mat-mdc-card {
+    @apply rounded-2xl border border-slate-200 !important;
+    box-shadow: 0 4px 12px rgba(71, 85, 105, 0.08) !important;
+  }
+  
+  /* ========== MATERIAL BUTTONS ========== */
+  .mat-mdc-raised-button.mat-primary {
+    @apply bg-gradient-to-br from-blue-500 to-blue-600 text-white !important;
+  }
+  
+  .mat-mdc-raised-button.mat-primary:hover:not([disabled]) {
+    @apply from-blue-600 to-blue-700 -translate-y-0.5 !important;
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3) !important;
+  }
+  
+  .mat-mdc-outlined-button {
+    @apply rounded-xl font-semibold !important;
+  }
+  
+  .mat-mdc-icon-button {
+    @apply transition-all duration-200 !important;
+  }
+  
+  /* ========== MATERIAL MENUS ========== */
+  .mat-mdc-menu-panel {
+    @apply bg-white border border-slate-200 rounded-xl !important;
+    box-shadow: 0 10px 40px rgba(71, 85, 105, 0.1) !important;
+  }
+  
+  .mat-mdc-menu-item {
+    @apply text-slate-600 text-sm font-medium px-5 py-3 min-h-[44px] !important;
+  }
+  
+  .mat-mdc-menu-item:hover {
+    @apply bg-slate-50 !important;
+  }
+  
+  .mat-mdc-menu-item mat-icon {
+    @apply mr-3 text-blue-500;
+  }
+  
+  .mat-divider {
+    @apply border-slate-200 !important;
+  }
+  
+  /* ========== MATERIAL DIALOGS ========== */
+  .cdk-overlay-container {
+    @apply z-[1000] !important;
+  }
+  
+  .cdk-overlay-backdrop {
+    @apply z-[1000] !important;
+  }
+  
+  .cdk-overlay-pane {
+    @apply z-[1001] !important;
+  }
+  
+  .mat-mdc-dialog-container {
+    @apply rounded-2xl overflow-hidden !important;
+  }
+  
+  .mat-mdc-dialog-surface {
+    @apply block bg-white !important;
+  }
+  
+  .custom-dialog-container .mat-mdc-dialog-container {
+    @apply p-0 rounded-xl overflow-hidden bg-white !important;
+  }
+  
+  /* ========== MATERIAL FORM FIELDS ========== */
+  .mat-mdc-form-field {
+    @apply w-full;
+  }
+  
+  .mat-mdc-text-field-wrapper {
+    @apply rounded-xl !important;
+  }
+  
+  /* ========== MATERIAL SPINNERS ========== */
+  .mat-mdc-progress-spinner circle {
+    stroke: #3b82f6 !important;
+  }
+  
+  /* ========== MATERIAL CHIPS ========== */
+  .mat-mdc-chip {
+    @apply rounded-lg !important;
+  }
+  
+  .mat-mdc-chip-set {
+    @apply flex gap-1.5 flex-wrap;
+  }
+  
+  /* ========== MATERIAL SNACKBAR ========== */
+  .mat-mdc-snack-bar-container {
+    --mdc-snackbar-container-color: #1e293b;
+    --mdc-snackbar-supporting-text-color: #f9fafb;
+  }
+  
+  .success-snackbar {
+    --mdc-snackbar-container-color: #10b981 !important;
+  }
+  
+  .error-snackbar {
+    --mdc-snackbar-container-color: #dc2626 !important;
+  }
 }
 
-.cdk-overlay-pane {
-  z-index: 1001 !important;
+/* 4. COMPONENTES CUSTOM CON TAILWIND */
+@layer components {
+  
+  /* ========== LOADING STATES ========== */
+  .loading-spinner {
+    @apply w-10 h-10 border-[3px] border-slate-200 border-t-blue-500 rounded-full;
+    animation: spin 0.8s linear infinite;
+  }
+  
+  .loading-spinner-sm {
+    @apply w-5 h-5 border-2;
+  }
+  
+  .loading-spinner-material {
+    @apply w-10 h-10 border-[3px] border-slate-200 border-t-blue-500 rounded-full;
+    animation: spin 0.8s linear infinite;
+  }
+  
+  /* ========== BADGES ========== */
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase;
+  }
+  
+  .badge-status-active {
+    @apply bg-emerald-100 text-emerald-800 border border-emerald-200;
+  }
+  
+  .badge-status-inactive {
+    @apply bg-red-100 text-red-800 border border-red-200;
+  }
+  
+  .badge-role-admin {
+    @apply bg-amber-100 text-amber-800 border border-amber-200;
+  }
+  
+  .badge-role-user {
+    @apply bg-blue-100 text-blue-800 border border-blue-200;
+  }
+  
+  .badge-role-viewer {
+    @apply bg-purple-100 text-purple-800 border border-purple-200;
+  }
+  
+  /* ========== CARDS CORPORATIVOS ========== */
+  .card-corporate {
+    @apply bg-white rounded-2xl p-6 border border-slate-200 transition-all duration-300;
+    box-shadow: 0 2px 8px rgba(71, 85, 105, 0.06);
+  }
+  
+  .card-corporate:hover {
+    @apply -translate-y-1;
+    box-shadow: 0 8px 24px rgba(71, 85, 105, 0.12);
+  }
+  
+  /* ========== ICON BUTTONS ========== */
+  .icon-btn {
+    @apply w-10 h-10 flex items-center justify-center rounded-xl;
+    @apply bg-slate-50 border border-slate-200 text-slate-500;
+    @apply transition-all duration-200 cursor-pointer;
+  }
+  
+  .icon-btn:hover:not(:disabled) {
+    @apply bg-white border-blue-500 text-blue-500 -translate-y-0.5;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  }
+  
+  .icon-btn:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+  
+  /* Alias para compatibilidad */
+  .icon-button {
+    @apply icon-btn;
+  }
+  
+  /* ========== EMPTY STATES ========== */
+  .empty-state {
+    @apply flex flex-col items-center justify-center p-16 text-center;
+    @apply bg-white rounded-2xl my-5 border border-slate-200;
+  }
+  
+  .empty-state mat-icon {
+    @apply text-slate-300 mb-4;
+    font-size: 48px !important;
+    width: 48px !important;
+    height: 48px !important;
+  }
+  
+  .empty-state h3 {
+    @apply text-lg font-semibold text-slate-800 mb-2;
+  }
+  
+  .empty-state p {
+    @apply text-sm text-slate-500;
+  }
+  
+  /* ========== HEADERS ========== */
+  .page-header {
+    @apply bg-white/95 backdrop-blur-xl rounded-2xl p-6 mb-6;
+    @apply border border-slate-200;
+    box-shadow: 0 2px 8px rgba(71, 85, 105, 0.08);
+  }
+  
+  .header-icon-container {
+    @apply w-14 h-14 flex items-center justify-center rounded-2xl flex-shrink-0;
+    @apply bg-gradient-to-br from-blue-500 to-blue-600;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+  }
+  
+  .header-icon-container mat-icon {
+    @apply text-white;
+    font-size: 28px !important;
+    width: 28px !important;
+    height: 28px !important;
+  }
+  
+  /* ========== STATUS DOTS ========== */
+  .status-dot {
+    @apply w-2 h-2 bg-emerald-500 rounded-full;
+    animation: pulse 2s infinite;
+  }
+  
+  .status-dot-recent {
+    @apply bg-green-500;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+  }
+  
+  .status-dot.recent {
+    @apply bg-green-500;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+  }
 }
 
-/* Dialog container visible */
-.mat-mdc-dialog-container {
-  position: relative !important;
-  display: block !important;
+/* 5. UTILIDADES CUSTOM CON TAILWIND */
+@layer utilities {
+  
+  /* Animaciones */
+  .animate-fadeInUp {
+    animation: fadeInUp 0.5s ease-out;
+  }
+  
+  .animate-fadeInDown {
+    animation: fadeInDown 0.5s ease-out;
+  }
+  
+  .animate-fadeInScale {
+    animation: fadeInScale 0.5s ease-out;
+  }
+  
+  .animate-pulse-auth {
+    animation: pulse-auth 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .auth-slide-in {
+    animation: fadeInUp 0.5s ease-out;
+  }
+  
+  /* Efectos de cristal */
+  .glass-effect {
+    @apply backdrop-blur-xl bg-white/80 border border-white/20;
+  }
+  
+  .glass-auth {
+    @apply backdrop-blur-md bg-white/80 border border-white/30;
+    box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+  }
+  
+  /* Sombras custom */
+  .shadow-soft {
+    box-shadow: 0 2px 8px rgba(71, 85, 105, 0.06);
+  }
+  
+  .shadow-medium {
+    box-shadow: 0 4px 12px rgba(71, 85, 105, 0.08);
+  }
+  
+  .shadow-strong {
+    box-shadow: 0 8px 24px rgba(71, 85, 105, 0.12);
+  }
+  
+  .shadow-corporate {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 
+                0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+  
+  /* Gradientes */
+  .gradient-auth {
+    @apply bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50;
+  }
+  
+  .gradient-corporate {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
+  }
+  
+  /* Tipografía */
+  .auth-typography {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-variation-settings: normal;
+  }
 }
 
-/* Custom dialog styles */
-.custom-dialog-container .mat-mdc-dialog-container {
-  padding: 0 !important;
-  border-radius: 12px !important;
-  overflow: hidden !important;
-  background: white !important;
+/* 6. ANIMACIONES KEYFRAMES */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Asegurar que el contenido sea visible */
-.mat-mdc-dialog-surface {
-  display: block !important;
-  background: white !important;
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes pulse-auth {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* 7. CLASES ESPECÍFICAS DE AUTH (compatibilidad) */
+.auth-page {
+  @apply min-h-screen flex items-center justify-center p-5;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #cbd5e1 50%, #94a3b8 75%, #64748b 100%);
+}
+
+.auth-main-card {
+  @apply backdrop-blur-md bg-white/95 border border-white/30 rounded-2xl;
+  box-shadow: 0 20px 25px -5px rgba(71, 85, 105, 0.1), 0 10px 10px -5px rgba(71, 85, 105, 0.04);
+}
+
+.protected-indicator {
+  @apply inline-flex items-center px-4 py-3 rounded-lg text-xs font-medium;
+  @apply bg-gradient-to-br from-blue-50 to-blue-100 text-blue-800 border border-blue-200;
+  @apply transition-all duration-300;
+}
+
+.protected-indicator:hover {
+  @apply -translate-y-0.5;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.15);
+}
+
+/* 8. ACCESIBILIDAD */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 9. RESPONSIVE */
+@media (max-width: 768px) {
+  .icon-btn,
+  .icon-button {
+    @apply w-9 h-9;
+  }
+  
+  .mat-mdc-menu-item {
+    @apply px-4 py-2.5;
+  }
+  
+  .header-icon-container {
+    @apply w-12 h-12;
+  }
+  
+  .header-icon-container mat-icon {
+    font-size: 24px !important;
+    width: 24px !important;
+    height: 24px !important;
+  }
+}
+
+/* 10. PRINT STYLES */
+@media print {
+  body {
+    @apply bg-white !important;
+  }
+  
+  .icon-btn,
+  .icon-button,
+  .mat-mdc-menu-panel,
+  button {
+    display: none !important;
+  }
+}
+
+/* 11. MATERIAL ICONS FIX */
+mat-icon {
+  font-family: 'Material Icons' !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  display: inline-block !important;
+  white-space: nowrap !important;
+  word-wrap: normal !important;
+  direction: ltr !important;
+  -webkit-font-smoothing: antialiased !important;
+  text-rendering: optimizeLegibility !important;
+  user-select: none;
 }

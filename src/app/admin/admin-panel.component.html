@@ -112,45 +112,51 @@
       </div>
     </section>
 
-    <!-- Quick Actions -->
-    <section class="quick-actions-section">
-      <div class="quick-actions-header">
-        <h3>Acciones Rápidas</h3>
-        <p>Gestión del sistema y configuración</p>
-      </div>
-      
-      <div class="quick-actions-grid">
-        <button class="quick-action-btn primary" (click)="addUser()">
-          <mat-icon class="quick-action-icon">person_add</mat-icon>
-          <span>Agregar Usuario</span>
-        </button>
-        
-        <button class="quick-action-btn secondary" (click)="manageRoles()">
-          <mat-icon class="quick-action-icon">admin_panel_settings</mat-icon>
-          <span>Gestionar Roles</span>
-        </button>
-        
-        <button class="quick-action-btn" (click)="manageModules()">
-          <mat-icon class="quick-action-icon">apps</mat-icon>
-          <span>Gestionar Módulos</span>
-        </button>
-        
-        <button class="quick-action-btn" (click)="viewLogs()">
-          <mat-icon class="quick-action-icon">list_alt</mat-icon>
-          <span>Ver Logs</span>
-        </button>
-        
-        <button class="quick-action-btn" (click)="systemSettings()">
-          <mat-icon class="quick-action-icon">settings</mat-icon>
-          <span>Configuración</span>
-        </button>
-        
-        <button class="quick-action-btn" (click)="exportData()">
-          <mat-icon class="quick-action-icon">download</mat-icon>
-          <span>Exportar Datos</span>
-        </button>
-      </div>
-    </section>
+   <!-- Quick Actions Section - Con clases de colores específicas -->
+<section class="quick-actions-section">
+  <div class="quick-actions-header">
+    <h3>Acciones Rápidas</h3>
+    <p>Gestión del sistema y configuración</p>
+  </div>
+  
+  <div class="quick-actions-grid">
+    <!-- Agregar Usuario - Azul -->
+    <button class="quick-action-btn primary" (click)="addUser()">
+      <mat-icon class="quick-action-icon">person_add</mat-icon>
+      <span>Agregar Usuario</span>
+    </button>
+    
+    <!-- Gestionar Roles - Verde -->
+    <button class="quick-action-btn secondary" (click)="manageRoles()">
+      <mat-icon class="quick-action-icon">admin_panel_settings</mat-icon>
+      <span>Gestionar Roles</span>
+    </button>
+    
+    <!-- Gestionar Módulos - Morado -->
+    <button class="quick-action-btn modules" (click)="manageModules()">
+      <mat-icon class="quick-action-icon">apps</mat-icon>
+      <span>Gestionar Módulos</span>
+    </button>
+    
+    <!-- Ver Logs - Morado oscuro/Púrpura -->
+    <button class="quick-action-btn logs" (click)="viewLogs()">
+      <mat-icon class="quick-action-icon">list_alt</mat-icon>
+      <span>Ver Logs</span>
+    </button>
+    
+    <!-- Configuración - Gris -->
+    <button class="quick-action-btn settings" (click)="systemSettings()">
+      <mat-icon class="quick-action-icon">settings</mat-icon>
+      <span>Configuración</span>
+    </button>
+    
+    <!-- Exportar Datos - Naranja -->
+    <button class="quick-action-btn export" (click)="exportData()">
+      <mat-icon class="quick-action-icon">download</mat-icon>
+      <span>Exportar Datos</span>
+    </button>
+  </div>
+</section>
 
     <!-- Toolbar - Búsqueda y Acciones -->
     <section class="toolbar-section">

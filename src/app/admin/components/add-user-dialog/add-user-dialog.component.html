@@ -1,56 +1,61 @@
-<!-- add-user-dialog.component.html - VERSIÓN OPTIMIZADA Y CORREGIDA -->
-<div class="dialog-modern-container">
+<!-- add-user-dialog.component.html - OPTIMIZADO ANGULAR 20 + MATERIAL + TAILWIND -->
+
+<div class="max-w-[900px] max-h-[90vh] bg-white rounded-2xl overflow-hidden flex flex-col">
   
-  <!-- Header Mejorado -->
-  <div class="dialog-modern-header">
+  <!-- ============================================
+       HEADER
+       ============================================ -->
+  <div class="flex justify-between items-center px-8 py-8 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
     <div class="flex items-center gap-4">
-      <div class="header-icon-modern">
-        <mat-icon>person_add</mat-icon>
+      <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+        <mat-icon class="!text-[28px] !w-[28px] !h-[28px]">person_add</mat-icon>
       </div>
       <div>
-        <h2 class="text-2xl font-bold text-white mb-1">Agregar Nuevo Usuario</h2>
+        <h2 class="text-2xl font-bold mb-1">Agregar Nuevo Usuario</h2>
         <p class="text-blue-100 text-sm">Complete la información en cada pestaña</p>
       </div>
     </div>
     <button 
       mat-icon-button 
       (click)="onCancel()" 
-      class="close-button-modern"
+      class="!text-white !bg-white/10 !border !border-white/20 hover:!bg-white/20 transition-all"
       [disabled]="isLoading">
       <mat-icon>close</mat-icon>
     </button>
   </div>
 
-  <!-- Tabs Navigation -->
+  <!-- ============================================
+       TABS NAVIGATION
+       ============================================ -->
   <mat-tab-group 
-    class="modern-tabs"
+    class="modern-tabs flex-1 overflow-hidden"
     [(selectedIndex)]="selectedTabIndex"
     (selectedTabChange)="onTabChange($event)"
     animationDuration="300ms">
     
-    <!-- TAB 1: Información Básica -->
+    <!-- ============================================
+         TAB 1: INFORMACIÓN BÁSICA
+         ============================================ -->
     <mat-tab>
       <ng-template mat-tab-label>
-        <div class="tab-label-content">
+        <div class="tab-label-content flex flex-col items-center gap-1 relative">
           <mat-icon class="tab-icon">person</mat-icon>
           <span class="tab-text">Información</span>
-          <mat-icon 
-            *ngIf="isTabValid(0)" 
-            class="tab-check">
-            check_circle
-          </mat-icon>
+          @if (isTabValid(0)) {
+            <mat-icon class="tab-check">check_circle</mat-icon>
+          }
         </div>
       </ng-template>
       
-      <div class="tab-content-modern">
+      <div class="tab-content-modern px-8 py-8 min-h-[400px] max-h-[500px] overflow-y-auto">
         <form [formGroup]="userForm">
           
-          <!-- Email & Nombre en Grid - DISEÑO MEJORADO -->
-          <div class="form-grid-2">
-            <!-- Email Field -->
-            <div class="input-group">
-              <label class="input-label">
-                <mat-icon class="label-icon">email</mat-icon>
+          <!-- Grid 2 columnas -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Email -->
+            <div class="input-group flex flex-col gap-2">
+              <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                <mat-icon class="label-icon !text-lg text-blue-500">email</mat-icon>
                 Email Corporativo
               </label>
               <input 
@@ -59,15 +64,17 @@
                 formControlName="email"
                 placeholder="usuario@empresa.com"
                 autocomplete="email">
-              <div class="input-error" *ngIf="isFieldInvalid('email')">
-                {{ getErrorMessage('email') }}
-              </div>
+              @if (isFieldInvalid('email')) {
+                <div class="input-error">
+                  {{ getErrorMessage('email') }}
+                </div>
+              }
             </div>
 
-            <!-- Nombre Field -->
-            <div class="input-group">
-              <label class="input-label">
-                <mat-icon class="label-icon">badge</mat-icon>
+            <!-- Nombre -->
+            <div class="input-group flex flex-col gap-2">
+              <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                <mat-icon class="label-icon !text-lg text-blue-500">badge</mat-icon>
                 Nombre Completo
               </label>
               <input 
@@ -76,48 +83,51 @@
                 formControlName="displayName"
                 placeholder="Juan Pérez"
                 autocomplete="name">
-              <div class="input-error" *ngIf="isFieldInvalid('displayName')">
-                {{ getErrorMessage('displayName') }}
-              </div>
+              @if (isFieldInvalid('displayName')) {
+                <div class="input-error">
+                  {{ getErrorMessage('displayName') }}
+                </div>
+              }
             </div>
           </div>
 
-          <!-- Rol con descripciones visuales -->
-          <div class="role-section">
-            <label class="section-label">
-              <mat-icon class="label-icon">admin_panel_settings</mat-icon>
+          <!-- Rol -->
+          <div class="role-section mb-8">
+            <label class="section-label flex items-center gap-2 text-[15px] font-semibold text-slate-800 mb-4">
+              <mat-icon class="!text-[22px] !w-[22px] !h-[22px] text-blue-500">admin_panel_settings</mat-icon>
               Rol del Usuario
             </label>
             
             <mat-radio-group 
               formControlName="role" 
-              class="role-radio-group">
-              <mat-radio-button 
-                *ngFor="let role of roleOptions" 
-                [value]="role.value"
-                class="role-radio-card">
-                <div class="role-card-content">
-                  <div class="role-header">
-                    <mat-icon [class]="'role-icon-' + role.value">
-                      {{ getRoleIcon(role.value) }}
-                    </mat-icon>
-                    <span class="role-name">{{ role.label }}</span>
+              class="role-radio-group flex flex-col gap-3">
+              @for (role of roleOptions; track role.value) {
+                <mat-radio-button 
+                  [value]="role.value"
+                  class="role-radio-card">
+                  <div class="role-card-content ml-9">
+                    <div class="role-header flex items-center gap-3 mb-1.5">
+                      <mat-icon [class]="'role-icon-' + role.value + ' !text-2xl'">
+                        {{ getRoleIcon(role.value) }}
+                      </mat-icon>
+                      <span class="role-name text-base font-semibold text-slate-800">{{ role.label }}</span>
+                    </div>
+                    <p class="role-description text-sm text-slate-500 m-0">{{ role.description }}</p>
                   </div>
-                  <p class="role-description">{{ role.description }}</p>
-                </div>
-              </mat-radio-button>
+                </mat-radio-button>
+              }
             </mat-radio-group>
           </div>
 
-          <!-- Estado Activo -->
-          <div class="status-section">
+          <!-- Status -->
+          <div class="status-section bg-green-50 border border-green-200 rounded-xl p-5 mt-6">
             <mat-checkbox 
               formControlName="isActive"
-              class="status-checkbox"
+              class="status-checkbox w-full"
               color="primary">
-              <div class="checkbox-content">
-                <span class="checkbox-label">Usuario Activo</span>
-                <span class="checkbox-hint">El usuario podrá acceder al sistema inmediatamente</span>
+              <div class="checkbox-content flex flex-col gap-1">
+                <span class="checkbox-label text-[15px] font-semibold text-green-800">Usuario Activo</span>
+                <span class="checkbox-hint text-sm text-green-600 italic">El usuario podrá acceder al sistema inmediatamente</span>
               </div>
             </mat-checkbox>
           </div>
@@ -126,157 +136,159 @@
       </div>
     </mat-tab>
 
-    <!-- TAB 2: Permisos -->
+    <!-- ============================================
+         TAB 2: PERMISOS
+         ============================================ -->
     <mat-tab>
       <ng-template mat-tab-label>
-        <div class="tab-label-content">
+        <div class="tab-label-content flex flex-col items-center gap-1 relative">
           <mat-icon class="tab-icon">security</mat-icon>
           <span class="tab-text">Permisos</span>
-          <mat-icon 
-            *ngIf="isTabValid(1)" 
-            class="tab-check">
-            check_circle
-          </mat-icon>
+          @if (isTabValid(1)) {
+            <mat-icon class="tab-check">check_circle</mat-icon>
+          }
         </div>
       </ng-template>
       
-      <div class="tab-content-modern">
+      <div class="tab-content-modern px-8 py-8 min-h-[400px] max-h-[500px] overflow-y-auto">
         <form [formGroup]="userForm">
           
-          <div class="permissions-header">
-            <mat-icon class="section-icon">lock</mat-icon>
+          <!-- Header -->
+          <div class="permissions-header flex items-start gap-4 mb-6 pb-4 border-b-2 border-slate-100">
+            <mat-icon class="section-icon !text-[32px] !w-[32px] !h-[32px] text-blue-500 flex-shrink-0">lock</mat-icon>
             <div>
-              <h3 class="section-title">Permisos de Acceso</h3>
-              <p class="section-subtitle">
-                Selecciona los permisos que tendrá este usuario
-              </p>
+              <h3 class="section-title text-lg font-bold text-slate-800 m-0 mb-1">Permisos de Acceso</h3>
+              <p class="section-subtitle text-sm text-slate-500 m-0">Selecciona los permisos que tendrá este usuario</p>
             </div>
           </div>
 
-          <!-- Permisos como Cards Seleccionables -->
-          <div class="permissions-grid">
-            <div 
-              *ngFor="let permission of permissionOptions" 
-              class="permission-card"
-              [class.selected]="isPermissionSelected(permission.value)"
-              (click)="togglePermission(permission.value)">
-              
-              <mat-checkbox 
-                [checked]="isPermissionSelected(permission.value)"
-                (change)="togglePermission(permission.value)"
-                (click)="$event.stopPropagation()"
-                color="primary"
-                class="permission-checkbox">
-              </mat-checkbox>
-              
-              <div class="permission-content">
-                <mat-icon class="permission-icon">
-                  {{ getPermissionIcon(permission.value) }}
-                </mat-icon>
-                <div>
-                  <h4 class="permission-name">{{ permission.label }}</h4>
-                  <p class="permission-desc">{{ permission.description }}</p>
+          <!-- Grid de permisos -->
+          <div class="permissions-grid grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+            @for (permission of permissionOptions; track permission.value) {
+              <div 
+                class="permission-card flex items-start gap-3"
+                [class.selected]="isPermissionSelected(permission.value)"
+                (click)="togglePermission(permission.value)">
+                
+                <mat-checkbox 
+                  [checked]="isPermissionSelected(permission.value)"
+                  (change)="togglePermission(permission.value)"
+                  (click)="$event.stopPropagation()"
+                  color="primary"
+                  class="permission-checkbox flex-shrink-0">
+                </mat-checkbox>
+                
+                <div class="permission-content flex items-start gap-3 flex-1">
+                  <mat-icon class="permission-icon !text-2xl text-blue-500 flex-shrink-0 mt-1">
+                    {{ getPermissionIcon(permission.value) }}
+                  </mat-icon>
+                  <div>
+                    <h4 class="permission-name text-sm font-semibold text-slate-800 m-0 mb-1">{{ permission.label }}</h4>
+                    <p class="permission-desc text-xs text-slate-500 m-0">{{ permission.description }}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            }
           </div>
 
-          <!-- Selected Permissions Preview -->
-          <div 
-            *ngIf="getSelectedPermissions().length > 0" 
-            class="selected-preview">
-            <span class="preview-label">Permisos seleccionados:</span>
-            <mat-chip-set class="modern-chip-set">
-              <mat-chip 
-                *ngFor="let perm of getSelectedPermissions()"
-                class="modern-chip permission-chip"
-                (removed)="togglePermission(perm)">
-                <mat-icon matChipAvatar>{{ getPermissionIcon(perm) }}</mat-icon>
-                {{ getPermissionLabel(perm) }}
-                <button matChipRemove>
-                  <mat-icon>cancel</mat-icon>
-                </button>
-              </mat-chip>
-            </mat-chip-set>
-          </div>
+          <!-- Preview -->
+          @if (getSelectedPermissions().length > 0) {
+            <div class="selected-preview bg-slate-50 border border-slate-200 rounded-xl p-4 mt-4">
+              <span class="preview-label block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Permisos seleccionados:</span>
+              <mat-chip-set class="modern-chip-set flex flex-wrap gap-2">
+                @for (perm of getSelectedPermissions(); track perm) {
+                  <mat-chip 
+                    class="modern-chip permission-chip"
+                    (removed)="togglePermission(perm)">
+                    <mat-icon matChipAvatar class="!text-base">{{ getPermissionIcon(perm) }}</mat-icon>
+                    {{ getPermissionLabel(perm) }}
+                    <button matChipRemove>
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip>
+                }
+              </mat-chip-set>
+            </div>
+          }
 
         </form>
       </div>
     </mat-tab>
 
-    <!-- TAB 3: Módulos -->
+    <!-- ============================================
+         TAB 3: MÓDULOS
+         ============================================ -->
     <mat-tab>
       <ng-template mat-tab-label>
-        <div class="tab-label-content">
+        <div class="tab-label-content flex flex-col items-center gap-1 relative">
           <mat-icon class="tab-icon">apps</mat-icon>
           <span class="tab-text">Módulos</span>
-          <mat-icon 
-            *ngIf="isTabValid(2)" 
-            class="tab-check">
-            check_circle
-          </mat-icon>
+          @if (isTabValid(2)) {
+            <mat-icon class="tab-check">check_circle</mat-icon>
+          }
         </div>
       </ng-template>
       
-      <div class="tab-content-modern">
+      <div class="tab-content-modern px-8 py-8 min-h-[400px] max-h-[500px] overflow-y-auto">
         <form [formGroup]="userForm">
           
-          <div class="modules-header">
-            <mat-icon class="section-icon">extension</mat-icon>
+          <!-- Header -->
+          <div class="modules-header flex items-start gap-4 mb-6 pb-4 border-b-2 border-slate-100">
+            <mat-icon class="section-icon !text-[32px] !w-[32px] !h-[32px] text-blue-500 flex-shrink-0">extension</mat-icon>
             <div>
-              <h3 class="section-title">Módulos del Sistema</h3>
-              <p class="section-subtitle">
-                Selecciona las funcionalidades a las que tendrá acceso
-              </p>
+              <h3 class="section-title text-lg font-bold text-slate-800 m-0 mb-1">Módulos del Sistema</h3>
+              <p class="section-subtitle text-sm text-slate-500 m-0">Selecciona las funcionalidades a las que tendrá acceso</p>
             </div>
           </div>
 
-          <!-- Módulos como Cards Visuales -->
-          <div class="modules-grid">
-            <div 
-              *ngFor="let module of moduleOptions" 
-              class="module-card"
-              [class.selected]="isModuleSelected(module.value)"
-              (click)="toggleModule(module.value)">
-              
-              <div class="module-card-header">
-                <mat-checkbox 
-                  [checked]="isModuleSelected(module.value)"
-                  (change)="toggleModule(module.value)"
-                  (click)="$event.stopPropagation()"
-                  color="primary"
-                  class="module-checkbox">
-                </mat-checkbox>
-                <mat-icon class="module-icon-large">{{ module.icon }}</mat-icon>
+          <!-- Grid de módulos -->
+          <div class="modules-grid grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            @for (module of moduleOptions; track module.value) {
+              <div 
+                class="module-card flex flex-col gap-3"
+                [class.selected]="isModuleSelected(module.value)"
+                (click)="toggleModule(module.value)">
+                
+                <div class="module-card-header flex justify-between items-center">
+                  <mat-checkbox 
+                    [checked]="isModuleSelected(module.value)"
+                    (change)="toggleModule(module.value)"
+                    (click)="$event.stopPropagation()"
+                    color="primary"
+                    class="module-checkbox flex-shrink-0">
+                  </mat-checkbox>
+                  <mat-icon class="module-icon-large">{{ module.icon }}</mat-icon>
+                </div>
+                
+                <div class="module-card-body flex-1 flex flex-col gap-2">
+                  <h4 class="module-name text-sm font-semibold text-slate-800 m-0">{{ module.label }}</h4>
+                  <p class="module-description text-xs text-slate-500 m-0">{{ module.description }}</p>
+                </div>
               </div>
-              
-              <div class="module-card-body">
-                <h4 class="module-name">{{ module.label }}</h4>
-                <p class="module-description">{{ module.description }}</p>
-              </div>
-            </div>
+            }
           </div>
 
-          <!-- Selected Modules Preview -->
-          <div 
-            *ngIf="getSelectedModules().length > 0" 
-            class="selected-preview modules-preview">
-            <span class="preview-label">
-              {{ getSelectedModules().length }} módulos seleccionados
-            </span>
-            <mat-chip-set class="modern-chip-set">
-              <mat-chip 
-                *ngFor="let mod of getSelectedModules()"
-                class="modern-chip module-chip"
-                (removed)="toggleModule(mod)">
-                <mat-icon matChipAvatar>{{ getModuleIcon(mod) }}</mat-icon>
-                {{ getModuleLabel(mod) }}
-                <button matChipRemove>
-                  <mat-icon>cancel</mat-icon>
-                </button>
-              </mat-chip>
-            </mat-chip-set>
-          </div>
+          <!-- Preview -->
+          @if (getSelectedModules().length > 0) {
+            <div class="selected-preview modules-preview bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-4 mt-4">
+              <span class="preview-label block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                {{ getSelectedModules().length }} módulos seleccionados
+              </span>
+              <mat-chip-set class="modern-chip-set flex flex-wrap gap-2">
+                @for (mod of getSelectedModules(); track mod) {
+                  <mat-chip 
+                    class="modern-chip module-chip"
+                    (removed)="toggleModule(mod)">
+                    <mat-icon matChipAvatar class="!text-base">{{ getModuleIcon(mod) }}</mat-icon>
+                    {{ getModuleLabel(mod) }}
+                    <button matChipRemove>
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip>
+                }
+              </mat-chip-set>
+            </div>
+          }
 
         </form>
       </div>
@@ -284,70 +296,79 @@
 
   </mat-tab-group>
 
-  <!-- Footer con Navegación y Acciones -->
-  <mat-dialog-actions class="dialog-modern-footer">
-    <div class="footer-content">
+  <!-- ============================================
+       FOOTER
+       ============================================ -->
+  <mat-dialog-actions class="dialog-modern-footer m-0 p-0 border-t border-slate-200 bg-slate-50">
+    <div class="footer-content flex justify-between items-center px-8 py-6 gap-4">
       
-      <!-- Navegación entre tabs (izquierda) -->
-      <div class="footer-navigation">
-        <button 
-          mat-button 
-          *ngIf="selectedTabIndex > 0"
-          (click)="previousTab()"
-          class="nav-button">
-          <mat-icon>arrow_back</mat-icon>
-          Anterior
-        </button>
+      <!-- Navegación -->
+      <div class="footer-navigation flex-1">
+        @if (selectedTabIndex > 0) {
+          <button 
+            mat-button 
+            (click)="previousTab()"
+            class="nav-button flex items-center gap-2 text-slate-500 font-medium px-4 py-2 rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all">
+            <mat-icon>arrow_back</mat-icon>
+            Anterior
+          </button>
+        }
       </div>
 
-      <!-- Acciones principales (derecha) -->
-      <div class="footer-actions">
+      <!-- Acciones -->
+      <div class="footer-actions flex items-center gap-3">
         <button 
           mat-button 
           (click)="onCancel()" 
           [disabled]="isLoading"
-          class="cancel-button-modern">
+          class="cancel-button-modern text-slate-500 font-medium px-5 py-2 rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all">
           Cancelar
         </button>
 
-        <button 
-          mat-raised-button
-          *ngIf="selectedTabIndex < 2"
-          (click)="nextTab()"
-          [disabled]="!canProceedToNextTab()"
-          class="next-button"
-          color="primary">
-          Siguiente
-          <mat-icon>arrow_forward</mat-icon>
-        </button>
+        @if (selectedTabIndex < 2) {
+          <button 
+            mat-raised-button
+            (click)="nextTab()"
+            [disabled]="!canProceedToNextTab()"
+            class="next-button flex items-center gap-2 font-semibold px-6 py-2.5 rounded-lg !bg-gradient-to-br !from-blue-500 !to-blue-600 !text-white hover:!shadow-[0_6px_16px_rgba(59,130,246,0.3)] hover:!-translate-y-0.5 transition-all"
+            color="primary">
+            Siguiente
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        }
 
-        <button 
-          mat-raised-button
-          *ngIf="selectedTabIndex === 2"
-          type="button"
-          (click)="onSubmit()"
-          [disabled]="userForm.invalid || isLoading"
-          class="create-button-modern"
-          color="primary">
-          <mat-icon *ngIf="!isLoading">person_add</mat-icon>
-          <mat-spinner 
-            *ngIf="isLoading" 
-            diameter="20"
-            class="button-spinner">
-          </mat-spinner>
-          {{ isLoading ? 'Creando...' : 'Crear Usuario' }}
-        </button>
+        @if (selectedTabIndex === 2) {
+          <button 
+            mat-raised-button
+            type="button"
+            (click)="onSubmit()"
+            [disabled]="userForm.invalid || isLoading"
+            class="create-button-modern flex items-center gap-2 font-semibold px-7 py-3 rounded-lg !bg-gradient-to-br !from-blue-500 !to-blue-600 !text-white !shadow-[0_4px_12px_rgba(59,130,246,0.3)] hover:!shadow-[0_8px_20px_rgba(59,130,246,0.4)] hover:!-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            color="primary">
+            @if (!isLoading) {
+              <mat-icon>person_add</mat-icon>
+            }
+            @if (isLoading) {
+              <mat-spinner diameter="20" class="button-spinner inline-block"></mat-spinner>
+            }
+            {{ isLoading ? 'Creando...' : 'Crear Usuario' }}
+          </button>
+        }
       </div>
     </div>
   </mat-dialog-actions>
 
-  <!-- Info Footer -->
-  <div class="info-footer" *ngIf="!isLoading && selectedTabIndex === 0">
-    <mat-icon class="info-icon">info</mat-icon>
-    <span class="info-text">
-      Se enviará un email a {{ userForm.get('email')?.value || 'este usuario' }} 
-      para configurar su contraseña
-    </span>
-  </div>
+  <!-- ============================================
+       INFO FOOTER
+       ============================================ -->
+  @if (!isLoading && selectedTabIndex === 0) {
+    <div class="info-footer flex items-center gap-3 px-6 py-3 bg-amber-100 border-t border-amber-300">
+      <mat-icon class="info-icon !text-[20px] !w-[20px] !h-[20px] text-amber-700 flex-shrink-0">info</mat-icon>
+      <span class="info-text text-sm text-amber-900 font-medium">
+        Se enviará un email a {{ userForm.get('email')?.value || 'este usuario' }} 
+        para configurar su contraseña
+      </span>
+    </div>
+  }
 
 </div>

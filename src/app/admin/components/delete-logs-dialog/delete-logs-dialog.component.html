@@ -1,72 +1,78 @@
-<!-- src/app/admin/components/delete-logs-dialog/delete-logs-dialog.component.html -->
-<div class="delete-logs-dialog">
-  <!-- Header -->
-  <div class="dialog-header">
-    <div class="warning-icon">
-      <mat-icon>delete_sweep</mat-icon>
+<!-- delete-logs-dialog.component.html - OPTIMIZADO ANGULAR 20 + MATERIAL + TAILWIND -->
+
+<div class="max-w-[700px] min-w-[600px]">
+  
+  <!-- ============================================
+       HEADER
+       ============================================ -->
+  <div class="text-center px-6 pt-6 pb-4">
+    <div class="warning-icon w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center">
+      <mat-icon class="!text-[36px] !w-[36px] !h-[36px] text-red-600">delete_sweep</mat-icon>
     </div>
-    <h2 mat-dialog-title>🗑️ Eliminar Logs del Sistema</h2>
+    <h2 mat-dialog-title class="text-2xl font-bold text-slate-800 m-0">🗑️ Eliminar Logs del Sistema</h2>
   </div>
 
-  <!-- Content -->
-  <mat-dialog-content class="dialog-content">
-    <div class="warning-message">
+  <!-- ============================================
+       CONTENT
+       ============================================ -->
+  <mat-dialog-content class="dialog-content px-6 pb-6 max-h-[70vh] overflow-y-auto">
+    <div class="flex flex-col gap-5">
       
       <!-- Información de logs totales -->
-      <div class="info-box">
-        <mat-icon class="info-icon">info</mat-icon>
-        <div class="info-content">
+      <div class="flex items-center gap-4 px-5 py-4 bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-xl">
+        <mat-icon class="!text-[28px] !w-[28px] !h-[28px] text-blue-500 flex-shrink-0">info</mat-icon>
+        <div class="flex flex-col gap-1.5 flex-1">
           @if (isLoadingCount) {
-            <span>Cargando información...</span>
+            <span class="text-sm font-medium text-blue-800">Cargando información...</span>
             <mat-spinner diameter="20"></mat-spinner>
           } @else {
-            <span class="info-label">Total de logs en el sistema:</span>
-            <span class="info-value">{{ totalLogs }} registros</span>
+            <span class="text-sm font-medium text-blue-800">Total de logs en el sistema:</span>
+            <span class="text-[22px] font-bold text-slate-800">{{ totalLogs }} registros</span>
           }
         </div>
       </div>
 
       <!-- Opciones de eliminación -->
-      <div class="options-section">
-        <label class="section-label">
-          <mat-icon>tune</mat-icon>
+      <div class="flex flex-col gap-4">
+        <label class="flex items-center gap-2.5 text-[15px] font-semibold text-slate-800">
+          <mat-icon class="!text-[20px] !w-[20px] !h-[20px] text-purple-500">tune</mat-icon>
           Selecciona el método de eliminación:
         </label>
 
         <mat-radio-group 
           [(ngModel)]="selectedOption" 
-          class="options-radio-group">
+          class="options-radio-group flex flex-col gap-3">
           
           <!-- Opción: Eliminar logs antiguos -->
           <mat-radio-button 
             value="older_than" 
             class="option-card">
-            <div class="option-content">
-              <div class="option-header">
-                <mat-icon class="option-icon">schedule</mat-icon>
-                <span class="option-title">Eliminar logs antiguos</span>
+            <div class="option-content ml-9">
+              <div class="flex items-center gap-3 mb-2">
+                <mat-icon class="!text-2xl text-purple-500">schedule</mat-icon>
+                <span class="text-base font-semibold text-slate-800">Eliminar logs antiguos</span>
               </div>
-              <p class="option-description">
+              <p class="text-sm text-slate-500 m-0 leading-relaxed">
                 Elimina logs con más de X días de antigüedad (recomendado)
               </p>
               
               @if (selectedOption === 'older_than') {
-                <div class="days-input-wrapper">
-                  <label class="days-label">
-                    <mat-icon class="days-label-icon">calendar_today</mat-icon>
+                <div class="flex flex-col gap-2 mt-4 pt-4 border-t border-dashed border-slate-200">
+                  <label class="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                    <mat-icon class="!text-lg text-purple-500">calendar_today</mat-icon>
                     Días de antigüedad
                   </label>
-                  <div class="days-input-container">
+                  <div class="relative">
                     <input 
                       type="number" 
-                      class="days-input"
+                      class="w-full h-12 px-4 pr-12 border-2 border-slate-200 rounded-xl text-base font-semibold text-slate-800 bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all"
                       [(ngModel)]="daysInput"
                       min="1"
                       max="365"
                       placeholder="30">
-                    <mat-icon class="days-suffix-icon">event</mat-icon>
+                    <mat-icon class="absolute right-4 top-1/2 -translate-y-1/2 text-purple-500">event</mat-icon>
                   </div>
-                  <span class="hint-text">
+                  <span class="text-sm text-slate-500 font-medium text-center px-2 py-2 bg-slate-50 rounded-lg border border-slate-200">
                     💡 Se recomienda mantener logs de al menos 30 días
                   </span>
                 </div>
@@ -78,12 +84,12 @@
           <mat-radio-button 
             value="all" 
             class="option-card danger-option">
-            <div class="option-content">
-              <div class="option-header">
-                <mat-icon class="option-icon danger">warning</mat-icon>
-                <span class="option-title">Eliminar TODOS los logs</span>
+            <div class="option-content ml-9">
+              <div class="flex items-center gap-3 mb-2">
+                <mat-icon class="option-icon danger !text-2xl">warning</mat-icon>
+                <span class="text-base font-semibold text-slate-800">Eliminar TODOS los logs</span>
               </div>
-              <p class="option-description danger-text">
+              <p class="text-sm text-red-900 font-semibold m-0 leading-relaxed">
                 ⚠️ PELIGRO: Esto eliminará TODOS los {{ totalLogs }} logs del sistema sin excepción
               </p>
             </div>
@@ -92,37 +98,39 @@
       </div>
 
       <!-- Advertencias -->
-      <div class="warning-list">
-        <div class="warning-item">
-          <mat-icon class="danger-icon">error</mat-icon>
+      <div class="flex flex-col gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div class="flex items-start gap-3 text-amber-900 text-sm font-medium">
+          <mat-icon class="!text-[20px] !w-[20px] !h-[20px] text-red-600 flex-shrink-0 mt-0.5">error</mat-icon>
           <span>Esta acción <strong>NO se puede deshacer</strong></span>
         </div>
-        <div class="warning-item">
-          <mat-icon class="danger-icon">delete_forever</mat-icon>
+        <div class="flex items-start gap-3 text-amber-900 text-sm font-medium">
+          <mat-icon class="!text-[20px] !w-[20px] !h-[20px] text-red-600 flex-shrink-0 mt-0.5">delete_forever</mat-icon>
           <span>{{ getWarningMessage() }}</span>
         </div>
-        <div class="warning-item">
-          <mat-icon class="danger-icon">history</mat-icon>
+        <div class="flex items-start gap-3 text-amber-900 text-sm font-medium">
+          <mat-icon class="!text-[20px] !w-[20px] !h-[20px] text-red-600 flex-shrink-0 mt-0.5">history</mat-icon>
           <span>Se perderá el historial de auditoría de estas acciones</span>
         </div>
       </div>
 
       <!-- Confirmación de seguridad -->
-      <div class="confirmation-section">
-        <p class="confirmation-label">
-          Para confirmar, escribe: 
-          <span class="keyword-badge">{{ getRequiredKeyword() }}</span>
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-300 rounded-2xl p-6 shadow-[0_4px_12px_rgba(234,179,8,0.1)]">
+        <p class="text-[15px] font-semibold text-amber-900 m-0 mb-4 text-center flex items-center justify-center gap-2 flex-wrap">
+          <span>Para confirmar, escribe:</span>
+          <span class="keyword-badge bg-gradient-to-br from-red-600 to-red-700 text-white px-4 py-1.5 rounded-lg font-bold text-sm tracking-wider shadow-[0_4px_12px_rgba(220,38,38,0.3)]">
+            {{ getRequiredKeyword() }}
+          </span>
         </p>
         
-        <div class="confirmation-input-wrapper">
-          <div class="input-container">
-            <div class="input-icon-wrapper">
-              <mat-icon class="input-icon">
+        <div class="flex flex-col gap-2">
+          <div class="input-container relative w-full">
+            <div class="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-6 h-6">
+              <mat-icon class="input-icon !text-[20px] !w-[20px] !h-[20px] text-slate-400">
                 {{ confirmationText.toUpperCase() === getRequiredKeyword().toUpperCase() ? 'check_circle' : 'edit' }}
               </mat-icon>
             </div>
             <input 
-              class="confirmation-input-custom"
+              class="confirmation-input-custom w-full px-4 pl-[52px] py-4 border-2 border-slate-200 rounded-xl text-[15px] font-semibold font-mono tracking-wider bg-white text-slate-800 uppercase outline-none"
               [(ngModel)]="confirmationText"
               [disabled]="isDeleting"
               (keyup.enter)="onConfirm()"
@@ -133,18 +141,22 @@
           </div>
           
           @if (confirmationText.length > 0) {
-            <div class="input-status">
+            <div class="flex items-center justify-end h-6">
               @if (confirmationText.toUpperCase() === getRequiredKeyword().toUpperCase()) {
-                <span class="status-text">✓ Correcto</span>
+                <span class="text-sm font-semibold text-green-600 flex items-center gap-1 animate-fadeInUp">
+                  ✓ Correcto
+                </span>
               } @else {
-                <span class="status-text error">✗ Incorrecto</span>
+                <span class="text-sm font-semibold text-red-600 flex items-center gap-1 animate-fadeInUp">
+                  ✗ Incorrecto
+                </span>
               }
             </div>
           }
         </div>
 
         @if (confirmationText.length === 0) {
-          <div class="hint-text">
+          <div class="text-sm text-amber-900 text-center mt-2 font-medium animate-fadeIn">
             💡 Escribe exactamente la frase indicada para continuar
           </div>
         }
@@ -153,29 +165,31 @@
     </div>
   </mat-dialog-content>
 
-  <!-- Actions -->
-  <mat-dialog-actions class="dialog-actions">
+  <!-- ============================================
+       ACTIONS
+       ============================================ -->
+  <mat-dialog-actions class="px-6 py-4 border-t border-slate-200 flex gap-3 justify-end">
     <button 
       mat-stroked-button 
       (click)="onCancel()"
       [disabled]="isDeleting"
-      class="cancel-btn">
-      <mat-icon>close</mat-icon>
+      class="!px-5 !py-2.5 !border-2 !border-slate-200 !text-slate-600 !rounded-xl !text-sm !font-semibold hover:!bg-slate-50 hover:!border-slate-300">
+      <mat-icon class="!mr-2">close</mat-icon>
       Cancelar
     </button>
     
     <button 
       mat-raised-button 
-      color="warn"
       (click)="onConfirm()"
       [disabled]="!canConfirm() || isDeleting"
-      class="delete-btn">
+      class="!px-5 !py-2.5 !bg-gradient-to-br !from-red-600 !to-red-700 !text-white !rounded-xl !text-sm !font-semibold !shadow-[0_4px_12px_rgba(220,38,38,0.25)] hover:!shadow-[0_6px_16px_rgba(220,38,38,0.35)]">
       @if (isDeleting) {
-        <mat-spinner diameter="20"></mat-spinner>
+        <mat-spinner diameter="20" class="mr-2"></mat-spinner>
       } @else {
-        <mat-icon>delete_sweep</mat-icon>
+        <mat-icon class="!mr-2">delete_sweep</mat-icon>
       }
       {{ isDeleting ? 'Eliminando...' : 'Confirmar Eliminación' }}
     </button>
   </mat-dialog-actions>
+  
 </div>

@@ -1,138 +1,181 @@
-<!-- src/app/admin/components/delete-multiple-users-dialog/delete-multiple-users-dialog.component.html -->
+<!-- delete-multiple-users-dialog.component.html - OPTIMIZADO ANGULAR 20 + MATERIAL + TAILWIND -->
 
-<div class="delete-multiple-dialog">
-    <!-- Header -->
-    <div class="dialog-header">
-      <div class="warning-icon">
-        <mat-icon>warning</mat-icon>
-      </div>
-      <h2 mat-dialog-title>⚠️ Eliminar Múltiples Usuarios</h2>
+<div class="max-w-[700px]">
+  
+  <!-- ============================================
+       HEADER
+       ============================================ -->
+  <div class="text-center px-6 pt-6 pb-4">
+    <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center warning-icon">
+      <mat-icon class="!text-[36px] !w-[36px] !h-[36px] text-red-600">warning</mat-icon>
     </div>
-  
-    <!-- Content -->
-    <mat-dialog-content class="dialog-content">
-      <div class="warning-message">
-        <p class="main-warning">
-          Estás a punto de <strong>eliminar permanentemente {{ data.count }} usuario(s)</strong>:
-        </p>
+    <h2 mat-dialog-title class="text-2xl font-bold text-slate-800 m-0">⚠️ Eliminar Múltiples Usuarios</h2>
+  </div>
+
+  <!-- ============================================
+       CONTENT
+       ============================================ -->
+  <mat-dialog-content class="px-6 pb-6">
+    <div class="flex flex-col gap-5">
+      
+      <!-- Mensaje principal -->
+      <p class="text-[15px] text-slate-600 text-center m-0 leading-relaxed">
+        Estás a punto de <strong class="text-slate-800">eliminar permanentemente {{ data.count }} usuario(s)</strong>:
+      </p>
+      
+      <!-- ============================================
+           LISTA DE USUARIOS
+           ============================================ -->
+      <div class="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 rounded-2xl overflow-hidden">
+        <!-- Header de la lista -->
+        <div class="bg-gradient-to-br from-red-600 to-red-700 text-white px-5 py-3 flex items-center gap-2.5 font-bold text-sm">
+          <mat-icon class="!text-[20px] !w-[20px] !h-[20px]">people</mat-icon>
+          <span>Usuarios seleccionados ({{ data.count }})</span>
+        </div>
         
-        <!-- Lista de usuarios a eliminar -->
-        <div class="users-list-container">
-          <div class="users-list-header">
-            <mat-icon>people</mat-icon>
-            <span>Usuarios seleccionados ({{ data.count }})</span>
-          </div>
-          
-          <div class="users-list">
-            @for (user of data.users.slice(0, 5); track user.uid) {
-              <div class="user-item">
-                <div class="user-avatar-mini" [style.background]="getUserColor(user.email)">
-                  {{ getUserInitials(user) }}
-                </div>
-                <div class="user-item-info">
-                  <span class="user-item-name">{{ user.displayName }}</span>
-                  <span class="user-item-email">{{ user.email }}</span>
-                </div>
-                <div class="user-item-role" [class]="'role-' + user.role">
-                  {{ user.role.toUpperCase() }}
-                </div>
+        <!-- Lista scrollable -->
+        <div class="users-list max-h-[300px] overflow-y-auto p-3 bg-white">
+          @for (user of data.users.slice(0, 5); track user.uid) {
+            <div class="user-item flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl mb-2 last:mb-0">
+              <!-- Avatar -->
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+                   [style.background]="getUserColor(user.email)">
+                {{ getUserInitials(user) }}
               </div>
-            }
-            
-            @if (data.users.length > 5) {
-              <div class="more-users">
-                <mat-icon>more_horiz</mat-icon>
-                <span>y {{ data.users.length - 5 }} usuario(s) más...</span>
+              
+              <!-- Info -->
+              <div class="flex-1 flex flex-col gap-1 min-w-0">
+                <span class="text-sm font-semibold text-slate-800 truncate">{{ user.displayName }}</span>
+                <span class="text-xs text-slate-500 truncate">{{ user.email }}</span>
               </div>
-            }
-          </div>
-        </div>
-  
-        <!-- Advertencias -->
-        <div class="warning-list">
-          <div class="warning-item">
-            <mat-icon class="danger-icon">error</mat-icon>
-            <span>Esta acción <strong>NO se puede deshacer</strong></span>
-          </div>
-          <div class="warning-item">
-            <mat-icon class="danger-icon">delete_forever</mat-icon>
-            <span>Se eliminarán <strong>todos los datos y permisos</strong> de estos usuarios</span>
-          </div>
-          <div class="warning-item">
-            <mat-icon class="danger-icon">block</mat-icon>
-            <span>Los usuarios perderán acceso <strong>inmediatamente</strong></span>
-          </div>
-        </div>
-  
-        <!-- Confirmación de seguridad -->
-        <div class="confirmation-section">
-          <p class="confirmation-label">
-            Para confirmar, escribe: <span class="keyword-badge">ELIMINAR</span>
-          </p>
-          
-          <div class="confirmation-input-wrapper">
-            <div class="input-container">
-              <div class="input-icon-wrapper">
-                <mat-icon class="input-icon">{{ confirmationText.toUpperCase() === 'ELIMINAR' ? 'check_circle' : 'edit' }}</mat-icon>
+              
+              <!-- Role badge -->
+              <div class="px-2.5 py-1 rounded-md text-[11px] font-bold uppercase flex-shrink-0 border"
+                   [ngClass]="{
+                     'bg-amber-100 text-amber-700 border-amber-200': user.role === 'admin',
+                     'bg-blue-100 text-blue-700 border-blue-200': user.role === 'user',
+                     'bg-purple-100 text-purple-700 border-purple-200': user.role === 'viewer'
+                   }">
+                {{ user.role }}
               </div>
-              <input 
-                class="confirmation-input-custom"
-                [(ngModel)]="confirmationText"
-                [disabled]="isDeleting"
-                (keyup.enter)="onConfirm()"
-                placeholder="Escribe ELIMINAR aquí..."
-                autocomplete="off"
-                [class.valid]="confirmationText.toUpperCase() === 'ELIMINAR'"
-                [class.invalid]="confirmationText.length > 0 && confirmationText.toUpperCase() !== 'ELIMINAR'"
-              >
             </div>
-            @if (confirmationText.length > 0) {
-              <div class="input-status">
-                @if (confirmationText.toUpperCase() === 'ELIMINAR') {
-                  <span class="status-text">
-                    ✓ Correcto
-                  </span>
-                } @else {
-                  <span class="status-text error">
-                    ✗ Incorrecto
-                  </span>
-                }
-              </div>
-            }
-          </div>
-  
-          @if (confirmationText.length === 0) {
-            <div class="hint-text">
-              💡 Escribe exactamente la palabra indicada para continuar
+          }
+          
+          <!-- Indicador de más usuarios -->
+          @if (data.users.length > 5) {
+            <div class="flex items-center justify-center gap-2 p-3 bg-slate-100 border border-dashed border-slate-300 rounded-xl text-slate-600 text-sm font-semibold mt-2">
+              <mat-icon class="!text-lg">more_horiz</mat-icon>
+              <span>y {{ data.users.length - 5 }} usuario(s) más...</span>
             </div>
           }
         </div>
       </div>
-    </mat-dialog-content>
-  
-    <!-- Actions -->
-    <mat-dialog-actions class="dialog-actions">
-      <button 
-        mat-stroked-button 
-        (click)="onCancel()"
-        [disabled]="isDeleting"
-        class="cancel-btn">
-        <mat-icon>close</mat-icon>
-        Cancelar
-      </button>
-      
-      <button 
-        mat-raised-button 
-        color="warn"
-        (click)="onConfirm()"
-        [disabled]="!canConfirm() || isDeleting"
-        class="delete-btn">
-        @if (isDeleting) {
-          <mat-spinner diameter="20"></mat-spinner>
-        } @else {
-          <mat-icon>delete_sweep</mat-icon>
+
+      <!-- ============================================
+           ADVERTENCIAS
+           ============================================ -->
+      <div class="flex flex-col gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div class="flex items-start gap-3 text-amber-900 text-sm font-medium">
+          <mat-icon class="!text-[20px] !w-[20px] !h-[20px] text-red-600 flex-shrink-0 mt-0.5">error</mat-icon>
+          <span>Esta acción <strong>NO se puede deshacer</strong></span>
+        </div>
+        <div class="flex items-start gap-3 text-amber-900 text-sm font-medium">
+          <mat-icon class="!text-[20px] !w-[20px] !h-[20px] text-red-600 flex-shrink-0 mt-0.5">delete_forever</mat-icon>
+          <span>Se eliminarán <strong>todos los datos y permisos</strong> de estos usuarios</span>
+        </div>
+        <div class="flex items-start gap-3 text-amber-900 text-sm font-medium">
+          <mat-icon class="!text-[20px] !w-[20px] !h-[20px] text-red-600 flex-shrink-0 mt-0.5">block</mat-icon>
+          <span>Los usuarios perderán acceso <strong>inmediatamente</strong></span>
+        </div>
+      </div>
+
+      <!-- ============================================
+           CONFIRMACIÓN DE SEGURIDAD
+           ============================================ -->
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-300 rounded-2xl p-6 shadow-[0_4px_12px_rgba(234,179,8,0.1)]">
+        <!-- Label -->
+        <p class="text-[15px] font-semibold text-amber-900 m-0 mb-4 text-center flex items-center justify-center gap-2 flex-wrap">
+          <span>Para confirmar, escribe:</span>
+          <span class="keyword-badge bg-gradient-to-br from-red-600 to-red-700 text-white px-4 py-1.5 rounded-lg font-bold text-sm tracking-wider shadow-[0_4px_12px_rgba(220,38,38,0.3)]">
+            ELIMINAR
+          </span>
+        </p>
+        
+        <!-- Input wrapper -->
+        <div class="flex flex-col gap-2">
+          <!-- Input con icono -->
+          <div class="input-container relative w-full">
+            <div class="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-6 h-6">
+              <mat-icon class="input-icon !text-[20px] !w-[20px] !h-[20px] text-slate-400">
+                {{ confirmationText.toUpperCase() === 'ELIMINAR' ? 'check_circle' : 'edit' }}
+              </mat-icon>
+            </div>
+            <input 
+              class="confirmation-input-custom w-full px-4 pl-[52px] py-4 border-2 border-slate-200 rounded-xl text-[15px] font-semibold font-mono tracking-wider bg-white text-slate-800 uppercase outline-none"
+              [(ngModel)]="confirmationText"
+              [disabled]="isDeleting"
+              (keyup.enter)="onConfirm()"
+              placeholder="Escribe ELIMINAR aquí..."
+              autocomplete="off"
+              [class.valid]="confirmationText.toUpperCase() === 'ELIMINAR'"
+              [class.invalid]="confirmationText.length > 0 && confirmationText.toUpperCase() !== 'ELIMINAR'"
+            >
+          </div>
+          
+          <!-- Status feedback -->
+          @if (confirmationText.length > 0) {
+            <div class="flex items-center justify-end h-6">
+              @if (confirmationText.toUpperCase() === 'ELIMINAR') {
+                <span class="text-sm font-semibold text-green-600 flex items-center gap-1 animate-fadeInUp">
+                  ✓ Correcto
+                </span>
+              } @else {
+                <span class="text-sm font-semibold text-red-600 flex items-center gap-1 animate-fadeInUp">
+                  ✗ Incorrecto
+                </span>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Hint -->
+        @if (confirmationText.length === 0) {
+          <div class="text-sm text-amber-900 text-center mt-2 font-medium animate-fadeIn">
+            💡 Escribe exactamente la palabra indicada para continuar
+          </div>
         }
-        {{ isDeleting ? 'Eliminando...' : 'Eliminar ' + data.count + ' Usuario(s)' }}
-      </button>
-    </mat-dialog-actions>
-  </div>
+      </div>
+
+    </div>
+  </mat-dialog-content>
+
+  <!-- ============================================
+       ACTIONS - USANDO MATERIAL BUTTONS
+       ============================================ -->
+  <mat-dialog-actions class="px-6 py-4 border-t border-slate-200 flex gap-3 justify-end">
+    <!-- Botón cancelar con Material -->
+    <button 
+      mat-stroked-button
+      class="!px-5 !py-2.5 !border-2 !border-slate-200 !text-slate-600 !rounded-xl !text-sm !font-semibold hover:!bg-slate-50 hover:!border-slate-300"
+      (click)="onCancel()"
+      [disabled]="isDeleting">
+      <mat-icon class="!mr-2">close</mat-icon>
+      Cancelar
+    </button>
+    
+    <!-- Botón eliminar con Material -->
+    <button 
+      mat-raised-button
+      class="!px-5 !py-2.5 !bg-gradient-to-br !from-red-600 !to-red-700 !text-white !rounded-xl !text-sm !font-semibold !shadow-[0_4px_12px_rgba(220,38,38,0.25)] hover:!shadow-[0_6px_16px_rgba(220,38,38,0.35)]"
+      (click)="onConfirm()"
+      [disabled]="!canConfirm() || isDeleting">
+      @if (isDeleting) {
+        <mat-spinner diameter="20"></mat-spinner>
+      } @else {
+        <mat-icon class="!mr-2">delete_sweep</mat-icon>
+      }
+      {{ isDeleting ? 'Eliminando...' : 'Eliminar ' + data.count + ' Usuario(s)' }}
+    </button>
+  </mat-dialog-actions>
+  
+</div>

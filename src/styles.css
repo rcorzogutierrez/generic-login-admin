@@ -469,3 +469,29 @@ mat-icon {
   text-rendering: optimizeLegibility !important;
   user-select: none;
 }
+
+/* ========== ANIMACIÓN FADE IN ========== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease;
+}
+
+/* ========== RESPONSIVE PARA DIALOGS ========== */
+@media (max-width: 640px) {
+  .mat-mdc-dialog-container {
+    max-width: 100vw !important;
+    margin: 0 !important;
+  }
+
+  mat-dialog-actions {
+    @apply flex-col-reverse !important;
+  }
+
+  mat-dialog-actions button {
+    @apply w-full justify-center !important;
+  }
+}

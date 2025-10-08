@@ -1,90 +1,96 @@
-<!-- src/app/admin/components/log-details-dialog/log-details-dialog.component.html -->
-<div class="dialog-container">
-  <!-- Header -->
-  <div class="dialog-header">
-    <div class="header-left">
-      <div class="header-icon">
-        <mat-icon>info</mat-icon>
+<!-- log-details-dialog.component.html - OPTIMIZADO ANGULAR 20 + MATERIAL + TAILWIND -->
+
+<div class="max-w-[700px]">
+  
+  <!-- ============================================
+       HEADER
+       ============================================ -->
+  <div class="flex justify-between items-center px-6 py-6 border-b border-slate-200">
+    <div class="flex items-center gap-4">
+      <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-[0_4px_12px_rgba(139,92,246,0.25)]">
+        <mat-icon class="!text-2xl text-white">info</mat-icon>
       </div>
       <div>
-        <h2>Detalles del Log</h2>
-        <p class="subtitle">Información completa del registro de auditoría</p>
+        <h2 class="text-xl font-bold text-slate-800 m-0">Detalles del Log</h2>
+        <p class="text-sm text-slate-500 mt-1 m-0">Información completa del registro de auditoría</p>
       </div>
     </div>
     <button 
       mat-icon-button 
-      class="close-button"
+      class="!text-slate-500 hover:!text-slate-800 hover:!bg-slate-50"
       (click)="close()">
       <mat-icon>close</mat-icon>
     </button>
   </div>
 
-  <!-- Content -->
-  <mat-dialog-content class="dialog-content">
-    <div class="details-grid">
+  <!-- ============================================
+       CONTENT
+       ============================================ -->
+  <mat-dialog-content class="dialog-content px-6 py-6 max-h-[70vh] overflow-y-auto">
+    <div class="grid grid-cols-1 gap-4 mb-6">
       
       <!-- ID del Log -->
-      <div class="detail-item">
-        <mat-icon class="detail-icon">tag</mat-icon>
-        <div class="detail-content">
-          <span class="detail-label">ID del Log</span>
-          <span class="detail-value code">{{ data.log.id }}</span>
+      <div class="detail-item flex items-start gap-3 px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl transition-all">
+        <mat-icon class="!text-[22px] !w-[22px] !h-[22px] text-purple-500 flex-shrink-0 mt-0.5">tag</mat-icon>
+        <div class="flex flex-col gap-1.5 flex-1">
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">ID del Log</span>
+          <span class="detail-value code text-[15px] font-semibold text-slate-800 break-all">{{ data.log.id }}</span>
         </div>
       </div>
 
       <!-- Acción -->
-      <div class="detail-item">
-        <mat-icon class="detail-icon">flash_on</mat-icon>
-        <div class="detail-content">
-          <span class="detail-label">Acción</span>
-          <span class="detail-value">{{ formatActionName(data.log.action) }}</span>
+      <div class="detail-item flex items-start gap-3 px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl transition-all">
+        <mat-icon class="!text-[22px] !w-[22px] !h-[22px] text-purple-500 flex-shrink-0 mt-0.5">flash_on</mat-icon>
+        <div class="flex flex-col gap-1.5 flex-1">
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Acción</span>
+          <span class="text-[15px] font-semibold text-slate-800">{{ formatActionName(data.log.action) }}</span>
         </div>
       </div>
 
       <!-- Usuario que realizó la acción -->
-      <div class="detail-item">
-        <mat-icon class="detail-icon">person</mat-icon>
-        <div class="detail-content">
-          <span class="detail-label">Realizado por</span>
-          <span class="detail-value">{{ data.log.performedByEmail }}</span>
+      <div class="detail-item flex items-start gap-3 px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl transition-all">
+        <mat-icon class="!text-[22px] !w-[22px] !h-[22px] text-purple-500 flex-shrink-0 mt-0.5">person</mat-icon>
+        <div class="flex flex-col gap-1.5 flex-1">
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Realizado por</span>
+          <span class="text-[15px] font-semibold text-slate-800">{{ data.log.performedByEmail }}</span>
         </div>
       </div>
 
       <!-- UID del usuario -->
-      <div class="detail-item">
-        <mat-icon class="detail-icon">fingerprint</mat-icon>
-        <div class="detail-content">
-          <span class="detail-label">UID del Usuario</span>
-          <span class="detail-value code">{{ data.log.performedBy }}</span>
+      <div class="detail-item flex items-start gap-3 px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl transition-all">
+        <mat-icon class="!text-[22px] !w-[22px] !h-[22px] text-purple-500 flex-shrink-0 mt-0.5">fingerprint</mat-icon>
+        <div class="flex flex-col gap-1.5 flex-1">
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">UID del Usuario</span>
+          <span class="detail-value code text-[15px] font-semibold text-slate-800 break-all">{{ data.log.performedBy }}</span>
         </div>
       </div>
 
       <!-- Usuario objetivo (si existe) -->
       @if (data.log.targetUserId && data.log.targetUserId !== '') {
-        <div class="detail-item">
-          <mat-icon class="detail-icon">person_outline</mat-icon>
-          <div class="detail-content">
-            <span class="detail-label">Usuario Objetivo</span>
-            <span class="detail-value code">{{ data.log.targetUserId }}</span>
+        <div class="detail-item flex items-start gap-3 px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl transition-all">
+          <mat-icon class="!text-[22px] !w-[22px] !h-[22px] text-purple-500 flex-shrink-0 mt-0.5">person_outline</mat-icon>
+          <div class="flex flex-col gap-1.5 flex-1">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Usuario Objetivo</span>
+            <span class="detail-value code text-[15px] font-semibold text-slate-800 break-all">{{ data.log.targetUserId }}</span>
           </div>
         </div>
       }
 
       <!-- Fecha y Hora -->
-      <div class="detail-item">
-        <mat-icon class="detail-icon">schedule</mat-icon>
-        <div class="detail-content">
-          <span class="detail-label">Fecha y Hora</span>
-          <span class="detail-value">{{ formatFullDateTime(data.log.timestamp) }}</span>
+      <div class="detail-item flex items-start gap-3 px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl transition-all">
+        <mat-icon class="!text-[22px] !w-[22px] !h-[22px] text-purple-500 flex-shrink-0 mt-0.5">schedule</mat-icon>
+        <div class="flex flex-col gap-1.5 flex-1">
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Fecha y Hora</span>
+          <span class="text-[15px] font-semibold text-slate-800">{{ formatFullDateTime(data.log.timestamp) }}</span>
         </div>
       </div>
 
       <!-- Dirección IP -->
-      <div class="detail-item">
-        <mat-icon class="detail-icon">location_on</mat-icon>
-        <div class="detail-content">
-          <span class="detail-label">Dirección IP</span>
-          <span class="detail-value code">{{ data.log.ip }}</span>
+      <div class="detail-item flex items-start gap-3 px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl transition-all">
+        <mat-icon class="!text-[22px] !w-[22px] !h-[22px] text-purple-500 flex-shrink-0 mt-0.5">location_on</mat-icon>
+        <div class="flex flex-col gap-1.5 flex-1">
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Dirección IP</span>
+          <span class="detail-value code text-[15px] font-semibold text-slate-800 break-all">{{ data.log.ip }}</span>
         </div>
       </div>
       
@@ -93,8 +99,8 @@
     <!-- Detalles JSON -->
     @if (data.log.detailsObject && hasDetails()) {
       <div class="json-section">
-        <div class="json-header">
-          <mat-icon>data_object</mat-icon>
+        <div class="json-header flex items-center gap-2 px-4 py-3 text-white text-sm font-semibold">
+          <mat-icon class="!text-[20px] !w-[20px] !h-[20px]">data_object</mat-icon>
           <span>Detalles Adicionales (JSON)</span>
         </div>
         <pre class="json-content">{{ formatJSON(data.log.detailsObject) }}</pre>
@@ -102,19 +108,24 @@
     }
   </mat-dialog-content>
 
-  <!-- Actions -->
-  <mat-dialog-actions class="dialog-actions">
+  <!-- ============================================
+       ACTIONS
+       ============================================ -->
+  <mat-dialog-actions class="px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
     <button 
       mat-button 
+      class="!px-4 !py-2 !rounded-xl !text-sm !font-semibold !text-slate-600 hover:!bg-slate-100"
       (click)="copyToClipboard()">
-      <mat-icon>content_copy</mat-icon>
+      <mat-icon class="!mr-2">content_copy</mat-icon>
       Copiar JSON
     </button>
     <button 
       mat-raised-button 
+      class="!px-5 !py-2.5 !rounded-xl !text-sm !font-semibold !bg-gradient-to-br !from-purple-500 !to-purple-600 !text-white !shadow-[0_4px_12px_rgba(139,92,246,0.25)] hover:!shadow-[0_6px_16px_rgba(139,92,246,0.35)]"
       color="primary"
       (click)="close()">
       Cerrar
     </button>
   </mat-dialog-actions>
+  
 </div>

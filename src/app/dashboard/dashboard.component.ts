@@ -249,20 +249,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.userDashboardService.getLastLoginInfo(
       this.userDashboard?.userInfo.lastLogin
     ).isRecent;
-  }
-
-  /**
-   * Obtiene iniciales del usuario para avatar
-   */
-  getUserInitials(): string {
-    const name = this.userDashboard?.userInfo.displayName || this.user()?.displayName || '';
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  }
+  } 
 
   /**
    * Formatea fecha de actividad
@@ -433,27 +420,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Navega a configuración
-   */
-  goToSettings() {
-    this.router.navigate(['/settings']);
-  }
-
-  /**
    * Navega a notificaciones
    */
   goToNotifications() {
     this.router.navigate(['/notifications']);
   }
 
-  /**
-   * Cierra sesión
-   */
-  async logout() {
-    try {
-      await this.authService.logout();
-    } catch (error) {
-      console.error('Error cerrando sesión:', error);
-    }
-  }
+
 }

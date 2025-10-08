@@ -617,18 +617,6 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   // ============================================
-  // NAVEGACIÓN
-  // ============================================
-
-  goToDashboard() {
-    this.router.navigate(['/dashboard']);
-  }
-
-  async logout() {
-    await this.authService.logout();
-  }
-
-  // ============================================
   // ACCIONES DE USUARIO
   // ============================================
 

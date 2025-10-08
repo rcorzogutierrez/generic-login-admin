@@ -23,22 +23,7 @@
       
       <!-- Right Section -->
       <div class="flex items-center gap-3 flex-wrap">
-        <!-- User Badge -->
-        <div *ngIf="!loading && userDashboard" 
-             class="flex items-center gap-3 bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-blue-500 transition-all">
-          <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm">
-            {{ getUserInitials() }}
-          </div>
-          <div>
-            <div class="font-semibold text-sm text-slate-800 leading-tight">
-              {{ userDashboard.userInfo.displayName }}
-            </div>
-            <span class="inline-block mt-0.5 bg-blue-100 text-blue-800 px-2 py-0.5 rounded-md text-xs font-semibold uppercase">
-              {{ userDashboard.userInfo.role }}
-            </span>
-          </div>
-        </div>
-        
+      
         <!-- Action Buttons -->
         <button mat-icon-button 
                 class="icon-btn"
@@ -48,21 +33,8 @@
                 matTooltip="Notificaciones"
                 (click)="goToNotifications()">
           <mat-icon>notifications</mat-icon>
-        </button>
-        
-        <button mat-icon-button 
-                class="icon-btn"
-                matTooltip="Configuración"
-                (click)="goToSettings()">
-          <mat-icon>settings</mat-icon>
-        </button>
-
-        <button mat-icon-button 
-                class="icon-btn"
-                matTooltip="Cerrar sesión" 
-                (click)="logout()">
-          <mat-icon>logout</mat-icon>
-        </button>
+        </button>        
+       
       </div>
     </div>
   </header>

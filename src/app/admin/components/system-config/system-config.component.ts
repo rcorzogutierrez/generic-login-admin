@@ -62,7 +62,7 @@ export class SystemConfigComponent implements OnInit {
   /**
    * Carga la configuración actual
    */
-  private async loadConfiguration() {
+  async loadConfiguration() {
     try {
       this.isLoading.set(true);
       const config = await this.configService.loadConfig();
@@ -253,5 +253,14 @@ export class SystemConfigComponent implements OnInit {
   isFieldInvalid(fieldName: string): boolean {
     const control = this.configForm.get(fieldName);
     return !!(control?.invalid && (control?.dirty || control?.touched));
+  }
+
+  triggerFileInput(event: Event) {
+    event.preventDefault();
+    const button = event.target as HTMLButtonElement;
+    const input = button.previousElementSibling as HTMLInputElement;
+    if (input) {
+      input.click();
+    }
   }
 }

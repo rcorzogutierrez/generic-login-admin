@@ -9,6 +9,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../core/services/auth.service';
+import { AppConfigService } from '../../core/services/app-config.service';
 
 @Component({
   selector: 'app-navbar',
@@ -26,7 +27,7 @@ import { AuthService } from '../../core/services/auth.service';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
-// src/app/shared/navbar/navbar.component.ts
+
 
 export class NavbarComponent implements OnInit {
     user = this.authService.authorizedUser;
@@ -34,6 +35,7 @@ export class NavbarComponent implements OnInit {
   
     constructor(
       public authService: AuthService,
+      private appConfigService: AppConfigService,
       private router: Router
     ) {}
   

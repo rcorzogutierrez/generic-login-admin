@@ -54,9 +54,14 @@ export class LoginComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    console.log('🔍 LoginComponent - Valores actuales:', {
+      appName: this.appName(),
+      appDescription: this.appDescription(),
+      logoUrl: this.logoUrl(),
+      adminContactEmail: this.adminContactEmail()
+    });
+    
     this._loginMessage.set(null);
-
-    // Verificar estado y redirigir si ya está autenticado
     this.checkAuthAndRedirect();
     
     this.checkInterval = setInterval(() => {

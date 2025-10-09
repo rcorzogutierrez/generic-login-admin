@@ -32,6 +32,9 @@ import { AppConfigService } from '../../core/services/app-config.service';
 export class NavbarComponent implements OnInit {
     user = this.authService.authorizedUser;
     appInfo = this.authService.getAppInfo();
+
+    appName = this.appConfigService.appName;
+  logoUrl = this.appConfigService.logoUrl;
   
     constructor(
       public authService: AuthService,
@@ -40,6 +43,10 @@ export class NavbarComponent implements OnInit {
     ) {}
   
     ngOnInit() {
+      console.log('🔍 NavbarComponent - Valores actuales:', {
+        appName: this.appName(),
+        logoUrl: this.logoUrl()
+      });
       console.log('🧭 Navbar cargado para:', this.user()?.email);
     }
   

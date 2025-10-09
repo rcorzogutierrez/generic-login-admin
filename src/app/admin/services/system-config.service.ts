@@ -91,47 +91,41 @@ export class SystemConfigService {
   /**
  * Actualiza la configuración (sin logo)
  */
+// src/app/admin/services/system-config.service.ts
+
 async updateConfig(
-    updates: Partial<SystemConfig>,
-    currentUserUid: string
-  ): Promise<{ success: boolean; message: string }> {
-    try {
-      const configRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
-  
-      // ✅ CORRECCIÓN: Crear objeto con tipos correctos para Firestore
-      const updateData: any = {
-        ...updates,
-        updatedAt: Timestamp.now(), // Timestamp de Firestore
-        updatedBy: currentUserUid,
-        version: (this._config()?.version || 1) + 1
-      };
-  
-      await updateDoc(configRef, updateData);
-  
-      // Actualizar signal local - convertir Timestamp a Date
-      const currentConfig = this._config();
-      if (currentConfig) {
-        this._config.set({ 
-          ...currentConfig, 
-          ...updates,
-          updatedAt: updateData.updatedAt.toDate(), // Convertir a Date
-          updatedBy: currentUserUid,
-          version: updateData.version
-        } as SystemConfig);
-      }
-  
-      return {
-        success: true,
-        message: 'Configuración actualizada exitosamente'
-      };
-    } catch (error: any) {
-      console.error('Error actualizando configuración:', error);
-      return {
-        success: false,
-        message: error.message || 'Error al actualizar la configuración'
-      };
-    }
+  updates: Partial<SystemConfig>,
+  currentUserUid: string
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const configRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
+
+    // ✅ Crear objeto con tipos correctos para Firestore
+    const updateData: any = {
+      ...updates,
+      updatedAt: Timestamp.now(),
+      updatedBy: currentUserUid,
+      version: (this._config()?.version || 1) + 1
+    };
+
+    console.log('💾 Guardando en Firestore:', updateData);
+
+    await updateDoc(configRef, updateData);
+
+    console.log('✅ Configuración guardada en Firestore');
+
+    return {
+      success: true,
+      message: 'Configuración actualizada exitosamente'
+    };
+  } catch (error: any) {
+    console.error('❌ Error actualizando configuración:', error);
+    return {
+      success: false,
+      message: error.message || 'Error al actualizar la configuración'
+    };
   }
+}
 
   /**
    * Sube un logo a Firebase Storage

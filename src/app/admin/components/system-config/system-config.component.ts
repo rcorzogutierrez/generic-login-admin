@@ -255,12 +255,7 @@ export class SystemConfigComponent implements OnInit {
     return !!(control?.invalid && (control?.dirty || control?.touched));
   }
 
-  triggerFileInput(event: Event) {
-    event.preventDefault();
-    const button = event.target as HTMLButtonElement;
-    const input = button.previousElementSibling as HTMLInputElement;
-    if (input) {
-      input.click();
-    }
+  triggerFileInput(fileInput: HTMLInputElement) {
+    fileInput.click();
   }
 }

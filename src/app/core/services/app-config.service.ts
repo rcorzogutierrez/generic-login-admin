@@ -6,12 +6,9 @@ import {
   onSnapshot, 
   Unsubscribe 
 } from 'firebase/firestore';
+import { getDoc } from 'firebase/firestore'; 
 import { SystemConfig } from '../../admin/models/system-config.interface';
 
-/**
- * Servicio global para la configuración de la aplicación
- * Propaga cambios en tiempo real a todos los componentes
- */
 @Injectable({
   providedIn: 'root'
 })
@@ -21,7 +18,7 @@ export class AppConfigService {
   private readonly CONFIG_COLLECTION = 'config';
   private unsubscribe: Unsubscribe | null = null;
 
-  // Signals públicos (readonly)
+  // Signals privados (writable)
   private _appName = signal<string>('Generic Admin Login');
   private _appDescription = signal<string>('Sistema de autenticación y gestión');
   private _logoUrl = signal<string>('');
@@ -30,7 +27,7 @@ export class AppConfigService {
   private _footerText = signal<string>('© 2025 Generic Admin. Todos los derechos reservados.');
   private _isLoaded = signal<boolean>(false);
 
-  // Signals de solo lectura
+  // Signals públicos (readonly)
   readonly appName = this._appName.asReadonly();
   readonly appDescription = this._appDescription.asReadonly();
   readonly logoUrl = this._logoUrl.asReadonly();
@@ -40,6 +37,7 @@ export class AppConfigService {
   readonly isLoaded = this._isLoaded.asReadonly();
 
   constructor() {
+    console.log('🚀 AppConfigService inicializando...');
     this.initializeRealtimeListener();
     this.setupFaviconUpdater();
   }
@@ -50,16 +48,18 @@ export class AppConfigService {
   private initializeRealtimeListener() {
     const configRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
 
+    console.log('📡 Configurando listener de Firestore...');
+
     this.unsubscribe = onSnapshot(
       configRef,
       (docSnapshot) => {
         if (docSnapshot.exists()) {
           const config = docSnapshot.data() as SystemConfig;
+          console.log('✅ Configuración recibida de Firestore:', config);
           this.updateSignals(config);
           this._isLoaded.set(true);
-          console.log('✅ Configuración actualizada en tiempo real');
         } else {
-          console.warn('⚠️ Documento de configuración no existe');
+          console.warn('⚠️ Documento de configuración no existe, usando valores por defecto');
           this.setDefaultValues();
           this._isLoaded.set(true);
         }
@@ -76,18 +76,35 @@ export class AppConfigService {
    * Actualiza todos los signals con los datos de Firestore
    */
   private updateSignals(config: SystemConfig) {
+    console.log('🔄 Actualizando signals con:', {
+      appName: config.appName,
+      appDescription: config.appDescription,
+      logoUrl: config.logoUrl,
+      adminContactEmail: config.adminContactEmail,
+      footerText: config.footerText
+    });
+
     this._appName.set(config.appName || 'Generic Admin Login');
     this._appDescription.set(config.appDescription || '');
     this._logoUrl.set(config.logoUrl || '');
     this._faviconUrl.set(config.faviconUrl || config.logoUrl || '');
     this._adminContactEmail.set(config.adminContactEmail || '[email protected]');
     this._footerText.set(config.footerText || '');
+
+    console.log('✅ Signals actualizados:', {
+      appName: this._appName(),
+      appDescription: this._appDescription(),
+      logoUrl: this._logoUrl(),
+      adminContactEmail: this._adminContactEmail(),
+      footerText: this._footerText()
+    });
   }
 
   /**
    * Establece valores por defecto
    */
   private setDefaultValues() {
+    console.log('⚙️ Estableciendo valores por defecto');
     this._appName.set('Generic Admin Login');
     this._appDescription.set('Sistema de autenticación y gestión');
     this._logoUrl.set('');
@@ -102,6 +119,7 @@ export class AppConfigService {
   private setupFaviconUpdater() {
     effect(() => {
       const faviconUrl = this._faviconUrl();
+      console.log('🔄 Effect de favicon ejecutado, URL:', faviconUrl);
       
       if (faviconUrl) {
         this.updateFavicon(faviconUrl);
@@ -116,11 +134,9 @@ export class AppConfigService {
    */
   private updateFavicon(url: string) {
     try {
-      // Buscar el link del favicon existente
       let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
       
       if (!link) {
-        // Crear nuevo si no existe
         link = document.createElement('link');
         link.rel = 'icon';
         document.getElementsByTagName('head')[0].appendChild(link);
@@ -170,12 +186,16 @@ export class AppConfigService {
   }
 
   /**
-   * Limpia el listener al destruir el servicio
+   * Método para forzar recarga manual (útil para debug)
    */
-  ngOnDestroy() {
-    if (this.unsubscribe) {
-      this.unsubscribe();
-      console.log('🔌 Listener de configuración desconectado');
+  async forceReload() {
+    console.log('🔄 Forzando recarga de configuración...');
+    const configRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
+    const docSnap = await getDoc(configRef);
+    
+    if (docSnap.exists()) {
+      const config = docSnap.data() as SystemConfig;
+      this.updateSignals(config);
     }
   }
 }

@@ -5,32 +5,36 @@
       <!-- ============================================
            LEFT SECTION - LOGO & APP NAME
            ============================================ -->
-      <div class="navbar-left">
-        <!-- Logo -->
-        <button 
-          class="navbar-logo"
-          (click)="goToDashboard()"
-          matTooltip="Ir al Dashboard">
-          <div class="logo-icon">
-            @if (logoUrl()) {
-              <!-- ✅ Logo personalizado -->
-              <img 
-                [src]="logoUrl()" alt="Logo"
-                class="w-full h-full object-contain p-1"
-              />
-            } @else {
-              <!-- ✅ Icono por defecto -->
-              <mat-icon>admin_panel_settings</mat-icon>
-            }
+           <div class="navbar-left">
+            <!-- Logo -->
+            <button 
+              class="navbar-logo"
+              (click)="goToDashboard()"
+              matTooltip="Ir al Dashboard">
+              
+              <!-- ✅ AGREGAR CLASES CONDICIONALES -->
+              <div class="logo-icon" 
+                   [class.has-custom-logo]="logoUrl()"
+                   [class.has-default-icon]="!logoUrl()">
+                @if (logoUrl()) {
+                  <!-- ✅ Logo personalizado SIN clases de Tailwind que agreguen padding/background -->
+                  <img 
+                    [src]="logoUrl()" 
+                    alt="Logo"
+                  />
+                } @else {
+                  <!-- ✅ Icono por defecto -->
+                  <mat-icon>admin_panel_settings</mat-icon>
+                }
+              </div>
+            </button>
+            
+            <!-- App Name -->
+            <div class="app-info">
+              <h1 class="app-name">{{ appName() }}</h1>
+              <span class="app-version">v2.0</span>
+            </div>
           </div>
-        </button>
-        
-        <!-- App Name - ✅ DINÁMICO -->
-      <div class="app-info">
-        <h1 class="app-name">{{ appName() }}</h1>
-        <span class="app-version">v2.0</span>
-      </div>
-    </div>
   
       <!-- ============================================
            CENTER SECTION - NAVIGATION

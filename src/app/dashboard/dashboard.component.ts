@@ -58,6 +58,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   userDashboard: UserDashboardData | null = null;
   appName = this.appConfigService.appName;
   logoUrl = this.appConfigService.logoUrl;
+  footerText = this.appConfigService.footerText; 
   loading = true;
   error: string | null = null;
   

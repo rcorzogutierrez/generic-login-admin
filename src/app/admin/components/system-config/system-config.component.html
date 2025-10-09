@@ -1,0 +1,426 @@
+<!-- src/app/admin/components/system-config/system-config.component.html -->
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
+    <div class="max-w-[1400px] mx-auto p-5">
+      
+      <!-- ============================================
+           HEADER
+           ============================================ -->
+      <header class="page-header">
+        <div class="flex items-center justify-between gap-5 flex-wrap">
+          
+          <!-- Left Section -->
+          <div class="flex items-center gap-4">
+            <button 
+              mat-icon-button 
+              class="icon-btn"
+              (click)="goBack()"
+              matTooltip="Volver al panel de admin">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+            
+            <div class="header-icon-container">
+              <mat-icon>settings</mat-icon>
+            </div>
+            
+            <div>
+              <h1 class="text-2xl font-bold text-slate-800 mb-1">Configuración del Sistema</h1>
+              <p class="text-sm text-slate-600 flex items-center gap-2 font-medium">
+                <span class="status-dot"></span>
+                Personaliza la apariencia y configuración de tu aplicación
+              </p>
+            </div>
+          </div>
+          
+          <!-- Right Section -->
+          <div class="flex items-center gap-3">
+            <button 
+              mat-icon-button 
+              class="icon-btn"
+              (click)="loadConfiguration()"
+              [disabled]="isLoading()"
+              matTooltip="Recargar configuración">
+              <mat-icon>refresh</mat-icon>
+            </button>
+          </div>
+        </div>
+      </header>
+  
+      <!-- ============================================
+           LOADING STATE
+           ============================================ -->
+      @if (isLoading()) {
+        <div class="empty-state">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p class="mt-4 text-slate-600 font-medium">Cargando configuración...</p>
+        </div>
+      }
+  
+      <!-- ============================================
+           MAIN CONTENT
+           ============================================ -->
+      @if (!isLoading()) {
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- ============================================
+               LEFT COLUMN - FORMULARIO (2/3 width)
+               ============================================ -->
+          <section class="lg:col-span-2 space-y-6">
+            
+            <!-- CARD: INFORMACIÓN BÁSICA -->
+            <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft">
+              <div class="flex items-center gap-3 mb-6">
+                <mat-icon class="text-blue-500 !text-2xl">info</mat-icon>
+                <h2 class="text-xl font-bold text-slate-800">Información Básica</h2>
+              </div>
+  
+              <form [formGroup]="configForm" class="space-y-6">
+                
+                <!-- Nombre de la aplicación -->
+                <div class="space-y-2">
+                  <label class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+                    <mat-icon class="!text-lg text-blue-500">label</mat-icon>
+                    Nombre de la Aplicación *
+                  </label>
+                  <mat-form-field class="w-full" appearance="outline">
+                    <input 
+                      matInput 
+                      formControlName="appName"
+                      placeholder="Ej: Mi Sistema Admin"
+                      maxlength="50">
+                    <mat-hint align="end">{{ configForm.get('appName')?.value?.length || 0 }}/50</mat-hint>
+                    @if (isFieldInvalid('appName')) {
+                      <mat-error>{{ getErrorMessage('appName') }}</mat-error>
+                    }
+                  </mat-form-field>
+                  <p class="text-xs text-slate-500 flex items-center gap-1.5">
+                    <mat-icon class="!text-sm">info_outline</mat-icon>
+                    Este nombre aparecerá en el login, navbar y título del navegador
+                  </p>
+                </div>
+  
+                <!-- Descripción -->
+                <div class="space-y-2">
+                  <label class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+                    <mat-icon class="!text-lg text-blue-500">description</mat-icon>
+                    Descripción de la Aplicación
+                  </label>
+                  <mat-form-field class="w-full" appearance="outline">
+                    <textarea 
+                      matInput 
+                      formControlName="appDescription"
+                      placeholder="Ej: Sistema de autenticación y gestión de usuarios"
+                      rows="3"
+                      maxlength="200"></textarea>
+                    <mat-hint align="end">{{ configForm.get('appDescription')?.value?.length || 0 }}/200</mat-hint>
+                    @if (isFieldInvalid('appDescription')) {
+                      <mat-error>{{ getErrorMessage('appDescription') }}</mat-error>
+                    }
+                  </mat-form-field>
+                  <p class="text-xs text-slate-500 flex items-center gap-1.5">
+                    <mat-icon class="!text-sm">info_outline</mat-icon>
+                    Se mostrará en la pantalla de login
+                  </p>
+                </div>
+  
+                <!-- Email de contacto -->
+                <div class="space-y-2">
+                  <label class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+                    <mat-icon class="!text-lg text-blue-500">email</mat-icon>
+                    Email de Contacto del Administrador *
+                  </label>
+                  <mat-form-field class="w-full" appearance="outline">
+                    <input 
+                      matInput 
+                      type="email"
+                      formControlName="adminContactEmail"
+                      placeholder="admin@empresa.com">
+                    @if (isFieldInvalid('adminContactEmail')) {
+                      <mat-error>{{ getErrorMessage('adminContactEmail') }}</mat-error>
+                    }
+                  </mat-form-field>
+                  <p class="text-xs text-slate-500 flex items-center gap-1.5">
+                    <mat-icon class="!text-sm">info_outline</mat-icon>
+                    Email para soporte y contacto del sistema
+                  </p>
+                </div>
+  
+                <!-- Texto del footer -->
+                <div class="space-y-2">
+                  <label class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+                    <mat-icon class="!text-lg text-blue-500">text_fields</mat-icon>
+                    Texto del Footer
+                  </label>
+                  <mat-form-field class="w-full" appearance="outline">
+                    <input 
+                      matInput 
+                      formControlName="footerText"
+                      placeholder="Ej: © 2025 Mi Empresa. Todos los derechos reservados."
+                      maxlength="100">
+                    <mat-hint align="end">{{ configForm.get('footerText')?.value?.length || 0 }}/100</mat-hint>
+                    @if (isFieldInvalid('footerText')) {
+                      <mat-error>{{ getErrorMessage('footerText') }}</mat-error>
+                    }
+                  </mat-form-field>
+                  <p class="text-xs text-slate-500 flex items-center gap-1.5">
+                    <mat-icon class="!text-sm">info_outline</mat-icon>
+                    Se mostrará en el footer del dashboard
+                  </p>
+                </div>
+  
+              </form>
+  
+              <!-- Botones de acción -->
+              <mat-divider class="my-6"></mat-divider>
+              
+              <div class="flex items-center justify-between gap-4">
+                <button 
+                  mat-button 
+                  (click)="goBack()"
+                  [disabled]="isSaving()">
+                  <mat-icon>close</mat-icon>
+                  Cancelar
+                </button>
+                
+                <button 
+                  mat-raised-button 
+                  color="primary"
+                  (click)="saveConfiguration()"
+                  [disabled]="configForm.invalid || isSaving()">
+                  @if (isSaving()) {
+                    <mat-spinner diameter="20" class="mr-2"></mat-spinner>
+                  } @else {
+                    <mat-icon>save</mat-icon>
+                  }
+                  {{ isSaving() ? 'Guardando...' : 'Guardar Cambios' }}
+                </button>
+              </div>
+            </div>
+  
+            <!-- CARD: GESTIÓN DE LOGO -->
+            <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft">
+              <div class="flex items-center gap-3 mb-6">
+                <mat-icon class="text-purple-500 !text-2xl">image</mat-icon>
+                <h2 class="text-xl font-bold text-slate-800">Logo de la Aplicación</h2>
+              </div>
+  
+              <div class="space-y-6">
+                
+                <!-- Preview del logo -->
+                <div class="flex flex-col items-center gap-4 p-6 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300">
+                  @if (logoPreviewUrl()) {
+                    <div class="relative group">
+                      <img 
+                        [src]="logoPreviewUrl()" 
+                        alt="Logo preview"
+                        class="w-32 h-32 object-contain rounded-xl shadow-md"
+                      />
+                      <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+                        <button 
+                          mat-icon-button 
+                          class="!text-white"
+                          (click)="removeLogo()"
+                          [disabled]="isUploadingLogo()"
+                          matTooltip="Eliminar logo">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="w-32 h-32 bg-slate-200 rounded-xl flex items-center justify-center">
+                      <mat-icon class="!text-5xl text-slate-400">image</mat-icon>
+                    </div>
+                  }
+                  
+                  <p class="text-sm text-slate-600 font-medium text-center">
+                    {{ logoPreviewUrl() ? 'Logo actual' : 'Sin logo' }}
+                  </p>
+                </div>
+  
+                <!-- Información del archivo seleccionado -->
+                @if (selectedLogoFile()) {
+                  <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <div class="flex items-center gap-3">
+                      <mat-icon class="text-blue-600">insert_drive_file</mat-icon>
+                      <div class="flex-1">
+                        <p class="text-sm font-semibold text-blue-900">{{ selectedLogoFile()?.name }}</p>
+                        <p class="text-xs text-blue-700">
+                          {{ (selectedLogoFile()!.size / 1024).toFixed(2) }} KB
+                        </p>
+                      </div>
+                      <button 
+                        mat-icon-button 
+                        (click)="selectedLogoFile.set(null); logoPreviewUrl.set(currentConfig()?.logoUrl || '')"
+                        class="!text-blue-600">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                }
+  
+                <!-- Botones de acción -->
+                <div class="flex flex-col gap-3">
+                  <label class="relative">
+                    <input 
+                      type="file" 
+                      class="hidden"
+                      accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+                      (change)="onLogoFileSelected($event)"
+                      [disabled]="isUploadingLogo()"
+                    />
+                    <button 
+                      mat-stroked-button 
+                      class="w-full"
+                      [disabled]="isUploadingLogo()"
+                      (click)="$event.preventDefault(); $event.target.previousElementSibling.click()">
+                      <mat-icon>upload_file</mat-icon>
+                      Seleccionar Archivo
+                    </button>
+                  </label>
+  
+                  @if (selectedLogoFile()) {
+                    <button 
+                      mat-raised-button 
+                      color="primary"
+                      class="w-full"
+                      (click)="uploadLogo()"
+                      [disabled]="isUploadingLogo()">
+                      @if (isUploadingLogo()) {
+                        <mat-spinner diameter="20" class="mr-2"></mat-spinner>
+                      } @else {
+                        <mat-icon>cloud_upload</mat-icon>
+                      }
+                      {{ isUploadingLogo() ? 'Subiendo...' : 'Subir Logo' }}
+                    </button>
+                  }
+  
+                  @if (logoPreviewUrl() && !selectedLogoFile()) {
+                    <button 
+                      mat-button 
+                      color="warn"
+                      class="w-full"
+                      (click)="removeLogo()"
+                      [disabled]="isUploadingLogo()">
+                      <mat-icon>delete</mat-icon>
+                      Eliminar Logo Actual
+                    </button>
+                  }
+                </div>
+  
+                <!-- Especificaciones -->
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                  <p class="text-xs font-semibold text-amber-900 mb-2 flex items-center gap-2">
+                    <mat-icon class="!text-base">info</mat-icon>
+                    Especificaciones del Logo
+                  </p>
+                  <ul class="text-xs text-amber-800 space-y-1 ml-6">
+                    <li>• Formatos: PNG, JPG, SVG</li>
+                    <li>• Tamaño máximo: 2 MB</li>
+                    <li>• Dimensiones recomendadas: 300x300 px</li>
+                    <li>• Se usará en login, navbar y favicon</li>
+                  </ul>
+                </div>
+  
+              </div>
+            </div>
+  
+          </section>
+  
+          <!-- ============================================
+               RIGHT COLUMN - PREVIEW (1/3 width)
+               ============================================ -->
+          <section class="lg:col-span-1">
+            
+            <!-- CARD: VISTA PREVIA EN VIVO -->
+            <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft sticky top-24">
+              <div class="flex items-center gap-3 mb-6">
+                <mat-icon class="text-green-500 !text-2xl">preview</mat-icon>
+                <h2 class="text-xl font-bold text-slate-800">Vista Previa</h2>
+              </div>
+  
+              <div class="space-y-6">
+                
+                <!-- Preview: Navbar -->
+                <div class="space-y-2">
+                  <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Navbar</p>
+                  <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                    <div class="flex items-center gap-3">
+                      @if (logoPreviewUrl()) {
+                        <img 
+                          [src]="logoPreviewUrl()" 
+                          alt="Logo"
+                          class="w-12 h-12 object-contain rounded-lg"
+                        />
+                      } @else {
+                        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                          <mat-icon class="text-white">admin_panel_settings</mat-icon>
+                        </div>
+                      }
+                      <div>
+                        <p class="text-sm font-bold text-slate-800">
+                          {{ configForm.get('appName')?.value || 'Nombre de la App' }}
+                        </p>
+                        <p class="text-xs text-slate-500">v2.0</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+  
+                <!-- Preview: Login -->
+                <div class="space-y-2">
+                  <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pantalla de Login</p>
+                  <div class="bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl p-6 border border-slate-300">
+                    <div class="bg-white rounded-xl p-6 space-y-4">
+                      @if (logoPreviewUrl()) {
+                        <img 
+                          [src]="logoPreviewUrl()" 
+                          alt="Logo"
+                          class="w-20 h-20 object-contain mx-auto rounded-lg"
+                        />
+                      } @else {
+                        <div class="w-20 h-20 bg-blue-500 rounded-lg flex items-center justify-center mx-auto">
+                          <mat-icon class="!text-4xl text-white">admin_panel_settings</mat-icon>
+                        </div>
+                      }
+                      <h3 class="text-lg font-bold text-slate-800 text-center">
+                        {{ configForm.get('appName')?.value || 'Nombre de la App' }}
+                      </h3>
+                      <p class="text-xs text-slate-600 text-center">
+                        {{ configForm.get('appDescription')?.value || 'Descripción de la aplicación' }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+  
+                <!-- Preview: Footer -->
+                <div class="space-y-2">
+                  <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Footer</p>
+                  <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                    <p class="text-xs text-slate-300 text-center">
+                      {{ configForm.get('footerText')?.value || 'Texto del footer' }}
+                    </p>
+                  </div>
+                </div>
+  
+                <!-- Información de contacto -->
+                <div class="space-y-2">
+                  <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Contacto</p>
+                  <div class="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                    <div class="flex items-center gap-2">
+                      <mat-icon class="!text-base text-blue-600">email</mat-icon>
+                      <p class="text-xs font-medium text-blue-900">
+                        {{ configForm.get('adminContactEmail')?.value || 'admin@empresa.com' }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+  
+              </div>
+            </div>
+  
+          </section>
+  
+        </div>
+      }
+  
+    </div>
+  </div>

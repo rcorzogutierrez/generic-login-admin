@@ -5,6 +5,7 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChang
 import { Timestamp, addDoc, collection, getFirestore } from 'firebase/firestore';
 import { Router } from '@angular/router';
 import { FirestoreUserService, FirestoreUser } from './firestore-user.service';
+import { AppConfigService } from './app-config.service';
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +29,8 @@ export class AuthService {
 
   constructor(
     private router: Router,
-    private firestoreUserService: FirestoreUserService
+    private firestoreUserService: FirestoreUserService,
+    private appConfigService: AppConfigService
   ) {
     this.setupGoogleProvider();
     this.initAuthStateListener();
@@ -39,6 +41,8 @@ export class AuthService {
     this.googleProvider.addScope('profile');
     this.googleProvider.setCustomParameters({ prompt: 'select_account' });
   }
+
+  
 
   async loginWithGoogle(): Promise<{ success: boolean; message: string }> {
     try {
@@ -219,11 +223,7 @@ export class AuthService {
   }
 
   getAppInfo() {
-    return {
-      name: 'Generic Admin Login',
-      description: 'Sistema de autenticación y gestión de usuarios',
-      supportEmail: '[email protected]'
-    };
+    return this.appConfigService.getAppInfo();
   }
 
   private getErrorMessage(error: any): string {

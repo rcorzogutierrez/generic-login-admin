@@ -15,6 +15,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
 import { UserDashboardService, UserDashboardData, DashboardAction } from './services/user-dashboard.service';
 import { Subject, takeUntil } from 'rxjs';
+import { AppConfigService } from '../core/services/app-config.service';
 
 interface QuickAction {
   id: string;
@@ -55,6 +56,8 @@ interface KeyMetric {
 export class DashboardComponent implements OnInit, OnDestroy {
   user = this.authService.authorizedUser;
   userDashboard: UserDashboardData | null = null;
+  appName = this.appConfigService.appName;
+  logoUrl = this.appConfigService.logoUrl;
   loading = true;
   error: string | null = null;
   
@@ -66,7 +69,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   recentActivities: any[] = [];
 
   constructor(
-    private authService: AuthService, 
+    private authService: AuthService,
+    private appConfigService: AppConfigService, 
     private router: Router,
     private userDashboardService: UserDashboardService
   ) {}

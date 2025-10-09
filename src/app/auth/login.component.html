@@ -2,20 +2,31 @@
 <div class="min-h-screen flex items-center justify-center p-5">
   <div class="w-full max-w-md">
     
-    <!-- ============================================
-         HEADER CON LOGO Y TÍTULO
-         ============================================ -->
+    <!-- HEADER CON LOGO Y TÍTULO DINÁMICOS -->
     <div class="text-center mb-8 animate-fadeInDown">
-      <!-- Logo usando clase global -->
-      <div class="header-icon-container mx-auto mb-6 animate-fadeInScale">
-        <mat-icon>admin_panel_settings</mat-icon>
-      </div>
+      <!-- ✅ Logo dinámico -->
+      @if (logoUrl()) {
+        <div class="mx-auto mb-6 animate-fadeInScale">
+          <img 
+            [src]="logoUrl()" 
+            alt="Logo"
+            class="w-24 h-24 mx-auto object-contain"
+          />
+        </div>
+      } @else {
+        <div class="header-icon-container mx-auto mb-6 animate-fadeInScale">
+          <mat-icon>admin_panel_settings</mat-icon>
+        </div>
+      }
       
+      <!-- ✅ Nombre dinámico -->
       <h1 class="text-3xl font-bold text-slate-800 mb-2">
-        {{ appInfo.name }}
+        {{ appName() }}
       </h1>
+      
+      <!-- ✅ Descripción dinámica -->
       <p class="text-sm text-slate-600 font-medium">
-        {{ appInfo.description }}
+        {{ appDescription() }}
       </p>
     </div>
 
@@ -139,18 +150,15 @@
         </div>
       </div>
     }
+<!-- FOOTER CON EMAIL DINÁMICO -->
+<div class="text-center mt-6 animate-fadeInUp">
+  <p class="text-sm text-slate-600 mb-2">¿Problemas de acceso?</p>
+  <a 
+    [href]="'mailto:' + adminContactEmail()" 
+    class="text-blue-600 hover:text-blue-700 font-semibold text-sm transition-colors inline-block">
+    {{ adminContactEmail() }}
+  </a>
+</div>
 
-    <!-- ============================================
-         FOOTER
-         ============================================ -->
-    <div class="text-center mt-6 animate-fadeInUp">
-      <p class="text-sm text-slate-600 mb-2">¿Problemas de acceso?</p>
-      <a 
-        [href]="'mailto:' + appInfo.supportEmail" 
-        class="text-blue-600 hover:text-blue-700 font-semibold text-sm transition-colors inline-block">
-        {{ appInfo.supportEmail }}
-      </a>
-    </div>
-    
-  </div>
+</div>
 </div>

@@ -867,8 +867,15 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   /**
    * Configuración del sistema
    */
+  goToSystemConfig() {
+    console.log('⚙️ Navegando a configuración del sistema...');
+    this.router.navigate(['/admin/config']);
+  }
+
+  /**
+   * ACTUALIZADO: Método existente con nueva navegación
+   */
   systemSettings() {
-    console.log('⚙️ Configuración del sistema...');
-    this.snackBar.open('Configuración del sistema - Próximamente', 'Cerrar', { duration: 2000 });
+    this.goToSystemConfig();
   }
 }

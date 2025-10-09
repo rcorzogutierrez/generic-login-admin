@@ -12,16 +12,25 @@
           (click)="goToDashboard()"
           matTooltip="Ir al Dashboard">
           <div class="logo-icon">
-            <mat-icon>admin_panel_settings</mat-icon>
+            @if (logoUrl()) {
+              <!-- ✅ Logo personalizado -->
+              <img 
+                [src]="logoUrl()" alt="Logo"
+                class="w-full h-full object-contain p-1"
+              />
+            } @else {
+              <!-- ✅ Icono por defecto -->
+              <mat-icon>admin_panel_settings</mat-icon>
+            }
           </div>
         </button>
         
-        <!-- App Name -->
-        <div class="app-info">
-          <h1 class="app-name">{{ appInfo.name }}</h1>
-          <span class="app-version">v2.0</span>
-        </div>
+        <!-- App Name - ✅ DINÁMICO -->
+      <div class="app-info">
+        <h1 class="app-name">{{ appName() }}</h1>
+        <span class="app-version">v2.0</span>
       </div>
+    </div>
   
       <!-- ============================================
            CENTER SECTION - NAVIGATION

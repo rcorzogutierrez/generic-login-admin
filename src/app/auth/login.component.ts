@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
+import { AppConfigService } from '../core/services/app-config.service';
 
 @Component({
   selector: 'app-login',
@@ -33,6 +34,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   isLoggingIn = this._isLoggingIn.asReadonly();
   loginMessage = this._loginMessage.asReadonly();
 
+  // ✅ NUEVO: Usar signals del servicio de configuración
+  appName = this.appConfigService.appName;
+  appDescription = this.appConfigService.appDescription;
+  logoUrl = this.appConfigService.logoUrl;
+  adminContactEmail = this.appConfigService.adminContactEmail;
+
   appInfo = this.authService.getAppInfo();
   angularVersion = '20';
 
@@ -40,6 +47,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   constructor(
     public authService: AuthService,
+    private appConfigService: AppConfigService,
     private router: Router,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar

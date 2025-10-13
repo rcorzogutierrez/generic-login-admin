@@ -1,5 +1,5 @@
-// src/app/auth/login.component.ts - VERSIÓN FINAL
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+// src/app/auth/login.component.ts
+import { Component, OnInit, OnDestroy, signal, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -34,11 +34,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   isLoggingIn = this._isLoggingIn.asReadonly();
   loginMessage = this._loginMessage.asReadonly();
 
-  // ✅ NUEVO: Usar signals del servicio de configuración
-  appName = this.appConfigService.appName;
-  appDescription = this.appConfigService.appDescription;
-  logoUrl = this.appConfigService.logoUrl;
-  adminContactEmail = this.appConfigService.adminContactEmail;
+  // Tipado explícito para permitir null
+  appName: Signal<string | null> = this.appConfigService.appName;
+  appDescription: Signal<string | null> = this.appConfigService.appDescription;
+  logoUrl: Signal<string | null> = this.appConfigService.logoUrl;
+  adminContactEmail: Signal<string | null> = this.appConfigService.adminContactEmail;
 
   appInfo = this.authService.getAppInfo();
   angularVersion = '20';

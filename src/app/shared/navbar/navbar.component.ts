@@ -1,5 +1,4 @@
-// src/app/shared/navbar/navbar.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -25,134 +24,99 @@ import { AppConfigService } from '../../core/services/app-config.service';
     MatDividerModule
   ],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.css'
+  styleUrls: ['./navbar.component.css']
 })
-
-
 export class NavbarComponent implements OnInit {
-    user = this.authService.authorizedUser;
-    appInfo = this.authService.getAppInfo();
-
-    appName = this.appConfigService.appName;
+  user = this.authService.authorizedUser;
+  appInfo = this.authService.getAppInfo();
+  appName: Signal<string | null> = this.appConfigService.appName; // Tipo explícito
   logoUrl = this.appConfigService.logoUrl;
-  
-    constructor(
-      public authService: AuthService,
-      private appConfigService: AppConfigService,
-      private router: Router
-    ) {}
-  
-    ngOnInit() {
-      console.log('🔍 NavbarComponent - Valores actuales:', {
-        appName: this.appName(),
-        logoUrl: this.logoUrl()
-      });
-      console.log('🧭 Navbar cargado para:', this.user()?.email);
+
+  constructor(
+    public authService: AuthService,
+    private appConfigService: AppConfigService,
+    private router: Router
+  ) {}
+
+  ngOnInit() {
+    console.log('🔍 NavbarComponent - Valores actuales:', {
+      appName: this.appName(),
+      logoUrl: this.logoUrl()
+    });
+    console.log('🧭 Navbar cargado para:', this.user()?.email);
+  }
+
+  getUserInitials(): string {
+    const name = this.user()?.displayName || this.user()?.email || '';
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  }
+
+  getUserRole(): string {
+    return this.user()?.role?.toUpperCase() || 'USER';
+  }
+
+  getRoleLabel(role?: string): string {
+    if (!role) return 'Usuario';
+    const labels: Record<string, string> = {
+      admin: 'Administrador',
+      user: 'Usuario',
+      viewer: 'Visualizador'
+    };
+    return labels[role.toLowerCase()] || role;
+  }
+
+  getAvatarColor(): string {
+    const email = this.user()?.email || '';
+    const colors = [
+      'linear-gradient(135deg, #3b82f6, #2563eb)',
+      'linear-gradient(135deg, #10b981, #059669)',
+      'linear-gradient(135deg, #f59e0b, #d97706)',
+      'linear-gradient(135deg, #ef4444, #dc2626)',
+      'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+      'linear-gradient(135deg, #06b6d4, #0891b2)',
+      'linear-gradient(135deg, #ec4899, #db2777)'
+    ];
+    let hash = 0;
+    for (let i = 0; i < email.length; i++) {
+      hash = email.charCodeAt(i) + ((hash << 5) - hash);
     }
-  
-    /**
-     * Obtiene iniciales del usuario
-     */
-    getUserInitials(): string {
-      const name = this.user()?.displayName || this.user()?.email || '';
-      return name
-        .split(' ')
-        .map(n => n[0])
-        .slice(0, 2)
-        .join('')
-        .toUpperCase();
-    }
-  
-    /**
-     * ✅ NUEVO: Obtiene el rol del usuario en mayúsculas
-     */
-    getUserRole(): string {
-      return this.user()?.role?.toUpperCase() || 'USER';
-    }
-  
-    /**
-     * ✅ NUEVO: Obtiene el label del rol
-     */
-    getRoleLabel(role?: string): string {
-      if (!role) return 'Usuario';
-      
-      const labels: Record<string, string> = {
-        'admin': 'Administrador',
-        'user': 'Usuario',
-        'viewer': 'Visualizador'
-      };
-      
-      return labels[role] || role;
-    }
-  
-    /**
-     * Obtiene color del avatar basado en el email
-     */
-    getAvatarColor(): string {
-      const email = this.user()?.email || '';
-      const colors = [
-        'linear-gradient(135deg, #3b82f6, #2563eb)',
-        'linear-gradient(135deg, #10b981, #059669)',
-        'linear-gradient(135deg, #f59e0b, #d97706)',
-        'linear-gradient(135deg, #ef4444, #dc2626)',
-        'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-        'linear-gradient(135deg, #06b6d4, #0891b2)',
-        'linear-gradient(135deg, #ec4899, #db2777)'
-      ];
-  
-      let hash = 0;
-      for (let i = 0; i < email.length; i++) {
-        hash = email.charCodeAt(i) + ((hash << 5) - hash);
-      }
-  
-      return colors[Math.abs(hash) % colors.length];
-    }
-  
-    /**
-     * Verifica si el usuario es admin
-     */
-    isAdmin(): boolean {
-      return this.user()?.role === 'admin';
-    }
-  
-    /**
-     * Navega al dashboard
-     */
-    goToDashboard() {
-      this.router.navigate(['/dashboard']);
-    }
-  
-    /**
-     * Navega al panel de admin
-     */
-    goToAdmin() {
-      if (this.isAdmin()) {
-        this.router.navigate(['/admin']);
-      }
-    }
-  
-    /**
-     * Navega al perfil
-     */
-    goToProfile() {
-      this.router.navigate(['/profile']);
-    }
-  
-    /**
-     * Navega a configuración
-     */
-    goToSettings() {
-      this.router.navigate(['/settings']);
-    }
-  
-    /**
-     * Cierra sesión
-     */
-    async logout() {
-      try {
-        await this.authService.logout();
-      } catch (error) {
-        console.error('Error cerrando sesión:', error);
-      }
+    return colors[Math.abs(hash) % colors.length];
+  }
+
+  isAdmin(): boolean {
+    return this.user()?.role === 'admin';
+  }
+
+  goToDashboard() {
+    this.router.navigate(['/dashboard']);
+  }
+
+  goToAdmin() {
+    if (this.isAdmin()) {
+      this.router.navigate(['/admin']);
     }
   }
+
+  goToProfile() {
+    this.router.navigate(['/profile']);
+  }
+
+  goToSettings() {
+    this.router.navigate(['/settings']);
+    // Ejemplo: Simular configuración del nombre
+    // this.appConfigService.setAppName('Nombre Personalizado');
+  }
+
+  async logout() {
+    try {
+      await this.authService.logout();
+    } catch (error) {
+      console.error('Error cerrando sesión:', error);
+    }
+  }
+}

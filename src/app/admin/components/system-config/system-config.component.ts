@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SystemConfigService } from '../../services/system-config.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -28,7 +29,8 @@ import { SystemConfig } from '../../models/system-config.interface';
     MatFormFieldModule,
     MatCardModule,
     MatDividerModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: './system-config.component.html',
   styleUrl: './system-config.component.css'
@@ -43,8 +45,21 @@ export class SystemConfigComponent implements OnInit {
   
   // Logo preview
   logoPreviewUrl = signal<string>('');
+  logoBackgroundColor = signal<string>('transparent');
   selectedLogoFile = signal<File | null>(null);
   isUploadingLogo = signal(false);
+
+   // Colores predefinidos
+   readonly presetColors = [
+    { name: 'Transparente', value: 'transparent' },
+    { name: 'Blanco', value: '#ffffff' },
+    { name: 'Gris claro', value: '#f8fafc' },
+    { name: 'Azul', value: '#3b82f6' },
+    { name: 'Azul oscuro', value: '#1e40af' },
+    { name: 'Verde', value: '#10b981' },
+    { name: 'Púrpura', value: '#8b5cf6' },
+    { name: 'Negro', value: '#000000' },
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -67,6 +82,7 @@ export class SystemConfigComponent implements OnInit {
       this.isLoading.set(true);
       const config = await this.configService.loadConfig();
       this.logoPreviewUrl.set(config.logoUrl || '');
+      this.logoBackgroundColor.set(config.logoBackgroundColor || 'transparent');
     } catch (error) {
       console.error('Error cargando configuración:', error);
       this.snackBar.open('Error al cargar la configuración', 'Cerrar', { duration: 3000 });
@@ -97,6 +113,9 @@ export class SystemConfigComponent implements OnInit {
       footerText: [
         config?.footerText || '', 
         [Validators.maxLength(100)]
+      ],
+      logoBackgroundColor: [ // ✅ NUEVO
+        config?.logoBackgroundColor || 'transparent'
       ]
     });
   }
@@ -202,7 +221,8 @@ export class SystemConfigComponent implements OnInit {
         appName: formValue.appName.trim(),
         appDescription: formValue.appDescription?.trim() || '',
         adminContactEmail: formValue.adminContactEmail.trim(),
-        footerText: formValue.footerText?.trim() || ''
+        footerText: formValue.footerText?.trim() || '',
+        logoBackgroundColor: formValue.logoBackgroundColor
       }, currentUserUid);
 
       if (result.success) {
@@ -216,6 +236,12 @@ export class SystemConfigComponent implements OnInit {
     } finally {
       this.isSaving.set(false);
     }
+  }
+
+  // Método para actualizar el color
+  onColorChange(color: string) {
+    this.logoBackgroundColor.set(color);
+    this.configForm.patchValue({ logoBackgroundColor: color });
   }
 
   /**

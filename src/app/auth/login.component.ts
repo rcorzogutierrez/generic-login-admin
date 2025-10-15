@@ -38,6 +38,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   appName: Signal<string | null> = this.appConfigService.appName;
   appDescription: Signal<string | null> = this.appConfigService.appDescription;
   logoUrl: Signal<string | null> = this.appConfigService.logoUrl;
+  logoBackgroundColor = this.appConfigService.logoBackgroundColor;
   adminContactEmail: Signal<string | null> = this.appConfigService.adminContactEmail;
 
   appInfo = this.authService.getAppInfo();

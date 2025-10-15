@@ -22,6 +22,7 @@ export class AppConfigService {
   private _appName = signal<string>('Generic Admin Login');
   private _appDescription = signal<string>('Sistema de autenticación y gestión');
   private _logoUrl = signal<string>('');
+  private _logoBackgroundColor = signal<string>('transparent');
   private _faviconUrl = signal<string>('');
   private _adminContactEmail = signal<string>('[email protected]');
   private _footerText = signal<string>('© 2025 Generic Admin. Todos los derechos reservados.');
@@ -31,6 +32,7 @@ export class AppConfigService {
   readonly appName = this._appName.asReadonly();
   readonly appDescription = this._appDescription.asReadonly();
   readonly logoUrl = this._logoUrl.asReadonly();
+  readonly logoBackgroundColor = this._logoBackgroundColor.asReadonly();
   readonly faviconUrl = this._faviconUrl.asReadonly();
   readonly adminContactEmail = this._adminContactEmail.asReadonly();
   readonly footerText = this._footerText.asReadonly();
@@ -76,28 +78,17 @@ export class AppConfigService {
    * Actualiza todos los signals con los datos de Firestore
    */
   private updateSignals(config: SystemConfig) {
-    console.log('🔄 Actualizando signals con:', {
-      appName: config.appName,
-      appDescription: config.appDescription,
-      logoUrl: config.logoUrl,
-      adminContactEmail: config.adminContactEmail,
-      footerText: config.footerText
-    });
+    console.log('🔄 Actualizando signals con:', config);
 
     this._appName.set(config.appName || 'Generic Admin Login');
     this._appDescription.set(config.appDescription || '');
     this._logoUrl.set(config.logoUrl || '');
+    this._logoBackgroundColor.set(config.logoBackgroundColor || 'transparent'); // ✅ NUEVO
     this._faviconUrl.set(config.faviconUrl || config.logoUrl || '');
     this._adminContactEmail.set(config.adminContactEmail || '[email protected]');
     this._footerText.set(config.footerText || '');
 
-    console.log('✅ Signals actualizados:', {
-      appName: this._appName(),
-      appDescription: this._appDescription(),
-      logoUrl: this._logoUrl(),
-      adminContactEmail: this._adminContactEmail(),
-      footerText: this._footerText()
-    });
+    console.log('✅ Signals actualizados');
   }
 
   /**
@@ -108,6 +99,7 @@ export class AppConfigService {
     this._appName.set('Generic Admin Login');
     this._appDescription.set('Sistema de autenticación y gestión');
     this._logoUrl.set('');
+    this._logoBackgroundColor.set('transparent');
     this._faviconUrl.set('');
     this._adminContactEmail.set('[email protected]');
     this._footerText.set('© 2025 Generic Admin. Todos los derechos reservados.');

@@ -7,11 +7,15 @@
       <!-- ✅ Logo dinámico -->
       @if (logoUrl()) {
         <div class="mx-auto mb-6 animate-fadeInScale">
-          <img 
-            [src]="logoUrl()" 
-            alt="Logo"
-            class="w-24 h-24 mx-auto object-contain"
-          />
+          <div 
+            class="w-24 h-24 mx-auto rounded-xl flex items-center justify-center overflow-hidden"
+            [style.background]="logoBackgroundColor()">
+            <img 
+              [src]="logoUrl()" 
+              alt="Logo"
+              class="w-full h-full object-contain p-2"
+            />
+          </div>
         </div>
       } @else {
         <div class="header-icon-container mx-auto mb-6 animate-fadeInScale">

@@ -5,22 +5,22 @@
     <div class="navbar-left">
       <!-- Logo -->
       <button 
-        class="navbar-logo"
-        (click)="goToDashboard()"
-        matTooltip="Ir al Dashboard">
-        <div class="logo-icon" 
-             [class.has-custom-logo]="logoUrl()"
-             [class.has-default-icon]="!logoUrl()">
-          @if (logoUrl()) {
-            <img 
-              [src]="logoUrl()" 
-              alt="Logo"
-            />
-          } @else {
-            <mat-icon>admin_panel_settings</mat-icon>
-          }
-        </div>
-      </button>
+      class="navbar-logo"
+      (click)="goToDashboard()"
+      matTooltip="Ir al Dashboard">
+      
+      <div 
+        class="logo-icon" 
+        [class.has-custom-logo]="logoUrl()"
+        [class.has-default-icon]="!logoUrl()"
+        [style.background]="logoUrl() ? logoBackgroundColor() : null">
+        @if (logoUrl()) {
+          <img [src]="logoUrl()" alt="Logo" />
+        } @else {
+          <mat-icon>admin_panel_settings</mat-icon>
+        }
+      </div>
+    </button>
       
       <!-- App Name -->
       <div class="app-info">

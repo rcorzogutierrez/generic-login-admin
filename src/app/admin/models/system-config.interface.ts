@@ -5,6 +5,7 @@ export interface SystemConfig {
     appDescription: string; // Descripción
     logoUrl: string; // URL del logo en Firebase Storage
     logoStoragePath: string; // Path en Storage para eliminación
+    logoBackgroundColor: string; // Color de fondo del logo
     adminContactEmail: string; // Email del admin
     footerText: string; // Texto del footer
     faviconUrl?: string; // URL del favicon (puede ser el mismo logo)

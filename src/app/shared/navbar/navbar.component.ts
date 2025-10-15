@@ -31,6 +31,7 @@ export class NavbarComponent implements OnInit {
   appInfo = this.authService.getAppInfo();
   appName: Signal<string | null> = this.appConfigService.appName; // Tipo explícito
   logoUrl = this.appConfigService.logoUrl;
+  logoBackgroundColor = this.appConfigService.logoBackgroundColor;
 
   constructor(
     public authService: AuthService,

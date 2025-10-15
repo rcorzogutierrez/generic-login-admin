@@ -69,6 +69,7 @@ export class SystemConfigService {
       appDescription: 'Sistema de autenticación y gestión',
       logoUrl: '',
       logoStoragePath: '',
+      logoBackgroundColor: 'transparent',
       adminContactEmail: '[email protected]',
       footerText: '© 2025 Generic Admin. Todos los derechos reservados.',
       createdAt: new Date(),

@@ -14,7 +14,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SystemConfigService } from '../../services/system-config.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { SystemConfig } from '../../models/system-config.interface';
+
 
 @Component({
   selector: 'app-system-config',

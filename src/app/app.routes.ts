@@ -1,4 +1,4 @@
-// src/app/app.routes.ts - AGREGAR RUTA
+// src/app/app.routes.ts - AGREGAR RUTA DE GESTIÓN DE MÓDULOS
 import { Routes } from '@angular/router';
 import { LoginComponent } from './auth/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -46,13 +46,20 @@ export const routes: Routes = [
             .then(m => m.AdminLogsComponent),
         title: 'Logs de Auditoría',
       },
-      // ✅ NUEVA RUTA: Configuración del Sistema
       {
         path: 'config',
         loadComponent: () =>
           import('./admin/components/system-config/system-config.component')
             .then(m => m.SystemConfigComponent),
         title: 'Configuración del Sistema',
+      },
+      // ✅ NUEVA RUTA: Gestión de Módulos
+      {
+        path: 'modules',
+        loadComponent: () =>
+          import('./admin/components/manage-modules/manage-modules.component')
+            .then(m => m.ManageModulesComponent),
+        title: 'Gestión de Módulos',
       },
     ],
   },

@@ -1,0 +1,217 @@
+<!-- src/app/admin/components/module-form-dialog/module-form-dialog.component.html -->
+<div class="max-w-[700px]">
+  
+    <!-- HEADER -->
+    <div class="flex justify-between items-center px-8 py-6 bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-xl">
+          <mat-icon class="!text-[28px]">{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold mb-1">
+            {{ isEditMode ? 'Editar Módulo' : 'Nuevo Módulo' }}
+          </h2>
+          <p class="text-purple-100 text-sm">
+            {{ isEditMode ? 'Modifica la información del módulo' : 'Completa los datos del nuevo módulo' }}
+          </p>
+        </div>
+      </div>
+      <button 
+        mat-icon-button 
+        (click)="onCancel()" 
+        class="!text-white !bg-white/10 hover:!bg-white/20"
+        [disabled]="isSaving">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  
+    <!-- CONTENT -->
+    <mat-dialog-content class="px-8 py-6 max-h-[70vh] overflow-y-auto">
+      <form [formGroup]="moduleForm" class="space-y-6">
+        
+        <!-- Grid de 2 columnas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Identificador (value) -->
+          <div class="space-y-2">
+            <label class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+              <mat-icon class="!text-lg text-purple-500">code</mat-icon>
+              Identificador *
+              @if (!isEditMode) {
+                <button 
+                  type="button"
+                  mat-icon-button
+                  class="!w-6 !h-6"
+                  (click)="generateValueFromLabel()"
+                  matTooltip="Generar desde el nombre">
+                  <mat-icon class="!text-base">auto_fix_high</mat-icon>
+                </button>
+              }
+            </label>
+            <mat-form-field class="w-full" appearance="outline">
+              <input 
+                matInput 
+                formControlName="value"
+                placeholder="ej: user-management"
+                [readonly]="isEditMode">
+              @if (isFieldInvalid('value')) {
+                <mat-error>{{ getErrorMessage('value') }}</mat-error>
+              }
+              <mat-hint>Letras, números, guiones y guiones bajos</mat-hint>
+            </mat-form-field>
+            @if (isEditMode) {
+              <p class="text-xs text-amber-600 flex items-center gap-1">
+                <mat-icon class="!text-sm">info</mat-icon>
+                El identificador no se puede modificar
+              </p>
+            }
+          </div>
+  
+          <!-- Nombre (label) -->
+          <div class="space-y-2">
+            <label class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+              <mat-icon class="!text-lg text-purple-500">label</mat-icon>
+              Nombre del Módulo *
+            </label>
+            <mat-form-field class="w-full" appearance="outline">
+              <input 
+                matInput 
+                formControlName="label"
+                placeholder="ej: Gestión de Usuarios"
+                (blur)="generateValueFromLabel()">
+              @if (isFieldInvalid('label')) {
+                <mat-error>{{ getErrorMessage('label') }}</mat-error>
+              }
+              <mat-hint align="end">{{ moduleForm.get('label')?.value?.length || 0 }}/100</mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+  
+        <!-- Descripción -->
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+            <mat-icon class="!text-lg text-purple-500">description</mat-icon>
+            Descripción *
+          </label>
+          <mat-form-field class="w-full" appearance="outline">
+            <textarea 
+              matInput 
+              formControlName="description"
+              placeholder="ej: Administración completa de usuarios y permisos del sistema"
+              rows="3"></textarea>
+            @if (isFieldInvalid('description')) {
+              <mat-error>{{ getErrorMessage('description') }}</mat-error>
+            }
+            <mat-hint align="end">{{ moduleForm.get('description')?.value?.length || 0 }}/500</mat-hint>
+          </mat-form-field>
+        </div>
+  
+        <!-- Icono -->
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+            <mat-icon class="!text-lg text-purple-500">emoji_symbols</mat-icon>
+            Icono de Material *
+          </label>
+          
+          <!-- Input + Preview -->
+          <div class="flex gap-3">
+            <mat-form-field class="flex-1" appearance="outline">
+              <input 
+                matInput 
+                formControlName="icon"
+                placeholder="ej: dashboard">
+              @if (isFieldInvalid('icon')) {
+                <mat-error>{{ getErrorMessage('icon') }}</mat-error>
+              }
+            </mat-form-field>
+            
+            <!-- Preview -->
+            <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+              <mat-icon class="!text-2xl text-white">
+                {{ moduleForm.get('icon')?.value || 'extension' }}
+              </mat-icon>
+            </div>
+          </div>
+  
+          <!-- Iconos sugeridos -->
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-3">
+              Iconos sugeridos (click para seleccionar):
+            </p>
+            <div class="grid grid-cols-8 gap-2 max-h-[200px] overflow-y-auto">
+              @for (icon of suggestedIcons; track icon) {
+                <button
+                  type="button"
+                  class="w-10 h-10 flex items-center justify-center rounded-lg border-2 transition-all hover:bg-purple-50 hover:border-purple-500"
+                  [class.bg-purple-100]="moduleForm.get('icon')?.value === icon"
+                  [class.border-purple-500]="moduleForm.get('icon')?.value === icon"
+                  [class.border-slate-200]="moduleForm.get('icon')?.value !== icon"
+                  (click)="selectIcon(icon)"
+                  [matTooltip]="icon">
+                  <mat-icon class="!text-xl">{{ icon }}</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+  
+        <!-- Ruta (opcional) -->
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+            <mat-icon class="!text-lg text-purple-500">link</mat-icon>
+            Ruta Asociada (opcional)
+          </label>
+          <mat-form-field class="w-full" appearance="outline">
+            <input 
+              matInput 
+              formControlName="route"
+              placeholder="ej: /admin/users">
+            @if (isFieldInvalid('route')) {
+              <mat-error>{{ getErrorMessage('route') }}</mat-error>
+            }
+            <mat-hint>Deja vacío si no tiene ruta específica</mat-hint>
+          </mat-form-field>
+        </div>
+  
+        <!-- Estado activo -->
+        <div class="bg-green-50 border border-green-200 rounded-xl p-5">
+          <mat-checkbox 
+            formControlName="isActive"
+            color="primary">
+            <div class="flex flex-col gap-1">
+              <span class="text-sm font-semibold text-green-800">Módulo Activo</span>
+              <span class="text-xs text-green-600">
+                Los módulos inactivos no estarán disponibles para asignar a usuarios
+              </span>
+            </div>
+          </mat-checkbox>
+        </div>
+  
+      </form>
+    </mat-dialog-content>
+  
+    <!-- ACTIONS -->
+    <mat-dialog-actions class="px-8 py-4 border-t border-slate-200 flex gap-3 justify-end">
+      <button 
+        mat-button 
+        (click)="onCancel()"
+        [disabled]="isSaving">
+        <mat-icon>close</mat-icon>
+        Cancelar
+      </button>
+      
+      <button 
+        mat-raised-button 
+        color="primary"
+        (click)="onSubmit()"
+        [disabled]="moduleForm.invalid || isSaving">
+        @if (isSaving) {
+          <mat-spinner diameter="20" class="mr-2"></mat-spinner>
+        } @else {
+          <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        }
+        {{ isSaving ? 'Guardando...' : (isEditMode ? 'Guardar Cambios' : 'Crear Módulo') }}
+      </button>
+    </mat-dialog-actions>
+  
+  </div>

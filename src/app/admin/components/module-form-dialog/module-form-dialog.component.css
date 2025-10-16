@@ -1,0 +1,75 @@
+/* src/app/admin/components/module-form-dialog/module-form-dialog.component.css */
+
+/* ============================================
+   FORM FIELDS CUSTOMIZATION
+   ============================================ */
+   ::ng-deep .mat-mdc-form-field {
+    width: 100%;
+  }
+  
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    border-radius: 12px !important;
+  }
+  
+  /* ============================================
+     SCROLLBAR PERSONALIZADO
+     ============================================ */
+  mat-dialog-content::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  mat-dialog-content::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+  }
+  
+  mat-dialog-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+  
+  mat-dialog-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+  
+  /* Grid de iconos - scrollbar */
+  .grid.overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .grid.overflow-y-auto::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+  }
+  
+  .grid.overflow-y-auto::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+  
+  /* ============================================
+     ANIMACIONES
+     ============================================ */
+  .max-w-\[700px\] {
+    animation: fadeInScale 0.3s ease-out;
+  }
+  
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  /* ============================================
+     ACCESIBILIDAD
+     ============================================ */
+  @media (prefers-reduced-motion: reduce) {
+    .max-w-\[700px\] {
+      animation: none !important;
+    }
+  }

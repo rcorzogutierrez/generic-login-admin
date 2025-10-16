@@ -17,6 +17,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AdminService, CreateUserRequest } from '../../services/admin.service';
 
+
 @Component({
   selector: 'app-add-user-dialog',
   standalone: true,
@@ -38,6 +39,7 @@ import { AdminService, CreateUserRequest } from '../../services/admin.service';
   templateUrl: './add-user-dialog.component.html',
   styleUrls: ['./add-user-dialog.component.css']
 })
+
 export class AddUserDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   private adminService = inject(AdminService);
@@ -64,7 +66,7 @@ export class AddUserDialogComponent implements OnInit {
       role: ['user', [Validators.required]],
       isActive: [true],
       permissions: [['read'], [Validators.required]],
-      modules: [['dashboard'], [Validators.required]]
+      modules: [['dashboard']]
     });
 
     // Auto-actualizar permisos al cambiar rol
@@ -124,8 +126,8 @@ isTabValid(tabIndex: number): boolean {
       const perms = this.userForm.get('permissions')?.value;
       return !!(perms && perms.length > 0);
     case 2:
-      const mods = this.userForm.get('modules')?.value;
-      return !!(mods && mods.length > 0);
+      // ⬅️ CAMBIAR ESTA VALIDACIÓN: Ya no es obligatorio tener módulos
+      return true; // Siempre válido, incluso sin módulos
     default:
       return false;
   }

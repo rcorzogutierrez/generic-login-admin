@@ -1,0 +1,536 @@
+// src/app/admin/services/modules.service.ts
+import { Injectable, signal } from '@angular/core';
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  orderBy,
+  where,
+  writeBatch,
+  Timestamp
+} from 'firebase/firestore';
+import { BehaviorSubject } from 'rxjs';
+import { SystemModule, ModuleFormData } from '../models/system-module.interface';
+
+export interface ModuleOperationResult {
+  success: boolean;
+  message: string;
+  moduleId?: string;
+  error?: any;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ModulesService {
+  private db = getFirestore();
+  private readonly MODULES_COLLECTION = 'system_modules';
+  
+  // Signal para módulos
+  private _modules = signal<SystemModule[]>([]);
+  readonly modules = this._modules.asReadonly();
+  
+  // BehaviorSubject para compatibilidad con observables
+  private modulesSubject = new BehaviorSubject<SystemModule[]>([]);
+  public modules$ = this.modulesSubject.asObservable();
+
+  constructor() {
+    this.loadModules();
+  }
+
+  /**
+   * Carga todos los módulos del sistema
+   */
+  async loadModules(): Promise<SystemModule[]> {
+    try {
+      const modulesRef = collection(this.db, this.MODULES_COLLECTION);
+      const q = query(modulesRef, orderBy('order', 'asc'));
+      const querySnapshot = await getDocs(q);
+
+      const modules: SystemModule[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        modules.push({
+          id: doc.id,
+          value: data['value'] || '',
+          label: data['label'] || '',
+          description: data['description'] || '',
+          icon: data['icon'] || 'extension',
+          route: data['route'] || '',
+          isActive: data['isActive'] ?? true,
+          order: data['order'] || 0,
+          createdAt: data['createdAt']?.toDate() || new Date(),
+          createdBy: data['createdBy'] || '',
+          updatedAt: data['updatedAt']?.toDate() || new Date(),
+          updatedBy: data['updatedBy'] || '',
+          usersCount: data['usersCount'] || 0
+        });
+      });
+
+      this._modules.set(modules);
+      this.modulesSubject.next(modules);
+
+      console.log(`✅ ${modules.length} módulos cargados`);
+      return modules;
+    } catch (error) {
+      console.error('❌ Error cargando módulos:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtiene un módulo por ID
+   */
+  async getModuleById(id: string): Promise<SystemModule | null> {
+    try {
+      const moduleRef = doc(this.db, this.MODULES_COLLECTION, id);
+      const moduleSnap = await getDoc(moduleRef);
+
+      if (!moduleSnap.exists()) {
+        return null;
+      }
+
+      const data = moduleSnap.data();
+      return {
+        id: moduleSnap.id,
+        value: data['value'],
+        label: data['label'],
+        description: data['description'],
+        icon: data['icon'],
+        route: data['route'],
+        isActive: data['isActive'],
+        order: data['order'],
+        createdAt: data['createdAt']?.toDate(),
+        createdBy: data['createdBy'],
+        updatedAt: data['updatedAt']?.toDate(),
+        updatedBy: data['updatedBy'],
+        usersCount: data['usersCount']
+      };
+    } catch (error) {
+      console.error('❌ Error obteniendo módulo:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Crea un nuevo módulo
+   */
+  async createModule(
+    moduleData: ModuleFormData,
+    currentUserUid: string
+  ): Promise<ModuleOperationResult> {
+    try {
+      // Validar datos
+      const validation = this.validateModuleData(moduleData);
+      if (!validation.isValid) {
+        return {
+          success: false,
+          message: `Datos inválidos: ${validation.errors.join(', ')}`
+        };
+      }
+
+      // Verificar que el value sea único
+      const existingModules = this._modules();
+      const valueExists = existingModules.some(
+        m => m.value.toLowerCase() === moduleData.value.toLowerCase()
+      );
+
+      if (valueExists) {
+        return {
+          success: false,
+          message: 'Ya existe un módulo con este identificador'
+        };
+      }
+
+      // Calcular orden automático
+      const maxOrder = Math.max(...existingModules.map(m => m.order), 0);
+
+      // Crear documento
+      const now = Timestamp.now();
+      const moduleDoc = {
+        value: moduleData.value.toLowerCase().trim(),
+        label: moduleData.label.trim(),
+        description: moduleData.description.trim(),
+        icon: moduleData.icon.trim(),
+        route: moduleData.route?.trim() || '',
+        isActive: moduleData.isActive,
+        order: maxOrder + 1,
+        createdAt: now,
+        createdBy: currentUserUid,
+        updatedAt: now,
+        updatedBy: currentUserUid,
+        usersCount: 0
+      };
+
+      const modulesRef = collection(this.db, this.MODULES_COLLECTION);
+      const docRef = await addDoc(modulesRef, moduleDoc);
+
+      // Log de auditoría
+      await this.logModuleAction('create_module', docRef.id, {
+        moduleValue: moduleData.value,
+        moduleLabel: moduleData.label
+      }, currentUserUid);
+
+      // Recargar módulos
+      await this.loadModules();
+
+      return {
+        success: true,
+        message: `Módulo "${moduleData.label}" creado exitosamente`,
+        moduleId: docRef.id
+      };
+    } catch (error: any) {
+      console.error('❌ Error creando módulo:', error);
+      return {
+        success: false,
+        message: error.message || 'Error al crear el módulo',
+        error
+      };
+    }
+  }
+
+  /**
+   * Actualiza un módulo existente
+   */
+  async updateModule(
+    moduleId: string,
+    moduleData: Partial<ModuleFormData>,
+    currentUserUid: string
+  ): Promise<ModuleOperationResult> {
+    try {
+      const moduleRef = doc(this.db, this.MODULES_COLLECTION, moduleId);
+      const moduleSnap = await getDoc(moduleRef);
+
+      if (!moduleSnap.exists()) {
+        return {
+          success: false,
+          message: 'Módulo no encontrado'
+        };
+      }
+
+      // Si se actualiza el value, verificar que sea único
+      if (moduleData.value) {
+        const existingModules = this._modules();
+        const valueExists = existingModules.some(
+          m => m.value.toLowerCase() === moduleData.value!.toLowerCase() && m.id !== moduleId
+        );
+
+        if (valueExists) {
+          return {
+            success: false,
+            message: 'Ya existe un módulo con este identificador'
+          };
+        }
+      }
+
+      const updateData: any = {
+        updatedAt: Timestamp.now(),
+        updatedBy: currentUserUid
+      };
+
+      if (moduleData.value) updateData.value = moduleData.value.toLowerCase().trim();
+      if (moduleData.label) updateData.label = moduleData.label.trim();
+      if (moduleData.description !== undefined) updateData.description = moduleData.description.trim();
+      if (moduleData.icon) updateData.icon = moduleData.icon.trim();
+      if (moduleData.route !== undefined) updateData.route = moduleData.route.trim();
+      if (moduleData.isActive !== undefined) updateData.isActive = moduleData.isActive;
+
+      await updateDoc(moduleRef, updateData);
+
+      // Log de auditoría
+      await this.logModuleAction('update_module', moduleId, {
+        updatedFields: Object.keys(updateData)
+      }, currentUserUid);
+
+      // Recargar módulos
+      await this.loadModules();
+
+      return {
+        success: true,
+        message: 'Módulo actualizado exitosamente',
+        moduleId
+      };
+    } catch (error: any) {
+      console.error('❌ Error actualizando módulo:', error);
+      return {
+        success: false,
+        message: error.message || 'Error al actualizar el módulo',
+        error
+      };
+    }
+  }
+
+  /**
+   * Elimina un módulo (soft delete o hard delete)
+   */
+  async deleteModule(
+    moduleId: string,
+    currentUserUid: string,
+    hardDelete: boolean = false
+  ): Promise<ModuleOperationResult> {
+    try {
+      const moduleRef = doc(this.db, this.MODULES_COLLECTION, moduleId);
+      const moduleSnap = await getDoc(moduleRef);
+
+      if (!moduleSnap.exists()) {
+        return {
+          success: false,
+          message: 'Módulo no encontrado'
+        };
+      }
+
+      const moduleData = moduleSnap.data();
+
+      // Verificar si hay usuarios usando este módulo
+      const usersCount = await this.countUsersUsingModule(moduleData['value']);
+      
+      if (usersCount > 0 && hardDelete) {
+        return {
+          success: false,
+          message: `No se puede eliminar: ${usersCount} usuario(s) tienen este módulo asignado. Primero desasígnalo.`
+        };
+      }
+
+      if (hardDelete) {
+        // Eliminación permanente
+        await deleteDoc(moduleRef);
+        
+        await this.logModuleAction('delete_module_permanent', moduleId, {
+          moduleValue: moduleData['value'],
+          moduleLabel: moduleData['label']
+        }, currentUserUid);
+
+        await this.loadModules();
+
+        return {
+          success: true,
+          message: 'Módulo eliminado permanentemente'
+        };
+      } else {
+        // Soft delete (solo desactivar)
+        await updateDoc(moduleRef, {
+          isActive: false,
+          updatedAt: Timestamp.now(),
+          updatedBy: currentUserUid
+        });
+
+        await this.logModuleAction('deactivate_module', moduleId, {
+          moduleValue: moduleData['value']
+        }, currentUserUid);
+
+        await this.loadModules();
+
+        return {
+          success: true,
+          message: 'Módulo desactivado exitosamente'
+        };
+      }
+    } catch (error: any) {
+      console.error('❌ Error eliminando módulo:', error);
+      return {
+        success: false,
+        message: error.message || 'Error al eliminar el módulo',
+        error
+      };
+    }
+  }
+
+  /**
+   * Cambia el orden de los módulos
+   */
+  async reorderModules(
+    moduleIds: string[],
+    currentUserUid: string
+  ): Promise<ModuleOperationResult> {
+    try {
+      const batch = writeBatch(this.db);
+
+      moduleIds.forEach((moduleId, index) => {
+        const moduleRef = doc(this.db, this.MODULES_COLLECTION, moduleId);
+        batch.update(moduleRef, {
+          order: index,
+          updatedAt: Timestamp.now(),
+          updatedBy: currentUserUid
+        });
+      });
+
+      await batch.commit();
+
+      await this.logModuleAction('reorder_modules', '', {
+        newOrder: moduleIds
+      }, currentUserUid);
+
+      await this.loadModules();
+
+      return {
+        success: true,
+        message: 'Orden de módulos actualizado'
+      };
+    } catch (error: any) {
+      console.error('❌ Error reordenando módulos:', error);
+      return {
+        success: false,
+        message: error.message || 'Error al reordenar módulos',
+        error
+      };
+    }
+  }
+
+  /**
+   * Cuenta usuarios que usan un módulo específico
+   */
+  private async countUsersUsingModule(moduleValue: string): Promise<number> {
+    try {
+      const usersRef = collection(this.db, 'authorized_users');
+      const q = query(usersRef, where('modules', 'array-contains', moduleValue));
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.size;
+    } catch (error) {
+      console.error('Error contando usuarios con módulo:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Obtiene módulos activos (para usar en selects)
+   */
+  getActiveModules(): SystemModule[] {
+    return this._modules().filter(m => m.isActive);
+  }
+
+  /**
+   * Valida datos del módulo
+   */
+  private validateModuleData(data: ModuleFormData): { isValid: boolean; errors: string[] } {
+    const errors: string[] = [];
+
+    if (!data.value || data.value.trim().length < 2) {
+      errors.push('El identificador debe tener al menos 2 caracteres');
+    }
+
+    if (!data.label || data.label.trim().length < 3) {
+      errors.push('El nombre debe tener al menos 3 caracteres');
+    }
+
+    if (!data.description || data.description.trim().length < 5) {
+      errors.push('La descripción debe tener al menos 5 caracteres');
+    }
+
+    if (!data.icon || data.icon.trim().length < 2) {
+      errors.push('Debe especificar un icono válido');
+    }
+
+    // Validar que value solo tenga caracteres permitidos
+    if (!/^[a-z0-9-_]+$/i.test(data.value)) {
+      errors.push('El identificador solo puede contener letras, números, guiones y guiones bajos');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+
+  /**
+   * Log de acciones para auditoría
+   */
+  private async logModuleAction(
+    action: string,
+    moduleId: string,
+    details: any,
+    currentUserUid: string
+  ): Promise<void> {
+    try {
+      const logData = {
+        action,
+        targetUserId: moduleId,
+        performedBy: currentUserUid,
+        performedByEmail: 'system', // Obtener del authService si es necesario
+        timestamp: new Date(),
+        details: JSON.stringify(details),
+        ip: 'unknown'
+      };
+
+      await addDoc(collection(this.db, 'admin_logs'), logData);
+    } catch (error) {
+      console.warn('Error logging module action:', error);
+    }
+  }
+
+  /**
+   * Inicializa módulos por defecto (para migración)
+   */
+  async initializeDefaultModules(currentUserUid: string): Promise<void> {
+    const existingModules = this._modules();
+    
+    if (existingModules.length > 0) {
+      console.log('⚠️ Ya existen módulos, saltando inicialización');
+      return;
+    }
+
+    const defaultModules: ModuleFormData[] = [
+      {
+        value: 'dashboard',
+        label: 'Dashboard Principal',
+        description: 'Panel principal con métricas y resumen del sistema',
+        icon: 'dashboard',
+        route: '/dashboard',
+        isActive: true
+      },
+      {
+        value: 'user-management',
+        label: 'Gestión de Usuarios',
+        description: 'Administración completa de usuarios y permisos',
+        icon: 'people',
+        route: '/admin',
+        isActive: true
+      },
+      {
+        value: 'analytics',
+        label: 'Analytics y Reportes',
+        description: 'Análisis de datos y generación de reportes',
+        icon: 'analytics',
+        route: '/analytics',
+        isActive: true
+      },
+      {
+        value: 'settings',
+        label: 'Configuración del Sistema',
+        description: 'Configuraciones generales y parámetros del sistema',
+        icon: 'settings',
+        route: '/admin/config',
+        isActive: true
+      },
+      {
+        value: 'notifications',
+        label: 'Centro de Notificaciones',
+        description: 'Gestión y envío de notificaciones del sistema',
+        icon: 'notifications',
+        route: '/notifications',
+        isActive: true
+      },
+      {
+        value: 'audit-logs',
+        label: 'Logs de Auditoría',
+        description: 'Registro y seguimiento de actividades del sistema',
+        icon: 'history',
+        route: '/admin/logs',
+        isActive: true
+      }
+    ];
+
+    console.log('🔄 Inicializando módulos por defecto...');
+
+    for (const module of defaultModules) {
+      await this.createModule(module, currentUserUid);
+    }
+
+    console.log('✅ Módulos por defecto creados');
+  }
+}

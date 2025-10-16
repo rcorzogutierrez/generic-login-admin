@@ -1,5 +1,5 @@
-// src/app/admin/admin-panel.component.ts - VERSIÓN COMPLETA CON BULK DELETE
-import { Component, OnInit, OnDestroy } from '@angular/core';
+// src/app/admin/admin-panel.component.ts - VERSIÓN CON SIGNALS
+import { Component, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -16,7 +16,6 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 
 import { AuthService } from '../core/services/auth.service';
 import { AdminService, User, AdminStats } from './services/admin.service';
@@ -45,7 +44,7 @@ import { DeleteMultipleUsersDialogComponent } from './components/delete-multiple
   templateUrl: './admin-panel.component.html',
   styleUrl: './admin-panel.component.css',
 })
-export class AdminPanelComponent implements OnInit, OnDestroy {
+export class AdminPanelComponent implements OnInit {
   currentUser = this.authService.authorizedUser;
   
   // Stats del dashboard
@@ -69,15 +68,21 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   // Control de selección múltiple
   selectedUsers = new Set<string>();
 
-  private subscriptions = new Subscription();
-
   constructor(
     private authService: AuthService, 
     private router: Router,
     private adminService: AdminService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+    // ✅ Effect para reaccionar a cambios en users signal
+    effect(() => {
+      const users = this.adminService.users();
+      this.users = users;
+      this.applyFilters();
+      console.log('👥 Usuarios actualizados:', users.length);
+    });
+  }
 
   async ngOnInit() {
     console.log('🔧 Panel Admin cargado para:', this.currentUser()?.email);
@@ -86,19 +91,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     
     await this.loadData();
     
-    this.subscriptions.add(
-      this.adminService.users$.subscribe(users => {
-        this.users = users;
-        this.applyFilters();
-        console.log('👥 Usuarios actualizados:', users.length);
-      })
-    );
-    
     this.isLoading = false;
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
   }
 
   /**
@@ -484,8 +477,6 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       .toUpperCase();
   }
 
-
-
   /**
    * Navega a notificaciones
    */
@@ -852,8 +843,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
    * Gestionar módulos del sistema
    */
   manageModules() {
-    console.log('🧩 Gestionar módulos del sistema...');
-    this.snackBar.open('Gestión de módulos - Próximamente', 'Cerrar', { duration: 2000 });
+    this.router.navigate(['/admin/modules']);
   }
 
   /**

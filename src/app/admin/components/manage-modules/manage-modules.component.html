@@ -1,0 +1,258 @@
+<!-- src/app/admin/components/manage-modules/manage-modules.component.html -->
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
+  <div class="max-w-[1400px] mx-auto p-5">
+    
+    <!-- HEADER -->
+    <header class="page-header">
+      <div class="flex items-center justify-between gap-5 flex-wrap">
+        
+        <!-- Left Section -->
+        <div class="flex items-center gap-4">
+          <button 
+            mat-icon-button 
+            class="icon-btn"
+            (click)="goBack()"
+            matTooltip="Volver al panel de admin">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          
+          <div class="header-icon-container">
+            <mat-icon>apps</mat-icon>
+          </div>
+          
+          <div>
+            <h1 class="text-2xl font-bold text-slate-800 mb-1">Gestión de Módulos</h1>
+            <p class="text-sm text-slate-600 flex items-center gap-2 font-medium">
+              <span class="status-dot"></span>
+              Administra los módulos del sistema
+            </p>
+          </div>
+        </div>
+        
+        <!-- Right Section -->
+        <div class="flex items-center gap-3">
+          <button 
+            mat-icon-button 
+            class="icon-btn"
+            (click)="loadModules()"
+            [disabled]="isLoading"
+            matTooltip="Recargar módulos">
+            <mat-icon>refresh</mat-icon>
+          </button>
+          
+          <button 
+            mat-raised-button 
+            color="primary"
+            (click)="addModule()"
+            [disabled]="isLoading">
+            <mat-icon>add</mat-icon>
+            Nuevo Módulo
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- LOADING STATE -->
+    @if (isLoading && modules.length === 0) {
+      <div class="empty-state">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p class="mt-4 text-slate-600 font-medium">Cargando módulos...</p>
+      </div>
+    }
+
+    <!-- MAIN CONTENT -->
+    @if (!isLoading || modules.length > 0) {
+      
+      <!-- Stats -->
+      <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="card-corporate">
+          <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-4">
+            <mat-icon class="!text-2xl text-white">apps</mat-icon>
+          </div>
+          <div class="text-3xl font-bold text-slate-800 mb-1">{{ modules.length }}</div>
+          <div class="text-sm text-slate-600 font-semibold">Total Módulos</div>
+        </div>
+
+        <div class="card-corporate">
+          <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-4">
+            <mat-icon class="!text-2xl text-white">check_circle</mat-icon>
+          </div>
+          <div class="text-3xl font-bold text-slate-800 mb-1">
+            {{ activeModulesCount }}
+          </div>
+          <div class="text-sm text-slate-600 font-semibold">Módulos Activos</div>
+        </div>
+
+        <div class="card-corporate">
+          <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center mb-4">
+            <mat-icon class="!text-2xl text-white">cancel</mat-icon>
+          </div>
+          <div class="text-3xl font-bold text-slate-800 mb-1">
+            {{ inactiveModulesCount }}
+          </div>
+          <div class="text-sm text-slate-600 font-semibold">Módulos Inactivos</div>
+        </div>
+
+        <div class="card-corporate">
+          <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-4">
+            <mat-icon class="!text-2xl text-white">people</mat-icon>
+          </div>
+          <div class="text-3xl font-bold text-slate-800 mb-1">
+            {{ totalAssignments }}
+          </div>
+          <div class="text-sm text-slate-600 font-semibold">Asignaciones Totales</div>
+        </div>
+      </section>
+
+      <!-- EMPTY STATE -->
+      @if (modules.length === 0) {
+        <div class="empty-state">
+          <mat-icon class="!text-6xl text-slate-300 mb-4">apps</mat-icon>
+          <h3 class="text-lg font-semibold text-slate-800 mb-2">No hay módulos configurados</h3>
+          <p class="text-sm text-slate-600 mb-6">Comienza agregando el primer módulo del sistema</p>
+          <div class="flex gap-3">
+            <button 
+              mat-raised-button 
+              color="primary"
+              (click)="addModule()">
+              <mat-icon>add</mat-icon>
+              Crear Módulo
+            </button>
+            <button 
+              mat-stroked-button
+              (click)="initializeDefaultModules()">
+              <mat-icon>auto_fix_high</mat-icon>
+              Inicializar Módulos por Defecto
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- MODULES LIST -->
+      @if (modules.length > 0) {
+        <section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-soft">
+          
+          <!-- Info de drag & drop -->
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h2 class="text-lg font-bold text-slate-800 mb-1">Módulos del Sistema</h2>
+              <p class="text-sm text-slate-600">
+                Arrastra para reordenar • {{ modules.length }} módulo(s)
+              </p>
+            </div>
+            
+            @if (modules.length === 0) {
+              <button 
+                mat-stroked-button
+                (click)="initializeDefaultModules()">
+                <mat-icon>auto_fix_high</mat-icon>
+                Inicializar por Defecto
+              </button>
+            }
+          </div>
+
+          <!-- Lista con drag & drop -->
+          <div 
+            cdkDropList
+            (cdkDropListDropped)="onModuleDrop($event)"
+            class="space-y-3">
+            
+            @for (module of modules; track trackByModuleId($index, module)) {
+              <div 
+                cdkDrag
+                class="module-card group"
+                [class.inactive]="!module.isActive">
+                
+                <!-- Drag Handle -->
+                <div cdkDragHandle class="drag-handle">
+                  <mat-icon class="text-slate-400 cursor-move">drag_indicator</mat-icon>
+                </div>
+
+                <!-- Icon -->
+                <div 
+                  class="module-icon"
+                  [class.inactive-icon]="!module.isActive">
+                  <mat-icon>{{ module.icon }}</mat-icon>
+                </div>
+
+                <!-- Content -->
+                <div class="module-content">
+                  <div class="flex items-center gap-3 mb-1">
+                    <h3 class="module-title">{{ module.label }}</h3>
+                    
+                    @if (!module.isActive) {
+                      <span class="badge badge-status-inactive">
+                        <mat-icon class="!text-sm">cancel</mat-icon>
+                        Inactivo
+                      </span>
+                    }
+                    
+                    @if (module.usersCount && module.usersCount > 0) {
+                      <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-md font-semibold">
+                        {{ module.usersCount }} usuario(s)
+                      </span>
+                    }
+                  </div>
+                  
+                  <p class="module-description">{{ module.description }}</p>
+                  
+                  <div class="flex items-center gap-4 mt-2 text-xs text-slate-500">
+                    <span class="flex items-center gap-1">
+                      <mat-icon class="!text-sm">code</mat-icon>
+                      {{ module.value }}
+                    </span>
+                    @if (module.route) {
+                      <span class="flex items-center gap-1">
+                        <mat-icon class="!text-sm">link</mat-icon>
+                        {{ module.route }}
+                      </span>
+                    }
+                    <span class="flex items-center gap-1">
+                      <mat-icon class="!text-sm">sort</mat-icon>
+                      Orden: {{ module.order }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="module-actions">
+                  <button 
+                    mat-icon-button
+                    [matMenuTriggerFor]="moduleMenu"
+                    class="icon-btn">
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+
+                  <mat-menu #moduleMenu="matMenu">
+                    <button mat-menu-item (click)="editModule(module)">
+                      <mat-icon>edit</mat-icon>
+                      Editar
+                    </button>
+                    
+                    <button mat-menu-item (click)="toggleModuleStatus(module)">
+                      <mat-icon>{{ module.isActive ? 'cancel' : 'check_circle' }}</mat-icon>
+                      {{ module.isActive ? 'Desactivar' : 'Activar' }}
+                    </button>
+
+                    <mat-divider></mat-divider>
+                    
+                    <button 
+                      mat-menu-item 
+                      (click)="deleteModule(module)"
+                      class="!text-red-600">
+                      <mat-icon class="!text-red-600">delete</mat-icon>
+                      Eliminar
+                    </button>
+                  </mat-menu>
+                </div>
+
+              </div>
+            }
+          </div>
+
+        </section>
+      }
+    }
+
+  </div>
+</div>

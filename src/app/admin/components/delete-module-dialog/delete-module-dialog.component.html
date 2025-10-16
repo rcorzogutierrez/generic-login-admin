@@ -1,0 +1,173 @@
+<!-- src/app/admin/components/delete-module-dialog/delete-module-dialog.component.html -->
+
+<div class="max-w-[600px]">
+  
+    <!-- ============================================
+         HEADER
+         ============================================ -->
+    <div class="text-center px-6 pt-6 pb-4">
+      <div class="warning-icon w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center">
+        <mat-icon class="!text-[36px] text-red-600">warning</mat-icon>
+      </div>
+      <h2 mat-dialog-title class="text-2xl font-bold text-slate-800 m-0">
+        ⚠️ Eliminar Módulo
+      </h2>
+    </div>
+  
+    <!-- ============================================
+         CONTENT
+         ============================================ -->
+    <mat-dialog-content class="px-6 pb-6">
+      <div class="flex flex-col gap-5">
+        
+        <!-- Module Info -->
+        <div class="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 rounded-xl p-5">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+              <mat-icon class="!text-2xl text-white">{{ data.module.icon }}</mat-icon>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-lg font-bold text-slate-800 mb-1">{{ data.module.label }}</h3>
+              <p class="text-sm text-slate-600 mb-2">{{ data.module.description }}</p>
+              <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                <span class="flex items-center gap-1">
+                  <mat-icon class="!text-sm">code</mat-icon>
+                  {{ data.module.value }}
+                </span>
+                @if (data.module.usersCount && data.module.usersCount > 0) {
+                  <span class="bg-red-100 text-red-800 px-2 py-1 rounded-md font-semibold">
+                    {{ data.module.usersCount }} usuario(s) asignado(s)
+                  </span>
+                }
+                @if (!data.module.isActive) {
+                  <span class="bg-amber-100 text-amber-800 px-2 py-1 rounded-md font-semibold">
+                    ● Desactivado
+                  </span>
+                } @else {
+                  <span class="bg-green-100 text-green-800 px-2 py-1 rounded-md font-semibold">
+                    ✓ Activo
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Opciones de eliminación -->
+        <div class="flex flex-col gap-3">
+          <label class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+            <mat-icon class="!text-lg text-purple-500">settings</mat-icon>
+            Método de eliminación:
+          </label>
+  
+          <mat-radio-group [(ngModel)]="deleteMethod" class="flex flex-col gap-3">
+            
+            <!-- Soft delete - Desactivar -->
+            <mat-radio-button value="soft" class="option-card">
+              <div class="ml-9">
+                <div class="flex items-center gap-3 mb-1">
+                  <mat-icon class="!text-xl text-amber-500">visibility_off</mat-icon>
+                  <span class="text-base font-semibold text-slate-800">
+                    Desactivar (Recomendado)
+                  </span>
+                </div>
+                <p class="text-sm text-slate-600 m-0">
+                  El módulo se ocultará pero se conservarán los datos y asignaciones. Podrá ser reactivado más tarde.
+                </p>
+              </div>
+            </mat-radio-button>
+  
+            <!-- ✅ Hard delete - SIEMPRE DISPONIBLE, pero con advertencias según el estado -->
+            <mat-radio-button 
+              value="hard" 
+              class="option-card danger-option">
+              <div class="ml-9">
+                <div class="flex items-center gap-3 mb-1">
+                  <mat-icon class="!text-xl text-red-600">delete_forever</mat-icon>
+                  <span class="text-base font-semibold text-slate-800">Eliminar Permanentemente</span>
+                </div>
+                <p class="text-sm text-red-900 font-semibold m-0">
+                  @if (data.module.usersCount && data.module.usersCount > 0) {
+                    ⚠️ ATENCIÓN: {{ data.module.usersCount }} usuario(s) tienen este módulo asignado. Se removerá de sus perfiles.
+                  } @else {
+                    ⚠️ Esta acción NO se puede deshacer. El módulo será eliminado permanentemente.
+                  }
+                </p>
+                @if (data.module.isActive) {
+                  <p class="text-xs text-amber-700 mt-2 m-0 flex items-center gap-1">
+                    <mat-icon class="!text-sm">info</mat-icon>
+                    El módulo está activo. Se desactivará automáticamente antes de eliminarse.
+                  </p>
+                }
+              </div>
+            </mat-radio-button>
+  
+          </mat-radio-group>
+        </div>
+  
+        <!-- Advertencias dinámicas según la selección -->
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          @if (deleteMethod === 'hard') {
+            <!-- Advertencias para eliminación permanente -->
+            <div class="flex flex-col gap-3">
+              <div class="flex items-start gap-3 text-red-900 text-sm font-medium">
+                <mat-icon class="!text-lg text-red-600 flex-shrink-0">error</mat-icon>
+                <span>La eliminación permanente borrará TODOS los datos del módulo de la base de datos</span>
+              </div>
+              @if (data.module.usersCount && data.module.usersCount > 0) {
+                <div class="flex items-start gap-3 text-amber-900 text-sm font-medium">
+                  <mat-icon class="!text-lg text-amber-600 flex-shrink-0">people</mat-icon>
+                  <span>Los {{ data.module.usersCount }} usuario(s) asignados perderán acceso y el módulo será removido de sus perfiles automáticamente</span>
+                </div>
+              }
+              @if (data.module.isActive) {
+                <div class="flex items-start gap-3 text-amber-900 text-sm font-medium">
+                  <mat-icon class="!text-lg text-amber-600 flex-shrink-0">power_settings_new</mat-icon>
+                  <span>El módulo se desactivará automáticamente antes de ser eliminado</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <!-- Advertencias para desactivación -->
+            <div class="flex items-start gap-3 text-amber-900 text-sm font-medium">
+              <mat-icon class="!text-lg text-amber-600 flex-shrink-0">info</mat-icon>
+              <span>
+                El módulo desactivado podrá ser reactivado más tarde. Los datos y asignaciones se conservarán.
+              </span>
+            </div>
+          }
+        </div>
+  
+      </div>
+    </mat-dialog-content>
+  
+    <!-- ============================================
+         ACTIONS
+         ============================================ -->
+    <mat-dialog-actions class="px-6 py-4 border-t border-slate-200 flex gap-3 justify-end">
+      <button 
+        mat-stroked-button 
+        (click)="onCancel()"
+        [disabled]="isDeleting"
+        class="!px-5 !py-2.5">
+        <mat-icon>close</mat-icon>
+        Cancelar
+      </button>
+      
+      <button 
+        mat-raised-button 
+        (click)="onConfirm()"
+        [disabled]="isDeleting"
+        [class.!bg-amber-500]="deleteMethod === 'soft'"
+        [class.!bg-red-600]="deleteMethod === 'hard'"
+        class="!text-white !px-5 !py-2.5">
+        @if (isDeleting) {
+          <mat-spinner diameter="20"></mat-spinner>
+        } @else {
+          <mat-icon>{{ getActionIcon() }}</mat-icon>
+        }
+        {{ getActionLabel() }}
+      </button>
+    </mat-dialog-actions>
+    
+  </div>

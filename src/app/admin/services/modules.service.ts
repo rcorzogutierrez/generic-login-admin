@@ -267,7 +267,8 @@ export class ModulesService {
   }
 
   /**
-   * Elimina un módulo (soft delete o hard delete)
+   * ✅ ACTUALIZADO: Elimina un módulo (soft delete o hard delete)
+   * Ahora permite hard delete sin validaciones restrictivas
    */
   async deleteModule(
     moduleId: string,
@@ -286,34 +287,49 @@ export class ModulesService {
       }
 
       const moduleData = moduleSnap.data();
-
-      // Verificar si hay usuarios usando este módulo
-      const usersCount = await this.countUsersUsingModule(moduleData['value']);
-      
-      if (usersCount > 0 && hardDelete) {
-        return {
-          success: false,
-          message: `No se puede eliminar: ${usersCount} usuario(s) tienen este módulo asignado. Primero desasígnalo.`
-        };
-      }
+      const moduleValue = moduleData['value'];
 
       if (hardDelete) {
-        // Eliminación permanente
+        // ✅ ELIMINACIÓN PERMANENTE (sin restricciones previas)
+        
+        // 1. Eliminar el módulo de Firestore
         await deleteDoc(moduleRef);
         
+        // 2. Remover el módulo de TODOS los usuarios que lo tengan asignado
+        const usersRef = collection(this.db, 'authorized_users');
+        const usersQuery = query(usersRef, where('modules', 'array-contains', moduleValue));
+        const usersSnapshot = await getDocs(usersQuery);
+
+        if (!usersSnapshot.empty) {
+          const batch = writeBatch(this.db);
+          
+          usersSnapshot.forEach((userDoc) => {
+            const userData = userDoc.data();
+            const currentModules = userData['modules'] || [];
+            const updatedModules = currentModules.filter((m: string) => m !== moduleValue);
+            
+            batch.update(userDoc.ref, { modules: updatedModules });
+          });
+
+          await batch.commit();
+          
+          console.log(`✅ Módulo removido de ${usersSnapshot.size} usuario(s)`);
+        }
+        
         await this.logModuleAction('delete_module_permanent', moduleId, {
-          moduleValue: moduleData['value'],
-          moduleLabel: moduleData['label']
+          moduleValue: moduleValue,
+          moduleLabel: moduleData['label'],
+          usersAffected: usersSnapshot.size
         }, currentUserUid);
 
         await this.loadModules();
 
         return {
           success: true,
-          message: 'Módulo eliminado permanentemente'
+          message: `Módulo eliminado permanentemente${usersSnapshot.size > 0 ? ` y removido de ${usersSnapshot.size} usuario(s)` : ''}`
         };
       } else {
-        // Soft delete (solo desactivar)
+        // ✅ SOFT DELETE (solo desactivar)
         await updateDoc(moduleRef, {
           isActive: false,
           updatedAt: Timestamp.now(),
@@ -321,7 +337,7 @@ export class ModulesService {
         });
 
         await this.logModuleAction('deactivate_module', moduleId, {
-          moduleValue: moduleData['value']
+          moduleValue: moduleValue
         }, currentUserUid);
 
         await this.loadModules();
@@ -379,6 +395,48 @@ export class ModulesService {
         message: error.message || 'Error al reordenar módulos',
         error
       };
+    }
+  }
+
+  /**
+   * ✅ NUEVO: Actualiza el contador de usuarios para todos los módulos
+   */
+  async updateAllModulesUserCount(): Promise<void> {
+    try {
+      const modules = this._modules();
+      const usersRef = collection(this.db, 'authorized_users');
+      const usersSnapshot = await getDocs(usersRef);
+
+      // Contar usuarios por módulo
+      const moduleCounts: { [key: string]: number } = {};
+      
+      usersSnapshot.forEach(doc => {
+        const userData = doc.data();
+        const userModules = userData['modules'] || [];
+        
+        userModules.forEach((moduleValue: string) => {
+          moduleCounts[moduleValue] = (moduleCounts[moduleValue] || 0) + 1;
+        });
+      });
+
+      // Actualizar cada módulo en Firestore
+      const batch = writeBatch(this.db);
+      
+      modules.forEach(module => {
+        const moduleRef = doc(this.db, this.MODULES_COLLECTION, module.id);
+        const count = moduleCounts[module.value] || 0;
+        
+        batch.update(moduleRef, { usersCount: count });
+      });
+
+      await batch.commit();
+      
+      // Recargar módulos para reflejar cambios
+      await this.loadModules();
+      
+      console.log('✅ usersCount actualizado para todos los módulos');
+    } catch (error) {
+      console.error('❌ Error actualizando usersCount:', error);
     }
   }
 

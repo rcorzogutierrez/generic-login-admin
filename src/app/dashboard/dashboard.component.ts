@@ -145,16 +145,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         icon: 'admin_panel_settings',
         route: '/admin',
         color: 'primary'
-      });
-      
-      actions.push({
-        id: 'users',
-        title: 'Usuarios',
-        description: 'Ver y editar usuarios',
-        icon: 'group',
-        route: '/admin',
-        color: 'primary'
-      });
+      });     
+     
     }
 
     if (data.userInfo.modules.length > 0) {

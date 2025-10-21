@@ -1,0 +1,93 @@
+/* src/app/admin/components/assign-modules-dialog/assign-modules-dialog.component.css */
+
+/* ============================================
+   MODULE CARDS
+   ============================================ */
+   .module-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .module-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .module-card.selected {
+    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+    border-color: #8b5cf6;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+  }
+  
+  /* ============================================
+     ANIMATIONS
+     ============================================ */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .module-card {
+    animation: fadeIn 0.3s ease-out backwards;
+  }
+  
+  .module-card:nth-child(1) { animation-delay: 0.05s; }
+  .module-card:nth-child(2) { animation-delay: 0.1s; }
+  .module-card:nth-child(3) { animation-delay: 0.15s; }
+  .module-card:nth-child(4) { animation-delay: 0.2s; }
+  .module-card:nth-child(5) { animation-delay: 0.25s; }
+  .module-card:nth-child(6) { animation-delay: 0.3s; }
+  
+  /* ============================================
+     SCROLLBAR
+     ============================================ */
+  mat-dialog-content::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  mat-dialog-content::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+  }
+  
+  mat-dialog-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+  
+  mat-dialog-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+  
+  /* ============================================
+     MATERIAL OVERRIDES
+     ============================================ */
+  ::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-disabled {
+    opacity: 0.5;
+  }
+  
+  ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+    border-radius: 20px;
+  }
+  
+  /* ============================================
+     RESPONSIVE
+     ============================================ */
+  @media (max-width: 768px) {
+    .module-card {
+      font-size: 14px;
+    }
+  }
+  
+  /* ============================================
+     ACCESSIBILITY
+     ============================================ */
+  @media (prefers-reduced-motion: reduce) {
+    .module-card {
+      animation: none !important;
+      transition: none !important;
+    }
+  }

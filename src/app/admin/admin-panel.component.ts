@@ -22,6 +22,7 @@ import { AdminService, User, AdminStats } from './services/admin.service';
 import { AddUserDialogComponent } from './components/add-user-dialog/add-user-dialog.component';
 import { DeleteUserDialogComponent } from './components/delete-user-dialog/delete-user-dialog.component';
 import { DeleteMultipleUsersDialogComponent } from './components/delete-multiple-users-dialog/delete-multiple-users-dialog.component';
+import { AssignModulesDialogComponent } from './components/assign-modules-dialog/assign-modules-dialog.component';
 
 @Component({
   selector: 'app-admin-panel',
@@ -671,11 +672,33 @@ export class AdminPanelComponent implements OnInit {
   }
 
   /**
-   * Asignar módulos
+   * Asignar módulos - ACTUALIZADO CON DIALOG
    */
   assignModules(user: User) {
-    console.log('🧩 Asignar módulos:', user.email);
-    this.snackBar.open('Gestión de módulos - Próximamente', 'Cerrar', { duration: 2000 });
+    console.log('🧩 Abriendo dialog de módulos para:', user.email);
+    
+    const dialogRef = this.dialog.open(AssignModulesDialogComponent, {
+      width: '700px',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      disableClose: true,
+      data: { user }
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result?.success) {
+        this.snackBar.open(result.message, 'Cerrar', { 
+          duration: 4000,
+          panelClass: ['success-snackbar']
+        });
+        
+        // Recargar datos para reflejar los cambios
+        await this.refreshData();
+      } else if (result?.navigateToModules) {
+        // Si el usuario quiere ir a configurar módulos
+        this.router.navigate(['/admin/modules']);
+      }
+    });
   }
 
   /**

@@ -359,14 +359,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return labels[permission] || permission;
   }
 
-  /**
+ /**
    * Ejecuta una quick action
    */
-  executeQuickAction(action: QuickAction) {
-    if (action.route) {
-      this.router.navigate([action.route]);
-    }
+ executeQuickAction(action: QuickAction) {
+  if (action.route) {
+    this.router.navigate([action.route]);
+  } else if (action.id === 'modules') {
+    // Navegación específica para módulos
+    this.router.navigate(['/modules']);
   }
+}
 
   /**
    * Genera mensaje de insight inteligente

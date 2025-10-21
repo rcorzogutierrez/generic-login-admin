@@ -1,0 +1,245 @@
+<!-- src/app/modules/user-modules/user-modules.component.html -->
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
+    <div class="max-w-[1400px] mx-auto p-5">
+      
+      <!-- ============================================
+           HEADER
+           ============================================ -->
+      <header class="page-header">
+        <div class="flex items-center justify-between gap-5 flex-wrap">
+          
+          <!-- Left Section -->
+          <div class="flex items-center gap-4">
+            <button 
+              mat-icon-button 
+              class="icon-btn"
+              (click)="goBack()"
+              matTooltip="Volver al dashboard">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+            
+            <div class="header-icon-container">
+              <mat-icon>apps</mat-icon>
+            </div>
+            
+            <div>
+              <h1 class="text-2xl font-bold text-slate-800 mb-1">Mis Módulos</h1>
+              <p class="text-sm text-slate-600 flex items-center gap-2 font-medium">
+                <span class="status-dot"></span>
+                {{ getModulesCount() }} módulo(s) disponible(s)
+              </p>
+            </div>
+          </div>
+          
+          <!-- Right Section -->
+          <div class="flex items-center gap-3">
+            <button 
+              mat-icon-button 
+              class="icon-btn"
+              (click)="refreshModules()"
+              [disabled]="isLoading"
+              matTooltip="Actualizar módulos">
+              <mat-icon [class.animate-spin]="isLoading">refresh</mat-icon>
+            </button>
+          </div>
+        </div>
+      </header>
+  
+      <!-- ============================================
+           LOADING STATE
+           ============================================ -->
+      @if (isLoading) {
+        <div class="empty-state">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p class="mt-4 text-slate-600 font-medium">Cargando tus módulos...</p>
+        </div>
+      }
+  
+      <!-- ============================================
+           CONTENT
+           ============================================ -->
+      @if (!isLoading) {
+        
+        <!-- Sin módulos -->
+        @if (userModules.length === 0) {
+          <div class="empty-state">
+            <mat-icon class="!text-6xl text-slate-300 mb-4">apps_outline</mat-icon>
+            <h3 class="text-lg font-semibold text-slate-800 mb-2">No tienes módulos asignados</h3>
+            <p class="text-sm text-slate-600 mb-6">
+              Contacta al administrador para solicitar acceso a módulos del sistema
+            </p>
+            <button mat-raised-button color="primary" (click)="goToDashboard()">
+              <mat-icon>arrow_back</mat-icon>
+              Volver al Dashboard
+            </button>
+          </div>
+        }
+  
+        <!-- Grid de módulos -->
+        @if (userModules.length > 0) {
+          
+          <!-- Filtros rápidos -->
+          <section class="bg-white rounded-2xl p-5 mb-6 border border-slate-200 shadow-soft">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              
+              <!-- Búsqueda -->
+              <div class="flex-1 min-w-[250px] relative">
+                <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</mat-icon>
+                <input 
+                  type="text" 
+                  class="w-full h-12 pl-12 pr-4 border-2 border-slate-200 rounded-xl text-sm font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                  placeholder="Buscar módulo..."
+                  [(ngModel)]="searchTerm"
+                  (input)="filterModules()">
+              </div>
+  
+              <!-- Vista -->
+              <div class="flex gap-2">
+                <button 
+                  mat-stroked-button
+                  [class.!bg-blue-500]="viewMode === 'grid'"
+                  [class.!text-white]="viewMode === 'grid'"
+                  (click)="setViewMode('grid')">
+                  <mat-icon>grid_view</mat-icon>
+                  Grid
+                </button>
+                <button 
+                  mat-stroked-button
+                  [class.!bg-blue-500]="viewMode === 'list'"
+                  [class.!text-white]="viewMode === 'list'"
+                  (click)="setViewMode('list')">
+                  <mat-icon>view_list</mat-icon>
+                  Lista
+                </button>
+              </div>
+            </div>
+          </section>
+  
+          <!-- Vista Grid -->
+          @if (viewMode === 'grid') {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              @for (module of filteredModules; track module.id) {
+                <div class="module-card group bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-purple-500 hover:shadow-xl transition-all duration-300 cursor-pointer"
+                     (click)="navigateToModule(module)">
+                  
+                  <!-- Badge de estado -->
+                  @if (!module.isActive) {
+                    <div class="absolute top-4 right-4">
+                      <span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-md">
+                        Inactivo
+                      </span>
+                    </div>
+                  }
+  
+                  <!-- Icono del módulo -->
+                  <div class="w-16 h-16 mb-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <mat-icon class="!text-3xl text-white">{{ module.icon }}</mat-icon>
+                  </div>
+  
+                  <!-- Contenido -->
+                  <h3 class="text-lg font-bold text-slate-800 mb-2 group-hover:text-purple-600 transition-colors">
+                    {{ module.label }}
+                  </h3>
+                  <p class="text-sm text-slate-600 mb-4 line-clamp-2">
+                    {{ module.description }}
+                  </p>
+  
+                  <!-- Footer -->
+                  <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                    @if (module.route) {
+                      <span class="text-xs text-slate-500 font-medium flex items-center gap-1">
+                        <mat-icon class="!text-sm">link</mat-icon>
+                        {{ module.route }}
+                      </span>
+                    } @else {
+                      <span class="text-xs text-amber-600 font-medium flex items-center gap-1">
+                        <mat-icon class="!text-sm">info</mat-icon>
+                        Sin ruta definida
+                      </span>
+                    }
+                    
+                    <mat-icon class="!text-xl text-slate-400 group-hover:text-purple-600 group-hover:translate-x-1 transition-all">
+                      arrow_forward
+                    </mat-icon>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+  
+          <!-- Vista Lista -->
+          @if (viewMode === 'list') {
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-soft overflow-hidden">
+              <div class="divide-y divide-slate-100">
+                @for (module of filteredModules; track module.id) {
+                  <div class="module-list-item flex items-center gap-4 p-5 hover:bg-purple-50 transition-colors cursor-pointer"
+                       (click)="navigateToModule(module)">
+                    
+                    <!-- Icono -->
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <mat-icon class="!text-2xl text-white">{{ module.icon }}</mat-icon>
+                    </div>
+  
+                    <!-- Info principal -->
+                    <div class="flex-1">
+                      <div class="flex items-center gap-3 mb-1">
+                        <h3 class="text-base font-bold text-slate-800">{{ module.label }}</h3>
+                        @if (!module.isActive) {
+                          <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-semibold rounded-md">
+                            Inactivo
+                          </span>
+                        }
+                      </div>
+                      <p class="text-sm text-slate-600">{{ module.description }}</p>
+                    </div>
+  
+                    <!-- Ruta -->
+                    <div class="text-right">
+                      @if (module.route) {
+                        <span class="text-xs text-slate-500 font-medium">{{ module.route }}</span>
+                      } @else {
+                        <span class="text-xs text-amber-600 font-medium">Sin ruta</span>
+                      }
+                    </div>
+  
+                    <!-- Flecha -->
+                    <mat-icon class="!text-xl text-slate-400">chevron_right</mat-icon>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+  
+          <!-- Sin resultados de búsqueda -->
+          @if (filteredModules.length === 0 && searchTerm) {
+            <div class="bg-white rounded-2xl p-12 text-center border border-slate-200">
+              <mat-icon class="!text-5xl text-slate-300 mb-3">search_off</mat-icon>
+              <p class="text-slate-600">No se encontraron módulos con "{{ searchTerm }}"</p>
+              <button mat-button (click)="clearSearch()" class="mt-3">
+                Limpiar búsqueda
+              </button>
+            </div>
+          }
+        }
+      }
+  
+      <!-- Info Card -->
+      @if (!isLoading && userModules.length > 0) {
+        <section class="bg-white rounded-2xl p-6 mt-8 border border-slate-200 shadow-soft">
+          <div class="flex items-start gap-4">
+            <mat-icon class="!text-2xl text-blue-500 mt-1">info</mat-icon>
+            <div>
+              <h3 class="text-base font-bold text-slate-800 mb-2">Información sobre tus módulos</h3>
+              <ul class="text-sm text-slate-600 space-y-1">
+                <li>• Los módulos son funcionalidades específicas del sistema a las que tienes acceso</li>
+                <li>• Cada módulo puede tener su propia interfaz y conjunto de herramientas</li>
+                <li>• Si necesitas acceso a más módulos, contacta al administrador</li>
+                <li>• Los módulos marcados como "Inactivos" están temporalmente deshabilitados</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      }
+  
+    </div>
+  </div>

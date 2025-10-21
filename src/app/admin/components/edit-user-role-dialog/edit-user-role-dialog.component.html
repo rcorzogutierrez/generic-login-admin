@@ -1,0 +1,334 @@
+<!-- src/app/admin/components/edit-user-role-dialog/edit-user-role-dialog.component.html -->
+<div class="dialog-container">
+  <!-- HEADER -->
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="user-avatar" [style.background]="getUserColor()">
+        {{ getInitials() }}
+      </div>
+
+      <div class="user-info">
+        <h2 class="mat-h2">Editar Rol y Permisos</h2>
+        <div class="user-details">
+          <p class="user-name">{{ data.user.displayName || 'Sin nombre' }}</p>
+          <p class="user-email">{{ data.user.email }}</p>
+        </div>
+      </div>
+    </div>
+
+    <button mat-icon-button (click)="onCancel()" [disabled]="isSaving">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- CONTENIDO CON TABS -->
+  <mat-dialog-content class="dialog-content">
+    <mat-tab-group [(selectedIndex)]="currentTab" class="custom-tabs">
+      <!-- TAB 1: ROL -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">shield</mat-icon>
+          <span>Rol</span>
+        </ng-template>
+
+        <div class="tab-content">
+          <p class="section-description">
+            Selecciona el rol del usuario. El rol determina el nivel de acceso general al sistema.
+          </p>
+
+          <div class="role-options">
+            @for (role of roleOptions; track role.value) {
+              <div
+                class="role-card"
+                [class.selected]="selectedRole === role.value"
+                [attr.data-role]="role.value"
+                (click)="selectRole($any(role.value))"
+              >
+                <div class="role-card-header">
+                  <mat-icon class="role-icon">{{ getRoleIcon(role.value) }}</mat-icon>
+                  <div class="role-info">
+                    <h3>{{ role.label }}</h3>
+                    <p>{{ role.description }}</p>
+                  </div>
+                  @if (selectedRole === role.value) {
+                    <mat-icon class="check-icon">check_circle</mat-icon>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          @if (selectedRole === 'admin') {
+            <div class="admin-warning">
+              <mat-icon>warning</mat-icon>
+              <div>
+                <strong>Atención:</strong> Los administradores tienen acceso completo al sistema,
+                incluyendo la gestión de usuarios y configuraciones críticas.
+              </div>
+            </div>
+          }
+
+          @if (isCurrentUser() && selectedRole !== 'admin') {
+            <div class="self-edit-warning">
+              <mat-icon>info</mat-icon>
+              <div>
+                Estás modificando tu propio rol. Perderás acceso al panel de administración
+                si cambias a un rol diferente a "Administrador".
+              </div>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- TAB 2: PERMISOS -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">vpn_key</mat-icon>
+          <span>Permisos</span>
+        </ng-template>
+
+        <div class="tab-content">
+          <div class="permissions-header">
+            <p class="section-description">
+              Define los permisos específicos para este usuario.
+              @if (selectedRole === 'admin') {
+                <span class="admin-note">Los administradores tienen todos los permisos automáticamente.</span>
+              }
+            </p>
+
+            <div class="permissions-actions">
+              <button
+                mat-stroked-button
+                (click)="applyDefaultPermissions()"
+                [disabled]="isSaving"
+              >
+                <mat-icon>settings_backup_restore</mat-icon>
+                Aplicar predeterminados
+              </button>
+            </div>
+          </div>
+
+          <div class="permissions-list">
+            @for (permission of permissionOptions; track permission.value) {
+              <div class="permission-item">
+                <mat-checkbox
+                  [checked]="isPermissionSelected(permission.value)"
+                  (change)="togglePermission(permission.value)"
+                  [disabled]="isSaving || selectedRole === 'admin' || (selectedPermissions.size === 1 && isPermissionSelected(permission.value))"
+                  color="primary"
+                >
+                  <div class="permission-content">
+                    <div class="permission-header">
+                      <mat-icon class="permission-icon">{{ getPermissionIcon(permission.value) }}</mat-icon>
+                      <span class="permission-label">{{ permission.label }}</span>
+                    </div>
+                    <p class="permission-description">{{ permission.description }}</p>
+                  </div>
+                </mat-checkbox>
+              </div>
+            }
+          </div>
+
+          @if (selectedPermissions.size === 0) {
+            <div class="error-message">
+              <mat-icon>error</mat-icon>
+              El usuario debe tener al menos un permiso
+            </div>
+          }
+
+          <div class="selected-permissions-summary">
+            <mat-icon>check_circle</mat-icon>
+            <span>{{ selectedPermissions.size }} permiso(s) seleccionado(s)</span>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB 3: ESTADO -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">toggle_on</mat-icon>
+          <span>Estado</span>
+        </ng-template>
+
+        <div class="tab-content">
+          <p class="section-description">
+            Gestiona el estado de la cuenta del usuario.
+          </p>
+
+          <div class="status-section">
+            <div class="status-toggle">
+              <div class="status-info">
+                <mat-icon [class.active]="isActive">
+                  @if (isActive) {
+                    check_circle
+                  } @else {
+                    cancel
+                  }
+                </mat-icon>
+                <div>
+                  <h3>Estado de la cuenta</h3>
+                  <p>
+                    @if (isActive) {
+                      El usuario puede acceder al sistema
+                    } @else {
+                      El usuario no puede acceder al sistema
+                    }
+                  </p>
+                </div>
+              </div>
+
+              <mat-slide-toggle
+                [(ngModel)]="isActive"
+                [disabled]="isSaving || isCurrentUser()"
+                color="primary"
+              >
+                @if (isActive) {
+                  Activo
+                } @else {
+                  Inactivo
+                }
+              </mat-slide-toggle>
+            </div>
+
+            @if (isCurrentUser()) {
+              <div class="self-edit-warning">
+                <mat-icon>info</mat-icon>
+                <div>
+                  No puedes desactivar tu propia cuenta.
+                </div>
+              </div>
+            }
+
+            @if (!isActive && !isCurrentUser()) {
+              <div class="inactive-warning">
+                <mat-icon>warning</mat-icon>
+                <div>
+                  <strong>Cuenta desactivada:</strong> El usuario no podrá iniciar sesión
+                  ni acceder a ninguna funcionalidad del sistema.
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Resumen de información del usuario -->
+          <mat-divider></mat-divider>
+
+          <div class="user-summary">
+            <h3>Información del usuario</h3>
+
+            <div class="summary-item">
+              <mat-icon>email</mat-icon>
+              <div>
+                <label>Email</label>
+                <span>{{ data.user.email }}</span>
+              </div>
+            </div>
+
+            <div class="summary-item">
+              <mat-icon>person</mat-icon>
+              <div>
+                <label>Nombre completo</label>
+                <span>{{ data.user.displayName || 'No especificado' }}</span>
+              </div>
+            </div>
+
+            <div class="summary-item">
+              <mat-icon>calendar_today</mat-icon>
+              <div>
+                <label>Fecha de creación</label>
+                <span>{{ data.user.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+            </div>
+
+            @if (data.user.lastLogin) {
+              <div class="summary-item">
+                <mat-icon>login</mat-icon>
+                <div>
+                  <label>Último acceso</label>
+                  <span>{{ data.user.lastLogin | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB 4: RESUMEN -->
+      @if (hasChanges()) {
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">summarize</mat-icon>
+            <span>Resumen</span>
+          </ng-template>
+
+          <div class="tab-content">
+            <div class="summary-header">
+              <mat-icon class="summary-icon">change_circle</mat-icon>
+              <h3>Cambios a realizar</h3>
+            </div>
+
+            <div class="changes-list">
+              @for (change of getChangesSummary(); track change) {
+                <div class="change-item">
+                  <mat-icon>arrow_forward</mat-icon>
+                  <span>{{ change }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="confirmation-message">
+              <mat-icon>info</mat-icon>
+              <p>
+                Los cambios se aplicarán inmediatamente al guardar.
+                El usuario verá reflejados estos cambios en su próximo inicio de sesión.
+              </p>
+            </div>
+          </div>
+        </mat-tab>
+      }
+    </mat-tab-group>
+  </mat-dialog-content>
+
+  <!-- FOOTER -->
+  <mat-dialog-actions class="dialog-actions">
+    <div class="actions-left">
+      @if (hasChanges()) {
+        <button
+          mat-button
+          (click)="resetChanges()"
+          [disabled]="isSaving"
+        >
+          <mat-icon>undo</mat-icon>
+          Deshacer cambios
+        </button>
+      }
+    </div>
+
+    <div class="actions-right">
+      <button
+        mat-button
+        (click)="onCancel()"
+        [disabled]="isSaving"
+      >
+        Cancelar
+      </button>
+
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onSave()"
+        [disabled]="!canSave() || isSaving"
+      >
+        @if (isSaving) {
+          <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+          <span>Guardando...</span>
+        } @else {
+          <ng-container>
+            <mat-icon>save</mat-icon>
+            <span>Guardar cambios</span>
+          </ng-container>
+        }
+      </button>
+    </div>
+  </mat-dialog-actions>
+</div>

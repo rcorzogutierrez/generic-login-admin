@@ -346,6 +346,9 @@ export class AdminLogsComponent implements OnInit, OnDestroy {
       minute: '2-digit'
     }).format(date);
   }
+  goBack() {
+    this.router.navigate(['/admin']);
+  }
 
   getRelativeTime(date: Date): string {
     if (!date) return '';

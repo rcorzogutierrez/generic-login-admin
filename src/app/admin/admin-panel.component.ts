@@ -281,6 +281,10 @@ export class AdminPanelComponent implements OnInit {
     return 'Seleccionar usuario';
   }
 
+  goBack() {
+    this.router.navigate(['/dashboard']);
+  }
+
   /**
    * Toggle selección de un usuario individual
    */

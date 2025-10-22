@@ -23,6 +23,7 @@ import { AddUserDialogComponent } from './components/add-user-dialog/add-user-di
 import { DeleteUserDialogComponent } from './components/delete-user-dialog/delete-user-dialog.component';
 import { DeleteMultipleUsersDialogComponent } from './components/delete-multiple-users-dialog/delete-multiple-users-dialog.component';
 import { AssignModulesDialogComponent } from './components/assign-modules-dialog/assign-modules-dialog.component';
+import { EditUserRoleDialogComponent } from './components/edit-user-role-dialog/edit-user-role-dialog.component';
 
 @Component({
   selector: 'app-admin-panel',
@@ -646,11 +647,30 @@ export class AdminPanelComponent implements OnInit {
   }
 
   /**
-   * Editar usuario
+   * Editar usuario - ACTUALIZADO CON DIALOG DE ROLES
    */
   editUser(user: User) {
-    console.log('✏️ Editar:', user.email);
-    this.snackBar.open('Edición - Próximamente', 'Cerrar', { duration: 2000 });
+    console.log('✏️ Abriendo edición de rol para:', user.email);
+
+    const dialogRef = this.dialog.open(EditUserRoleDialogComponent, {
+      width: '800px',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      disableClose: true,
+      data: { user }
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result?.success) {
+        this.snackBar.open(result.message, 'Cerrar', {
+          duration: 4000,
+          panelClass: ['success-snackbar']
+        });
+
+        // Recargar datos para reflejar los cambios
+        await this.refreshData();
+      }
+    });
   }
 
   /**
@@ -862,8 +882,10 @@ export class AdminPanelComponent implements OnInit {
    * Gestionar roles del sistema
    */
   manageRoles() {
-    console.log('👥 Gestionar roles...');
-    this.snackBar.open('Gestión de roles - Próximamente', 'Cerrar', { duration: 2000 });
+    console.log('👥 Gestionar roles del sistema...');
+    this.snackBar.open('Selecciona un usuario de la lista para gestionar su rol y permisos', 'Cerrar', {
+      duration: 4000
+    });
   }
 
   /**

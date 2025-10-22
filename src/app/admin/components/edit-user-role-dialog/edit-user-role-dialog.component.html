@@ -1,334 +1,458 @@
-<!-- src/app/admin/components/edit-user-role-dialog/edit-user-role-dialog.component.html -->
-<div class="dialog-container">
-  <!-- HEADER -->
-  <div class="dialog-header">
-    <div class="header-content">
-      <div class="user-avatar" [style.background]="getUserColor()">
-        {{ getInitials() }}
-      </div>
+<!-- edit-user-role-dialog.component.html - OPTIMIZADO CON ESTILO MODERNO -->
 
-      <div class="user-info">
-        <h2 class="mat-h2">Editar Rol y Permisos</h2>
-        <div class="user-details">
-          <p class="user-name">{{ data.user.displayName || 'Sin nombre' }}</p>
-          <p class="user-email">{{ data.user.email }}</p>
-        </div>
+<div class="max-w-[900px] max-h-[90vh] bg-white rounded-2xl overflow-hidden flex flex-col">
+
+  <!-- ============================================
+       HEADER
+       ============================================ -->
+  <div class="flex justify-between items-center px-8 py-8 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+    <div class="flex items-center gap-4">
+      <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+        <mat-icon class="!text-[28px] !w-[28px] !h-[28px]">edit</mat-icon>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold mb-1">Editar Usuario</h2>
+        <p class="text-blue-100 text-sm">{{ data.user.email }}</p>
       </div>
     </div>
-
-    <button mat-icon-button (click)="onCancel()" [disabled]="isSaving">
+    <button
+      mat-icon-button
+      (click)="onCancel()"
+      class="!text-white !bg-white/10 !border !border-white/20 hover:!bg-white/20 transition-all"
+      [disabled]="isLoading">
       <mat-icon>close</mat-icon>
     </button>
   </div>
 
-  <!-- CONTENIDO CON TABS -->
-  <mat-dialog-content class="dialog-content">
-    <mat-tab-group [(selectedIndex)]="currentTab" class="custom-tabs">
-      <!-- TAB 1: ROL -->
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <mat-icon class="tab-icon">shield</mat-icon>
-          <span>Rol</span>
-        </ng-template>
+  <!-- ============================================
+       TABS NAVIGATION
+       ============================================ -->
+  <mat-tab-group
+    class="modern-tabs flex-1 overflow-hidden"
+    [(selectedIndex)]="selectedTabIndex"
+    (selectedTabChange)="onTabChange($event)"
+    animationDuration="300ms">
 
-        <div class="tab-content">
-          <p class="section-description">
-            Selecciona el rol del usuario. El rol determina el nivel de acceso general al sistema.
-          </p>
+    <!-- ============================================
+         TAB 1: INFORMACIÓN
+         ============================================ -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <div class="tab-label-content flex flex-col items-center gap-1 relative">
+          <mat-icon class="tab-icon">person</mat-icon>
+          <span class="tab-text">Información</span>
+          @if (isTabValid(0)) {
+            <mat-icon class="tab-check">check_circle</mat-icon>
+          }
+        </div>
+      </ng-template>
 
-          <div class="role-options">
-            @for (role of roleOptions; track role.value) {
-              <div
-                class="role-card"
-                [class.selected]="selectedRole === role.value"
-                [attr.data-role]="role.value"
-                (click)="selectRole($any(role.value))"
-              >
-                <div class="role-card-header">
-                  <mat-icon class="role-icon">{{ getRoleIcon(role.value) }}</mat-icon>
-                  <div class="role-info">
-                    <h3>{{ role.label }}</h3>
-                    <p>{{ role.description }}</p>
-                  </div>
-                  @if (selectedRole === role.value) {
-                    <mat-icon class="check-icon">check_circle</mat-icon>
+      <div class="tab-content-modern px-8 py-8 min-h-[400px] max-h-[500px] overflow-y-auto">
+        <form [formGroup]="userForm">
+
+          <!-- User Avatar -->
+          <div class="flex justify-center mb-6">
+            <div class="user-avatar-large" [style.background]="getUserColor()">
+              {{ getInitials() }}
+            </div>
+          </div>
+
+          <!-- Email (read-only) -->
+          <div class="input-group flex flex-col gap-2 mb-6">
+            <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+              <mat-icon class="label-icon !text-lg text-blue-500">email</mat-icon>
+              Email
+            </label>
+            <input
+              type="email"
+              class="input-field bg-slate-50"
+              [value]="data.user.email"
+              readonly
+              disabled>
+            <span class="text-xs text-slate-500">El email no puede ser modificado</span>
+          </div>
+
+          <!-- Nombre Completo -->
+          <div class="input-group flex flex-col gap-2 mb-6">
+            <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+              <mat-icon class="label-icon !text-lg text-blue-500">badge</mat-icon>
+              Nombre Completo
+            </label>
+            <input
+              type="text"
+              class="input-field"
+              formControlName="displayName"
+              placeholder="Juan Pérez"
+              autocomplete="name">
+            @if (isFieldInvalid('displayName')) {
+              <div class="input-error">
+                {{ getErrorMessage('displayName') }}
+              </div>
+            }
+          </div>
+
+          <!-- Info Box -->
+          <div class="bg-blue-50 border border-blue-200 rounded-xl p-5">
+            <div class="flex items-start gap-3">
+              <mat-icon class="!text-blue-600 !text-[22px] flex-shrink-0">info</mat-icon>
+              <div>
+                <h4 class="text-sm font-semibold text-blue-900 mb-1">Información de la cuenta</h4>
+                <div class="text-xs text-blue-700 space-y-1">
+                  <p class="m-0">• Fecha de creación: {{ data.user.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+                  @if (data.user.lastLogin) {
+                    <p class="m-0">• Último acceso: {{ data.user.lastLogin | date:'dd/MM/yyyy HH:mm' }}</p>
                   }
                 </div>
               </div>
-            }
+            </div>
           </div>
 
-          @if (selectedRole === 'admin') {
-            <div class="admin-warning">
-              <mat-icon>warning</mat-icon>
-              <div>
-                <strong>Atención:</strong> Los administradores tienen acceso completo al sistema,
-                incluyendo la gestión de usuarios y configuraciones críticas.
-              </div>
-            </div>
-          }
+        </form>
+      </div>
+    </mat-tab>
 
-          @if (isCurrentUser() && selectedRole !== 'admin') {
-            <div class="self-edit-warning">
-              <mat-icon>info</mat-icon>
-              <div>
-                Estás modificando tu propio rol. Perderás acceso al panel de administración
-                si cambias a un rol diferente a "Administrador".
-              </div>
-            </div>
+    <!-- ============================================
+         TAB 2: ROL
+         ============================================ -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <div class="tab-label-content flex flex-col items-center gap-1 relative">
+          <mat-icon class="tab-icon">admin_panel_settings</mat-icon>
+          <span class="tab-text">Rol</span>
+          @if (isTabValid(1)) {
+            <mat-icon class="tab-check">check_circle</mat-icon>
           }
         </div>
-      </mat-tab>
+      </ng-template>
 
-      <!-- TAB 2: PERMISOS -->
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <mat-icon class="tab-icon">vpn_key</mat-icon>
-          <span>Permisos</span>
-        </ng-template>
+      <div class="tab-content-modern px-8 py-8 min-h-[400px] max-h-[500px] overflow-y-auto">
+        <form [formGroup]="userForm">
 
-        <div class="tab-content">
-          <div class="permissions-header">
-            <p class="section-description">
-              Define los permisos específicos para este usuario.
-              @if (selectedRole === 'admin') {
-                <span class="admin-note">Los administradores tienen todos los permisos automáticamente.</span>
-              }
-            </p>
+          <div class="role-section">
+            <label class="section-label flex items-center gap-2 text-[15px] font-semibold text-slate-800 mb-4">
+              <mat-icon class="!text-[22px] !w-[22px] !h-[22px] text-blue-500">shield</mat-icon>
+              Selecciona el Rol
+            </label>
 
-            <div class="permissions-actions">
-              <button
-                mat-stroked-button
-                (click)="applyDefaultPermissions()"
-                [disabled]="isSaving"
-              >
-                <mat-icon>settings_backup_restore</mat-icon>
-                Aplicar predeterminados
-              </button>
-            </div>
-          </div>
-
-          <div class="permissions-list">
-            @for (permission of permissionOptions; track permission.value) {
-              <div class="permission-item">
-                <mat-checkbox
-                  [checked]="isPermissionSelected(permission.value)"
-                  (change)="togglePermission(permission.value)"
-                  [disabled]="isSaving || selectedRole === 'admin' || (selectedPermissions.size === 1 && isPermissionSelected(permission.value))"
-                  color="primary"
-                >
-                  <div class="permission-content">
-                    <div class="permission-header">
-                      <mat-icon class="permission-icon">{{ getPermissionIcon(permission.value) }}</mat-icon>
-                      <span class="permission-label">{{ permission.label }}</span>
+            <mat-radio-group
+              formControlName="role"
+              class="role-radio-group flex flex-col gap-3">
+              @for (role of roleOptions; track role.value) {
+                <mat-radio-button
+                  [value]="role.value"
+                  class="role-radio-card">
+                  <div class="role-card-content ml-9">
+                    <div class="role-header flex items-center gap-3 mb-1.5">
+                      <mat-icon [class]="'role-icon-' + role.value + ' !text-2xl'">
+                        {{ getRoleIcon(role.value) }}
+                      </mat-icon>
+                      <span class="role-name text-base font-semibold text-slate-800">{{ role.label }}</span>
                     </div>
-                    <p class="permission-description">{{ permission.description }}</p>
+                    <p class="role-description text-sm text-slate-500 m-0">{{ role.description }}</p>
                   </div>
-                </mat-checkbox>
-              </div>
-            }
+                </mat-radio-button>
+              }
+            </mat-radio-group>
           </div>
 
-          @if (selectedPermissions.size === 0) {
-            <div class="error-message">
-              <mat-icon>error</mat-icon>
-              El usuario debe tener al menos un permiso
-            </div>
-          }
-
-          <div class="selected-permissions-summary">
-            <mat-icon>check_circle</mat-icon>
-            <span>{{ selectedPermissions.size }} permiso(s) seleccionado(s)</span>
-          </div>
-        </div>
-      </mat-tab>
-
-      <!-- TAB 3: ESTADO -->
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <mat-icon class="tab-icon">toggle_on</mat-icon>
-          <span>Estado</span>
-        </ng-template>
-
-        <div class="tab-content">
-          <p class="section-description">
-            Gestiona el estado de la cuenta del usuario.
-          </p>
-
-          <div class="status-section">
-            <div class="status-toggle">
-              <div class="status-info">
-                <mat-icon [class.active]="isActive">
-                  @if (isActive) {
-                    check_circle
-                  } @else {
-                    cancel
-                  }
-                </mat-icon>
+          <!-- Warning for current user -->
+          @if (isCurrentUser() && userForm.get('role')?.value !== 'admin') {
+            <div class="mt-6 bg-amber-50 border border-amber-200 rounded-xl p-5">
+              <div class="flex items-start gap-3">
+                <mat-icon class="!text-amber-600 !text-[22px] flex-shrink-0">warning</mat-icon>
                 <div>
-                  <h3>Estado de la cuenta</h3>
-                  <p>
-                    @if (isActive) {
-                      El usuario puede acceder al sistema
-                    } @else {
-                      El usuario no puede acceder al sistema
-                    }
+                  <h4 class="text-sm font-semibold text-amber-900 mb-1">Advertencia</h4>
+                  <p class="text-xs text-amber-700 m-0">
+                    Estás modificando tu propio rol. Perderás acceso al panel de administración
+                    si cambias a un rol diferente a "Administrador".
                   </p>
                 </div>
               </div>
-
-              <mat-slide-toggle
-                [(ngModel)]="isActive"
-                [disabled]="isSaving || isCurrentUser()"
-                color="primary"
-              >
-                @if (isActive) {
-                  Activo
-                } @else {
-                  Inactivo
-                }
-              </mat-slide-toggle>
             </div>
+          }
 
-            @if (isCurrentUser()) {
-              <div class="self-edit-warning">
-                <mat-icon>info</mat-icon>
-                <div>
-                  No puedes desactivar tu propia cuenta.
-                </div>
-              </div>
-            }
+        </form>
+      </div>
+    </mat-tab>
 
-            @if (!isActive && !isCurrentUser()) {
-              <div class="inactive-warning">
-                <mat-icon>warning</mat-icon>
-                <div>
-                  <strong>Cuenta desactivada:</strong> El usuario no podrá iniciar sesión
-                  ni acceder a ninguna funcionalidad del sistema.
+    <!-- ============================================
+         TAB 3: PERMISOS
+         ============================================ -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <div class="tab-label-content flex flex-col items-center gap-1 relative">
+          <mat-icon class="tab-icon">security</mat-icon>
+          <span class="tab-text">Permisos</span>
+          @if (isTabValid(2)) {
+            <mat-icon class="tab-check">check_circle</mat-icon>
+          }
+        </div>
+      </ng-template>
+
+      <div class="tab-content-modern px-8 py-8 min-h-[400px] max-h-[500px] overflow-y-auto">
+        <form [formGroup]="userForm">
+
+          <!-- Header -->
+          <div class="permissions-header flex items-start gap-4 mb-6 pb-4 border-b-2 border-slate-100">
+            <mat-icon class="section-icon !text-[32px] !w-[32px] !h-[32px] text-blue-500 flex-shrink-0">lock</mat-icon>
+            <div>
+              <h3 class="section-title text-lg font-bold text-slate-800 m-0 mb-1">Permisos de Acceso</h3>
+              <p class="section-subtitle text-sm text-slate-500 m-0">Selecciona los permisos que tendrá este usuario</p>
+            </div>
+          </div>
+
+          <!-- Grid de permisos -->
+          <div class="permissions-grid grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+            @for (permission of permissionOptions; track permission.value) {
+              <div
+                class="permission-card flex items-start gap-3"
+                [class.selected]="isPermissionSelected(permission.value)"
+                (click)="togglePermission(permission.value)">
+
+                <mat-checkbox
+                  [checked]="isPermissionSelected(permission.value)"
+                  (change)="togglePermission(permission.value)"
+                  (click)="$event.stopPropagation()"
+                  color="primary"
+                  class="permission-checkbox flex-shrink-0">
+                </mat-checkbox>
+
+                <div class="permission-content flex items-start gap-3 flex-1">
+                  <mat-icon class="permission-icon !text-2xl text-blue-500 flex-shrink-0 mt-1">
+                    {{ getPermissionIcon(permission.value) }}
+                  </mat-icon>
+                  <div>
+                    <h4 class="permission-name text-sm font-semibold text-slate-800 m-0 mb-1">{{ permission.label }}</h4>
+                    <p class="permission-desc text-xs text-slate-500 m-0">{{ permission.description }}</p>
+                  </div>
                 </div>
               </div>
             }
           </div>
 
-          <!-- Resumen de información del usuario -->
-          <mat-divider></mat-divider>
-
-          <div class="user-summary">
-            <h3>Información del usuario</h3>
-
-            <div class="summary-item">
-              <mat-icon>email</mat-icon>
-              <div>
-                <label>Email</label>
-                <span>{{ data.user.email }}</span>
-              </div>
+          <!-- Preview -->
+          @if (getSelectedPermissions().length > 0) {
+            <div class="selected-preview bg-slate-50 border border-slate-200 rounded-xl p-4 mt-4">
+              <span class="preview-label block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Permisos seleccionados:</span>
+              <mat-chip-set class="modern-chip-set flex flex-wrap gap-2">
+                @for (perm of getSelectedPermissions(); track perm) {
+                  <mat-chip
+                    class="modern-chip permission-chip"
+                    (removed)="togglePermission(perm)">
+                    <mat-icon matChipAvatar class="!text-base">{{ getPermissionIcon(perm) }}</mat-icon>
+                    {{ getPermissionLabel(perm) }}
+                    <button matChipRemove>
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip>
+                }
+              </mat-chip-set>
             </div>
+          }
 
-            <div class="summary-item">
-              <mat-icon>person</mat-icon>
-              <div>
-                <label>Nombre completo</label>
-                <span>{{ data.user.displayName || 'No especificado' }}</span>
-              </div>
+        </form>
+      </div>
+    </mat-tab>
+
+    <!-- ============================================
+         TAB 4: MÓDULOS
+         ============================================ -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <div class="tab-label-content flex flex-col items-center gap-1 relative">
+          <mat-icon class="tab-icon">apps</mat-icon>
+          <span class="tab-text">Módulos</span>
+          @if (isTabValid(3)) {
+            <mat-icon class="tab-check">check_circle</mat-icon>
+          }
+        </div>
+      </ng-template>
+
+      <div class="tab-content-modern px-8 py-8 min-h-[400px] max-h-[500px] overflow-y-auto">
+        <form [formGroup]="userForm">
+
+          <!-- Header -->
+          <div class="modules-header flex items-start gap-4 mb-6 pb-4 border-b-2 border-slate-100">
+            <mat-icon class="section-icon !text-[32px] !w-[32px] !h-[32px] text-blue-500 flex-shrink-0">extension</mat-icon>
+            <div>
+              <h3 class="section-title text-lg font-bold text-slate-800 m-0 mb-1">Módulos del Sistema</h3>
+              <p class="section-subtitle text-sm text-slate-500 m-0">Selecciona las funcionalidades a las que tendrá acceso</p>
             </div>
+          </div>
 
-            <div class="summary-item">
-              <mat-icon>calendar_today</mat-icon>
-              <div>
-                <label>Fecha de creación</label>
-                <span>{{ data.user.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-              </div>
-            </div>
+          <!-- Grid de módulos -->
+          <div class="modules-grid grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            @for (module of moduleOptions; track module.value) {
+              <div
+                class="module-card flex flex-col gap-3"
+                [class.selected]="isModuleSelected(module.value)"
+                (click)="toggleModule(module.value)">
 
-            @if (data.user.lastLogin) {
-              <div class="summary-item">
-                <mat-icon>login</mat-icon>
-                <div>
-                  <label>Último acceso</label>
-                  <span>{{ data.user.lastLogin | date:'dd/MM/yyyy HH:mm' }}</span>
+                <div class="module-card-header flex justify-between items-center">
+                  <mat-checkbox
+                    [checked]="isModuleSelected(module.value)"
+                    (change)="toggleModule(module.value)"
+                    (click)="$event.stopPropagation()"
+                    color="primary"
+                    class="module-checkbox flex-shrink-0">
+                  </mat-checkbox>
+                  <mat-icon class="module-icon-large">{{ module.icon }}</mat-icon>
+                </div>
+
+                <div class="module-card-body flex-1 flex flex-col gap-2">
+                  <h4 class="module-name text-sm font-semibold text-slate-800 m-0">{{ module.label }}</h4>
+                  <p class="module-description text-xs text-slate-500 m-0">{{ module.description }}</p>
                 </div>
               </div>
             }
+          </div>
+
+          <!-- Preview -->
+          @if (getSelectedModules().length > 0) {
+            <div class="selected-preview modules-preview bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-4 mt-4">
+              <span class="preview-label block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                {{ getSelectedModules().length }} módulos seleccionados
+              </span>
+              <mat-chip-set class="modern-chip-set flex flex-wrap gap-2">
+                @for (mod of getSelectedModules(); track mod) {
+                  <mat-chip
+                    class="modern-chip module-chip"
+                    (removed)="toggleModule(mod)">
+                    <mat-icon matChipAvatar class="!text-base">{{ getModuleIcon(mod) }}</mat-icon>
+                    {{ getModuleLabel(mod) }}
+                    <button matChipRemove>
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip>
+                }
+              </mat-chip-set>
+            </div>
+          }
+
+        </form>
+      </div>
+    </mat-tab>
+
+    <!-- ============================================
+         TAB 5: RESUMEN
+         ============================================ -->
+    @if (hasChanges()) {
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <div class="tab-label-content flex flex-col items-center gap-1 relative">
+            <mat-icon class="tab-icon">summarize</mat-icon>
+            <span class="tab-text">Resumen</span>
+          </div>
+        </ng-template>
+
+        <div class="tab-content-modern px-8 py-8 min-h-[400px] max-h-[500px] overflow-y-auto">
+          <div class="summary-header flex items-center gap-4 mb-6">
+            <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center">
+              <mat-icon class="!text-[32px] text-green-600">change_circle</mat-icon>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-slate-800 m-0 mb-1">Resumen de Cambios</h3>
+              <p class="text-sm text-slate-500 m-0">Revisa los cambios antes de guardar</p>
+            </div>
+          </div>
+
+          <div class="changes-list space-y-3 mb-6">
+            @for (change of getChangesSummary(); track change) {
+              <div class="change-item flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <mat-icon class="!text-blue-600 !text-[20px] flex-shrink-0 mt-0.5">arrow_forward</mat-icon>
+                <span class="text-sm text-blue-900 font-medium">{{ change }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="confirmation-message bg-green-50 border border-green-200 rounded-xl p-5">
+            <div class="flex items-start gap-3">
+              <mat-icon class="!text-green-600 !text-[22px] flex-shrink-0">check_circle</mat-icon>
+              <div>
+                <h4 class="text-sm font-semibold text-green-900 mb-1">Listo para guardar</h4>
+                <p class="text-xs text-green-700 m-0">
+                  Los cambios se aplicarán inmediatamente. El usuario verá los cambios reflejados en su próximo inicio de sesión.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </mat-tab>
+    }
 
-      <!-- TAB 4: RESUMEN -->
-      @if (hasChanges()) {
-        <mat-tab>
-          <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">summarize</mat-icon>
-            <span>Resumen</span>
-          </ng-template>
+  </mat-tab-group>
 
-          <div class="tab-content">
-            <div class="summary-header">
-              <mat-icon class="summary-icon">change_circle</mat-icon>
-              <h3>Cambios a realizar</h3>
-            </div>
+  <!-- ============================================
+       FOOTER
+       ============================================ -->
+  <mat-dialog-actions class="dialog-modern-footer m-0 p-0 border-t border-slate-200 bg-slate-50">
+    <div class="footer-content flex justify-between items-center px-8 py-6 gap-4">
 
-            <div class="changes-list">
-              @for (change of getChangesSummary(); track change) {
-                <div class="change-item">
-                  <mat-icon>arrow_forward</mat-icon>
-                  <span>{{ change }}</span>
-                </div>
-              }
-            </div>
+      <!-- Navegación -->
+      <div class="footer-navigation flex-1">
+        @if (selectedTabIndex > 0) {
+          <button
+            mat-button
+            (click)="previousTab()"
+            class="nav-button flex items-center gap-2 text-slate-500 font-medium px-4 py-2 rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all">
+            <mat-icon>arrow_back</mat-icon>
+            Anterior
+          </button>
+        }
 
-            <div class="confirmation-message">
-              <mat-icon>info</mat-icon>
-              <p>
-                Los cambios se aplicarán inmediatamente al guardar.
-                El usuario verá reflejados estos cambios en su próximo inicio de sesión.
-              </p>
-            </div>
-          </div>
-        </mat-tab>
-      }
-    </mat-tab-group>
-  </mat-dialog-content>
+        @if (hasChanges()) {
+          <button
+            mat-button
+            (click)="resetChanges()"
+            [disabled]="isLoading"
+            class="ml-3 text-slate-500 font-medium px-4 py-2 rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all">
+            <mat-icon>undo</mat-icon>
+            Deshacer cambios
+          </button>
+        }
+      </div>
 
-  <!-- FOOTER -->
-  <mat-dialog-actions class="dialog-actions">
-    <div class="actions-left">
-      @if (hasChanges()) {
+      <!-- Acciones -->
+      <div class="footer-actions flex items-center gap-3">
         <button
           mat-button
-          (click)="resetChanges()"
-          [disabled]="isSaving"
-        >
-          <mat-icon>undo</mat-icon>
-          Deshacer cambios
+          (click)="onCancel()"
+          [disabled]="isLoading"
+          class="cancel-button-modern text-slate-500 font-medium px-5 py-2 rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all">
+          Cancelar
         </button>
-      }
-    </div>
 
-    <div class="actions-right">
-      <button
-        mat-button
-        (click)="onCancel()"
-        [disabled]="isSaving"
-      >
-        Cancelar
-      </button>
-
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="onSave()"
-        [disabled]="!canSave() || isSaving"
-      >
-        @if (isSaving) {
-          <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
-          <span>Guardando...</span>
-        } @else {
-          <ng-container>
-            <mat-icon>save</mat-icon>
-            <span>Guardar cambios</span>
-          </ng-container>
+        @if (selectedTabIndex < 4 && !hasChanges()) {
+          <button
+            mat-raised-button
+            (click)="nextTab()"
+            [disabled]="!canProceedToNextTab()"
+            class="next-button flex items-center gap-2 font-semibold px-6 py-2.5 rounded-lg !bg-gradient-to-br !from-blue-500 !to-blue-600 !text-white hover:!shadow-[0_6px_16px_rgba(59,130,246,0.3)] hover:!-translate-y-0.5 transition-all"
+            color="primary">
+            Siguiente
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
         }
-      </button>
+
+        @if (hasChanges() || selectedTabIndex === 4) {
+          <button
+            mat-raised-button
+            type="button"
+            (click)="onSave()"
+            [disabled]="userForm.invalid || isLoading || !hasChanges()"
+            class="create-button-modern flex items-center gap-2 font-semibold px-7 py-3 rounded-lg !bg-gradient-to-br !from-blue-500 !to-blue-600 !text-white !shadow-[0_4px_12px_rgba(59,130,246,0.3)] hover:!shadow-[0_8px_20px_rgba(59,130,246,0.4)] hover:!-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            color="primary">
+            @if (!isLoading) {
+              <mat-icon>save</mat-icon>
+            }
+            @if (isLoading) {
+              <mat-spinner diameter="20" class="button-spinner inline-block"></mat-spinner>
+            }
+            {{ isLoading ? 'Guardando...' : 'Guardar Cambios' }}
+          </button>
+        }
+      </div>
     </div>
   </mat-dialog-actions>
+
 </div>

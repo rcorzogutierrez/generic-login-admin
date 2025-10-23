@@ -1,17 +1,15 @@
-/* edit-user-role-dialog.component.css - OPTIMIZADO CON ESTILO MODERNO */
+/* edit-user-role-dialog.component.css - REFACTORIZADO Y OPTIMIZADO */
 
 /* ============================================
-   VARIABLES LOCALES
+   ESTILOS ESPECÍFICOS DEL DIALOG
+   Las clases globales se usan desde styles.css:
+   - Variables CSS (:root)
+   - .input-field-modern
+   - .module-card-base
+   - .permission-card-base
+   - .custom-scrollbar
+   - .modern-chip, .permission-chip, .module-chip
    ============================================ */
-:host {
-  --primary-blue: #3b82f6;
-  --primary-blue-dark: #2563eb;
-  --success-green: #10b981;
-  --purple-accent: #8b5cf6;
-  --error-red: #ef4444;
-
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
 
 /* ============================================
    USER AVATAR
@@ -64,14 +62,14 @@
   font-size: 24px;
   width: 24px;
   height: 24px;
-  color: #64748b;
+  color: var(--slate-500);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tab-text {
   font-size: 13px;
   font-weight: 500;
-  color: #475569;
+  color: var(--slate-600);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -104,43 +102,28 @@
 }
 
 /* ============================================
-   INPUT FIELDS PERSONALIZADOS
+   INPUT FIELDS (Alias para compatibilidad)
    ============================================ */
 .input-field {
-  width: 100%;
-  height: 48px;
-  padding: 0 16px;
-  font-size: 15px;
-  font-weight: 500;
-  color: #1e293b;
+  @apply w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-medium;
+  @apply focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all;
+  @apply placeholder:text-slate-400;
   background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  outline: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.input-field::placeholder {
-  color: #94a3b8;
-  font-weight: 400;
+  color: var(--slate-800);
 }
 
 .input-field:hover:not(:focus):not(:disabled) {
-  border-color: #cbd5e1;
-  background: #f8fafc;
+  @apply border-slate-300 bg-slate-50;
 }
 
 .input-field:focus {
-  border-color: var(--primary-blue);
   background: white;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .input-field:disabled {
-  background: #f1f5f9;
-  border-color: #e2e8f0;
-  color: #94a3b8;
-  cursor: not-allowed;
+  @apply bg-slate-100 border-slate-200 cursor-not-allowed;
+  color: var(--slate-400);
 }
 
 .input-group:focus-within .label-icon {
@@ -281,7 +264,7 @@
 }
 
 .module-card.selected .module-icon-large {
-  color: #7c3aed;
+  color: var(--purple-accent-dark);
   animation: iconBounce 0.5s ease-out;
 }
 
@@ -292,52 +275,10 @@
 }
 
 /* ============================================
-   CHIPS PREVIEW
+   SCROLLBAR PERSONALIZADO (aplicado a contenido de tabs)
    ============================================ */
-.modern-chip {
-  background: white;
-  border: 1px solid #e2e8f0;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.modern-chip:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.permission-chip {
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-  color: #1e40af;
-  border-color: #93c5fd;
-}
-
-.module-chip {
-  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
-  color: #6b21a8;
-  border-color: #c4b5fd;
-}
-
-/* ============================================
-   SCROLLBAR PERSONALIZADO
-   ============================================ */
-.tab-content-modern::-webkit-scrollbar {
-  width: 6px;
-}
-
-.tab-content-modern::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 3px;
-}
-
-.tab-content-modern::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-
-.tab-content-modern::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+.tab-content-modern {
+  @apply custom-scrollbar;
 }
 
 /* ============================================
@@ -403,7 +344,6 @@
 @media (prefers-reduced-motion: reduce) {
   .permission-card,
   .module-card,
-  .modern-chip,
   .module-icon-large,
   .user-avatar-large {
     animation: none !important;

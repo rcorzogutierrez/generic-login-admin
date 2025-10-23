@@ -265,7 +265,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (user of displayedUsers; track trackByUid($index, user)) {
+            @for (user of displayedUsers; track user.uid ?? user.email) {
               <tr class="border-t border-slate-100 hover:bg-slate-50 transition-colors admin-table-row"
                   [class.selected-row]="isUserSelected(user.uid!)">
                 <!-- Checkbox -->

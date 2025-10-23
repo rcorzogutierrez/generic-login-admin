@@ -157,7 +157,7 @@
             (cdkDropListDropped)="onModuleDrop($event)"
             class="space-y-3">
             
-            @for (module of modules; track trackByModuleId($index, module)) {
+            @for (module of modules; track module.id) {
               <div 
                 cdkDrag
                 class="module-card group"

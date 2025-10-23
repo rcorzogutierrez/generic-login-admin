@@ -1,7 +1,7 @@
 // src/app/admin/components/edit-user-role-dialog/edit-user-role-dialog.component.ts
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,8 +12,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { User, AdminService, RoleOption, PermissionOption } from '../../services/admin.service';
+import { User, AdminService, RoleOption, PermissionOption, ModuleOption } from '../../services/admin.service';
 import { AuthService } from '../../../core/services/auth.service';
 
 export interface EditUserRoleDialogData {
@@ -25,7 +27,7 @@ export interface EditUserRoleDialogData {
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
+    ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
     MatIconModule,
@@ -35,390 +37,420 @@ export interface EditUserRoleDialogData {
     MatSlideToggleModule,
     MatTabsModule,
     MatDividerModule,
-    MatChipsModule
+    MatChipsModule,
+    MatSnackBarModule,
+    MatTooltipModule
   ],
   templateUrl: './edit-user-role-dialog.component.html',
   styleUrls: ['./edit-user-role-dialog.component.css']
 })
 export class EditUserRoleDialogComponent implements OnInit {
-  // Opciones disponibles
-  roleOptions: RoleOption[] = [];
-  permissionOptions: PermissionOption[] = [];
+  private fb = inject(FormBuilder);
+  private adminService = inject(AdminService);
+  private authService = inject(AuthService);
+  private snackBar = inject(MatSnackBar);
 
-  // Datos editables
-  selectedRole: 'admin' | 'user' | 'viewer' = 'user';
-  selectedPermissions = new Set<string>();
-  isActive = true;
+  userForm!: FormGroup;
+  isLoading = false;
+  selectedTabIndex = 0;
+
+  // Opciones para los selects
+  roleOptions = this.adminService.getRoleOptions();
+  permissionOptions = this.adminService.getPermissionOptions();
+  moduleOptions = this.adminService.getModuleOptions();
 
   // Estado original para detectar cambios
-  originalRole: string = '';
-  originalPermissions = new Set<string>();
-  originalIsActive = true;
-
-  // Control de estado
-  isSaving = false;
-  currentTab = 0;
+  originalData: any = {};
 
   constructor(
     public dialogRef: MatDialogRef<EditUserRoleDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: EditUserRoleDialogData,
-    private adminService: AdminService,
-    private authService: AuthService
+    @Inject(MAT_DIALOG_DATA) public data: EditUserRoleDialogData
   ) {}
 
   ngOnInit() {
-    this.loadOptions();
-    this.initializeData();
+    this.initializeForm();
+    this.saveOriginalData();
+    this.setupRoleChangeListener();
   }
 
   /**
-   * Carga las opciones de roles y permisos
+   * Inicializa el formulario con los datos del usuario
    */
-  private loadOptions() {
-    this.roleOptions = this.adminService.getRoleOptions();
-    this.permissionOptions = this.adminService.getPermissionOptions();
-  }
-
-  /**
-   * Inicializa los datos del usuario
-   */
-  private initializeData() {
-    // Rol
-    this.selectedRole = this.data.user.role;
-    this.originalRole = this.data.user.role;
-
-    // Permisos
-    const userPermissions = this.data.user.permissions || [];
-    userPermissions.forEach(perm => {
-      this.selectedPermissions.add(perm);
-      this.originalPermissions.add(perm);
+  private initializeForm() {
+    this.userForm = this.fb.group({
+      displayName: [
+        this.data.user.displayName || '',
+        [Validators.required, Validators.minLength(2), Validators.maxLength(50)]
+      ],
+      role: [this.data.user.role || 'user', [Validators.required]],
+      permissions: [this.data.user.permissions || [], [Validators.required]],
+      modules: [this.data.user.modules || []],
+      isActive: [this.data.user.isActive !== false]
     });
-
-    // Estado activo
-    this.isActive = this.data.user.isActive;
-    this.originalIsActive = this.data.user.isActive;
   }
 
-  // ============================================
-  // GESTIÓN DE ROL
-  // ============================================
+  /**
+   * Guarda los datos originales para detectar cambios
+   */
+  private saveOriginalData() {
+    this.originalData = {
+      displayName: this.data.user.displayName,
+      role: this.data.user.role,
+      permissions: [...(this.data.user.permissions || [])],
+      modules: [...(this.data.user.modules || [])],
+      isActive: this.data.user.isActive
+    };
+  }
 
   /**
-   * Selecciona un rol
+   * Configura el listener para cambios en el rol
    */
-  selectRole(role: 'admin' | 'user' | 'viewer') {
-    this.selectedRole = role;
+  private setupRoleChangeListener() {
+    this.userForm.get('role')?.valueChanges.subscribe(role => {
+      this.updatePermissionsBasedOnRole(role);
+    });
+  }
 
-    // Si se selecciona admin, agregar todos los permisos automáticamente
-    if (role === 'admin') {
-      this.permissionOptions.forEach(perm => {
-        this.selectedPermissions.add(perm.value);
-      });
+  /**
+   * Actualiza los permisos según el rol seleccionado
+   */
+  private updatePermissionsBasedOnRole(role: string) {
+    const currentPermissions = this.userForm.get('permissions')?.value || [];
+
+    switch (role) {
+      case 'admin':
+        // Admin tiene todos los permisos
+        this.userForm.patchValue({
+          permissions: this.permissionOptions.map(p => p.value)
+        });
+        break;
+      case 'user':
+        // User tiene read y write
+        const userPerms = currentPermissions.length === 0
+          ? ['read', 'write']
+          : currentPermissions.filter((p: string) => p !== 'manage_users');
+        this.userForm.patchValue({ permissions: userPerms });
+        break;
+      case 'viewer':
+        // Viewer solo tiene read
+        this.userForm.patchValue({ permissions: ['read'] });
+        break;
     }
   }
 
-  /**
-   * Obtiene la descripción del rol
-   */
-  getRoleDescription(role: string): string {
-    const roleOption = this.roleOptions.find(r => r.value === role);
-    return roleOption?.description || '';
+  // ============================================
+  // GESTIÓN DE TABS
+  // ============================================
+
+  onTabChange(event: any) {
+    this.selectedTabIndex = event.index;
+  }
+
+  nextTab() {
+    if (this.selectedTabIndex < 4) {
+      this.selectedTabIndex++;
+    }
+  }
+
+  previousTab() {
+    if (this.selectedTabIndex > 0) {
+      this.selectedTabIndex--;
+    }
+  }
+
+  isTabValid(tabIndex: number): boolean {
+    switch (tabIndex) {
+      case 0: // Información
+        return !!this.userForm.get('displayName')?.valid;
+      case 1: // Rol
+        return !!this.userForm.get('role')?.valid;
+      case 2: // Permisos
+        const perms = this.userForm.get('permissions')?.value || [];
+        return perms.length > 0;
+      case 3: // Módulos
+        return true; // Módulos son opcionales
+      case 4: // Estado
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  canProceedToNextTab(): boolean {
+    return this.isTabValid(this.selectedTabIndex);
   }
 
   // ============================================
   // GESTIÓN DE PERMISOS
   // ============================================
 
-  /**
-   * Toggle de un permiso
-   */
   togglePermission(permission: string) {
-    if (this.selectedPermissions.has(permission)) {
-      // No permitir quitar todos los permisos
-      if (this.selectedPermissions.size <= 1) {
-        return;
-      }
-      this.selectedPermissions.delete(permission);
-    } else {
-      this.selectedPermissions.add(permission);
-    }
-  }
+    const permissions = this.userForm.get('permissions')?.value || [];
+    const index = permissions.indexOf(permission);
 
-  /**
-   * Verifica si un permiso está seleccionado
-   */
-  isPermissionSelected(permission: string): boolean {
-    return this.selectedPermissions.has(permission);
-  }
-
-  /**
-   * Selecciona todos los permisos
-   */
-  selectAllPermissions() {
-    this.permissionOptions.forEach(perm => {
-      this.selectedPermissions.add(perm.value);
-    });
-  }
-
-  /**
-   * Deselecciona todos los permisos excepto 'read'
-   */
-  deselectAllPermissions() {
-    this.selectedPermissions.clear();
-    this.selectedPermissions.add('read'); // Mantener al menos 'read'
-  }
-
-  /**
-   * Aplica permisos predeterminados según el rol
-   */
-  applyDefaultPermissions() {
-    this.selectedPermissions.clear();
-
-    switch (this.selectedRole) {
-      case 'admin':
-        this.permissionOptions.forEach(perm => {
-          this.selectedPermissions.add(perm.value);
-        });
-        break;
-      case 'user':
-        this.selectedPermissions.add('read');
-        this.selectedPermissions.add('write');
-        break;
-      case 'viewer':
-        this.selectedPermissions.add('read');
-        break;
-    }
-  }
-
-  // ============================================
-  // GESTIÓN DE CAMBIOS
-  // ============================================
-
-  /**
-   * Verifica si hay cambios
-   */
-  hasChanges(): boolean {
-    // Verificar cambio de rol
-    if (this.selectedRole !== this.originalRole) {
-      return true;
-    }
-
-    // Verificar cambio de estado activo
-    if (this.isActive !== this.originalIsActive) {
-      return true;
-    }
-
-    // Verificar cambios en permisos
-    if (this.selectedPermissions.size !== this.originalPermissions.size) {
-      return true;
-    }
-
-    for (const perm of this.selectedPermissions) {
-      if (!this.originalPermissions.has(perm)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  /**
-   * Obtiene un resumen de los cambios
-   */
-  getChangesSummary(): string[] {
-    const changes: string[] = [];
-
-    if (this.selectedRole !== this.originalRole) {
-      const oldRoleLabel = this.roleOptions.find(r => r.value === this.originalRole)?.label;
-      const newRoleLabel = this.roleOptions.find(r => r.value === this.selectedRole)?.label;
-      changes.push(`Rol: ${oldRoleLabel} → ${newRoleLabel}`);
-    }
-
-    if (this.isActive !== this.originalIsActive) {
-      changes.push(`Estado: ${this.originalIsActive ? 'Activo' : 'Inactivo'} → ${this.isActive ? 'Activo' : 'Inactivo'}`);
-    }
-
-    const addedPerms = Array.from(this.selectedPermissions).filter(
-      perm => !this.originalPermissions.has(perm)
-    );
-    const removedPerms = Array.from(this.originalPermissions).filter(
-      perm => !this.selectedPermissions.has(perm)
-    );
-
-    if (addedPerms.length > 0) {
-      const labels = addedPerms.map(p =>
-        this.permissionOptions.find(opt => opt.value === p)?.label || p
-      );
-      changes.push(`Permisos agregados: ${labels.join(', ')}`);
-    }
-
-    if (removedPerms.length > 0) {
-      const labels = removedPerms.map(p =>
-        this.permissionOptions.find(opt => opt.value === p)?.label || p
-      );
-      changes.push(`Permisos removidos: ${labels.join(', ')}`);
-    }
-
-    return changes;
-  }
-
-  // ============================================
-  // VALIDACIONES
-  // ============================================
-
-  /**
-   * Verifica si se puede guardar
-   */
-  canSave(): boolean {
-    // Debe haber cambios
-    if (!this.hasChanges()) {
-      return false;
-    }
-
-    // Debe tener al menos un permiso
-    if (this.selectedPermissions.size === 0) {
-      return false;
-    }
-
-    // No se puede desactivar el último admin
-    if (!this.isActive && this.data.user.role === 'admin') {
-      // Esta validación se hará en el servicio
-    }
-
-    // No se puede cambiar el rol del último admin
-    if (this.selectedRole !== 'admin' && this.data.user.role === 'admin') {
-      // Esta validación se hará en el servicio
-    }
-
-    return true;
-  }
-
-  /**
-   * Verifica si es el usuario actual
-   */
-  isCurrentUser(): boolean {
-    return this.authService.authorizedUser()?.email === this.data.user.email;
-  }
-
-  // ============================================
-  // ACCIONES
-  // ============================================
-
-  /**
-   * Guarda los cambios
-   */
-  async onSave() {
-    if (!this.canSave() || this.isSaving) {
+    // No permitir quitar el último permiso
+    if (index > -1 && permissions.length <= 1) {
+      this.snackBar.open('El usuario debe tener al menos un permiso', 'Cerrar', {
+        duration: 3000
+      });
       return;
     }
 
-    this.isSaving = true;
-
-    try {
-      const updateData: Partial<User> = {};
-
-      if (this.selectedRole !== this.originalRole) {
-        updateData.role = this.selectedRole;
-      }
-
-      if (this.isActive !== this.originalIsActive) {
-        updateData.isActive = this.isActive;
-      }
-
-      const newPermissions = Array.from(this.selectedPermissions);
-      if (JSON.stringify(newPermissions.sort()) !== JSON.stringify(Array.from(this.originalPermissions).sort())) {
-        updateData.permissions = newPermissions;
-      }
-
-      const result = await this.adminService.updateUser(
-        this.data.user.uid!,
-        updateData
-      );
-
-      if (result.success) {
-        this.dialogRef.close({
-          success: true,
-          message: 'Usuario actualizado exitosamente',
-          changes: this.getChangesSummary()
-        });
-      } else {
-        alert(result.message);
-        this.isSaving = false;
-      }
-    } catch (error: any) {
-      console.error('Error actualizando usuario:', error);
-      alert('Error al actualizar el usuario: ' + error.message);
-      this.isSaving = false;
-    }
-  }
-
-  /**
-   * Cancela el diálogo
-   */
-  onCancel() {
-    this.dialogRef.close({ success: false });
-  }
-
-  /**
-   * Restaura los valores originales
-   */
-  resetChanges() {
-    this.selectedRole = this.originalRole as 'admin' | 'user' | 'viewer';
-    this.isActive = this.originalIsActive;
-
-    this.selectedPermissions.clear();
-    this.originalPermissions.forEach(perm => {
-      this.selectedPermissions.add(perm);
-    });
-  }
-
-  // ============================================
-  // MÉTODOS DE UTILIDAD
-  // ============================================
-
-  getInitials(): string {
-    const name = this.data.user.displayName || this.data.user.email;
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  }
-
-  getUserColor(): string {
-    const colors = [
-      'linear-gradient(135deg, #3b82f6, #2563eb)',
-      'linear-gradient(135deg, #10b981, #059669)',
-      'linear-gradient(135deg, #f59e0b, #d97706)',
-      'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-      'linear-gradient(135deg, #ef4444, #dc2626)'
-    ];
-
-    let hash = 0;
-    for (let i = 0; i < this.data.user.email.length; i++) {
-      hash = this.data.user.email.charCodeAt(i) + ((hash << 5) - hash);
+    if (index > -1) {
+      permissions.splice(index, 1);
+    } else {
+      permissions.push(permission);
     }
 
-    return colors[Math.abs(hash) % colors.length];
+    this.userForm.patchValue({ permissions: [...permissions] });
   }
 
-  getRoleIcon(role: string = this.selectedRole): string {
-    const icons: Record<string, string> = {
-      admin: 'shield',
-      user: 'person',
-      viewer: 'visibility'
-    };
-    return icons[role] || 'person';
+  isPermissionSelected(permission: string): boolean {
+    const permissions = this.userForm.get('permissions')?.value || [];
+    return permissions.includes(permission);
+  }
+
+  getSelectedPermissions(): string[] {
+    return this.userForm.get('permissions')?.value || [];
+  }
+
+  getPermissionLabel(permission: string): string {
+    const perm = this.permissionOptions.find(p => p.value === permission);
+    return perm?.label || permission;
   }
 
   getPermissionIcon(permission: string): string {
     const icons: Record<string, string> = {
       read: 'visibility',
       write: 'edit',
-      manage_users: 'group',
-      delete: 'delete'
+      delete: 'delete',
+      manage_users: 'people'
     };
     return icons[permission] || 'check_circle';
+  }
+
+  // ============================================
+  // GESTIÓN DE MÓDULOS
+  // ============================================
+
+  toggleModule(moduleValue: string) {
+    const modules = this.userForm.get('modules')?.value || [];
+    const index = modules.indexOf(moduleValue);
+
+    if (index > -1) {
+      modules.splice(index, 1);
+    } else {
+      modules.push(moduleValue);
+    }
+
+    this.userForm.patchValue({ modules: [...modules] });
+  }
+
+  isModuleSelected(moduleValue: string): boolean {
+    const modules = this.userForm.get('modules')?.value || [];
+    return modules.includes(moduleValue);
+  }
+
+  getSelectedModules(): string[] {
+    return this.userForm.get('modules')?.value || [];
+  }
+
+  getModuleLabel(moduleValue: string): string {
+    const module = this.moduleOptions.find(m => m.value === moduleValue);
+    return module?.label || moduleValue;
+  }
+
+  getModuleIcon(moduleValue: string): string {
+    const module = this.moduleOptions.find(m => m.value === moduleValue);
+    return module?.icon || 'extension';
+  }
+
+  // ============================================
+  // GESTIÓN DE ROLES
+  // ============================================
+
+  getRoleIcon(roleValue: string): string {
+    const icons: Record<string, string> = {
+      admin: 'shield',
+      user: 'person',
+      viewer: 'visibility'
+    };
+    return icons[roleValue] || 'person';
+  }
+
+  // ============================================
+  // DETECCIÓN DE CAMBIOS
+  // ============================================
+
+  hasChanges(): boolean {
+    const currentData = this.userForm.value;
+
+    return (
+      currentData.displayName !== this.originalData.displayName ||
+      currentData.role !== this.originalData.role ||
+      currentData.isActive !== this.originalData.isActive ||
+      !this.arraysEqual(currentData.permissions, this.originalData.permissions) ||
+      !this.arraysEqual(currentData.modules, this.originalData.modules)
+    );
+  }
+
+  private arraysEqual(arr1: any[], arr2: any[]): boolean {
+    if (arr1.length !== arr2.length) return false;
+    const sorted1 = [...arr1].sort();
+    const sorted2 = [...arr2].sort();
+    return sorted1.every((val, idx) => val === sorted2[idx]);
+  }
+
+  getChangesSummary(): string[] {
+    const changes: string[] = [];
+    const current = this.userForm.value;
+
+    if (current.displayName !== this.originalData.displayName) {
+      changes.push(`Nombre: "${this.originalData.displayName}" → "${current.displayName}"`);
+    }
+
+    if (current.role !== this.originalData.role) {
+      const oldRoleLabel = this.roleOptions.find(r => r.value === this.originalData.role)?.label;
+      const newRoleLabel = this.roleOptions.find(r => r.value === current.role)?.label;
+      changes.push(`Rol: ${oldRoleLabel} → ${newRoleLabel}`);
+    }
+
+    if (current.isActive !== this.originalData.isActive) {
+      changes.push(`Estado: ${this.originalData.isActive ? 'Activo' : 'Inactivo'} → ${current.isActive ? 'Activo' : 'Inactivo'}`);
+    }
+
+    if (!this.arraysEqual(current.permissions, this.originalData.permissions)) {
+      const added = current.permissions.filter((p: string) => !this.originalData.permissions.includes(p));
+      const removed = this.originalData.permissions.filter((p: string) => !current.permissions.includes(p));
+
+      if (added.length > 0) {
+        changes.push(`Permisos agregados: ${added.map((p: string) => this.getPermissionLabel(p)).join(', ')}`);
+      }
+      if (removed.length > 0) {
+        changes.push(`Permisos removidos: ${removed.map((p: string) => this.getPermissionLabel(p)).join(', ')}`);
+      }
+    }
+
+    if (!this.arraysEqual(current.modules, this.originalData.modules)) {
+      const added = current.modules.filter((m: string) => !this.originalData.modules.includes(m));
+      const removed = this.originalData.modules.filter((m: string) => !current.modules.includes(m));
+
+      if (added.length > 0) {
+        changes.push(`Módulos agregados: ${added.map((m: string) => this.getModuleLabel(m)).join(', ')}`);
+      }
+      if (removed.length > 0) {
+        changes.push(`Módulos removidos: ${removed.map((m: string) => this.getModuleLabel(m)).join(', ')}`);
+      }
+    }
+
+    return changes;
+  }
+
+  resetChanges() {
+    this.userForm.patchValue(this.originalData);
+  }
+
+  // ============================================
+  // VALIDACIONES
+  // ============================================
+
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.userForm.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+
+  getErrorMessage(fieldName: string): string {
+    const field = this.userForm.get(fieldName);
+    if (!field) return '';
+
+    if (field.hasError('required')) return 'Este campo es requerido';
+    if (field.hasError('email')) return 'Email inválido';
+    if (field.hasError('minlength')) {
+      const minLength = field.getError('minlength').requiredLength;
+      return `Mínimo ${minLength} caracteres`;
+    }
+    if (field.hasError('maxlength')) {
+      const maxLength = field.getError('maxlength').requiredLength;
+      return `Máximo ${maxLength} caracteres`;
+    }
+
+    return '';
+  }
+
+  // ============================================
+  // UTILIDADES
+  // ============================================
+
+  isCurrentUser(): boolean {
+    const currentUser = this.authService.authorizedUser();
+    return currentUser?.uid === this.data.user.uid;
+  }
+
+  getUserColor(): string {
+    const colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4'];
+    const index = this.data.user.email.charCodeAt(0) % colors.length;
+    return colors[index];
+  }
+
+  getInitials(): string {
+    if (this.data.user.displayName) {
+      const names = this.data.user.displayName.split(' ');
+      if (names.length >= 2) {
+        return (names[0][0] + names[1][0]).toUpperCase();
+      }
+      return names[0].substring(0, 2).toUpperCase();
+    }
+    return this.data.user.email.substring(0, 2).toUpperCase();
+  }
+
+  // ============================================
+  // ACCIONES
+  // ============================================
+
+  async onSave() {
+    if (this.userForm.invalid) {
+      this.snackBar.open('Por favor completa todos los campos correctamente', 'Cerrar', {
+        duration: 3000
+      });
+      return;
+    }
+
+    if (!this.hasChanges()) {
+      this.snackBar.open('No hay cambios para guardar', 'Cerrar', { duration: 2000 });
+      return;
+    }
+
+    this.isLoading = true;
+
+    try {
+      const formValue = this.userForm.value;
+
+      await this.adminService.updateUser(this.data.user.uid, {
+        displayName: formValue.displayName,
+        role: formValue.role,
+        permissions: formValue.permissions,
+        modules: formValue.modules,
+        isActive: formValue.isActive
+      });
+
+      this.snackBar.open('Usuario actualizado exitosamente', 'Cerrar', { duration: 3000 });
+      this.dialogRef.close(true);
+    } catch (error: any) {
+      console.error('Error actualizando usuario:', error);
+      this.snackBar.open(error.message || 'Error actualizando usuario', 'Cerrar', {
+        duration: 4000
+      });
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  onCancel() {
+    if (this.hasChanges()) {
+      if (!confirm('¿Descartar los cambios?')) {
+        return;
+      }
+    }
+    this.dialogRef.close(false);
   }
 }

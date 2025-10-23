@@ -24,6 +24,7 @@ import { DeleteUserDialogComponent } from './components/delete-user-dialog/delet
 import { DeleteMultipleUsersDialogComponent } from './components/delete-multiple-users-dialog/delete-multiple-users-dialog.component';
 import { AssignModulesDialogComponent } from './components/assign-modules-dialog/assign-modules-dialog.component';
 import { EditUserRoleDialogComponent } from './components/edit-user-role-dialog/edit-user-role-dialog.component';
+import { ManageRolesComponent } from './components/manage-roles/manage-roles.component';
 
 @Component({
   selector: 'app-admin-panel',
@@ -883,8 +884,20 @@ export class AdminPanelComponent implements OnInit {
    */
   manageRoles() {
     console.log('👥 Gestionar roles del sistema...');
-    this.snackBar.open('Selecciona un usuario de la lista para gestionar su rol y permisos', 'Cerrar', {
-      duration: 4000
+
+    const dialogRef = this.dialog.open(ManageRolesComponent, {
+      width: '1100px',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      disableClose: false,
+      panelClass: 'modern-dialog-container'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Cambios en roles realizados');
+        this.loadData(); // Recargar datos si hubo cambios
+      }
     });
   }
 

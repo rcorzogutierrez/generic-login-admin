@@ -1,5 +1,5 @@
 // src/app/admin/components/manage-roles/manage-roles.component.ts
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -50,6 +50,7 @@ export class ManageRolesComponent implements OnInit {
   private adminService = inject(AdminService);
   private snackBar = inject(MatSnackBar);
   private dialogRef = inject(MatDialogRef<ManageRolesComponent>);
+  private cdr = inject(ChangeDetectorRef);
 
   roles: Role[] = [];
   users: User[] = [];
@@ -75,6 +76,8 @@ export class ManageRolesComponent implements OnInit {
    */
   async loadData() {
     this.isLoading = true;
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios para mostrar loading
+
     try {
       // ✅ CRÍTICO: Inicializar servicios antes de leer datos
       await this.rolesService.initialize();
@@ -85,11 +88,14 @@ export class ManageRolesComponent implements OnInit {
 
       // Actualizar contadores de usuarios por rol
       this.updateRoleUserCounts();
+
+      this.cdr.markForCheck(); // ✅ Forzar detección de cambios después de cargar datos
     } catch (error) {
       console.error('Error cargando datos:', error);
       this.snackBar.open('Error cargando datos', 'Cerrar', { duration: 3000 });
     } finally {
       this.isLoading = false;
+      this.cdr.markForCheck(); // ✅ Forzar detección de cambios para ocultar loading
     }
   }
 
@@ -130,6 +136,7 @@ export class ManageRolesComponent implements OnInit {
       isActive: true
     });
     this.roleForm.enable();
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios
   }
 
   /**
@@ -153,6 +160,7 @@ export class ManageRolesComponent implements OnInit {
     } else {
       this.roleForm.get('value')?.enable();
     }
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios
   }
 
   /**
@@ -162,6 +170,7 @@ export class ManageRolesComponent implements OnInit {
     this.viewMode = 'list';
     this.selectedRole = null;
     this.roleForm.reset();
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios
   }
 
   /**
@@ -174,6 +183,7 @@ export class ManageRolesComponent implements OnInit {
     }
 
     this.isLoading = true;
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios
 
     try {
       const formValue = this.roleForm.getRawValue();
@@ -193,6 +203,7 @@ export class ManageRolesComponent implements OnInit {
       this.snackBar.open(error.message || 'Error guardando rol', 'Cerrar', { duration: 4000 });
     } finally {
       this.isLoading = false;
+      this.cdr.markForCheck(); // ✅ Forzar detección de cambios
     }
   }
 
@@ -215,6 +226,7 @@ export class ManageRolesComponent implements OnInit {
     }
 
     this.isLoading = true;
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios
 
     try {
       await this.rolesService.deleteRole(role.id);
@@ -225,6 +237,7 @@ export class ManageRolesComponent implements OnInit {
       this.snackBar.open(error.message || 'Error eliminando rol', 'Cerrar', { duration: 4000 });
     } finally {
       this.isLoading = false;
+      this.cdr.markForCheck(); // ✅ Forzar detección de cambios
     }
   }
 

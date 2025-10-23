@@ -1,5 +1,5 @@
 // src/app/admin/admin-panel.component.ts - VERSIÓN CON SIGNALS
-import { Component, OnInit, effect, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, effect, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -73,11 +73,12 @@ export class AdminPanelComponent implements OnInit {
   selectedUsers = new Set<string>();
 
   constructor(
-    private authService: AuthService, 
+    private authService: AuthService,
     private router: Router,
     private adminService: AdminService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {
     // ✅ Effect para reaccionar a cambios en users signal
     effect(() => {
@@ -85,17 +86,21 @@ export class AdminPanelComponent implements OnInit {
       this.users = users;
       this.applyFilters();
       console.log('👥 Usuarios actualizados:', users.length);
+      // ✅ Forzar detección de cambios después de actualizar usuarios
+      this.cdr.markForCheck();
     });
   }
 
   async ngOnInit() {
     console.log('🔧 Panel Admin cargado para:', this.currentUser()?.email);
-    
+
     this.isLoading = true;
-    
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios para mostrar loading
+
     await this.loadData();
-    
+
     this.isLoading = false;
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios para ocultar loading
   }
 
   /**
@@ -113,6 +118,9 @@ export class AdminPanelComponent implements OnInit {
       this.adminUsers = stats.adminUsers;
 
       console.log('📊 Estadísticas cargadas:', stats);
+
+      // ✅ Forzar detección de cambios después de actualizar stats
+      this.cdr.markForCheck();
     } catch (error) {
       console.error('❌ Error cargando datos:', error);
       this.snackBar.open('Error cargando datos del panel', 'Cerrar', {
@@ -147,7 +155,7 @@ export class AdminPanelComponent implements OnInit {
     // Aplicar búsqueda
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(u => 
+      filtered = filtered.filter(u =>
         u.email.toLowerCase().includes(term) ||
         (u.displayName && u.displayName.toLowerCase().includes(term))
       );
@@ -155,6 +163,8 @@ export class AdminPanelComponent implements OnInit {
 
     this.filteredUsers = filtered;
     this.updateDisplayedUsers();
+    // ✅ Forzar detección de cambios después de aplicar filtros
+    this.cdr.markForCheck();
   }
 
   /**
@@ -228,18 +238,20 @@ export class AdminPanelComponent implements OnInit {
   async refreshData() {
     console.log('🔄 Refrescando datos...');
     this.isLoading = true;
-    
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios para mostrar loading
+
     try {
       await this.loadData();
-      this.snackBar.open('Datos actualizados', 'Cerrar', { 
+      this.snackBar.open('Datos actualizados', 'Cerrar', {
         duration: 2000
       });
     } catch (error) {
-      this.snackBar.open('Error al actualizar', 'Cerrar', { 
+      this.snackBar.open('Error al actualizar', 'Cerrar', {
         duration: 2000
       });
     } finally {
       this.isLoading = false;
+      this.cdr.markForCheck(); // ✅ Forzar detección de cambios para ocultar loading
     }
   }
 
@@ -398,10 +410,11 @@ export class AdminPanelComponent implements OnInit {
     console.log('⚙️ Ejecutando eliminación masiva de', uids.length, 'usuarios');
 
     this.isLoading = true;
-    
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios
+
     const loadingSnackBar = this.snackBar.open(
-      `Eliminando ${uids.length} usuario(s)...`, 
-      '', 
+      `Eliminando ${uids.length} usuario(s)...`,
+      '',
       { duration: 0 }
     );
 
@@ -412,9 +425,9 @@ export class AdminPanelComponent implements OnInit {
 
       if (result.success) {
         this.snackBar.open(
-          `✅ ${result.message}`, 
-          'Cerrar', 
-          { 
+          `✅ ${result.message}`,
+          'Cerrar',
+          {
             duration: 6000,
             panelClass: ['success-snackbar']
           }
@@ -430,19 +443,19 @@ export class AdminPanelComponent implements OnInit {
       } else {
         // Mostrar errores
         let errorMessage = `❌ ${result.message}`;
-        
+
         if (result.errors && result.errors.length > 0) {
           errorMessage += `\n\nErrores:\n${result.errors.slice(0, 3).join('\n')}`;
-          
+
           if (result.errors.length > 3) {
             errorMessage += `\n... y ${result.errors.length - 3} más`;
           }
         }
 
         this.snackBar.open(
-          errorMessage, 
-          'Cerrar', 
-          { 
+          errorMessage,
+          'Cerrar',
+          {
             duration: 8000,
             panelClass: ['error-snackbar']
           }
@@ -455,17 +468,18 @@ export class AdminPanelComponent implements OnInit {
       loadingSnackBar.dismiss();
 
       console.error('❌ Error inesperado en eliminación masiva:', error);
-      
+
       this.snackBar.open(
-        `❌ Error inesperado: ${error.message || 'No se pudieron eliminar los usuarios'}`, 
-        'Cerrar', 
-        { 
+        `❌ Error inesperado: ${error.message || 'No se pudieron eliminar los usuarios'}`,
+        'Cerrar',
+        {
           duration: 6000,
           panelClass: ['error-snackbar']
         }
       );
     } finally {
       this.isLoading = false;
+      this.cdr.markForCheck(); // ✅ Forzar detección de cambios
     }
   }
 
@@ -792,10 +806,11 @@ export class AdminPanelComponent implements OnInit {
 
     // Mostrar loading
     this.isLoading = true;
-    
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios
+
     const loadingSnackBar = this.snackBar.open(
-      `Eliminando usuario ${user.displayName}...`, 
-      '', 
+      `Eliminando usuario ${user.displayName}...`,
+      '',
       { duration: 0 }
     );
 
@@ -808,9 +823,9 @@ export class AdminPanelComponent implements OnInit {
       if (result.success) {
         // Mostrar mensaje de éxito
         this.snackBar.open(
-          `✅ ${result.message}`, 
-          'Cerrar', 
-          { 
+          `✅ ${result.message}`,
+          'Cerrar',
+          {
             duration: 5000,
             panelClass: ['success-snackbar']
           }
@@ -823,9 +838,9 @@ export class AdminPanelComponent implements OnInit {
       } else {
         // Mostrar mensaje de error
         this.snackBar.open(
-          `❌ ${result.message}`, 
-          'Cerrar', 
-          { 
+          `❌ ${result.message}`,
+          'Cerrar',
+          {
             duration: 5000,
             panelClass: ['error-snackbar']
           }
@@ -838,17 +853,18 @@ export class AdminPanelComponent implements OnInit {
       loadingSnackBar.dismiss();
 
       console.error('❌ Error inesperado al eliminar usuario:', error);
-      
+
       this.snackBar.open(
-        `❌ Error inesperado: ${error.message || 'No se pudo eliminar el usuario'}`, 
-        'Cerrar', 
-        { 
+        `❌ Error inesperado: ${error.message || 'No se pudo eliminar el usuario'}`,
+        'Cerrar',
+        {
           duration: 5000,
           panelClass: ['error-snackbar']
         }
       );
     } finally {
       this.isLoading = false;
+      this.cdr.markForCheck(); // ✅ Forzar detección de cambios
     }
   }
 

@@ -1,22 +1,23 @@
 // src/app/core/services/app-config.service.ts
-import { Injectable, signal, effect } from '@angular/core';
-import { 
-  getFirestore, 
-  doc, 
-  onSnapshot, 
-  Unsubscribe 
+import { Injectable, signal, effect, OnDestroy } from '@angular/core';
+import {
+  getFirestore,
+  doc,
+  onSnapshot,
+  Unsubscribe
 } from 'firebase/firestore';
-import { getDoc } from 'firebase/firestore'; 
+import { getDoc } from 'firebase/firestore';
 import { SystemConfig } from '../../admin/models/system-config.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AppConfigService {
+export class AppConfigService implements OnDestroy {
   private db = getFirestore();
   private readonly CONFIG_DOC_ID = 'system_config';
   private readonly CONFIG_COLLECTION = 'config';
   private unsubscribe: Unsubscribe | null = null;
+  private isInitialized = false; // ✅ Evitar inicializaciones duplicadas
 
   // Signals privados (writable)
   private _appName = signal<string>('Generic Admin Login');
@@ -40,39 +41,61 @@ export class AppConfigService {
 
   constructor() {
     console.log('🚀 AppConfigService inicializando...');
-    this.initializeRealtimeListener();
     this.setupFaviconUpdater();
+    // ✅ NO inicializamos el listener automáticamente
   }
 
   /**
-   * Inicializa el listener en tiempo real de Firestore
+   * ✅ NUEVO: Inicializa la configuración solo cuando se necesita
    */
-  private initializeRealtimeListener() {
-    const configRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
+  async initialize(): Promise<void> {
+    if (this.isInitialized) {
+      console.log('⚠️ AppConfigService ya inicializado, omitiendo...');
+      return;
+    }
 
-    console.log('📡 Configurando listener de Firestore...');
+    console.log('🔄 Cargando configuración inicial...');
+    await this.loadConfigOnce();
+    this.isInitialized = true;
+  }
 
-    this.unsubscribe = onSnapshot(
-      configRef,
-      (docSnapshot) => {
-        if (docSnapshot.exists()) {
-          const config = docSnapshot.data() as SystemConfig;
-          console.log('✅ Configuración recibida de Firestore:', config);
-          this.updateSignals(config);
-          this._isLoaded.set(true);
-        } else {
-          console.warn('⚠️ Documento de configuración no existe, usando valores por defecto');
-          this.setDefaultValues();
-          this._isLoaded.set(true);
-        }
-      },
-      (error) => {
-        console.error('❌ Error en listener de configuración:', error);
+  /**
+   * ✅ NUEVO: Carga la configuración una sola vez (sin listener en tiempo real)
+   */
+  private async loadConfigOnce(): Promise<void> {
+    try {
+      const configRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
+      const docSnap = await getDoc(configRef);
+
+      if (docSnap.exists()) {
+        const config = docSnap.data() as SystemConfig;
+        console.log('✅ Configuración cargada:', config);
+        this.updateSignals(config);
+        this._isLoaded.set(true);
+      } else {
+        console.warn('⚠️ Documento de configuración no existe, usando valores por defecto');
         this.setDefaultValues();
         this._isLoaded.set(true);
       }
-    );
+    } catch (error) {
+      console.error('❌ Error cargando configuración:', error);
+      this.setDefaultValues();
+      this._isLoaded.set(true);
+    }
   }
+
+  /**
+   * ✅ LIMPIEZA DEL LISTENER AL DESTRUIR EL SERVICIO
+   */
+  ngOnDestroy(): void {
+    console.log('🧹 Limpiando AppConfigService...');
+    if (this.unsubscribe) {
+      this.unsubscribe();
+      this.unsubscribe = null;
+      console.log('✅ Listener de Firestore desconectado');
+    }
+  }
+
 
   /**
    * Actualiza todos los signals con los datos de Firestore
@@ -178,16 +201,11 @@ export class AppConfigService {
   }
 
   /**
-   * Método para forzar recarga manual (útil para debug)
+   * ✅ OPTIMIZADO: Método para forzar recarga manual
    */
-  async forceReload() {
+  async forceReload(): Promise<void> {
     console.log('🔄 Forzando recarga de configuración...');
-    const configRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
-    const docSnap = await getDoc(configRef);
-    
-    if (docSnap.exists()) {
-      const config = docSnap.data() as SystemConfig;
-      this.updateSignals(config);
-    }
+    this.isInitialized = false; // Permitir reinicialización
+    await this.initialize();
   }
 }

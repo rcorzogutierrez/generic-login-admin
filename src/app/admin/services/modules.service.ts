@@ -31,17 +31,33 @@ export interface ModuleOperationResult {
 export class ModulesService {
   private db = getFirestore();
   private readonly MODULES_COLLECTION = 'system_modules';
-  
+  private isInitialized = false; // ✅ Control de inicialización
+
   // Signal para módulos
   private _modules = signal<SystemModule[]>([]);
   readonly modules = this._modules.asReadonly();
-  
+
   // BehaviorSubject para compatibilidad con observables
   private modulesSubject = new BehaviorSubject<SystemModule[]>([]);
   public modules$ = this.modulesSubject.asObservable();
 
   constructor() {
-    this.loadModules();
+    // ✅ NO cargamos módulos automáticamente
+    console.log('🚀 ModulesService inicializado (lazy loading)');
+  }
+
+  /**
+   * ✅ NUEVO: Inicializa la carga de módulos solo cuando se necesita
+   */
+  async initialize(): Promise<void> {
+    if (this.isInitialized) {
+      console.log('⚠️ ModulesService ya inicializado, omitiendo...');
+      return;
+    }
+
+    console.log('🔄 Cargando módulos inicial...');
+    await this.loadModules();
+    this.isInitialized = true;
   }
 
   /**
@@ -171,14 +187,31 @@ export class ModulesService {
       const modulesRef = collection(this.db, this.MODULES_COLLECTION);
       const docRef = await addDoc(modulesRef, moduleDoc);
 
+      // ✅ OPTIMIZADO: Actualizar signal localmente
+      const newModule: SystemModule = {
+        id: docRef.id,
+        value: moduleDoc.value,
+        label: moduleDoc.label,
+        description: moduleDoc.description,
+        icon: moduleDoc.icon,
+        route: moduleDoc.route,
+        isActive: moduleDoc.isActive,
+        order: moduleDoc.order,
+        createdAt: moduleDoc.createdAt.toDate(),
+        createdBy: moduleDoc.createdBy,
+        updatedAt: moduleDoc.updatedAt.toDate(),
+        updatedBy: moduleDoc.updatedBy,
+        usersCount: moduleDoc.usersCount
+      };
+
+      this._modules.update(modules => [...modules, newModule].sort((a, b) => a.order - b.order));
+      this.modulesSubject.next(this._modules());
+
       // Log de auditoría
       await this.logModuleAction('create_module', docRef.id, {
         moduleValue: moduleData.value,
         moduleLabel: moduleData.label
       }, currentUserUid);
-
-      // Recargar módulos
-      await this.loadModules();
 
       return {
         success: true,
@@ -243,13 +276,31 @@ export class ModulesService {
 
       await updateDoc(moduleRef, updateData);
 
+      // ✅ OPTIMIZADO: Actualizar signal localmente
+      this._modules.update(modules =>
+        modules.map(m => {
+          if (m.id === moduleId) {
+            return {
+              ...m,
+              value: updateData.value || m.value,
+              label: updateData.label || m.label,
+              description: updateData.description !== undefined ? updateData.description : m.description,
+              icon: updateData.icon || m.icon,
+              route: updateData.route !== undefined ? updateData.route : m.route,
+              isActive: updateData.isActive !== undefined ? updateData.isActive : m.isActive,
+              updatedAt: new Date(),
+              updatedBy: currentUserUid
+            };
+          }
+          return m;
+        })
+      );
+      this.modulesSubject.next(this._modules());
+
       // Log de auditoría
       await this.logModuleAction('update_module', moduleId, {
         updatedFields: Object.keys(updateData)
       }, currentUserUid);
-
-      // Recargar módulos
-      await this.loadModules();
 
       return {
         success: true,
@@ -316,13 +367,15 @@ export class ModulesService {
           console.log(`✅ Módulo removido de ${usersSnapshot.size} usuario(s)`);
         }
         
+        // ✅ OPTIMIZADO: Actualizar signal localmente (eliminación permanente)
+        this._modules.update(modules => modules.filter(m => m.id !== moduleId));
+        this.modulesSubject.next(this._modules());
+
         await this.logModuleAction('delete_module_permanent', moduleId, {
           moduleValue: moduleValue,
           moduleLabel: moduleData['label'],
           usersAffected: usersSnapshot.size
         }, currentUserUid);
-
-        await this.loadModules();
 
         return {
           success: true,
@@ -336,11 +389,20 @@ export class ModulesService {
           updatedBy: currentUserUid
         });
 
+        // ✅ OPTIMIZADO: Actualizar signal localmente (soft delete)
+        this._modules.update(modules =>
+          modules.map(m => {
+            if (m.id === moduleId) {
+              return { ...m, isActive: false, updatedAt: new Date(), updatedBy: currentUserUid };
+            }
+            return m;
+          })
+        );
+        this.modulesSubject.next(this._modules());
+
         await this.logModuleAction('deactivate_module', moduleId, {
           moduleValue: moduleValue
         }, currentUserUid);
-
-        await this.loadModules();
 
         return {
           success: true,
@@ -378,11 +440,22 @@ export class ModulesService {
 
       await batch.commit();
 
+      // ✅ OPTIMIZADO: Actualizar signal localmente (reordenar)
+      this._modules.update(modules => {
+        const reordered = modules.map(m => {
+          const newIndex = moduleIds.indexOf(m.id);
+          if (newIndex !== -1) {
+            return { ...m, order: newIndex, updatedAt: new Date(), updatedBy: currentUserUid };
+          }
+          return m;
+        });
+        return reordered.sort((a, b) => a.order - b.order);
+      });
+      this.modulesSubject.next(this._modules());
+
       await this.logModuleAction('reorder_modules', '', {
         newOrder: moduleIds
       }, currentUserUid);
-
-      await this.loadModules();
 
       return {
         success: true,
@@ -430,10 +503,16 @@ export class ModulesService {
       });
 
       await batch.commit();
-      
-      // Recargar módulos para reflejar cambios
-      await this.loadModules();
-      
+
+      // ✅ OPTIMIZADO: Actualizar signal localmente (user counts)
+      this._modules.update(modules =>
+        modules.map(m => ({
+          ...m,
+          usersCount: moduleCounts[m.value] || 0
+        }))
+      );
+      this.modulesSubject.next(this._modules());
+
       console.log('✅ usersCount actualizado para todos los módulos');
     } catch (error) {
       console.error('❌ Error actualizando usersCount:', error);

@@ -54,17 +54,20 @@ export class LoginComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
+    // ✅ OPTIMIZADO: Inicializar configuración al cargar login
+    await this.appConfigService.initialize();
+
     console.log('🔍 LoginComponent - Valores actuales:', {
       appName: this.appName(),
       appDescription: this.appDescription(),
       logoUrl: this.logoUrl(),
       adminContactEmail: this.adminContactEmail()
     });
-    
+
     this._loginMessage.set(null);
     this.checkAuthAndRedirect();
-    
+
     this.checkInterval = setInterval(() => {
       this.checkAuthAndRedirect();
     }, 200);

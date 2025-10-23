@@ -39,7 +39,10 @@ export class NavbarComponent implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
+    // ✅ OPTIMIZADO: Inicializar configuración al cargar navbar
+    await this.appConfigService.initialize();
+
     console.log('🔍 NavbarComponent - Valores actuales:', {
       appName: this.appName(),
       logoUrl: this.logoUrl()

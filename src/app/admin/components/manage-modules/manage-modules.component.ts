@@ -81,12 +81,12 @@ export class ManageModulesComponent implements OnInit {
   }
 
   /**
-   * Carga los módulos
+   * ✅ OPTIMIZADO: Carga los módulos solo cuando es necesario
    */
   async loadModules() {
     this.isLoading = true;
     try {
-      await this.modulesService.loadModules();
+      await this.modulesService.initialize();
     } catch (error) {
       console.error('Error cargando módulos:', error);
       this.snackBar.open('Error al cargar módulos', 'Cerrar', { duration: 3000 });

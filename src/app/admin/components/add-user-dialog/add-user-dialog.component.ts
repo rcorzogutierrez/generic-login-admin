@@ -1,5 +1,5 @@
 // add-user-dialog.component.ts - VERSIÓN MEJORADA
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -37,7 +37,8 @@ import { AdminService, CreateUserRequest } from '../../services/admin.service';
     MatTabsModule
   ],
   templateUrl: './add-user-dialog.component.html',
-  styleUrl: './add-user-dialog.component.css'
+  styleUrl: './add-user-dialog.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class AddUserDialogComponent implements OnInit {

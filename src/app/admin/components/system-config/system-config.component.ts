@@ -1,5 +1,5 @@
 // src/app/admin/components/system-config/system-config.component.ts
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -33,7 +33,8 @@ import { AuthService } from '../../../core/services/auth.service';
     MatTooltipModule
   ],
   templateUrl: './system-config.component.html',
-  styleUrl: './system-config.component.css'
+  styleUrl: './system-config.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SystemConfigComponent implements OnInit {
   configForm!: FormGroup;

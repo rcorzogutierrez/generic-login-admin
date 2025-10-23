@@ -1,5 +1,5 @@
 // src/app/admin/components/edit-user-role-dialog/edit-user-role-dialog.component.ts
-import { Component, Inject, OnInit, inject } from '@angular/core';
+import { Component, Inject, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -42,7 +42,8 @@ export interface EditUserRoleDialogData {
     MatTooltipModule
   ],
   templateUrl: './edit-user-role-dialog.component.html',
-  styleUrl: './edit-user-role-dialog.component.css'
+  styleUrl: './edit-user-role-dialog.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditUserRoleDialogComponent implements OnInit {
   private fb = inject(FormBuilder);

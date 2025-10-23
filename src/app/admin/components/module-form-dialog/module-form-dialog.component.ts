@@ -1,5 +1,5 @@
 // src/app/admin/components/module-form-dialog/module-form-dialog.component.ts
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -36,7 +36,8 @@ export interface ModuleFormDialogData {
     MatTooltipModule
   ],
   templateUrl: './module-form-dialog.component.html',
-  styleUrl: './module-form-dialog.component.css'
+  styleUrl: './module-form-dialog.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ModuleFormDialogComponent implements OnInit {
   moduleForm!: FormGroup;

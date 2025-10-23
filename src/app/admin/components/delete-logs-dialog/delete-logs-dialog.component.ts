@@ -1,5 +1,5 @@
 // src/app/admin/components/delete-logs-dialog/delete-logs-dialog.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AdminLogsService } from '../../services/admin-logs.service';
+import { validateConfirmation } from '../../../shared/utils/confirmation.utils';
 
 export type DeleteOption = 'all' | 'older_than' | 'by_days';
 
@@ -28,7 +29,8 @@ export type DeleteOption = 'all' | 'older_than' | 'by_days';
     MatProgressSpinnerModule
   ],
   templateUrl: './delete-logs-dialog.component.html',
-  styleUrl: './delete-logs-dialog.component.css'
+  styleUrl: './delete-logs-dialog.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DeleteLogsDialogComponent implements OnInit {
   selectedOption: DeleteOption = 'older_than';
@@ -72,7 +74,7 @@ export class DeleteLogsDialogComponent implements OnInit {
 
   canConfirm(): boolean {
     const keyword = this.getRequiredKeyword();
-    return this.confirmationText.trim().toUpperCase() === keyword.toUpperCase();
+    return validateConfirmation(this.confirmationText, keyword);
   }
 
   getRequiredKeyword(): string {

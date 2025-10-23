@@ -1,5 +1,5 @@
 // src/app/admin/components/delete-module-dialog/delete-module-dialog.component.ts
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -26,7 +26,8 @@ export interface DeleteModuleDialogData {
     MatProgressSpinnerModule
   ],
   templateUrl: './delete-module-dialog.component.html',
-  styleUrl: './delete-module-dialog.component.css'
+  styleUrl: './delete-module-dialog.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DeleteModuleDialogComponent {
   deleteMethod: 'soft' | 'hard' = 'soft';

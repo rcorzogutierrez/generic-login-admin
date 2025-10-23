@@ -1,5 +1,5 @@
 // src/app/admin/components/manage-roles/manage-roles.component.ts
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -41,7 +41,8 @@ import { Role } from '../../models/role.interface';
     MatDividerModule
   ],
   templateUrl: './manage-roles.component.html',
-  styleUrl: './manage-roles.component.css'
+  styleUrl: './manage-roles.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ManageRolesComponent implements OnInit {
   private fb = inject(FormBuilder);

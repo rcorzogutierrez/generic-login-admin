@@ -1,5 +1,5 @@
 // src/app/admin/components/manage-modules/manage-modules.component.ts
-import { Component, OnInit, effect } from '@angular/core';
+import { Component, OnInit, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -32,7 +32,8 @@ import { DeleteModuleDialogComponent } from '../delete-module-dialog/delete-modu
     DragDropModule
   ],
   templateUrl: './manage-modules.component.html',
-  styleUrl: './manage-modules.component.css'
+  styleUrl: './manage-modules.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ManageModulesComponent implements OnInit {
   currentUser = this.authService.authorizedUser;

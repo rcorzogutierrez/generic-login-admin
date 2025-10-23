@@ -99,18 +99,19 @@ export class AdminPanelComponent implements OnInit {
   }
 
   /**
-   * Cargar todos los datos
+   * ✅ OPTIMIZADO: Cargar datos solo cuando es necesario
    */
   private async loadData() {
     try {
-      await this.adminService.loadUsers();
-      
+      // ✅ Inicializa el servicio solo una vez
+      await this.adminService.initialize();
+
       const stats = await this.adminService.getAdminStats();
       this.totalUsers = stats.totalUsers;
       this.activeUsers = stats.activeUsers;
       this.totalModules = stats.totalModules;
       this.adminUsers = stats.adminUsers;
-      
+
       console.log('📊 Estadísticas cargadas:', stats);
     } catch (error) {
       console.error('❌ Error cargando datos:', error);

@@ -86,26 +86,42 @@ export class AdminService {
   private db = getFirestore();
   private auth = getAuth();
   private modulesService = inject(ModulesService);
-  
+  private isInitialized = false; // ✅ Control de inicialización
+
   // Signals para usuarios
   private usersSignal = signal<User[]>([]);
   public users = this.usersSignal.asReadonly();
-  
+
   // Computed signals para estadísticas
-  public activeUsers = computed(() => 
+  public activeUsers = computed(() =>
     this.usersSignal().filter(u => u.isActive)
   );
-  
-  public adminUsers = computed(() => 
+
+  public adminUsers = computed(() =>
     this.usersSignal().filter(u => u.role === 'admin')
   );
-  
-  public totalUsers = computed(() => 
+
+  public totalUsers = computed(() =>
     this.usersSignal().length
   );
 
   constructor() {
-    this.loadUsers();
+    // ✅ NO cargamos usuarios automáticamente
+    console.log('🚀 AdminService inicializado (lazy loading)');
+  }
+
+  /**
+   * ✅ NUEVO: Inicializa la carga de usuarios solo cuando se necesita
+   */
+  async initialize(): Promise<void> {
+    if (this.isInitialized) {
+      console.log('⚠️ AdminService ya inicializado, omitiendo...');
+      return;
+    }
+
+    console.log('🔄 Cargando usuarios inicial...');
+    await this.loadUsers();
+    this.isInitialized = true;
   }
 
   // ============================================
@@ -261,7 +277,22 @@ export class AdminService {
     });
 
     await setDoc(doc(this.db, 'authorized_users', docId), userDocData);
-    await this.loadUsers();
+
+    // ✅ OPTIMIZADO: Actualizar signal localmente en lugar de recargar todo
+    const newUser: User = {
+      uid: docId,
+      email: normalizedData.email,
+      displayName: normalizedData.displayName,
+      role: normalizedData.role,
+      isActive: normalizedData.isActive,
+      permissions: normalizedData.permissions,
+      modules: normalizedData.modules,
+      createdAt: new Date(),
+      createdBy: this.auth.currentUser?.uid || 'system',
+      lastLogin: undefined,
+      lastLoginDate: undefined
+    };
+    this.usersSignal.update(users => [newUser, ...users]);
 
     await this.logUserAction('create_user_success', docId, {
       createdUser: {
@@ -447,19 +478,35 @@ export class AdminService {
       }
       
       await updateDoc(userDocRef, dataToUpdate);
-      
+
+      // ✅ OPTIMIZADO: Actualizar signal localmente
+      this.usersSignal.update(users =>
+        users.map(u => {
+          if (u.uid === uid) {
+            return {
+              ...u,
+              ...updateData,
+              displayName: dataToUpdate.displayName || u.displayName,
+              role: dataToUpdate.role || u.role,
+              isActive: dataToUpdate.isActive !== undefined ? dataToUpdate.isActive : u.isActive,
+              permissions: dataToUpdate.permissions || u.permissions,
+              modules: dataToUpdate.modules || u.modules
+            };
+          }
+          return u;
+        })
+      );
+
       await this.logUserAction('update', uid, {
         updatedFields: Object.keys(dataToUpdate),
-        oldData: { 
-          role: currentUser.role, 
+        oldData: {
+          role: currentUser.role,
           isActive: currentUser.isActive,
-          modules: currentUser.modules 
+          modules: currentUser.modules
         },
         newData: updateData
       });
-      
-      await this.loadUsers();
-      
+
       return {
         success: true,
         message: 'Usuario actualizado correctamente'
@@ -602,7 +649,8 @@ export class AdminService {
       const userDocRef = doc(this.db, 'authorized_users', uid);
       await deleteDoc(userDocRef);
 
-      await this.loadUsers();
+      // ✅ OPTIMIZADO: Actualizar signal localmente
+      this.usersSignal.update(users => users.filter(u => u.uid !== uid));
 
       await this.logUserAction('delete_user_success', uid, {
         deletedUserEmail: user.email,

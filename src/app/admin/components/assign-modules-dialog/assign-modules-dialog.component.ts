@@ -59,13 +59,13 @@ export class AssignModulesDialogComponent implements OnInit {
   async loadModules() {
     this.isLoading = true;
     try {
-      // Cargar módulos del sistema
-      await this.modulesService.loadModules();
+      // ✅ CRÍTICO: Inicializar servicio antes de leer datos
+      await this.modulesService.initialize();
       this.availableModules = this.modulesService.modules();
-      
+
       // Actualizar contador de usuarios
       await this.modulesService.updateAllModulesUserCount();
-      
+
     } catch (error) {
       console.error('Error cargando módulos:', error);
     } finally {

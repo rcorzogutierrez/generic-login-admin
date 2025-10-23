@@ -186,7 +186,7 @@
         
         @if (recentActivities.length > 0) {
           <div class="space-y-5">
-            @for (activity of recentActivities; track activity.timestamp; let last = $last) {
+            @for (activity of recentActivities; track activity.id; let last = $last) {
               <div class="relative">
 
                 <!-- Timeline line -->

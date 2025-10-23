@@ -1,5 +1,5 @@
 // src/app/admin/components/manage-modules/manage-modules.component.ts
-import { Component, OnInit, effect, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, effect, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -45,13 +45,16 @@ export class ManageModulesComponent implements OnInit {
     private authService: AuthService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     // Effect para reaccionar a cambios en módulos
     effect(() => {
       const modules = this.modulesService.modules();
       this.modules = modules;
       console.log(`📊 Módulos actualizados: ${modules.length}`);
+      // ✅ Forzar detección de cambios después de actualizar módulos
+      this.cdr.markForCheck();
     });
   }
 
@@ -85,6 +88,8 @@ export class ManageModulesComponent implements OnInit {
    */
   async loadModules() {
     this.isLoading = true;
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios para mostrar loading
+
     try {
       await this.modulesService.initialize();
     } catch (error) {
@@ -92,6 +97,7 @@ export class ManageModulesComponent implements OnInit {
       this.snackBar.open('Error al cargar módulos', 'Cerrar', { duration: 3000 });
     } finally {
       this.isLoading = false;
+      this.cdr.markForCheck(); // ✅ Forzar detección de cambios para ocultar loading
     }
   }
 

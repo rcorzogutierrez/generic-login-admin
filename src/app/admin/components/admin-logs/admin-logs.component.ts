@@ -1,5 +1,5 @@
 // src/app/admin/components/admin-logs/admin-logs.component.ts - COMPLETO CON DELETE
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -53,7 +53,8 @@ export class AdminLogsComponent implements OnInit {
     private logsService: AdminLogsService,
     private snackBar: MatSnackBar,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private cdr: ChangeDetectorRef
   ) {}
 
   async ngOnInit() {
@@ -66,20 +67,22 @@ export class AdminLogsComponent implements OnInit {
    */
   private async loadInitialData() {
     this.isLoading = true;
-    
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios para mostrar loading
+
     try {
       // Cargar acciones disponibles para filtro
       this.availableActions = await this.logsService.getUniqueActions();
-      
+
       // Cargar primera página de logs
       await this.loadLogs();
-      
+
       console.log('✅ Datos iniciales cargados');
     } catch (error) {
       console.error('❌ Error cargando datos iniciales:', error);
       this.snackBar.open('Error cargando logs', 'Cerrar', { duration: 3000 });
     } finally {
       this.isLoading = false;
+      this.cdr.markForCheck(); // ✅ Forzar detección de cambios para ocultar loading
     }
   }
 
@@ -94,14 +97,15 @@ export class AdminLogsComponent implements OnInit {
     }
 
     this.isLoading = true;
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios
 
     try {
       const filters: LogsFilter = {};
-      
+
       if (this.selectedAction !== 'all') {
         filters.action = this.selectedAction;
       }
-      
+
       if (this.searchTerm.trim()) {
         filters.searchTerm = this.searchTerm.trim();
       }
@@ -123,6 +127,7 @@ export class AdminLogsComponent implements OnInit {
     } finally {
       this.isLoading = false;
       this.isLoadingMore = false;
+      this.cdr.markForCheck(); // ✅ Forzar detección de cambios
     }
   }
 
@@ -133,7 +138,8 @@ export class AdminLogsComponent implements OnInit {
     if (!this.hasMorePages || this.isLoadingMore) return;
 
     this.isLoadingMore = true;
-    
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios
+
     // Guardar documento actual en historial
     this.pageHistory.push(this.lastDoc);
     this.currentPage++;
@@ -149,7 +155,8 @@ export class AdminLogsComponent implements OnInit {
 
     this.isLoadingMore = true;
     this.currentPage--;
-    
+    this.cdr.markForCheck(); // ✅ Forzar detección de cambios
+
     // Recuperar documento anterior del historial
     this.pageHistory.pop();
     this.lastDoc = this.pageHistory[this.pageHistory.length - 1];

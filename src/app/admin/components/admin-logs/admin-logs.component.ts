@@ -58,7 +58,6 @@ export class AdminLogsComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    console.log('📋 Componente de Logs iniciado');
     await this.loadInitialData();
   }
 
@@ -67,22 +66,17 @@ export class AdminLogsComponent implements OnInit {
    */
   private async loadInitialData() {
     this.isLoading = true;
-    this.cdr.markForCheck(); // ✅ Forzar detección de cambios para mostrar loading
+    this.cdr.markForCheck();
 
     try {
-      // Cargar acciones disponibles para filtro
       this.availableActions = await this.logsService.getUniqueActions();
-
-      // Cargar primera página de logs
       await this.loadLogs();
-
-      console.log('✅ Datos iniciales cargados');
     } catch (error) {
       console.error('❌ Error cargando datos iniciales:', error);
       this.snackBar.open('Error cargando logs', 'Cerrar', { duration: 3000 });
     } finally {
       this.isLoading = false;
-      this.cdr.markForCheck(); // ✅ Forzar detección de cambios para ocultar loading
+      this.cdr.markForCheck();
     }
   }
 
@@ -97,7 +91,7 @@ export class AdminLogsComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.cdr.markForCheck(); // ✅ Forzar detección de cambios
+    this.cdr.markForCheck();
 
     try {
       const filters: LogsFilter = {};
@@ -119,15 +113,13 @@ export class AdminLogsComponent implements OnInit {
       this.logs = result.logs;
       this.hasMorePages = result.hasMore;
       this.lastDoc = result.lastDoc;
-
-      console.log(`📊 Cargados ${this.logs.length} logs, hay más: ${this.hasMorePages}`);
     } catch (error) {
       console.error('❌ Error cargando logs:', error);
       this.snackBar.open('Error cargando logs', 'Cerrar', { duration: 3000 });
     } finally {
       this.isLoading = false;
       this.isLoadingMore = false;
-      this.cdr.markForCheck(); // ✅ Forzar detección de cambios
+      this.cdr.markForCheck();
     }
   }
 
@@ -168,7 +160,6 @@ export class AdminLogsComponent implements OnInit {
    * Cambio de filtro de acción
    */
   async onActionFilterChange() {
-    console.log('🔍 Filtro cambiado a:', this.selectedAction);
     await this.loadLogs(true);
   }
 
@@ -176,7 +167,6 @@ export class AdminLogsComponent implements OnInit {
    * Búsqueda en tiempo real
    */
   async onSearch() {
-    console.log('🔍 Buscando:', this.searchTerm);
     await this.loadLogs(true);
   }
 
@@ -194,7 +184,6 @@ export class AdminLogsComponent implements OnInit {
    * Refrescar logs
    */
   async refreshLogs() {
-    console.log('🔄 Refrescando logs...');
     await this.loadLogs(true);
     this.snackBar.open('Logs actualizados', '', { duration: 2000 });
   }
@@ -203,8 +192,6 @@ export class AdminLogsComponent implements OnInit {
    * NUEVO: Abre el dialog para eliminar logs
    */
   openDeleteLogsDialog() {
-    console.log('🗑️ Abriendo dialog de eliminación de logs...');
-    
     const dialogRef = this.dialog.open(DeleteLogsDialogComponent, {
       width: '700px',
       maxWidth: '90vw',
@@ -214,10 +201,7 @@ export class AdminLogsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result?.success && result?.result) {
         const deleteResult = result.result;
-        
-        console.log('✅ Resultado de eliminación:', deleteResult);
-        
-        // Mostrar resultado
+
         this.snackBar.open(
           deleteResult.message,
           'Cerrar',
@@ -227,13 +211,9 @@ export class AdminLogsComponent implements OnInit {
           }
         );
 
-        // Si fue exitoso, recargar logs
         if (deleteResult.success && deleteResult.deletedCount > 0) {
-          console.log('🔄 Recargando logs después de eliminación...');
           await this.refreshLogs();
         }
-      } else {
-        console.log('❌ Eliminación cancelada o falló');
       }
     });
   }
@@ -278,18 +258,12 @@ export class AdminLogsComponent implements OnInit {
    * Ver detalles de un log
    */
   viewLogDetails(log: AdminLog) {
-    console.log('👁️ Abriendo detalles del log:', log);
-    
-    const dialogRef = this.dialog.open(LogDetailsDialogComponent, {
+    this.dialog.open(LogDetailsDialogComponent, {
       width: '700px',
       maxWidth: '90vw',
       maxHeight: '90vh',
       data: { log },
-      panelClass: 'log-details-dialog' // Opcional: para estilos personalizados
-    });
-  
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('Dialog cerrado');
+      panelClass: 'log-details-dialog'
     });
   }
 

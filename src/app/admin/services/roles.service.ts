@@ -29,21 +29,16 @@ export class RolesService {
   // Signal para roles
   roles = signal<Role[]>([]);
 
-  constructor() {
-    // ✅ NO cargamos roles automáticamente (lazy loading)
-    console.log('🚀 RolesService inicializado (lazy loading)');
-  }
+  constructor() {}
 
   /**
    * ✅ NUEVO: Inicializa el servicio solo cuando se necesita
    */
   async initialize(): Promise<void> {
     if (this.isInitialized) {
-      console.log('⚠️ RolesService ya inicializado, omitiendo...');
       return;
     }
 
-    console.log('🔄 Inicializando RolesService...');
     await this.initializeSystemRoles();
     await this.loadRoles();
     this.isInitialized = true;
@@ -85,11 +80,9 @@ export class RolesService {
     ];
 
     try {
-      // Verificar si ya existen roles
       const snapshot = await getDocs(this.rolesCollection);
 
       if (snapshot.empty) {
-        console.log('🔧 Inicializando roles del sistema...');
         const batch = writeBatch(this.db);
 
         systemRoles.forEach(role => {
@@ -101,7 +94,6 @@ export class RolesService {
         });
 
         await batch.commit();
-        console.log('✅ Roles del sistema inicializados');
       }
     } catch (error) {
       console.error('❌ Error inicializando roles del sistema:', error);
@@ -124,7 +116,6 @@ export class RolesService {
       })) as Role[];
 
       this.roles.set(roles);
-      console.log('📋 Roles cargados:', roles.length);
       return roles;
     } catch (error) {
       console.error('❌ Error cargando roles:', error);
@@ -151,8 +142,6 @@ export class RolesService {
       };
 
       const docRef = await addDoc(this.rolesCollection, newRole);
-      console.log('✅ Rol creado:', docRef.id);
-
       await this.loadRoles();
       return docRef.id;
     } catch (error) {
@@ -181,7 +170,6 @@ export class RolesService {
         updatedAt: Timestamp.fromDate(new Date())
       });
 
-      console.log('✅ Rol actualizado:', roleId);
       await this.loadRoles();
     } catch (error) {
       console.error('❌ Error actualizando rol:', error);
@@ -210,7 +198,6 @@ export class RolesService {
       const docRef = doc(this.db, 'roles', roleId);
       await deleteDoc(docRef);
 
-      console.log('✅ Rol eliminado:', roleId);
       await this.loadRoles();
     } catch (error) {
       console.error('❌ Error eliminando rol:', error);

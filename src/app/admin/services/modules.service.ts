@@ -43,21 +43,16 @@ export class ModulesService {
   private modulesSubject = new BehaviorSubject<SystemModule[]>([]);
   public modules$ = this.modulesSubject.asObservable();
 
-  constructor() {
-    // ✅ NO cargamos módulos automáticamente
-    console.log('🚀 ModulesService inicializado (lazy loading)');
-  }
+  constructor() {}
 
   /**
    * ✅ NUEVO: Inicializa la carga de módulos solo cuando se necesita
    */
   async initialize(): Promise<void> {
     if (this.isInitialized) {
-      console.log('⚠️ ModulesService ya inicializado, omitiendo...');
       return;
     }
 
-    console.log('🔄 Cargando módulos inicial...');
     await this.loadModules();
     this.isInitialized = true;
   }
@@ -94,7 +89,6 @@ export class ModulesService {
       this._modules.set(modules);
       this.modulesSubject.next(modules);
 
-      console.log(`✅ ${modules.length} módulos cargados`);
       return modules;
     } catch (error) {
       console.error('❌ Error cargando módulos:', error);
@@ -366,7 +360,6 @@ export class ModulesService {
 
           await batch.commit();
           
-          console.log(`✅ Módulo removido de ${usersSnapshot.size} usuario(s)`);
         }
         
         // ✅ OPTIMIZADO: Actualizar signal localmente (eliminación permanente)
@@ -515,7 +508,6 @@ export class ModulesService {
       );
       this.modulesSubject.next(this._modules());
 
-      console.log('✅ usersCount actualizado para todos los módulos');
     } catch (error) {
       console.error('❌ Error actualizando usersCount:', error);
     }
@@ -609,7 +601,6 @@ export class ModulesService {
     const existingModules = this._modules();
     
     if (existingModules.length > 0) {
-      console.log('⚠️ Ya existen módulos, saltando inicialización');
       return;
     }
 
@@ -664,12 +655,10 @@ export class ModulesService {
       }
     ];
 
-    console.log('🔄 Inicializando módulos por defecto...');
 
     for (const module of defaultModules) {
       await this.createModule(module, currentUserUid);
     }
 
-    console.log('✅ Módulos por defecto creados');
   }
 }

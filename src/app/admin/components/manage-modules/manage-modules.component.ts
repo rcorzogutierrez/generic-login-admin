@@ -52,8 +52,6 @@ export class ManageModulesComponent implements OnInit {
     effect(() => {
       const modules = this.modulesService.modules();
       this.modules = modules;
-      console.log(`📊 Módulos actualizados: ${modules.length}`);
-      // ✅ Forzar detección de cambios después de actualizar módulos
       this.cdr.markForCheck();
     });
   }
@@ -79,7 +77,6 @@ export class ManageModulesComponent implements OnInit {
   // ============================================
 
   async ngOnInit() {
-    console.log('🔧 ManageModules cargado');
     await this.loadModules();
   }
 

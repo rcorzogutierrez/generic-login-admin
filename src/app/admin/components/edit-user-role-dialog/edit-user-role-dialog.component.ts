@@ -425,6 +425,10 @@ export class EditUserRoleDialogComponent implements OnInit {
     try {
       const formValue = this.userForm.value;
 
+      if (!this.data.user.uid) {
+        throw new Error('El usuario no tiene un UID válido');
+      }
+
       await this.adminService.updateUser(this.data.user.uid, {
         displayName: formValue.displayName,
         role: formValue.role,

@@ -24,7 +24,7 @@ import { AppConfigService } from '../../core/services/app-config.service';
     MatDividerModule
   ],
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
+  styleUrl: './navbar.component.css'
 })
 export class NavbarComponent implements OnInit {
   user = this.authService.authorizedUser;

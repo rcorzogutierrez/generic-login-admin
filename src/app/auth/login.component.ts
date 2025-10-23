@@ -22,7 +22,7 @@ import { AppConfigService } from '../core/services/app-config.service';
     MatSnackBarModule,
   ],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
+  styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnInit, OnDestroy {
   private _isLoggingIn = signal(false);

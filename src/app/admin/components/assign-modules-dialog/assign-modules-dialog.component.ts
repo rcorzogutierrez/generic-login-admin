@@ -29,7 +29,7 @@ export interface AssignModulesDialogData {
     MatProgressSpinnerModule
   ],
   templateUrl: './assign-modules-dialog.component.html',
-  styleUrls: ['./assign-modules-dialog.component.css']
+  styleUrl: './assign-modules-dialog.component.css'
 })
 export class AssignModulesDialogComponent implements OnInit {
   availableModules: SystemModule[] = [];

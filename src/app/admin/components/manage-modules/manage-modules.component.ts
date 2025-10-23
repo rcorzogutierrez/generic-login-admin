@@ -32,7 +32,7 @@ import { DeleteModuleDialogComponent } from '../delete-module-dialog/delete-modu
     DragDropModule
   ],
   templateUrl: './manage-modules.component.html',
-  styleUrls: ['./manage-modules.component.css']
+  styleUrl: './manage-modules.component.css'
 })
 export class ManageModulesComponent implements OnInit {
   currentUser = this.authService.authorizedUser;

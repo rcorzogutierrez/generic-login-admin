@@ -42,7 +42,7 @@ export interface EditUserRoleDialogData {
     MatTooltipModule
   ],
   templateUrl: './edit-user-role-dialog.component.html',
-  styleUrls: ['./edit-user-role-dialog.component.css']
+  styleUrl: './edit-user-role-dialog.component.css'
 })
 export class EditUserRoleDialogComponent implements OnInit {
   private fb = inject(FormBuilder);

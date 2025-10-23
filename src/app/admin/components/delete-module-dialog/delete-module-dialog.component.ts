@@ -26,7 +26,7 @@ export interface DeleteModuleDialogData {
     MatProgressSpinnerModule
   ],
   templateUrl: './delete-module-dialog.component.html',
-  styleUrls: ['./delete-module-dialog.component.css']
+  styleUrl: './delete-module-dialog.component.css'
 })
 export class DeleteModuleDialogComponent {
   deleteMethod: 'soft' | 'hard' = 'soft';

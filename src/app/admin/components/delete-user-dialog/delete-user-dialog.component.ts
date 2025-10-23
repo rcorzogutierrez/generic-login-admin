@@ -30,7 +30,7 @@ export interface DeleteUserDialogData {
     MatFormFieldModule
   ],
   templateUrl: './delete-user-dialog.component.html',
-  styleUrls: ['./delete-user-dialog.component.css']
+  styleUrl: './delete-user-dialog.component.css'
 })
 export class DeleteUserDialogComponent {
   confirmationText = '';

@@ -51,7 +51,7 @@ interface KeyMetric {
     MatDividerModule,
   ],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css'],
+  styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   user = this.authService.authorizedUser;

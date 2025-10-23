@@ -26,7 +26,7 @@ import { SystemModule } from '../../admin/models/system-module.interface';
     MatTooltipModule
   ],
   templateUrl: './user-modules.component.html',
-  styleUrls: ['./user-modules.component.css']
+  styleUrl: './user-modules.component.css'
 })
 export class UserModulesComponent implements OnInit {
   currentUser = this.authService.authorizedUser;

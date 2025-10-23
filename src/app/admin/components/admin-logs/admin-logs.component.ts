@@ -1,5 +1,5 @@
 // src/app/admin/components/admin-logs/admin-logs.component.ts - COMPLETO CON DELETE
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,7 +28,7 @@ import { LogDetailsDialogComponent } from '../log-details-dialog/log-details-dia
   templateUrl: './admin-logs.component.html',
   styleUrl: './admin-logs.component.css'
 })
-export class AdminLogsComponent implements OnInit, OnDestroy {
+export class AdminLogsComponent implements OnInit {
   // Estado de logs
   logs: AdminLog[] = [];
   isLoading = false;
@@ -58,10 +58,6 @@ export class AdminLogsComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     console.log('📋 Componente de Logs iniciado');
     await this.loadInitialData();
-  }
-
-  ngOnDestroy() {
-    // Cleanup si es necesario
   }
 
   /**

@@ -4,7 +4,6 @@
    ESTILOS ESPECÍFICOS DEL DIALOG
    Las clases globales se usan desde styles.css:
    - .module-card-base
-   - .custom-scrollbar
    - Animación fadeIn (global)
    ============================================ */
 
@@ -48,8 +47,23 @@
 /* ============================================
    SCROLLBAR PERSONALIZADO
    ============================================ */
-mat-dialog-content {
-  @apply custom-scrollbar;
+mat-dialog-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+mat-dialog-content::-webkit-scrollbar-track {
+  background: var(--slate-100);
+  border-radius: 3px;
+}
+
+mat-dialog-content::-webkit-scrollbar-thumb {
+  background: var(--slate-300);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+mat-dialog-content::-webkit-scrollbar-thumb:hover {
+  background: var(--slate-400);
 }
 
 /* ============================================

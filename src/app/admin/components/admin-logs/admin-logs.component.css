@@ -8,6 +8,7 @@
    - .badge-action-warning
    - .badge-action-info
    - .badge-action-default
+   (Se usan directamente en el HTML)
    ============================================ */
 
 /* ============================================
@@ -70,28 +71,4 @@
 
 .action-icon-default {
   color: var(--slate-500);
-}
-
-/* ============================================
-   BADGES DE ACCIÓN - Usa las clases globales
-   Se mantienen aquí como alias para compatibilidad
-   ============================================ */
-.badge-action-success {
-  @apply badge-action-success;
-}
-
-.badge-action-error {
-  @apply badge-action-error;
-}
-
-.badge-action-warning {
-  @apply badge-action-warning;
-}
-
-.badge-action-info {
-  @apply badge-action-info;
-}
-
-.badge-action-default {
-  @apply badge-action-default;
 }

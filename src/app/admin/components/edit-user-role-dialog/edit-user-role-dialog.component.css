@@ -277,8 +277,23 @@
 /* ============================================
    SCROLLBAR PERSONALIZADO (aplicado a contenido de tabs)
    ============================================ */
-.tab-content-modern {
-  @apply custom-scrollbar;
+.tab-content-modern::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tab-content-modern::-webkit-scrollbar-track {
+  background: var(--slate-100);
+  border-radius: 3px;
+}
+
+.tab-content-modern::-webkit-scrollbar-thumb {
+  background: var(--slate-300);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.tab-content-modern::-webkit-scrollbar-thumb:hover {
+  background: var(--slate-400);
 }
 
 /* ============================================

@@ -8,14 +8,16 @@ import {
   orderBy,
   limit,
   startAfter,
-  getDocs,
-  deleteDoc,
   doc,
   writeBatch,
   QueryDocumentSnapshot,
   DocumentData,
   Timestamp
 } from 'firebase/firestore';
+import {
+  getDocsWithLogging as getDocs,
+  deleteDocWithLogging as deleteDoc
+} from '../../shared/utils/firebase-logger.utils';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface AdminLog {

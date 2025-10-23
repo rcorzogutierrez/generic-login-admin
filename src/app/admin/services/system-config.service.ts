@@ -3,11 +3,13 @@ import { Injectable, signal } from '@angular/core';
 import {
   getFirestore,
   doc,
-  getDoc,
-  setDoc,
-  updateDoc,
   Timestamp
 } from 'firebase/firestore';
+import {
+  getDocWithLogging as getDoc,
+  setDocWithLogging as setDoc,
+  updateDocWithLogging as updateDoc
+} from '../../shared/utils/firebase-logger.utils';
 import {
   getStorage,
   ref,

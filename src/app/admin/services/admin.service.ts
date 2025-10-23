@@ -3,18 +3,20 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import {
   getFirestore,
   collection,
-  addDoc,
-  updateDoc,
-  deleteDoc,
   doc,
-  getDocs,
   query,
   where,
   orderBy,
-  getDoc,
-  setDoc,
   Timestamp
 } from 'firebase/firestore';
+import {
+  getDocsWithLogging as getDocs,
+  getDocWithLogging as getDoc,
+  addDocWithLogging as addDoc,
+  updateDocWithLogging as updateDoc,
+  deleteDocWithLogging as deleteDoc,
+  setDocWithLogging as setDoc
+} from '../../shared/utils/firebase-logger.utils';
 import {
   getAuth,
   sendPasswordResetEmail

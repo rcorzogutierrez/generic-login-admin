@@ -4,17 +4,19 @@ import {
   getFirestore,
   collection,
   doc,
-  getDocs,
-  getDoc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
   query,
   orderBy,
   where,
   writeBatch,
   Timestamp
 } from 'firebase/firestore';
+import {
+  getDocsWithLogging as getDocs,
+  getDocWithLogging as getDoc,
+  addDocWithLogging as addDoc,
+  updateDocWithLogging as updateDoc,
+  deleteDocWithLogging as deleteDoc
+} from '../../shared/utils/firebase-logger.utils';
 import { BehaviorSubject } from 'rxjs';
 import { SystemModule, ModuleFormData } from '../models/system-module.interface';
 

@@ -1,7 +1,7 @@
 // src/app/admin/services/roles.service.ts
 import { Injectable, signal } from '@angular/core';
 import {
-  Firestore,
+  getFirestore,
   collection,
   addDoc,
   updateDoc,
@@ -13,16 +13,15 @@ import {
   orderBy,
   writeBatch,
   Timestamp
-} from '@angular/fire/firestore';
-import { inject } from '@angular/core';
+} from 'firebase/firestore';
 import { Role } from '../models/role.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RolesService {
-  private firestore = inject(Firestore);
-  private rolesCollection = collection(this.firestore, 'roles');
+  private db = getFirestore();
+  private rolesCollection = collection(this.db, 'roles');
 
   // Signal para roles
   roles = signal<Role[]>([]);
@@ -73,7 +72,7 @@ export class RolesService {
 
       if (snapshot.empty) {
         console.log('🔧 Inicializando roles del sistema...');
-        const batch = writeBatch(this.firestore);
+        const batch = writeBatch(this.db);
 
         systemRoles.forEach(role => {
           const docRef = doc(this.rolesCollection);
@@ -99,7 +98,7 @@ export class RolesService {
       const q = query(this.rolesCollection, orderBy('label', 'asc'));
       const snapshot = await getDocs(q);
 
-      const roles: Role[] = snapshot.docs.map(doc => ({
+      const roles: Role[] = snapshot.docs.map((doc: any) => ({
         id: doc.id,
         ...doc.data(),
         createdAt: doc.data()['createdAt']?.toDate() || new Date(),
@@ -158,7 +157,7 @@ export class RolesService {
         throw new Error('No se pueden modificar los roles del sistema');
       }
 
-      const docRef = doc(this.firestore, 'roles', roleId);
+      const docRef = doc(this.db, 'roles', roleId);
       await updateDoc(docRef, {
         ...updates,
         updatedAt: Timestamp.fromDate(new Date())
@@ -190,7 +189,7 @@ export class RolesService {
         throw new Error('No se puede eliminar un rol que tiene usuarios asignados');
       }
 
-      const docRef = doc(this.firestore, 'roles', roleId);
+      const docRef = doc(this.db, 'roles', roleId);
       await deleteDoc(docRef);
 
       console.log('✅ Rol eliminado:', roleId);

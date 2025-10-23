@@ -1,66 +1,82 @@
 <!-- manage-roles.component.html -->
-<div class="max-w-[1100px] max-h-[90vh] bg-white rounded-2xl overflow-hidden flex flex-col">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
+  <div class="max-w-[1400px] mx-auto p-5">
 
-  <!-- ============================================
-       HEADER
-       ============================================ -->
-  <div class="flex justify-between items-center px-8 py-8 bg-gradient-to-br from-green-500 to-green-600 text-white">
-    <div class="flex items-center gap-4">
-      <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
-        <mat-icon class="!text-[28px] !w-[28px] !h-[28px]">admin_panel_settings</mat-icon>
-      </div>
-      <div>
-        <h2 class="text-2xl font-bold mb-1">
-          @if (viewMode === 'list') {
-            Gestión de Roles
-          } @else if (viewMode === 'add') {
-            Agregar Nuevo Rol
-          } @else {
-            Editar Rol
-          }
-        </h2>
-        <p class="text-green-100 text-sm">
-          @if (viewMode === 'list') {
-            Administra los roles del sistema y visualiza usuarios asignados
-          } @else if (viewMode === 'add') {
-            Define un nuevo rol con permisos personalizados
-          } @else {
-            Modifica la configuración del rol seleccionado
-          }
-        </p>
-      </div>
-    </div>
-    <button
-      mat-icon-button
-      (click)="onCancel()"
-      class="!text-white !bg-white/10 !border !border-white/20 hover:!bg-white/20 transition-all"
-      [disabled]="isLoading">
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
+    <!-- ============================================
+         HEADER
+         ============================================ -->
+    <header class="page-header">
+      <div class="flex items-center justify-between gap-5 flex-wrap">
 
-  <!-- ============================================
-       CONTENT
-       ============================================ -->
-  <div class="flex-1 overflow-y-auto px-8 py-8 min-h-[500px] max-h-[600px]">
+        <!-- Left Section -->
+        <div class="flex items-center gap-4">
+          <button
+            mat-icon-button
+            class="icon-btn"
+            (click)="goBack()"
+            [disabled]="isLoading"
+            matTooltip="Volver al panel de admin">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+
+          <div class="header-icon-container">
+            <mat-icon>admin_panel_settings</mat-icon>
+          </div>
+
+          <div>
+            <h1 class="text-2xl font-bold text-slate-800 mb-1">
+              @if (viewMode === 'list') {
+                Gestión de Roles
+              } @else if (viewMode === 'add') {
+                Agregar Nuevo Rol
+              } @else {
+                Editar Rol
+              }
+            </h1>
+            <p class="text-sm text-slate-600 flex items-center gap-2 font-medium">
+              <span class="status-dot"></span>
+              @if (viewMode === 'list') {
+                Administra los roles del sistema
+              } @else if (viewMode === 'add') {
+                Define un nuevo rol con permisos personalizados
+              } @else {
+                Modifica la configuración del rol seleccionado
+              }
+            </p>
+          </div>
+        </div>
+
+        <!-- Right Section -->
+        @if (viewMode === 'list') {
+          <div class="flex items-center gap-3">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="showAddRole()"
+              [disabled]="isLoading">
+              <mat-icon>add</mat-icon>
+              Agregar Rol
+            </button>
+          </div>
+        }
+      </div>
+    </header>
+
+    <!-- ============================================
+         CONTENT
+         ============================================ -->
+    <div class="mt-6">
 
     <!-- ============================================
          MODO LISTA - VER TODOS LOS ROLES
          ============================================ -->
     @if (viewMode === 'list') {
-      <div>
-        <!-- Action Button -->
-        <div class="mb-6 flex justify-between items-center">
+      <div class="card-modern">
+        <!-- Info -->
+        <div class="mb-6">
           <p class="text-slate-600 text-sm font-medium">
             {{ roles.length }} rol{{ roles.length !== 1 ? 'es' : '' }} en el sistema
           </p>
-          <button
-            mat-raised-button
-            class="!bg-gradient-to-br !from-green-500 !to-green-600 !text-white"
-            (click)="showAddRole()">
-            <mat-icon>add</mat-icon>
-            Agregar Rol
-          </button>
         </div>
 
         <!-- Roles Grid -->

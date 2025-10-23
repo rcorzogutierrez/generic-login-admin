@@ -68,6 +68,14 @@ export const routes: Routes = [
             .then(m => m.ManageModulesComponent),
         title: 'Gestión de Módulos',
       },
+      // ✅ NUEVA RUTA: Gestión de Roles
+      {
+        path: 'roles',
+        loadComponent: () =>
+          import('./admin/components/manage-roles/manage-roles.component')
+            .then(m => m.ManageRolesComponent),
+        title: 'Gestión de Roles',
+      },
     ],
   },
 

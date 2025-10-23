@@ -1,6 +1,33 @@
 /* manage-roles.component.css */
 
 /* ============================================
+   PAGE LAYOUT
+   ============================================ */
+.page-header {
+  @apply bg-white rounded-2xl p-6 shadow-sm border-2 border-slate-200;
+}
+
+.header-icon-container {
+  @apply w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-md;
+}
+
+.header-icon-container mat-icon {
+  @apply text-white !text-[28px] !w-[28px] !h-[28px];
+}
+
+.icon-btn {
+  @apply !bg-white !border-2 !border-slate-200 hover:!bg-slate-50 hover:!border-slate-300 transition-all;
+}
+
+.status-dot {
+  @apply w-2 h-2 bg-green-500 rounded-full animate-pulse;
+}
+
+.card-modern {
+  @apply bg-white rounded-2xl p-6 shadow-sm border-2 border-slate-200;
+}
+
+/* ============================================
    INPUT FIELDS
    ============================================ */
 .input-field {

@@ -2,7 +2,7 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -26,7 +26,6 @@ import { Role } from '../../models/role.interface';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatDialogModule,
     MatButtonModule,
     MatIconModule,
     MatTabsModule,
@@ -49,7 +48,7 @@ export class ManageRolesComponent implements OnInit {
   private rolesService = inject(RolesService);
   private adminService = inject(AdminService);
   private snackBar = inject(MatSnackBar);
-  private dialogRef = inject(MatDialogRef<ManageRolesComponent>);
+  private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
   roles: Role[] = [];
@@ -346,9 +345,9 @@ export class ManageRolesComponent implements OnInit {
   }
 
   /**
-   * Cierra el diálogo
+   * Vuelve al panel de administración
    */
-  onCancel() {
-    this.dialogRef.close();
+  goBack() {
+    this.router.navigate(['/admin']);
   }
 }

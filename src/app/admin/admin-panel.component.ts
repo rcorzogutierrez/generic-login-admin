@@ -24,7 +24,6 @@ import { DeleteUserDialogComponent } from './components/delete-user-dialog/delet
 import { DeleteMultipleUsersDialogComponent } from './components/delete-multiple-users-dialog/delete-multiple-users-dialog.component';
 import { AssignModulesDialogComponent } from './components/assign-modules-dialog/assign-modules-dialog.component';
 import { EditUserRoleDialogComponent } from './components/edit-user-role-dialog/edit-user-role-dialog.component';
-import { ManageRolesComponent } from './components/manage-roles/manage-roles.component';
 
 @Component({
   selector: 'app-admin-panel',
@@ -872,19 +871,7 @@ export class AdminPanelComponent implements OnInit {
    * Gestionar roles del sistema
    */
   manageRoles() {
-    const dialogRef = this.dialog.open(ManageRolesComponent, {
-      width: '1100px',
-      maxWidth: '95vw',
-      maxHeight: '95vh',
-      disableClose: false,
-      panelClass: 'modern-dialog-container'
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadData();
-      }
-    });
+    this.router.navigate(['/admin/roles']);
   }
 
   /**

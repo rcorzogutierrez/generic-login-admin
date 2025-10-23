@@ -1,5 +1,5 @@
 // src/app/admin/components/edit-user-role-dialog/edit-user-role-dialog.component.ts
-import { Component, Inject, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Inject, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -50,6 +50,7 @@ export class EditUserRoleDialogComponent implements OnInit {
   private adminService = inject(AdminService);
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
+  private cdr = inject(ChangeDetectorRef);
 
   userForm!: FormGroup;
   isLoading = false;
@@ -422,6 +423,7 @@ export class EditUserRoleDialogComponent implements OnInit {
     }
 
     this.isLoading = true;
+    this.cdr.markForCheck();
 
     try {
       const formValue = this.userForm.value;
@@ -447,6 +449,7 @@ export class EditUserRoleDialogComponent implements OnInit {
       });
     } finally {
       this.isLoading = false;
+      this.cdr.markForCheck();
     }
   }
 

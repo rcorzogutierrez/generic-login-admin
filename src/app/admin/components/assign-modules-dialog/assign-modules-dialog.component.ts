@@ -1,5 +1,5 @@
 // src/app/admin/components/assign-modules-dialog/assign-modules-dialog.component.ts
-import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -45,7 +45,8 @@ export class AssignModulesDialogComponent implements OnInit {
     private modulesService: ModulesService,
     private adminService: AdminService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   async ngOnInit() {
@@ -58,18 +59,19 @@ export class AssignModulesDialogComponent implements OnInit {
    */
   async loadModules() {
     this.isLoading = true;
+    this.cdr.markForCheck();
+
     try {
-      // ✅ CRÍTICO: Inicializar servicio antes de leer datos
       await this.modulesService.initialize();
       this.availableModules = this.modulesService.modules();
-
-      // Actualizar contador de usuarios
       await this.modulesService.updateAllModulesUserCount();
 
+      this.cdr.markForCheck();
     } catch (error) {
       console.error('Error cargando módulos:', error);
     } finally {
       this.isLoading = false;
+      this.cdr.markForCheck();
     }
   }
 
@@ -93,6 +95,7 @@ export class AssignModulesDialogComponent implements OnInit {
     } else {
       this.selectedModules.add(moduleValue);
     }
+    this.cdr.markForCheck();
   }
 
   /**
@@ -109,6 +112,7 @@ export class AssignModulesDialogComponent implements OnInit {
     this.availableModules
       .filter(m => m.isActive)
       .forEach(m => this.selectedModules.add(m.value));
+    this.cdr.markForCheck();
   }
 
   /**
@@ -116,6 +120,7 @@ export class AssignModulesDialogComponent implements OnInit {
    */
   deselectAll() {
     this.selectedModules.clear();
+    this.cdr.markForCheck();
   }
 
   /**
@@ -193,25 +198,22 @@ export class AssignModulesDialogComponent implements OnInit {
     }
 
     this.isSaving = true;
+    this.cdr.markForCheck();
 
     try {
       const newModules = Array.from(this.selectedModules);
-      
-      // Actualizar el usuario
+
       const result = await this.adminService.updateUser(
         this.data.user.uid!,
         { modules: newModules }
       );
 
       if (result.success) {
-        // Actualizar el contador de usuarios en los módulos
         await this.modulesService.updateAllModulesUserCount();
-        
-        // Log de auditoría
         await this.logModuleAssignment();
-        
-        this.dialogRef.close({ 
-          success: true, 
+
+        this.dialogRef.close({
+          success: true,
           message: 'Módulos actualizados exitosamente',
           updatedModules: newModules
         });
@@ -223,6 +225,7 @@ export class AssignModulesDialogComponent implements OnInit {
       alert('Error al actualizar los módulos: ' + error.message);
     } finally {
       this.isSaving = false;
+      this.cdr.markForCheck();
     }
   }
 

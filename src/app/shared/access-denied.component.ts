@@ -12,7 +12,7 @@ import { AuthService } from '../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule],
   templateUrl: './access-denied.component.html',
-  styleUrls: ['./access-denied.component.css'],
+  styleUrl: './access-denied.component.css',
 })
 export class AccessDeniedComponent {
   userRole = this.authService.authorizedUser()?.role || 'No definido';

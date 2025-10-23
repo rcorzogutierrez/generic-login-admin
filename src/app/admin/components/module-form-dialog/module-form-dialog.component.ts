@@ -36,7 +36,7 @@ export interface ModuleFormDialogData {
     MatTooltipModule
   ],
   templateUrl: './module-form-dialog.component.html',
-  styleUrls: ['./module-form-dialog.component.css']
+  styleUrl: './module-form-dialog.component.css'
 })
 export class ModuleFormDialogComponent implements OnInit {
   moduleForm!: FormGroup;

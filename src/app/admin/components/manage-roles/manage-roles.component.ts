@@ -41,7 +41,7 @@ import { Role } from '../../models/role.interface';
     MatDividerModule
   ],
   templateUrl: './manage-roles.component.html',
-  styleUrls: ['./manage-roles.component.css']
+  styleUrl: './manage-roles.component.css'
 })
 export class ManageRolesComponent implements OnInit {
   private fb = inject(FormBuilder);

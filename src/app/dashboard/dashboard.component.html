@@ -14,10 +14,12 @@
         </div>
         <div>
           <h1 class="text-2xl font-bold text-slate-800 mb-1">¡Bienvenido de nuevo! 👋</h1>
-          <p *ngIf="!loading && userDashboard" class="text-sm text-slate-600 flex items-center gap-2 font-medium">
-            <span class="status-dot" [class.recent]="isRecentSession()"></span>
-            Última sesión: {{ getLastSession() }}
-          </p>
+          @if (!loading && userDashboard) {
+            <p class="text-sm text-slate-600 flex items-center gap-2 font-medium">
+              <span class="status-dot" [class.recent]="isRecentSession()"></span>
+              Última sesión: {{ getLastSession() }}
+            </p>
+          }
         </div>
       </div>
       
@@ -42,53 +44,60 @@
   <!-- ============================================
        LOADING STATE
        ============================================ -->
-  <div *ngIf="loading" class="empty-state">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p class="mt-4 text-slate-600 font-medium">Cargando tu dashboard...</p>
-  </div>
+  @if (loading) {
+    <div class="empty-state">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p class="mt-4 text-slate-600 font-medium">Cargando tu dashboard...</p>
+    </div>
+  }
 
   <!-- ============================================
        ERROR STATE
        ============================================ -->
-  <div *ngIf="error && !loading" class="empty-state">
-    <mat-icon class="text-red-500 text-5xl mb-4">error_outline</mat-icon>
-    <h3 class="text-lg font-semibold text-slate-800 mb-2">Error al cargar</h3>
-    <p class="text-slate-600 mb-6">{{ error }}</p>
-    <button mat-raised-button color="primary" (click)="refreshData()">
-      <mat-icon>refresh</mat-icon>
-      Reintentar
-    </button>
-  </div>
+  @if (error && !loading) {
+    <div class="empty-state">
+      <mat-icon class="text-red-500 text-5xl mb-4">error_outline</mat-icon>
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Error al cargar</h3>
+      <p class="text-slate-600 mb-6">{{ error }}</p>
+      <button mat-raised-button color="primary" (click)="refreshData()">
+        <mat-icon>refresh</mat-icon>
+        Reintentar
+      </button>
+    </div>
+  }
 
   <!-- ============================================
        DASHBOARD CONTENT
        ============================================ -->
-  <div *ngIf="!loading && !error && userDashboard">
+  @if (!loading && !error && userDashboard) {
+    <div>
 
     <!-- ============================================
          QUICK ACTIONS - CON TAILWIND
          ============================================ -->
     <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <div *ngFor="let action of quickActions" 
-           class="card-corporate cursor-pointer group relative"
-           (click)="executeQuickAction(action)">
-        
-        <!-- Gradient top bar on hover -->
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-t-2xl"></div>
-        
-        <!-- Icon -->
-        <div class="header-icon-container mb-4 relative">
-          <mat-icon>{{ action.icon }}</mat-icon>
-          <span *ngIf="action.badge" 
-                class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-lg border-2 border-white min-w-[22px] text-center">
-            {{ action.badge }}
-          </span>
+      @for (action of quickActions; track action.id) {
+        <div class="card-corporate cursor-pointer group relative"
+             (click)="executeQuickAction(action)">
+
+          <!-- Gradient top bar on hover -->
+          <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-t-2xl"></div>
+
+          <!-- Icon -->
+          <div class="header-icon-container mb-4 relative">
+            <mat-icon>{{ action.icon }}</mat-icon>
+            @if (action.badge) {
+              <span class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-lg border-2 border-white min-w-[22px] text-center">
+                {{ action.badge }}
+              </span>
+            }
+          </div>
+
+          <!-- Content -->
+          <h3 class="text-base font-semibold text-slate-800 mb-1.5">{{ action.title }}</h3>
+          <p class="text-sm text-slate-600 leading-snug">{{ action.description }}</p>
         </div>
-        
-        <!-- Content -->
-        <h3 class="text-base font-semibold text-slate-800 mb-1.5">{{ action.title }}</h3>
-        <p class="text-sm text-slate-600 leading-snug">{{ action.description }}</p>
-      </div>
+      }
     </section>
 
     <!-- ============================================
@@ -107,19 +116,20 @@
         
         <!-- Key Metrics Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <div *ngFor="let metric of keyMetrics" 
-               class="bg-slate-50 p-5 rounded-xl border border-slate-200 hover:bg-white hover:border-blue-500 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
-            <div class="flex items-center gap-2 text-xs text-slate-600 uppercase font-semibold mb-2.5 tracking-wider">
-              <mat-icon class="!text-base text-blue-500">{{ metric.icon }}</mat-icon>
-              {{ metric.label }}
+          @for (metric of keyMetrics; track metric.label) {
+            <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 hover:bg-white hover:border-blue-500 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
+              <div class="flex items-center gap-2 text-xs text-slate-600 uppercase font-semibold mb-2.5 tracking-wider">
+                <mat-icon class="!text-base text-blue-500">{{ metric.icon }}</mat-icon>
+                {{ metric.label }}
+              </div>
+              <div class="text-3xl font-bold text-slate-800 mb-1.5 leading-none">
+                {{ metric.value }}
+              </div>
+              <div class="text-xs text-green-600 font-semibold">
+                {{ metric.change }}
+              </div>
             </div>
-            <div class="text-3xl font-bold text-slate-800 mb-1.5 leading-none">
-              {{ metric.value }}
-            </div>
-            <div class="text-xs text-green-600 font-semibold">
-              {{ metric.change }}
-            </div>
-          </div>
+          }
         </div>
 
         <!-- Permisos Section -->
@@ -129,15 +139,17 @@
             Tus Permisos
           </h3>
           <div class="flex flex-wrap gap-2.5">
-            <div *ngFor="let permission of userDashboard.userInfo.permissions" 
-                 class="bg-slate-50 px-4 py-2.5 rounded-lg text-sm text-slate-700 border border-slate-200 flex items-center gap-1.5 font-medium hover:bg-white hover:border-blue-500 hover:-translate-y-0.5 transition-all duration-200">
-              <mat-icon class="!text-lg text-blue-500">{{ getPermissionIcon(permission) }}</mat-icon>
-              {{ getPermissionLabel(permission) }}
-            </div>
-            <div *ngIf="userDashboard.userInfo.permissions.length === 0" 
-                 class="bg-amber-50 text-amber-700 px-4 py-2.5 rounded-lg text-sm font-medium border border-amber-200">
-              Sin permisos asignados
-            </div>
+            @for (permission of userDashboard.userInfo.permissions; track permission) {
+              <div class="bg-slate-50 px-4 py-2.5 rounded-lg text-sm text-slate-700 border border-slate-200 flex items-center gap-1.5 font-medium hover:bg-white hover:border-blue-500 hover:-translate-y-0.5 transition-all duration-200">
+                <mat-icon class="!text-lg text-blue-500">{{ getPermissionIcon(permission) }}</mat-icon>
+                {{ getPermissionLabel(permission) }}
+              </div>
+            }
+            @if (userDashboard.userInfo.permissions.length === 0) {
+              <div class="bg-amber-50 text-amber-700 px-4 py-2.5 rounded-lg text-sm font-medium border border-amber-200">
+                Sin permisos asignados
+              </div>
+            }
           </div>
         </div>
 
@@ -148,15 +160,17 @@
             Módulos Activos
           </h3>
           <div class="flex flex-wrap gap-2.5">
-            <div *ngFor="let module of userDashboard.userInfo.modules" 
-                 class="bg-slate-50 px-4 py-2.5 rounded-lg text-sm text-slate-700 border border-slate-200 flex items-center gap-1.5 font-medium hover:bg-white hover:border-blue-500 hover:-translate-y-0.5 transition-all duration-200">
-              <mat-icon class="!text-lg text-blue-500">dashboard</mat-icon>
-              {{ module }}
-            </div>
-            <div *ngIf="userDashboard.userInfo.modules.length === 0" 
-                 class="bg-amber-50 text-amber-700 px-4 py-2.5 rounded-lg text-sm font-medium border border-amber-200">
-              Sin módulos asignados
-            </div>
+            @for (module of userDashboard.userInfo.modules; track module) {
+              <div class="bg-slate-50 px-4 py-2.5 rounded-lg text-sm text-slate-700 border border-slate-200 flex items-center gap-1.5 font-medium hover:bg-white hover:border-blue-500 hover:-translate-y-0.5 transition-all duration-200">
+                <mat-icon class="!text-lg text-blue-500">dashboard</mat-icon>
+                {{ module }}
+              </div>
+            }
+            @if (userDashboard.userInfo.modules.length === 0) {
+              <div class="bg-amber-50 text-amber-700 px-4 py-2.5 rounded-lg text-sm font-medium border border-amber-200">
+                Sin módulos asignados
+              </div>
+            }
           </div>
         </div>
       </section>
@@ -170,40 +184,46 @@
           Actividad Reciente
         </h2>
         
-        <div *ngIf="recentActivities.length > 0" class="space-y-5">
-          <div *ngFor="let activity of recentActivities; let last = last" 
-               class="relative">
-            
-            <!-- Timeline line -->
-            <div *ngIf="!last" 
-                 class="absolute left-5 top-12 w-0.5 h-full bg-gradient-to-b from-slate-200 to-transparent"></div>
-            
-            <!-- Activity item -->
-            <div class="flex gap-4 relative z-10">
-              <!-- Icon wrapper - Siempre tiene fondo azul por defecto -->
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white flex-shrink-0 activity-icon-primary"
-                   [class.activity-icon-success]="getActivityColor(activity.type) === 'accent'"
-                   [class.activity-icon-warning]="getActivityColor(activity.type) === 'warn'">
-                <mat-icon class="!text-xl">{{ getActivityIcon(activity.type) }}</mat-icon>
-              </div>
-              
-              <!-- Content -->
-              <div class="flex-1 pt-1.5">
-                <div class="font-semibold text-sm text-slate-800 leading-snug mb-1">
-                  {{ activity.description }}
-                </div>
-                <div class="text-xs text-slate-500 font-medium">
-                  {{ getRelativeTime(activity.timestamp) }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        @if (recentActivities.length > 0) {
+          <div class="space-y-5">
+            @for (activity of recentActivities; track activity.timestamp; let last = $last) {
+              <div class="relative">
 
-        <div *ngIf="recentActivities.length === 0" class="text-center py-12">
-          <mat-icon class="!text-5xl text-slate-300 mb-3">inbox</mat-icon>
-          <p class="text-sm text-slate-500">No hay actividad reciente</p>
-        </div>
+                <!-- Timeline line -->
+                @if (!last) {
+                  <div class="absolute left-5 top-12 w-0.5 h-full bg-gradient-to-b from-slate-200 to-transparent"></div>
+                }
+
+                <!-- Activity item -->
+                <div class="flex gap-4 relative z-10">
+                  <!-- Icon wrapper - Siempre tiene fondo azul por defecto -->
+                  <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white flex-shrink-0 activity-icon-primary"
+                       [class.activity-icon-success]="getActivityColor(activity.type) === 'accent'"
+                       [class.activity-icon-warning]="getActivityColor(activity.type) === 'warn'">
+                    <mat-icon class="!text-xl">{{ getActivityIcon(activity.type) }}</mat-icon>
+                  </div>
+
+                  <!-- Content -->
+                  <div class="flex-1 pt-1.5">
+                    <div class="font-semibold text-sm text-slate-800 leading-snug mb-1">
+                      {{ activity.description }}
+                    </div>
+                    <div class="text-xs text-slate-500 font-medium">
+                      {{ getRelativeTime(activity.timestamp) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (recentActivities.length === 0) {
+          <div class="text-center py-12">
+            <mat-icon class="!text-5xl text-slate-300 mb-3">inbox</mat-icon>
+            <p class="text-sm text-slate-500">No hay actividad reciente</p>
+          </div>
+        }
       </section>
     </div>
 
@@ -226,9 +246,11 @@
       </div>
     </section>
 
-  </div>
-   <!-- ✅ NUEVO: FOOTER DINÁMICO -->
-   <footer class="bg-slate-800 rounded-2xl p-6 mt-8 border border-slate-700 shadow-soft">
+    </div>
+  }
+
+  <!-- ✅ NUEVO: FOOTER DINÁMICO -->
+  <footer class="bg-slate-800 rounded-2xl p-6 mt-8 border border-slate-700 shadow-soft">
     <div class="text-center">
       <p class="text-sm text-slate-300 font-medium">
         {{ footerText() }}

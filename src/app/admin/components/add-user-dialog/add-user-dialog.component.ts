@@ -37,7 +37,7 @@ import { AdminService, CreateUserRequest } from '../../services/admin.service';
     MatTabsModule
   ],
   templateUrl: './add-user-dialog.component.html',
-  styleUrls: ['./add-user-dialog.component.css']
+  styleUrl: './add-user-dialog.component.css'
 })
 
 export class AddUserDialogComponent implements OnInit {

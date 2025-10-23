@@ -1,39 +1,28 @@
-/* manage-roles.component.css */
+/* manage-roles.component.css - REFACTORIZADO Y OPTIMIZADO */
 
 /* ============================================
-   PAGE LAYOUT
+   ESTILOS ESPECÍFICOS DE MANAGE ROLES
+   Las clases globales se usan desde styles.css:
+   - .page-header
+   - .header-icon-container
+   - .card-modern
+   - .input-field-modern
+   - .input-label-modern
+   - .input-error-modern
+   - .permission-card-base
+   - .modern-chip
    ============================================ */
-.page-header {
-  @apply bg-white rounded-2xl p-6 shadow-sm border-2 border-slate-200;
+
+/* Override específico para header icon de roles (color verde) */
+.header-icon-container.roles-icon {
+  @apply bg-gradient-to-br from-green-500 to-green-600;
 }
 
-.header-icon-container {
-  @apply w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-md;
-}
-
-.header-icon-container mat-icon {
-  @apply text-white !text-[28px] !w-[28px] !h-[28px];
-}
-
-.icon-btn {
-  @apply !bg-white !border-2 !border-slate-200 hover:!bg-slate-50 hover:!border-slate-300 transition-all;
-}
-
-.status-dot {
-  @apply w-2 h-2 bg-green-500 rounded-full animate-pulse;
-}
-
-.card-modern {
-  @apply bg-white rounded-2xl p-6 shadow-sm border-2 border-slate-200;
-}
-
-/* ============================================
-   INPUT FIELDS
-   ============================================ */
+/* Aliases para compatibilidad con el HTML actual */
 .input-field {
-  @apply w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-medium
-         focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all
-         placeholder:text-slate-400;
+  @apply w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-medium;
+  @apply focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all;
+  @apply placeholder:text-slate-400;
 }
 
 .input-field:disabled,
@@ -53,11 +42,9 @@
   @apply !text-lg text-blue-500;
 }
 
-/* ============================================
-   PERMISSION CARDS
-   ============================================ */
+/* Permission cards - usa la base y agrega customización */
 .permission-card {
-  transition: all 0.2s ease;
+  @apply bg-white border-2 border-slate-200 rounded-xl p-4 transition-all duration-200 cursor-pointer;
 }
 
 .permission-card:hover {
@@ -65,28 +52,14 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* ============================================
-   CHIPS
-   ============================================ */
+/* Chips modernos - alias */
 .modern-chip-set {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-.modern-chip {
-  @apply !bg-blue-50 !text-blue-700 !font-semibold;
-  transition: all 0.2s ease;
-}
-
-.modern-chip:hover {
-  @apply !bg-blue-100;
-  transform: translateY(-1px);
-}
-
-/* ============================================
-   ROLE CARDS
-   ============================================ */
+/* Role cards - estilo específico */
 .role-card-item {
   transition: all 0.3s ease;
 }
@@ -95,9 +68,7 @@
   transform: translateY(-4px);
 }
 
-/* ============================================
-   STATUS SECTION
-   ============================================ */
+/* Status section */
 .status-section {
   transition: all 0.2s ease;
 }

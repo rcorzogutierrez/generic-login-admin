@@ -85,22 +85,19 @@ export class AdminPanelComponent implements OnInit {
       const users = this.adminService.users();
       this.users = users;
       this.applyFilters();
-      console.log('👥 Usuarios actualizados:', users.length);
       // ✅ Forzar detección de cambios después de actualizar usuarios
       this.cdr.markForCheck();
     });
   }
 
   async ngOnInit() {
-    console.log('🔧 Panel Admin cargado para:', this.currentUser()?.email);
-
     this.isLoading = true;
-    this.cdr.markForCheck(); // ✅ Forzar detección de cambios para mostrar loading
+    this.cdr.markForCheck();
 
     await this.loadData();
 
     this.isLoading = false;
-    this.cdr.markForCheck(); // ✅ Forzar detección de cambios para ocultar loading
+    this.cdr.markForCheck();
   }
 
   /**
@@ -117,9 +114,6 @@ export class AdminPanelComponent implements OnInit {
       this.totalModules = stats.totalModules;
       this.adminUsers = stats.adminUsers;
 
-      console.log('📊 Estadísticas cargadas:', stats);
-
-      // ✅ Forzar detección de cambios después de actualizar stats
       this.cdr.markForCheck();
     } catch (error) {
       console.error('❌ Error cargando datos:', error);
@@ -236,9 +230,8 @@ export class AdminPanelComponent implements OnInit {
    * Refrescar datos
    */
   async refreshData() {
-    console.log('🔄 Refrescando datos...');
     this.isLoading = true;
-    this.cdr.markForCheck(); // ✅ Forzar detección de cambios para mostrar loading
+    this.cdr.markForCheck();
 
     try {
       await this.loadData();
@@ -251,7 +244,7 @@ export class AdminPanelComponent implements OnInit {
       });
     } finally {
       this.isLoading = false;
-      this.cdr.markForCheck(); // ✅ Forzar detección de cambios para ocultar loading
+      this.cdr.markForCheck();
     }
   }
 
@@ -407,10 +400,8 @@ export class AdminPanelComponent implements OnInit {
    * Ejecuta la eliminación masiva
    */
   private async performBulkDeletion(uids: string[]) {
-    console.log('⚙️ Ejecutando eliminación masiva de', uids.length, 'usuarios');
-
     this.isLoading = true;
-    this.cdr.markForCheck(); // ✅ Forzar detección de cambios
+    this.cdr.markForCheck();
 
     const loadingSnackBar = this.snackBar.open(
       `Eliminando ${uids.length} usuario(s)...`,
@@ -438,8 +429,6 @@ export class AdminPanelComponent implements OnInit {
 
         // Refrescar datos
         await this.refreshData();
-
-        console.log('✅ Eliminación masiva exitosa:', result);
       } else {
         // Mostrar errores
         let errorMessage = `❌ ${result.message}`;
@@ -504,7 +493,6 @@ export class AdminPanelComponent implements OnInit {
    * Navega a notificaciones
    */
   goToNotifications() {
-    console.log('🔔 Notificaciones...');
     this.snackBar.open('Centro de notificaciones - Próximamente', 'Cerrar', { duration: 2000 });
   }
 
@@ -638,8 +626,6 @@ export class AdminPanelComponent implements OnInit {
    * Agregar usuario
    */
   addUser() {
-    console.log('➕ Abriendo dialog...');
-    
     const dialogRef = this.dialog.open(AddUserDialogComponent, {
       width: '600px',
       maxWidth: '90vw',
@@ -657,9 +643,8 @@ export class AdminPanelComponent implements OnInit {
    * Ver detalles
    */
   viewUserDetails(user: User) {
-    console.log('👁️ Ver detalles:', user.email);
-    this.snackBar.open(`Detalles de ${user.displayName || user.email}`, 'Cerrar', { 
-      duration: 3000 
+    this.snackBar.open(`Detalles de ${user.displayName || user.email}`, 'Cerrar', {
+      duration: 3000
     });
   }
 
@@ -667,7 +652,6 @@ export class AdminPanelComponent implements OnInit {
    * Editar usuario - ACTUALIZADO CON DIALOG DE ROLES
    */
   editUser(user: User) {
-    console.log('✏️ Abriendo edición de rol para:', user.email);
 
     const dialogRef = this.dialog.open(EditUserRoleDialogComponent, {
       width: '800px',
@@ -716,8 +700,6 @@ export class AdminPanelComponent implements OnInit {
    * Asignar módulos - ACTUALIZADO CON DIALOG
    */
   assignModules(user: User) {
-    console.log('🧩 Abriendo dialog de módulos para:', user.email);
-    
     const dialogRef = this.dialog.open(AssignModulesDialogComponent, {
       width: '700px',
       maxWidth: '90vw',
@@ -746,8 +728,6 @@ export class AdminPanelComponent implements OnInit {
    * Elimina un usuario del sistema con confirmación
    */
   async deleteUser(user: User) {
-    console.log('🗑️ Iniciando proceso de eliminación:', user.email);
-
     // Validaciones previas antes de abrir el dialog
     if (!user.uid) {
       this.snackBar.open('Error: Usuario sin UID válido', 'Cerrar', { 
@@ -792,8 +772,6 @@ export class AdminPanelComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result?.confirmed) {
         await this.performUserDeletion(user);
-      } else {
-        console.log('❌ Eliminación cancelada por el usuario');
       }
     });
   }
@@ -802,11 +780,8 @@ export class AdminPanelComponent implements OnInit {
    * Ejecuta la eliminación del usuario
    */
   private async performUserDeletion(user: User) {
-    console.log('⚙️ Ejecutando eliminación de:', user.email);
-
-    // Mostrar loading
     this.isLoading = true;
-    this.cdr.markForCheck(); // ✅ Forzar detección de cambios
+    this.cdr.markForCheck();
 
     const loadingSnackBar = this.snackBar.open(
       `Eliminando usuario ${user.displayName}...`,
@@ -833,8 +808,6 @@ export class AdminPanelComponent implements OnInit {
 
         // Refrescar los datos
         await this.refreshData();
-
-        console.log('✅ Usuario eliminado exitosamente:', user.email);
       } else {
         // Mostrar mensaje de error
         this.snackBar.open(
@@ -872,8 +845,6 @@ export class AdminPanelComponent implements OnInit {
    * Exportar datos
    */
   async exportData() {
-    console.log('📥 Exportando...');
-    
     try {
       const result = await this.adminService.exportUsers();
       
@@ -901,8 +872,6 @@ export class AdminPanelComponent implements OnInit {
    * Gestionar roles del sistema
    */
   manageRoles() {
-    console.log('👥 Gestionar roles del sistema...');
-
     const dialogRef = this.dialog.open(ManageRolesComponent, {
       width: '1100px',
       maxWidth: '95vw',
@@ -913,8 +882,7 @@ export class AdminPanelComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('Cambios en roles realizados');
-        this.loadData(); // Recargar datos si hubo cambios
+        this.loadData();
       }
     });
   }
@@ -930,7 +898,6 @@ export class AdminPanelComponent implements OnInit {
    * Ver logs del sistema
    */
   viewLogs() {
-    console.log('📋 Navegando a logs del sistema...');
     this.router.navigate(['/admin/logs']);
   }
 
@@ -938,7 +905,6 @@ export class AdminPanelComponent implements OnInit {
    * Configuración del sistema
    */
   goToSystemConfig() {
-    console.log('⚙️ Navegando a configuración del sistema...');
     this.router.navigate(['/admin/config']);
   }
 

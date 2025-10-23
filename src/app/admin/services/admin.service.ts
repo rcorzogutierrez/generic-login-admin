@@ -107,21 +107,16 @@ export class AdminService {
     this.usersSignal().length
   );
 
-  constructor() {
-    // ✅ NO cargamos usuarios automáticamente
-    console.log('🚀 AdminService inicializado (lazy loading)');
-  }
+  constructor() {}
 
   /**
    * ✅ NUEVO: Inicializa la carga de usuarios solo cuando se necesita
    */
   async initialize(): Promise<void> {
     if (this.isInitialized) {
-      console.log('⚠️ AdminService ya inicializado, omitiendo...');
       return;
     }
 
-    console.log('🔄 Cargando usuarios inicial...');
     await this.loadUsers();
     this.isInitialized = true;
   }
@@ -395,10 +390,8 @@ export class AdminService {
           lastLoginDate: data['lastLoginDate']
         });
       });
-      
+
       this.usersSignal.set(users);
-      
-      console.log(`📊 Usuarios cargados: ${users.length}`);
     } catch (error) {
       console.error('❌ Error cargando usuarios:', error);
       throw error;

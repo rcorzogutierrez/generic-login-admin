@@ -3,17 +3,19 @@ import { Injectable, signal } from '@angular/core';
 import {
   getFirestore,
   collection,
-  addDoc,
-  updateDoc,
-  deleteDoc,
   doc,
-  getDocs,
   query,
   where,
   orderBy,
   writeBatch,
   Timestamp
 } from 'firebase/firestore';
+import {
+  getDocsWithLogging as getDocs,
+  addDocWithLogging as addDoc,
+  updateDocWithLogging as updateDoc,
+  deleteDocWithLogging as deleteDoc
+} from '../../shared/utils/firebase-logger.utils';
 import { Role } from '../models/role.interface';
 
 @Injectable({

@@ -2,7 +2,8 @@
 
 import { Injectable, signal } from '@angular/core';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, User } from 'firebase/auth';
-import { Timestamp, addDoc, collection, getFirestore } from 'firebase/firestore';
+import { Timestamp, collection, getFirestore } from 'firebase/firestore';
+import { addDocWithLogging as addDoc } from '../../shared/utils/firebase-logger.utils';
 import { Router } from '@angular/router';
 import { FirestoreUserService, FirestoreUser } from './firestore-user.service';
 import { AppConfigService } from './app-config.service';

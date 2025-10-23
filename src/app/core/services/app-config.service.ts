@@ -6,7 +6,7 @@ import {
   onSnapshot,
   Unsubscribe
 } from 'firebase/firestore';
-import { getDoc } from 'firebase/firestore';
+import { getDocWithLogging as getDoc } from '../../shared/utils/firebase-logger.utils';
 import { SystemConfig } from '../../admin/models/system-config.interface';
 
 @Injectable({

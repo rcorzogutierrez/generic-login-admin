@@ -6,12 +6,14 @@ import {
   doc,
   query,
   where,
-  getDocs,
-  getDoc,
-  updateDoc,
   DocumentReference,
   Timestamp
 } from 'firebase/firestore';
+import {
+  getDocsWithLogging as getDocs,
+  getDocWithLogging as getDoc,
+  updateDocWithLogging as updateDoc
+} from '../../shared/utils/firebase-logger.utils';
 
 export interface FirestoreUser {
   uid: string;

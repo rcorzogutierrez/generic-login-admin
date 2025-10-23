@@ -76,7 +76,10 @@ export class ManageRolesComponent implements OnInit {
   async loadData() {
     this.isLoading = true;
     try {
-      await this.rolesService.loadRoles();
+      // ✅ CRÍTICO: Inicializar servicios antes de leer datos
+      await this.rolesService.initialize();
+      await this.adminService.initialize();
+
       this.roles = this.rolesService.roles();
       this.users = this.adminService.users();
 

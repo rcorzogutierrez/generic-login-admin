@@ -79,8 +79,10 @@ export class UserModulesComponent implements OnInit {
         return;
       }
 
-      // Cargar todos los usuarios para encontrar el actual
-      await this.adminService.loadUsers();
+      // ✅ CRÍTICO: Inicializar servicios antes de leer datos
+      await this.adminService.initialize();
+      await this.modulesService.initialize();
+
       const users = this.adminService.users();
       const currentUserData = users.find(u => u.email === userEmail);
 
@@ -90,8 +92,6 @@ export class UserModulesComponent implements OnInit {
         return;
       }
 
-      // Cargar todos los módulos del sistema
-      await this.modulesService.loadModules();
       const allModules = this.modulesService.modules();
 
       // Filtrar solo los módulos asignados al usuario

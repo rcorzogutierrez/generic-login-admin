@@ -22,13 +22,29 @@ import { Role } from '../models/role.interface';
 export class RolesService {
   private db = getFirestore();
   private rolesCollection = collection(this.db, 'roles');
+  private isInitialized = false; // ✅ Control de inicialización
 
   // Signal para roles
   roles = signal<Role[]>([]);
 
   constructor() {
-    this.initializeSystemRoles();
-    this.loadRoles();
+    // ✅ NO cargamos roles automáticamente (lazy loading)
+    console.log('🚀 RolesService inicializado (lazy loading)');
+  }
+
+  /**
+   * ✅ NUEVO: Inicializa el servicio solo cuando se necesita
+   */
+  async initialize(): Promise<void> {
+    if (this.isInitialized) {
+      console.log('⚠️ RolesService ya inicializado, omitiendo...');
+      return;
+    }
+
+    console.log('🔄 Inicializando RolesService...');
+    await this.initializeSystemRoles();
+    await this.loadRoles();
+    this.isInitialized = true;
   }
 
   /**

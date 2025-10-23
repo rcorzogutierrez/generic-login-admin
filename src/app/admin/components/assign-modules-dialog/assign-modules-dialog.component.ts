@@ -1,5 +1,5 @@
 // src/app/admin/components/assign-modules-dialog/assign-modules-dialog.component.ts
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,7 +29,8 @@ export interface AssignModulesDialogData {
     MatProgressSpinnerModule
   ],
   templateUrl: './assign-modules-dialog.component.html',
-  styleUrl: './assign-modules-dialog.component.css'
+  styleUrl: './assign-modules-dialog.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AssignModulesDialogComponent implements OnInit {
   availableModules: SystemModule[] = [];

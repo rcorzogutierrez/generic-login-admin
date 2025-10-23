@@ -1,5 +1,5 @@
 // src/app/admin/admin-panel.component.ts - VERSIÓN CON SIGNALS
-import { Component, OnInit, effect } from '@angular/core';
+import { Component, OnInit, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -46,6 +46,7 @@ import { ManageRolesComponent } from './components/manage-roles/manage-roles.com
   ],
   templateUrl: './admin-panel.component.html',
   styleUrl: './admin-panel.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminPanelComponent implements OnInit {
   currentUser = this.authService.authorizedUser;

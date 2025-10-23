@@ -1,25 +1,26 @@
 // src/app/admin/services/admin.service.ts - VERSIÓN OPTIMIZADA ANGULAR 20 CON SIGNALS
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  doc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  where,
+  orderBy,
   getDoc,
   setDoc,
   Timestamp
 } from 'firebase/firestore';
-import { 
-  getAuth, 
+import {
+  getAuth,
   sendPasswordResetEmail
 } from 'firebase/auth';
 import { ModulesService } from './modules.service';
+import { handleError, createSuccessResult, createErrorResult } from '../../shared/utils/error-handler.utils';
 
 // ============================================
 // INTERFACES
@@ -117,116 +118,20 @@ export class AdminService {
   async createUser(userData: CreateUserRequest): Promise<{ success: boolean; message: string; uid?: string }> {
     try {
       // Validar datos
-      const validation = this.validateUserData(userData);
-      if (!validation.isValid) {
-        await this.logUserAction('create_user_failed', '', {
-          reason: 'validation_error',
-          errors: validation.errors,
-          attemptedData: {
-            email: userData.email,
-            displayName: userData.displayName,
-            role: userData.role
-          },
-          performedBy: this.auth.currentUser?.email || 'system',
-          timestamp: new Date().toISOString()
-        });
-
-        return {
-          success: false,
-          message: `Datos inválidos: ${validation.errors.join(', ')}`
-        };
+      const validationResult = await this.validateUserCreation(userData);
+      if (!validationResult.isValid) {
+        return validationResult.result!;
       }
 
       // Verificar email duplicado
-      const existingUsers = this.usersSignal();
-      const emailExists = existingUsers.some(user => 
-        this.normalizeEmail(user.email) === this.normalizeEmail(userData.email)
-      );
-
-      if (emailExists) {
-        await this.logUserAction('create_user_failed', '', {
-          reason: 'email_already_exists',
-          attemptedEmail: this.normalizeEmail(userData.email),
-          performedBy: this.auth.currentUser?.email || 'system',
-          timestamp: new Date().toISOString()
-        });
-
-        return {
-          success: false,
-          message: 'Ya existe un usuario autorizado con este email'
-        };
+      const duplicateCheckResult = await this.checkDuplicateEmail(userData.email);
+      if (!duplicateCheckResult.isValid) {
+        return duplicateCheckResult.result!;
       }
 
-      // Normalizar datos
-      const normalizedData = {
-        ...userData,
-        email: this.normalizeEmail(userData.email),
-        displayName: this.formatDisplayName(userData.displayName)
-      };
-
-      // Generar UID temporal
-      const tempUid = `pre_${Date.now()}_${this.generateShortId()}`;
-
-      // Crear documento
-      const userDocData = {
-        createdAt: Timestamp.now(),
-        createdBy: this.auth.currentUser?.uid || 'system',
-        displayName: normalizedData.displayName,
-        email: normalizedData.email,
-        isActive: normalizedData.isActive,
-        lastLogin: null,
-        lastLoginDate: null,
-        permissions: normalizedData.permissions,
-        modules: normalizedData.modules,
-        role: normalizedData.role,
-        uid: tempUid,
-        createdByEmail: this.auth.currentUser?.email || 'system',
-        accountStatus: 'pending_first_login',
-        profileComplete: false,
-        avatarColor: this.getAvatarColor(normalizedData.email),
-        initials: this.getInitials(normalizedData.displayName),
-        preAuthorized: true,
-        firstLoginDate: null
-      };
-
-      // Guardar en Firestore
-      const docId = this.normalizeEmail(normalizedData.email).replace(/[@.]/g, '_');
-      
-      await this.logUserAction('create_user_attempt', docId, {
-        targetUser: {
-          email: normalizedData.email,
-          displayName: normalizedData.displayName,
-          role: normalizedData.role,
-          modules: normalizedData.modules,
-          permissions: normalizedData.permissions,
-          isActive: normalizedData.isActive
-        },
-        performedBy: this.auth.currentUser?.email || 'system',
-        performedByUid: this.auth.currentUser?.uid || 'system',
-        timestamp: new Date().toISOString()
-      });
-
-      await setDoc(doc(this.db, 'authorized_users', docId), userDocData);
-
-      // Actualizar signal
-      await this.loadUsers();
-
-      await this.logUserAction('create_user_success', docId, {
-        createdUser: {
-          email: normalizedData.email,
-          displayName: normalizedData.displayName,
-          role: normalizedData.role,
-          modules: normalizedData.modules,
-          permissions: normalizedData.permissions,
-          isActive: normalizedData.isActive,
-          docId: docId,
-          tempUid: tempUid
-        },
-        performedBy: this.auth.currentUser?.email || 'system',
-        performedByUid: this.auth.currentUser?.uid || 'system',
-        message: 'Usuario pre-autorizado exitosamente',
-        timestamp: new Date().toISOString()
-      });
+      // Crear y guardar usuario
+      const normalizedData = this.normalizeUserData(userData);
+      const docId = await this.saveNewUser(normalizedData);
 
       return {
         success: true,
@@ -235,45 +140,191 @@ export class AdminService {
       };
 
     } catch (error: any) {
-      console.error('❌ Error pre-autorizando usuario:', error);
-      
-      let errorMessage = 'Error desconocido al pre-autorizar el usuario';
-      
-      switch (error.code) {
-        case 'permission-denied':
-          errorMessage = 'No tienes permisos para crear usuarios';
-          break;
-        case 'unavailable':
-          errorMessage = 'Servicio temporalmente no disponible, intenta más tarde';
-          break;
-        case 'not-found':
-          errorMessage = 'Colección no encontrada en Firestore';
-          break;
-        default:
-          errorMessage = error.message || 'Error al pre-autorizar el usuario';
-      }
+      return await this.handleCreateUserError(error, userData);
+    }
+  }
 
-      await this.logUserAction('create_user_error', '', {
-        error: errorMessage,
-        errorCode: error.code || 'unknown',
-        errorMessage: error.message,
-        attemptedUserData: { 
-          email: userData.email, 
+  /**
+   * Valida los datos del usuario antes de crearlo
+   */
+  private async validateUserCreation(userData: CreateUserRequest): Promise<{ isValid: boolean; result?: any }> {
+    const validation = this.validateUserData(userData);
+    if (!validation.isValid) {
+      await this.logUserAction('create_user_failed', '', {
+        reason: 'validation_error',
+        errors: validation.errors,
+        attemptedData: {
+          email: userData.email,
           displayName: userData.displayName,
-          role: userData.role,
-          modules: userData.modules,
-          permissions: userData.permissions
+          role: userData.role
         },
         performedBy: this.auth.currentUser?.email || 'system',
-        performedByUid: this.auth.currentUser?.uid || 'system',
         timestamp: new Date().toISOString()
       });
 
       return {
-        success: false,
-        message: errorMessage
+        isValid: false,
+        result: {
+          success: false,
+          message: `Datos inválidos: ${validation.errors.join(', ')}`
+        }
       };
     }
+    return { isValid: true };
+  }
+
+  /**
+   * Verifica si el email ya existe en el sistema
+   */
+  private async checkDuplicateEmail(email: string): Promise<{ isValid: boolean; result?: any }> {
+    const existingUsers = this.usersSignal();
+    const emailExists = existingUsers.some(user =>
+      this.normalizeEmail(user.email) === this.normalizeEmail(email)
+    );
+
+    if (emailExists) {
+      await this.logUserAction('create_user_failed', '', {
+        reason: 'email_already_exists',
+        attemptedEmail: this.normalizeEmail(email),
+        performedBy: this.auth.currentUser?.email || 'system',
+        timestamp: new Date().toISOString()
+      });
+
+      return {
+        isValid: false,
+        result: {
+          success: false,
+          message: 'Ya existe un usuario autorizado con este email'
+        }
+      };
+    }
+    return { isValid: true };
+  }
+
+  /**
+   * Normaliza los datos del usuario
+   */
+  private normalizeUserData(userData: CreateUserRequest): CreateUserRequest {
+    return {
+      ...userData,
+      email: this.normalizeEmail(userData.email),
+      displayName: this.formatDisplayName(userData.displayName)
+    };
+  }
+
+  /**
+   * Crea el documento de usuario en Firestore
+   */
+  private buildUserDocument(normalizedData: CreateUserRequest, tempUid: string): any {
+    return {
+      createdAt: Timestamp.now(),
+      createdBy: this.auth.currentUser?.uid || 'system',
+      displayName: normalizedData.displayName,
+      email: normalizedData.email,
+      isActive: normalizedData.isActive,
+      lastLogin: null,
+      lastLoginDate: null,
+      permissions: normalizedData.permissions,
+      modules: normalizedData.modules,
+      role: normalizedData.role,
+      uid: tempUid,
+      createdByEmail: this.auth.currentUser?.email || 'system',
+      accountStatus: 'pending_first_login',
+      profileComplete: false,
+      avatarColor: this.getAvatarColor(normalizedData.email),
+      initials: this.getInitials(normalizedData.displayName),
+      preAuthorized: true,
+      firstLoginDate: null
+    };
+  }
+
+  /**
+   * Guarda un nuevo usuario en Firestore
+   */
+  private async saveNewUser(normalizedData: CreateUserRequest): Promise<string> {
+    const tempUid = `pre_${Date.now()}_${this.generateShortId()}`;
+    const userDocData = this.buildUserDocument(normalizedData, tempUid);
+    const docId = this.normalizeEmail(normalizedData.email).replace(/[@.]/g, '_');
+
+    await this.logUserAction('create_user_attempt', docId, {
+      targetUser: {
+        email: normalizedData.email,
+        displayName: normalizedData.displayName,
+        role: normalizedData.role,
+        modules: normalizedData.modules,
+        permissions: normalizedData.permissions,
+        isActive: normalizedData.isActive
+      },
+      performedBy: this.auth.currentUser?.email || 'system',
+      performedByUid: this.auth.currentUser?.uid || 'system',
+      timestamp: new Date().toISOString()
+    });
+
+    await setDoc(doc(this.db, 'authorized_users', docId), userDocData);
+    await this.loadUsers();
+
+    await this.logUserAction('create_user_success', docId, {
+      createdUser: {
+        email: normalizedData.email,
+        displayName: normalizedData.displayName,
+        role: normalizedData.role,
+        modules: normalizedData.modules,
+        permissions: normalizedData.permissions,
+        isActive: normalizedData.isActive,
+        docId: docId,
+        tempUid: tempUid
+      },
+      performedBy: this.auth.currentUser?.email || 'system',
+      performedByUid: this.auth.currentUser?.uid || 'system',
+      message: 'Usuario pre-autorizado exitosamente',
+      timestamp: new Date().toISOString()
+    });
+
+    return docId;
+  }
+
+  /**
+   * Maneja errores durante la creación de usuarios
+   */
+  private async handleCreateUserError(error: any, userData: CreateUserRequest): Promise<{ success: boolean; message: string }> {
+    console.error('❌ Error pre-autorizando usuario:', error);
+
+    let errorMessage = 'Error desconocido al pre-autorizar el usuario';
+
+    switch (error.code) {
+      case 'permission-denied':
+        errorMessage = 'No tienes permisos para crear usuarios';
+        break;
+      case 'unavailable':
+        errorMessage = 'Servicio temporalmente no disponible, intenta más tarde';
+        break;
+      case 'not-found':
+        errorMessage = 'Colección no encontrada en Firestore';
+        break;
+      default:
+        errorMessage = error.message || 'Error al pre-autorizar el usuario';
+    }
+
+    await this.logUserAction('create_user_error', '', {
+      error: errorMessage,
+      errorCode: error.code || 'unknown',
+      errorMessage: error.message,
+      attemptedUserData: {
+        email: userData.email,
+        displayName: userData.displayName,
+        role: userData.role,
+        modules: userData.modules,
+        permissions: userData.permissions
+      },
+      performedBy: this.auth.currentUser?.email || 'system',
+      performedByUid: this.auth.currentUser?.uid || 'system',
+      timestamp: new Date().toISOString()
+    });
+
+    return {
+      success: false,
+      message: errorMessage
+    };
   }
 
   /**

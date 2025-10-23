@@ -1,6 +1,6 @@
 // src/app/admin/components/delete-user-dialog/delete-user-dialog.component.ts
 
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -10,6 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { User } from '../../services/admin.service';
+import { getUserInitials, getUserColor } from '../../../shared/utils/user-display.utils';
+import { validateConfirmation } from '../../../shared/utils/confirmation.utils';
 
 export interface DeleteUserDialogData {
   user: User;
@@ -30,7 +32,8 @@ export interface DeleteUserDialogData {
     MatFormFieldModule
   ],
   templateUrl: './delete-user-dialog.component.html',
-  styleUrl: './delete-user-dialog.component.css'
+  styleUrl: './delete-user-dialog.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DeleteUserDialogComponent {
   confirmationText = '';
@@ -42,29 +45,11 @@ export class DeleteUserDialogComponent {
   ) {}
 
   getInitials(): string {
-    const name = this.data.user.displayName || this.data.user.email;
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
+    return getUserInitials(this.data.user);
   }
 
   getUserColor(): string {
-    const colors = [
-      'linear-gradient(135deg, #ef4444, #dc2626)',
-      'linear-gradient(135deg, #f59e0b, #d97706)',
-      'linear-gradient(135deg, #8b5cf6, #7c3aed)'
-    ];
-
-    const email = this.data.user.email;
-    let hash = 0;
-    for (let i = 0; i < email.length; i++) {
-      hash = email.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    return colors[Math.abs(hash) % colors.length];
+    return getUserColor(this.data.user.email);
   }
 
   getRoleIcon(): string {
@@ -77,7 +62,7 @@ export class DeleteUserDialogComponent {
   }
 
   canConfirm(): boolean {
-    return this.confirmationText.trim().toUpperCase() === 'ELIMINAR';
+    return validateConfirmation(this.confirmationText, 'ELIMINAR');
   }
 
   onConfirm(): void {

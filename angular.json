@@ -43,7 +43,10 @@
             ],
             "styles": [
               "@angular/material/prebuilt-themes/indigo-pink.css",
-              "src/styles.css"
+              "src/styles.css",
+              "src/styles/animations.css",
+              "src/styles/dialog-inputs.css",
+              "src/styles/scrollbars.css"
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
@@ -125,7 +128,10 @@
             ],
             "styles": [
               "@angular/material/prebuilt-themes/indigo-pink.css",
-              "src/styles.css"
+              "src/styles.css",
+              "src/styles/animations.css",
+              "src/styles/dialog-inputs.css",
+              "src/styles/scrollbars.css"
             ],
             "scripts": []
           }

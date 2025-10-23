@@ -1,5 +1,5 @@
 // src/app/admin/components/log-details-dialog/log-details-dialog.component.ts
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,7 +20,8 @@ export interface LogDetailsDialogData {
     MatIconModule
   ],
   templateUrl: './log-details-dialog.component.html',
-  styleUrl: './log-details-dialog.component.css'
+  styleUrl: './log-details-dialog.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LogDetailsDialogComponent {
   constructor(

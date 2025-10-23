@@ -1,5 +1,5 @@
 // src/app/admin/components/admin-logs/admin-logs.component.ts - COMPLETO CON DELETE
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,7 +26,8 @@ import { LogDetailsDialogComponent } from '../log-details-dialog/log-details-dia
     MatTooltipModule
   ],
   templateUrl: './admin-logs.component.html',
-  styleUrl: './admin-logs.component.css'
+  styleUrl: './admin-logs.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminLogsComponent implements OnInit {
   // Estado de logs

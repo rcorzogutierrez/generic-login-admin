@@ -1,0 +1,36 @@
+/**
+ * Estilos compartidos para scrollbars personalizados
+ * Aplica un diseño consistente a todos los scrollbars de la aplicación
+ */
+
+/* Scrollbar webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Scrollbar Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+/* Scroll suave para toda la aplicación */
+html {
+  scroll-behavior: smooth;
+}

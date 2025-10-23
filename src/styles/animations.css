@@ -1,0 +1,81 @@
+/**
+ * Animaciones compartidas para toda la aplicación
+ * Centraliza las animaciones CSS que se usan en múltiples componentes
+ */
+
+/* Animación de pulso */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Animación de sacudida (shake) */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-8px);
+  }
+  75% {
+    transform: translateX(8px);
+  }
+}
+
+/* Animación de rebote de check */
+@keyframes checkBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* Animación de pulso con sombra para palabras clave */
+@keyframes keywordPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+  }
+}
+
+/* Animación de aparición gradual (fade in) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Animación de deslizamiento hacia arriba */
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Animación de rotación (spin) */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

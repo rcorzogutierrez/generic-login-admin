@@ -1,0 +1,75 @@
+/* client-form.component.css */
+
+/* ============================================
+   ESTILOS ESPECÍFICOS DEL FORMULARIO
+   Usa clases globales de styles.css
+   ============================================ */
+
+/* Animación de entrada para el formulario */
+form {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animación stagger para campos del formulario */
+mat-form-field,
+.flex.items-start {
+  animation: fadeInField 0.3s ease-out backwards;
+}
+
+mat-form-field:nth-child(1),
+.flex.items-start:nth-child(1) { animation-delay: 0.05s; }
+
+mat-form-field:nth-child(2),
+.flex.items-start:nth-child(2) { animation-delay: 0.1s; }
+
+mat-form-field:nth-child(3),
+.flex.items-start:nth-child(3) { animation-delay: 0.15s; }
+
+mat-form-field:nth-child(4),
+.flex.items-start:nth-child(4) { animation-delay: 0.2s; }
+
+mat-form-field:nth-child(5),
+.flex.items-start:nth-child(5) { animation-delay: 0.25s; }
+
+mat-form-field:nth-child(6),
+.flex.items-start:nth-child(6) { animation-delay: 0.3s; }
+
+@keyframes fadeInField {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mejorar apariencia de Material Form Fields */
+::ng-deep .mat-mdc-form-field {
+  width: 100%;
+}
+
+::ng-deep .mat-mdc-text-field-wrapper {
+  background: white;
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  form,
+  mat-form-field,
+  .flex.items-start {
+    animation: none !important;
+  }
+}

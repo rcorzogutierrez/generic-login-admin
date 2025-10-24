@@ -36,6 +36,13 @@ export const routes: Routes = [
     title: 'Mis Módulos'
   },
 
+  // RUTAS DE MÓDULOS DINÁMICOS
+  {
+    path: 'modules/clients',
+    loadChildren: () =>
+      import('./modules/clients/clients.routes').then(m => m.CLIENTS_ROUTES),
+  },
+
   // RUTAS DE ADMINISTRACIÓN
   {
     path: 'admin',

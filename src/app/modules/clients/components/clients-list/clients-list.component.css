@@ -1,0 +1,39 @@
+/* clients-list.component.css */
+
+/* ============================================
+   ESTILOS ESPECÍFICOS DE LISTA DE CLIENTES
+   Usa clases globales de styles.css
+   ============================================ */
+
+/* Animación de entrada para filas */
+tr {
+  animation: fadeInRow 0.3s ease-out backwards;
+}
+
+tr:nth-child(1) { animation-delay: 0.05s; }
+tr:nth-child(2) { animation-delay: 0.1s; }
+tr:nth-child(3) { animation-delay: 0.15s; }
+tr:nth-child(4) { animation-delay: 0.2s; }
+tr:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes fadeInRow {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Filas de la tabla */
+tbody tr:hover {
+  background: #f8fafc;
+  transform: scale(1.001);
+}
+
+/* Exponer Math para el template */
+:host {
+  --math: Math;
+}

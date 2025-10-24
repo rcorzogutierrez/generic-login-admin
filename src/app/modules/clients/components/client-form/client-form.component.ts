@@ -1,0 +1,436 @@
+// src/app/modules/clients/components/client-form/client-form.component.ts
+
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
+
+// Material imports
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
+
+// Services
+import { ClientsService } from '../../services/clients.service';
+import { ClientConfigService } from '../../services/client-config.service';
+
+// Models
+import { Client, CreateClientData, UpdateClientData } from '../../models/client.interface';
+import { FieldConfig, FieldType } from '../../models/field-config.interface';
+
+type FormMode = 'create' | 'edit' | 'view';
+
+@Component({
+  selector: 'app-client-form',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+    MatTooltipModule,
+    MatChipsModule
+  ],
+  templateUrl: './client-form.component.html',
+  styleUrl: './client-form.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class ClientFormComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private clientsService = inject(ClientsService);
+  private configService = inject(ClientConfigService);
+  private snackBar = inject(MatSnackBar);
+  private cdr = inject(ChangeDetectorRef);
+
+  // Signals
+  mode = signal<FormMode>('create');
+  clientForm!: FormGroup;
+  fields = signal<FieldConfig[]>([]);
+  isLoading = signal<boolean>(false);
+  isSaving = signal<boolean>(false);
+  currentClient = signal<Client | null>(null);
+
+  // Expose FieldType to template
+  FieldType = FieldType;
+
+  constructor() {}
+
+  async ngOnInit() {
+    await this.initializeForm();
+  }
+
+  /**
+   * Inicializar formulario
+   */
+  private async initializeForm() {
+    try {
+      this.isLoading.set(true);
+
+      // Cargar configuración
+      await this.configService.initialize();
+
+      // Obtener campos activos ordenados
+      const activeFields = this.configService.getActiveFields();
+      this.fields.set(activeFields);
+
+      // Determinar modo según ruta
+      const clientId = this.route.snapshot.paramMap.get('id');
+      const isViewMode = this.route.snapshot.data['mode'] === 'view';
+
+      if (clientId) {
+        // Modo editar o ver
+        this.mode.set(isViewMode ? 'view' : 'edit');
+        await this.loadClient(clientId);
+      } else {
+        // Modo crear
+        this.mode.set('create');
+        this.buildForm();
+      }
+
+      this.cdr.markForCheck();
+
+    } catch (error) {
+      console.error('Error inicializando formulario:', error);
+      this.snackBar.open('Error al cargar el formulario', 'Cerrar', { duration: 3000 });
+    } finally {
+      this.isLoading.set(false);
+      this.cdr.markForCheck();
+    }
+  }
+
+  /**
+   * Cargar cliente existente
+   */
+  private async loadClient(clientId: string) {
+    try {
+      const client = await this.clientsService.getClientById(clientId);
+
+      if (!client) {
+        this.snackBar.open('Cliente no encontrado', 'Cerrar', { duration: 3000 });
+        this.router.navigate(['/modules/clients']);
+        return;
+      }
+
+      this.currentClient.set(client);
+      this.buildForm(client);
+
+    } catch (error) {
+      console.error('Error cargando cliente:', error);
+      this.snackBar.open('Error al cargar el cliente', 'Cerrar', { duration: 3000 });
+      this.router.navigate(['/modules/clients']);
+    }
+  }
+
+  /**
+   * Construir formulario dinámico
+   */
+  private buildForm(client?: Client) {
+    const formControls: any = {};
+    const fields = this.fields();
+
+    fields.forEach(field => {
+      // Obtener valor inicial
+      let initialValue = this.getInitialValue(field, client);
+
+      // Crear validadores
+      const validators = this.createValidators(field);
+
+      // Crear control
+      formControls[field.name] = [
+        { value: initialValue, disabled: this.mode() === 'view' },
+        validators
+      ];
+    });
+
+    this.clientForm = this.fb.group(formControls);
+  }
+
+  /**
+   * Obtener valor inicial del campo
+   */
+  private getInitialValue(field: FieldConfig, client?: Client): any {
+    if (!client) {
+      return field.defaultValue ?? this.getDefaultValueByType(field.type);
+    }
+
+    // Buscar en campos por defecto
+    if (field.name in client) {
+      return (client as any)[field.name];
+    }
+
+    // Buscar en customFields
+    if (client.customFields && field.name in client.customFields) {
+      return client.customFields[field.name];
+    }
+
+    return field.defaultValue ?? this.getDefaultValueByType(field.type);
+  }
+
+  /**
+   * Obtener valor por defecto según tipo
+   */
+  private getDefaultValueByType(type: FieldType): any {
+    switch (type) {
+      case FieldType.CHECKBOX:
+        return false;
+      case FieldType.NUMBER:
+      case FieldType.CURRENCY:
+        return null;
+      case FieldType.MULTISELECT:
+        return [];
+      default:
+        return '';
+    }
+  }
+
+  /**
+   * Crear validadores dinámicos
+   */
+  private createValidators(field: FieldConfig): ValidatorFn[] {
+    const validators: ValidatorFn[] = [];
+
+    const validation = field.validation;
+
+    // Required
+    if (validation.required) {
+      validators.push(Validators.required);
+    }
+
+    // MinLength
+    if (validation.minLength) {
+      validators.push(Validators.minLength(validation.minLength));
+    }
+
+    // MaxLength
+    if (validation.maxLength) {
+      validators.push(Validators.maxLength(validation.maxLength));
+    }
+
+    // Pattern
+    if (validation.pattern) {
+      validators.push(Validators.pattern(validation.pattern));
+    }
+
+    // Email
+    if (validation.email || field.type === FieldType.EMAIL) {
+      validators.push(Validators.email);
+    }
+
+    // Min/Max (para números)
+    if (validation.min !== undefined) {
+      validators.push(Validators.min(validation.min));
+    }
+
+    if (validation.max !== undefined) {
+      validators.push(Validators.max(validation.max));
+    }
+
+    // URL
+    if (validation.url || field.type === FieldType.URL) {
+      validators.push(this.urlValidator());
+    }
+
+    return validators;
+  }
+
+  /**
+   * Validador de URL personalizado
+   */
+  private urlValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      if (!control.value) {
+        return null;
+      }
+
+      const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+      const valid = urlPattern.test(control.value);
+
+      return valid ? null : { url: { value: control.value } };
+    };
+  }
+
+  /**
+   * Guardar cliente
+   */
+  async onSubmit() {
+    if (this.clientForm.invalid) {
+      this.clientForm.markAllAsTouched();
+      this.snackBar.open('Por favor, completa todos los campos requeridos', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    try {
+      this.isSaving.set(true);
+      this.cdr.markForCheck();
+
+      const formValue = this.clientForm.value;
+
+      // Separar campos por defecto y personalizados
+      const defaultFields: any = {};
+      const customFields: any = {};
+
+      this.fields().forEach(field => {
+        const value = formValue[field.name];
+
+        if (field.isDefault) {
+          defaultFields[field.name] = value;
+        } else {
+          customFields[field.name] = value;
+        }
+      });
+
+      if (this.mode() === 'create') {
+        // Crear nuevo cliente
+        const clientData: CreateClientData = {
+          ...defaultFields,
+          customFields
+        };
+
+        await this.clientsService.createClient(clientData);
+        this.snackBar.open('Cliente creado exitosamente', 'Cerrar', { duration: 3000 });
+
+      } else if (this.mode() === 'edit') {
+        // Actualizar cliente existente
+        const client = this.currentClient();
+        if (!client) return;
+
+        const updateData: UpdateClientData = {
+          ...defaultFields,
+          customFields: {
+            ...client.customFields,
+            ...customFields
+          }
+        };
+
+        await this.clientsService.updateClient(client.id, updateData);
+        this.snackBar.open('Cliente actualizado exitosamente', 'Cerrar', { duration: 3000 });
+      }
+
+      // Volver a la lista
+      this.router.navigate(['/modules/clients']);
+
+    } catch (error) {
+      console.error('Error guardando cliente:', error);
+      this.snackBar.open('Error al guardar el cliente', 'Cerrar', { duration: 3000 });
+    } finally {
+      this.isSaving.set(false);
+      this.cdr.markForCheck();
+    }
+  }
+
+  /**
+   * Cancelar y volver
+   */
+  onCancel() {
+    if (this.clientForm.dirty && !confirm('¿Descartar los cambios?')) {
+      return;
+    }
+
+    this.router.navigate(['/modules/clients']);
+  }
+
+  /**
+   * Cambiar a modo edición (desde modo ver)
+   */
+  enableEdit() {
+    this.mode.set('edit');
+    this.clientForm.enable();
+  }
+
+  /**
+   * Obtener mensaje de error de un campo
+   */
+  getErrorMessage(fieldName: string): string {
+    const control = this.clientForm.get(fieldName);
+    if (!control || !control.errors || !control.touched) {
+      return '';
+    }
+
+    const field = this.fields().find(f => f.name === fieldName);
+    const errors = control.errors;
+
+    if (errors['required']) {
+      return `${field?.label || fieldName} es requerido`;
+    }
+
+    if (errors['email']) {
+      return 'Formato de correo electrónico inválido';
+    }
+
+    if (errors['minlength']) {
+      return `Mínimo ${errors['minlength'].requiredLength} caracteres`;
+    }
+
+    if (errors['maxlength']) {
+      return `Máximo ${errors['maxlength'].requiredLength} caracteres`;
+    }
+
+    if (errors['min']) {
+      return `El valor mínimo es ${errors['min'].min}`;
+    }
+
+    if (errors['max']) {
+      return `El valor máximo es ${errors['max'].max}`;
+    }
+
+    if (errors['pattern']) {
+      return 'Formato inválido';
+    }
+
+    if (errors['url']) {
+      return 'URL inválida';
+    }
+
+    return 'Campo inválido';
+  }
+
+  /**
+   * Verificar si un campo tiene error
+   */
+  hasError(fieldName: string): boolean {
+    const control = this.clientForm.get(fieldName);
+    return !!(control && control.invalid && control.touched);
+  }
+
+  /**
+   * Obtener ancho del campo en el formulario
+   */
+  getFieldWidth(field: FieldConfig): string {
+    switch (field.formWidth) {
+      case 'full':
+        return 'col-span-2';
+      case 'half':
+        return 'col-span-2 md:col-span-1';
+      case 'third':
+        return 'col-span-2 md:col-span-1 lg:col-span-1';
+      default:
+        return 'col-span-2 md:col-span-1';
+    }
+  }
+
+  /**
+   * Verificar si el formulario tiene cambios
+   */
+  hasChanges(): boolean {
+    return this.clientForm.dirty;
+  }
+}

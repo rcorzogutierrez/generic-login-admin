@@ -622,6 +622,14 @@ export class ModulesService {
         isActive: true
       },
       {
+        value: 'clients',
+        label: 'Gestión de Clientes',
+        description: 'Módulo configurable para gestionar clientes con campos personalizados',
+        icon: 'group',
+        route: '/modules/clients',
+        isActive: true
+      },
+      {
         value: 'analytics',
         label: 'Analytics y Reportes',
         description: 'Análisis de datos y generación de reportes',

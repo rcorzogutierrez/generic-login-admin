@@ -40,6 +40,7 @@ export class UserModulesComponent implements OnInit {
   private readonly MODULE_ROUTES: Record<string, string> = {
     'dashboard': '/dashboard',
     'user-management': '/admin',
+    'clients': '/modules/clients',
     'analytics': '/analytics',
     'settings': '/admin/config',
     'notifications': '/notifications',

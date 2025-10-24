@@ -1,0 +1,328 @@
+<!-- clients-list.component.html -->
+
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
+  <div class="max-w-[1600px] mx-auto p-5">
+
+    <!-- ========== HEADER ========== -->
+    <header class="page-header">
+      <div class="flex items-center justify-between gap-5 flex-wrap">
+
+        <!-- Título e Icono -->
+        <div class="flex items-center gap-4">
+          <div class="header-icon-container" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+            <mat-icon>people</mat-icon>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-slate-800 mb-1">Gestión de Clientes</h1>
+            <p class="text-sm text-slate-500">
+              {{ stats().total }} clientes
+              @if (stats().active > 0) {
+                <span class="text-green-600 font-semibold"> • {{ stats().active }} activos</span>
+              }
+            </p>
+          </div>
+        </div>
+
+        <!-- Acciones del Header -->
+        <div class="flex items-center gap-3">
+          <button
+            mat-icon-button
+            class="icon-btn"
+            (click)="refresh()"
+            [disabled]="isLoading()"
+            matTooltip="Actualizar">
+            <mat-icon>refresh</mat-icon>
+          </button>
+
+          <button
+            mat-icon-button
+            class="icon-btn"
+            (click)="goToConfig()"
+            matTooltip="Configurar módulo">
+            <mat-icon>settings</mat-icon>
+          </button>
+
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="createClient()"
+            [disabled]="isLoading()"
+            class="flex items-center gap-2">
+            <mat-icon>add</mat-icon>
+            Nuevo Cliente
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- ========== STATS CARDS ========== -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+      <!-- Total -->
+      <div class="card-corporate">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-500 mb-1">Total</p>
+            <p class="text-3xl font-bold text-slate-800">{{ stats().total }}</p>
+          </div>
+          <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-blue-600">people</mat-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activos -->
+      <div class="card-corporate">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-500 mb-1">Activos</p>
+            <p class="text-3xl font-bold text-green-600">{{ stats().active }}</p>
+          </div>
+          <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-green-600">check_circle</mat-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- Potenciales -->
+      <div class="card-corporate">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-500 mb-1">Potenciales</p>
+            <p class="text-3xl font-bold text-amber-600">{{ stats().potential }}</p>
+          </div>
+          <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-amber-600">star</mat-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inactivos -->
+      <div class="card-corporate">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-500 mb-1">Inactivos</p>
+            <p class="text-3xl font-bold text-slate-600">{{ stats().inactive }}</p>
+          </div>
+          <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-slate-600">block</mat-icon>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========== BÚSQUEDA Y FILTROS ========== -->
+    <div class="card-modern mb-6">
+      <div class="flex items-center gap-4">
+        <mat-icon class="text-slate-400">search</mat-icon>
+        <input
+          type="text"
+          placeholder="Buscar por nombre, email, teléfono o empresa..."
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearch($event)"
+          class="flex-1 px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-medium
+                 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all
+                 placeholder:text-slate-400">
+
+        @if (searchTerm()) {
+          <button
+            mat-icon-button
+            (click)="onSearch('')"
+            matTooltip="Limpiar búsqueda">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- ========== TABLA DE CLIENTES ========== -->
+    <div class="card-modern">
+
+      @if (isLoading()) {
+        <!-- Loading State -->
+        <div class="flex flex-col items-center justify-center py-16">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="text-sm text-slate-500 mt-4">Cargando clientes...</p>
+        </div>
+      } @else if (filteredClients().length === 0) {
+        <!-- Empty State -->
+        <div class="empty-state">
+          <mat-icon>people_outline</mat-icon>
+          <h3>No hay clientes</h3>
+          <p>{{ searchTerm() ? 'No se encontraron clientes con esos criterios de búsqueda' : 'Comienza agregando tu primer cliente' }}</p>
+          @if (!searchTerm()) {
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="createClient()"
+              class="mt-4">
+              <mat-icon>add</mat-icon>
+              Crear Primer Cliente
+            </button>
+          }
+        </div>
+      } @else {
+        <!-- Tabla -->
+        <div class="overflow-x-auto">
+          <table class="w-full">
+
+            <!-- Header -->
+            <thead class="bg-slate-50 border-b-2 border-slate-200">
+              <tr>
+                <!-- Checkbox -->
+                <th class="px-4 py-3 text-left w-12">
+                  <input
+                    type="checkbox"
+                    [checked]="isAllSelected()"
+                    [indeterminate]="isIndeterminate()"
+                    (change)="toggleSelectAll()"
+                    class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                </th>
+
+                <!-- Columnas Dinámicas -->
+                @for (field of gridFields(); track field.id) {
+                  <th
+                    class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
+                    [style.width]="field.gridConfig.gridWidth || 'auto'"
+                    (click)="field.gridConfig.sortable ? sortBy(field.name) : null">
+                    <div class="flex items-center gap-2">
+                      @if (field.icon) {
+                        <mat-icon class="!text-base">{{ field.icon }}</mat-icon>
+                      }
+                      <span>{{ field.label }}</span>
+                      @if (field.gridConfig.sortable && currentSort().field === field.name) {
+                        <mat-icon class="!text-base">
+                          {{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                        </mat-icon>
+                      }
+                    </div>
+                  </th>
+                }
+
+                <!-- Estado -->
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider w-32">
+                  Estado
+                </th>
+
+                <!-- Acciones -->
+                <th class="px-4 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider w-24">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+
+            <!-- Body -->
+            <tbody class="divide-y divide-slate-200">
+              @for (client of paginatedClients(); track client.id) {
+                <tr
+                  class="hover:bg-slate-50 transition-colors cursor-pointer"
+                  [class.bg-blue-50]="isSelected(client.id)"
+                  (click)="viewClient(client)">
+
+                  <!-- Checkbox -->
+                  <td class="px-4 py-3" (click)="$event.stopPropagation()">
+                    <input
+                      type="checkbox"
+                      [checked]="isSelected(client.id)"
+                      (change)="toggleClientSelection(client.id)"
+                      class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                  </td>
+
+                  <!-- Columnas Dinámicas -->
+                  @for (field of gridFields(); track field.id) {
+                    <td class="px-4 py-3 text-sm text-slate-700">
+                      {{ formatFieldValue(getFieldValue(client, field.name), field.type) }}
+                    </td>
+                  }
+
+                  <!-- Estado -->
+                  <td class="px-4 py-3">
+                    @if (client.isActive) {
+                      <span class="badge-status-active">
+                        <mat-icon class="!text-xs">check_circle</mat-icon>
+                        Activo
+                      </span>
+                    } @else {
+                      <span class="badge-status-inactive">
+                        <mat-icon class="!text-xs">cancel</mat-icon>
+                        Inactivo
+                      </span>
+                    }
+                  </td>
+
+                  <!-- Acciones -->
+                  <td class="px-4 py-3 text-right" (click)="$event.stopPropagation()">
+                    <button
+                      mat-icon-button
+                      [matMenuTriggerFor]="menu"
+                      (click)="$event.stopPropagation()">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item (click)="viewClient(client)">
+                        <mat-icon>visibility</mat-icon>
+                        <span>Ver detalles</span>
+                      </button>
+                      <button mat-menu-item (click)="editClient(client)">
+                        <mat-icon>edit</mat-icon>
+                        <span>Editar</span>
+                      </button>
+                      <button mat-menu-item (click)="toggleClientStatus(client)">
+                        <mat-icon>{{ client.isActive ? 'block' : 'check_circle' }}</mat-icon>
+                        <span>{{ client.isActive ? 'Desactivar' : 'Activar' }}</span>
+                      </button>
+                      <mat-divider></mat-divider>
+                      <button mat-menu-item (click)="deleteClient(client)" class="text-red-600">
+                        <mat-icon class="text-red-600">delete</mat-icon>
+                        <span>Eliminar</span>
+                      </button>
+                    </mat-menu>
+                  </td>
+
+                </tr>
+              }
+            </tbody>
+
+          </table>
+        </div>
+
+        <!-- ========== PAGINACIÓN ========== -->
+        @if (totalPages() > 1) {
+          <div class="flex items-center justify-between px-4 py-4 border-t border-slate-200">
+            <div class="text-sm text-slate-600">
+              Mostrando {{ (currentPage() * itemsPerPage()) + 1 }} a
+              {{ Math.min((currentPage() + 1) * itemsPerPage(), filteredClients().length) }}
+              de {{ filteredClients().length }} clientes
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                mat-icon-button
+                (click)="goToPage(currentPage() - 1)"
+                [disabled]="currentPage() === 0">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+
+              <span class="text-sm font-medium text-slate-700">
+                Página {{ currentPage() + 1 }} de {{ totalPages() }}
+              </span>
+
+              <button
+                mat-icon-button
+                (click)="goToPage(currentPage() + 1)"
+                [disabled]="currentPage() >= totalPages() - 1">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+
+      }
+
+    </div>
+
+  </div>
+</div>

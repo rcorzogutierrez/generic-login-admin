@@ -34,15 +34,22 @@
     <!-- CENTER SECTION - NAVIGATION -->
     <div class="navbar-center">
       <nav class="nav-links">
-        <a 
+        <a
           class="nav-link"
           routerLink="/dashboard"
           routerLinkActive="active">
           <mat-icon>dashboard</mat-icon>
           <span>Dashboard</span>
         </a>
+        <a
+          class="nav-link"
+          routerLink="/modules/clients"
+          routerLinkActive="active">
+          <mat-icon>group</mat-icon>
+          <span>Clientes</span>
+        </a>
         @if (isAdmin()) {
-          <a 
+          <a
             class="nav-link"
             routerLink="/admin"
             routerLinkActive="active">

@@ -1,0 +1,330 @@
+<!-- client-form.component.html -->
+
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
+  <div class="max-w-[1200px] mx-auto p-5">
+
+    @if (isLoading()) {
+      <!-- Loading State -->
+      <div class="flex flex-col items-center justify-center py-16">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p class="text-sm text-slate-500 mt-4">Cargando formulario...</p>
+      </div>
+    } @else {
+
+      <!-- ========== HEADER ========== -->
+      <header class="page-header mb-6">
+        <div class="flex items-center justify-between gap-5 flex-wrap">
+
+          <!-- Título e Icono -->
+          <div class="flex items-center gap-4">
+            <button
+              mat-icon-button
+              class="icon-btn"
+              (click)="onCancel()"
+              [disabled]="isSaving()">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+
+            <div class="header-icon-container" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+              <mat-icon>
+                {{ mode() === 'create' ? 'person_add' : (mode() === 'edit' ? 'edit' : 'visibility') }}
+              </mat-icon>
+            </div>
+
+            <div>
+              <h1 class="text-2xl font-bold text-slate-800 mb-1">
+                @switch (mode()) {
+                  @case ('create') { Nuevo Cliente }
+                  @case ('edit') { Editar Cliente }
+                  @case ('view') { Ver Cliente }
+                }
+              </h1>
+              <p class="text-sm text-slate-500">
+                @if (mode() === 'create') {
+                  Completa el formulario para crear un nuevo cliente
+                } @else if (currentClient()) {
+                  {{ currentClient()!.name }}
+                }
+              </p>
+            </div>
+          </div>
+
+          <!-- Acciones del Header -->
+          <div class="flex items-center gap-3">
+            @if (mode() === 'view') {
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="enableEdit()">
+                <mat-icon>edit</mat-icon>
+                Editar
+              </button>
+            }
+          </div>
+
+        </div>
+      </header>
+
+      <!-- ========== FORMULARIO ========== -->
+      <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+
+        <div class="card-modern">
+
+          <!-- Grid de Campos -->
+          <div class="grid grid-cols-2 gap-6">
+
+            @for (field of fields(); track field.id) {
+              <div [class]="getFieldWidth(field)">
+
+                <!-- ========== TEXT ========== -->
+                @if (field.type === FieldType.TEXT) {
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ field.label }}</mat-label>
+                    @if (field.icon) {
+                      <mat-icon matIconPrefix class="mr-2">{{ field.icon }}</mat-icon>
+                    }
+                    <input
+                      matInput
+                      [formControlName]="field.name"
+                      [placeholder]="field.placeholder || ''"
+                      type="text">
+                    @if (field.helpText) {
+                      <mat-hint>{{ field.helpText }}</mat-hint>
+                    }
+                    @if (hasError(field.name)) {
+                      <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                    }
+                  </mat-form-field>
+                }
+
+                <!-- ========== EMAIL ========== -->
+                @if (field.type === FieldType.EMAIL) {
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ field.label }}</mat-label>
+                    @if (field.icon) {
+                      <mat-icon matIconPrefix class="mr-2">{{ field.icon }}</mat-icon>
+                    }
+                    <input
+                      matInput
+                      [formControlName]="field.name"
+                      [placeholder]="field.placeholder || ''"
+                      type="email">
+                    @if (field.helpText) {
+                      <mat-hint>{{ field.helpText }}</mat-hint>
+                    }
+                    @if (hasError(field.name)) {
+                      <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                    }
+                  </mat-form-field>
+                }
+
+                <!-- ========== PHONE ========== -->
+                @if (field.type === FieldType.PHONE) {
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ field.label }}</mat-label>
+                    @if (field.icon) {
+                      <mat-icon matIconPrefix class="mr-2">{{ field.icon }}</mat-icon>
+                    }
+                    <input
+                      matInput
+                      [formControlName]="field.name"
+                      [placeholder]="field.placeholder || ''"
+                      type="tel">
+                    @if (field.helpText) {
+                      <mat-hint>{{ field.helpText }}</mat-hint>
+                    }
+                    @if (hasError(field.name)) {
+                      <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                    }
+                  </mat-form-field>
+                }
+
+                <!-- ========== NUMBER ========== -->
+                @if (field.type === FieldType.NUMBER || field.type === FieldType.CURRENCY) {
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ field.label }}</mat-label>
+                    @if (field.icon) {
+                      <mat-icon matIconPrefix class="mr-2">{{ field.icon }}</mat-icon>
+                    }
+                    @if (field.type === FieldType.CURRENCY) {
+                      <span matTextPrefix>$ &nbsp;</span>
+                    }
+                    <input
+                      matInput
+                      [formControlName]="field.name"
+                      [placeholder]="field.placeholder || ''"
+                      type="number"
+                      [min]="field.validation.min"
+                      [max]="field.validation.max">
+                    @if (field.helpText) {
+                      <mat-hint>{{ field.helpText }}</mat-hint>
+                    }
+                    @if (hasError(field.name)) {
+                      <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                    }
+                  </mat-form-field>
+                }
+
+                <!-- ========== URL ========== -->
+                @if (field.type === FieldType.URL) {
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ field.label }}</mat-label>
+                    @if (field.icon) {
+                      <mat-icon matIconPrefix class="mr-2">{{ field.icon }}</mat-icon>
+                    }
+                    <input
+                      matInput
+                      [formControlName]="field.name"
+                      [placeholder]="field.placeholder || ''"
+                      type="url">
+                    @if (field.helpText) {
+                      <mat-hint>{{ field.helpText }}</mat-hint>
+                    }
+                    @if (hasError(field.name)) {
+                      <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                    }
+                  </mat-form-field>
+                }
+
+                <!-- ========== TEXTAREA ========== -->
+                @if (field.type === FieldType.TEXTAREA) {
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ field.label }}</mat-label>
+                    @if (field.icon) {
+                      <mat-icon matIconPrefix class="mr-2">{{ field.icon }}</mat-icon>
+                    }
+                    <textarea
+                      matInput
+                      [formControlName]="field.name"
+                      [placeholder]="field.placeholder || ''"
+                      rows="3"
+                      [maxlength]="field.validation.maxLength"></textarea>
+                    @if (field.helpText) {
+                      <mat-hint>{{ field.helpText }}</mat-hint>
+                    }
+                    @if (hasError(field.name)) {
+                      <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                    }
+                  </mat-form-field>
+                }
+
+                <!-- ========== SELECT ========== -->
+                @if (field.type === FieldType.SELECT) {
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ field.label }}</mat-label>
+                    @if (field.icon) {
+                      <mat-icon matIconPrefix class="mr-2">{{ field.icon }}</mat-icon>
+                    }
+                    <mat-select [formControlName]="field.name" [placeholder]="field.placeholder || ''">
+                      @for (option of field.options; track option.value) {
+                        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                      }
+                    </mat-select>
+                    @if (field.helpText) {
+                      <mat-hint>{{ field.helpText }}</mat-hint>
+                    }
+                    @if (hasError(field.name)) {
+                      <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                    }
+                  </mat-form-field>
+                }
+
+                <!-- ========== MULTISELECT ========== -->
+                @if (field.type === FieldType.MULTISELECT) {
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ field.label }}</mat-label>
+                    @if (field.icon) {
+                      <mat-icon matIconPrefix class="mr-2">{{ field.icon }}</mat-icon>
+                    }
+                    <mat-select [formControlName]="field.name" multiple [placeholder]="field.placeholder || ''">
+                      @for (option of field.options; track option.value) {
+                        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                      }
+                    </mat-select>
+                    @if (field.helpText) {
+                      <mat-hint>{{ field.helpText }}</mat-hint>
+                    }
+                    @if (hasError(field.name)) {
+                      <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                    }
+                  </mat-form-field>
+                }
+
+                <!-- ========== DATE ========== -->
+                @if (field.type === FieldType.DATE) {
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ field.label }}</mat-label>
+                    @if (field.icon) {
+                      <mat-icon matIconPrefix class="mr-2">{{ field.icon }}</mat-icon>
+                    }
+                    <input
+                      matInput
+                      [matDatepicker]="picker"
+                      [formControlName]="field.name"
+                      [placeholder]="field.placeholder || ''">
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                    @if (field.helpText) {
+                      <mat-hint>{{ field.helpText }}</mat-hint>
+                    }
+                    @if (hasError(field.name)) {
+                      <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                    }
+                  </mat-form-field>
+                }
+
+                <!-- ========== CHECKBOX ========== -->
+                @if (field.type === FieldType.CHECKBOX) {
+                  <div class="flex items-start gap-3 py-2">
+                    <mat-checkbox [formControlName]="field.name">
+                      <span class="font-medium text-slate-700">{{ field.label }}</span>
+                    </mat-checkbox>
+                    @if (field.helpText) {
+                      <mat-icon
+                        class="!text-base text-slate-400"
+                        [matTooltip]="field.helpText">
+                        help_outline
+                      </mat-icon>
+                    }
+                  </div>
+                }
+
+              </div>
+            }
+
+          </div>
+
+        </div>
+
+        <!-- ========== ACCIONES ========== -->
+        @if (mode() !== 'view') {
+          <div class="flex items-center justify-end gap-3 mt-6">
+            <button
+              mat-button
+              type="button"
+              (click)="onCancel()"
+              [disabled]="isSaving()">
+              Cancelar
+            </button>
+
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="clientForm.invalid || isSaving()">
+              @if (isSaving()) {
+                <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
+              } @else {
+                <mat-icon>{{ mode() === 'create' ? 'add' : 'save' }}</mat-icon>
+              }
+              {{ isSaving() ? 'Guardando...' : (mode() === 'create' ? 'Crear Cliente' : 'Guardar Cambios') }}
+            </button>
+          </div>
+        }
+
+      </form>
+
+    }
+
+  </div>
+</div>

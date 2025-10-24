@@ -2,7 +2,7 @@
 
 import { Injectable, inject, signal } from '@angular/core';
 import {
-  Firestore,
+  getFirestore,
   collection,
   doc,
   getDocs,
@@ -16,7 +16,7 @@ import {
   Timestamp,
   DocumentData,
   QueryConstraint
-} from '@angular/fire/firestore';
+} from 'firebase/firestore';
 import {
   Client,
   CreateClientData,
@@ -25,13 +25,13 @@ import {
   ClientSort,
   ClientStats
 } from '../models';
-import { AuthService } from '../../../auth/auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClientsService {
-  private firestore = inject(Firestore);
+  private firestore = getFirestore();
   private authService = inject(AuthService);
 
   // Collection reference
@@ -100,9 +100,9 @@ export class ClientsService {
       const q = query(this.clientsCollection, ...constraints);
       const snapshot = await getDocs(q);
 
-      const clients: Client[] = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data() as Omit<Client, 'id'>
+      const clients: Client[] = snapshot.docs.map((docSnapshot) => ({
+        id: docSnapshot.id,
+        ...docSnapshot.data() as Omit<Client, 'id'>
       }));
 
       // Aplicar filtro de búsqueda en memoria (para búsqueda global)
@@ -159,7 +159,7 @@ export class ClientsService {
       this.isLoading.set(true);
       this.error.set(null);
 
-      const currentUser = this.authService.currentUser();
+      const currentUser = this.authService.authorizedUser();
       if (!currentUser) {
         throw new Error('Usuario no autenticado');
       }
@@ -173,8 +173,8 @@ export class ClientsService {
         status: data.status || 'active',
         createdAt: now,
         updatedAt: now,
-        createdBy: currentUser.uid,
-        updatedBy: currentUser.uid
+        createdBy: currentUser.userId,
+        updatedBy: currentUser.userId
       };
 
       const docRef = await addDoc(this.clientsCollection, clientData);
@@ -207,7 +207,7 @@ export class ClientsService {
       this.isLoading.set(true);
       this.error.set(null);
 
-      const currentUser = this.authService.currentUser();
+      const currentUser = this.authService.authorizedUser();
       if (!currentUser) {
         throw new Error('Usuario no autenticado');
       }
@@ -217,7 +217,7 @@ export class ClientsService {
       const updateData: Partial<Client> = {
         ...data,
         updatedAt: Timestamp.now(),
-        updatedBy: currentUser.uid
+        updatedBy: currentUser.userId
       };
 
       await updateDoc(docRef, updateData);

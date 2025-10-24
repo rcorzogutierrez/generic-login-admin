@@ -1,6 +1,6 @@
 // src/app/modules/clients/models/field-config.interface.ts
 
-import { Timestamp } from '@angular/fire/firestore';
+import { Timestamp } from 'firebase/firestore';
 
 /**
  * Tipos de campos soportados

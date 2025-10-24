@@ -2,27 +2,27 @@
 
 import { Injectable, inject, signal } from '@angular/core';
 import {
-  Firestore,
+  getFirestore,
   collection,
   doc,
   getDoc,
   setDoc,
   updateDoc,
   Timestamp
-} from '@angular/fire/firestore';
+} from 'firebase/firestore';
 import {
   ClientModuleConfig,
   FieldConfig,
   DEFAULT_MODULE_CONFIG,
   DEFAULT_CLIENT_FIELDS
 } from '../models';
-import { AuthService } from '../../../auth/auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClientConfigService {
-  private firestore = inject(Firestore);
+  private firestore = getFirestore();
   private authService = inject(AuthService);
 
   // Collection reference
@@ -87,7 +87,7 @@ export class ClientConfigService {
    */
   private async createDefaultConfig(): Promise<void> {
     try {
-      const currentUser = this.authService.currentUser();
+      const currentUser = this.authService.authorizedUser();
       if (!currentUser) {
         throw new Error('Usuario no autenticado');
       }
@@ -99,9 +99,9 @@ export class ClientConfigService {
         ...field,
         id: `field_${index}_${Date.now()}`,
         createdAt: now,
-        createdBy: currentUser.uid,
+        createdBy: currentUser.userId,
         updatedAt: now,
-        updatedBy: currentUser.uid
+        updatedBy: currentUser.userId
       } as FieldConfig));
 
       const config: ClientModuleConfig = {
@@ -109,9 +109,9 @@ export class ClientConfigService {
         id: 'clients',
         fields: defaultFields,
         lastModified: now,
-        modifiedBy: currentUser.uid,
+        modifiedBy: currentUser.userId,
         createdAt: now,
-        createdBy: currentUser.uid
+        createdBy: currentUser.userId
       };
 
       await setDoc(this.configDoc, config);
@@ -133,7 +133,7 @@ export class ClientConfigService {
       this.isLoading.set(true);
       this.error.set(null);
 
-      const currentUser = this.authService.currentUser();
+      const currentUser = this.authService.authorizedUser();
       if (!currentUser) {
         throw new Error('Usuario no autenticado');
       }
@@ -147,7 +147,7 @@ export class ClientConfigService {
         ...currentConfig,
         ...updates,
         lastModified: Timestamp.now(),
-        modifiedBy: currentUser.uid
+        modifiedBy: currentUser.userId
       };
 
       await updateDoc(this.configDoc, updatedConfig);
@@ -171,7 +171,7 @@ export class ClientConfigService {
    */
   async addCustomField(fieldConfig: Omit<FieldConfig, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>): Promise<FieldConfig> {
     try {
-      const currentUser = this.authService.currentUser();
+      const currentUser = this.authService.authorizedUser();
       if (!currentUser) {
         throw new Error('Usuario no autenticado');
       }
@@ -184,9 +184,9 @@ export class ClientConfigService {
         isDefault: false,
         isSystem: false,
         createdAt: now,
-        createdBy: currentUser.uid,
+        createdBy: currentUser.userId,
         updatedAt: now,
-        updatedBy: currentUser.uid
+        updatedBy: currentUser.userId
       };
 
       const currentFields = this.fields();
@@ -207,7 +207,7 @@ export class ClientConfigService {
    */
   async updateField(fieldId: string, updates: Partial<FieldConfig>): Promise<void> {
     try {
-      const currentUser = this.authService.currentUser();
+      const currentUser = this.authService.authorizedUser();
       if (!currentUser) {
         throw new Error('Usuario no autenticado');
       }
@@ -230,7 +230,7 @@ export class ClientConfigService {
         ...updatedFields[fieldIndex],
         ...updates,
         updatedAt: Timestamp.now(),
-        updatedBy: currentUser.uid
+        updatedBy: currentUser.userId
       };
 
       await this.updateConfig({ fields: updatedFields });

@@ -14,6 +14,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
 
 // Services
 import { ClientsService } from '../../services/clients.service';
@@ -35,7 +36,8 @@ import { Client, ClientFilters, ClientSort } from '../../models';
     MatSnackBarModule,
     MatMenuModule,
     MatBadgeModule,
-    MatChipsModule
+    MatChipsModule,
+    MatDividerModule
   ],
   templateUrl: './clients-list.component.html',
   styleUrl: './clients-list.component.css',
@@ -65,6 +67,9 @@ export class ClientsListComponent implements OnInit {
   // Paginación
   currentPage = signal<number>(0);
   itemsPerPage = signal<number>(25);
+
+  // Math para templates
+  Math = Math;
 
   // Clientes filtrados y paginados
   filteredClients = computed(() => {

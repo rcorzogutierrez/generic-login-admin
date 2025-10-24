@@ -154,8 +154,8 @@
                       [formControlName]="field.name"
                       [placeholder]="field.placeholder || ''"
                       type="number"
-                      [min]="field.validation.min"
-                      [max]="field.validation.max">
+                      [min]="field.validation.min ?? null"
+                      [max]="field.validation.max ?? null">
                     @if (field.helpText) {
                       <mat-hint>{{ field.helpText }}</mat-hint>
                     }
@@ -198,7 +198,7 @@
                       [formControlName]="field.name"
                       [placeholder]="field.placeholder || ''"
                       rows="3"
-                      [maxlength]="field.validation.maxLength"></textarea>
+                      [maxlength]="field.validation.maxLength ?? null"></textarea>
                     @if (field.helpText) {
                       <mat-hint>{{ field.helpText }}</mat-hint>
                     }

@@ -1,6 +1,6 @@
 // src/app/modules/clients/models/client-module-config.interface.ts
 
-import { Timestamp } from '@angular/fire/firestore';
+import { Timestamp } from 'firebase/firestore';
 import { FieldConfig } from './field-config.interface';
 
 /**

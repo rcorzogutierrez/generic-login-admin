@@ -173,8 +173,8 @@ export class ClientsService {
         status: data.status || 'active',
         createdAt: now,
         updatedAt: now,
-        createdBy: currentUser.userId,
-        updatedBy: currentUser.userId
+        createdBy: currentUser.uid,
+        updatedBy: currentUser.uid
       };
 
       const docRef = await addDoc(this.clientsCollection, clientData);
@@ -217,7 +217,7 @@ export class ClientsService {
       const updateData: Partial<Client> = {
         ...data,
         updatedAt: Timestamp.now(),
-        updatedBy: currentUser.userId
+        updatedBy: currentUser.uid
       };
 
       await updateDoc(docRef, updateData);

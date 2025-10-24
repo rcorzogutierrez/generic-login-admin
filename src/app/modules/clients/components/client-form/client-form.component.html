@@ -68,10 +68,10 @@
       <!-- ========== FORMULARIO ========== -->
       <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
 
-        <div class="card-modern">
+        <div class="card-modern p-8">
 
           <!-- Grid de Campos -->
-          <div class="grid grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             @for (field of fields(); track field.id) {
               <div [class]="getFieldWidth(field)">
@@ -298,7 +298,7 @@
 
         <!-- ========== ACCIONES ========== -->
         @if (mode() !== 'view') {
-          <div class="flex items-center justify-end gap-3 mt-6">
+          <div class="action-buttons">
             <button
               mat-button
               type="button"

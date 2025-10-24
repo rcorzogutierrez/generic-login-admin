@@ -99,9 +99,9 @@ export class ClientConfigService {
         ...field,
         id: `field_${index}_${Date.now()}`,
         createdAt: now,
-        createdBy: currentUser.userId,
+        createdBy: currentUser.uid,
         updatedAt: now,
-        updatedBy: currentUser.userId
+        updatedBy: currentUser.uid
       } as FieldConfig));
 
       const config: ClientModuleConfig = {
@@ -109,9 +109,9 @@ export class ClientConfigService {
         id: 'clients',
         fields: defaultFields,
         lastModified: now,
-        modifiedBy: currentUser.userId,
+        modifiedBy: currentUser.uid,
         createdAt: now,
-        createdBy: currentUser.userId
+        createdBy: currentUser.uid
       };
 
       await setDoc(this.configDoc, config);
@@ -147,10 +147,10 @@ export class ClientConfigService {
         ...currentConfig,
         ...updates,
         lastModified: Timestamp.now(),
-        modifiedBy: currentUser.userId
+        modifiedBy: currentUser.uid
       };
 
-      await updateDoc(this.configDoc, updatedConfig);
+      await updateDoc(this.configDoc, updatedConfig as any);
 
       this.config.set(updatedConfig);
       if (updates.fields) {
@@ -184,9 +184,9 @@ export class ClientConfigService {
         isDefault: false,
         isSystem: false,
         createdAt: now,
-        createdBy: currentUser.userId,
+        createdBy: currentUser.uid,
         updatedAt: now,
-        updatedBy: currentUser.userId
+        updatedBy: currentUser.uid
       };
 
       const currentFields = this.fields();
@@ -230,7 +230,7 @@ export class ClientConfigService {
         ...updatedFields[fieldIndex],
         ...updates,
         updatedAt: Timestamp.now(),
-        updatedBy: currentUser.userId
+        updatedBy: currentUser.uid
       };
 
       await this.updateConfig({ fields: updatedFields });

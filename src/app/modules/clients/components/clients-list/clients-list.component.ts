@@ -21,6 +21,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 // Services
 import { ClientsService } from '../../services/clients.service';
 import { ClientConfigService } from '../../services/client-config.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 // Components
 import { DeleteClientDialogComponent } from '../delete-client-dialog/delete-client-dialog.component';
@@ -54,6 +55,7 @@ import { Client, ClientFilters, ClientSort } from '../../models';
 export class ClientsListComponent implements OnInit {
   private clientsService = inject(ClientsService);
   private configService = inject(ClientConfigService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
@@ -66,6 +68,9 @@ export class ClientsListComponent implements OnInit {
 
   config = this.configService.config;
   gridFields = computed(() => this.configService.getGridFields());
+
+  // Verificar si el usuario es admin
+  isAdmin = computed(() => this.authService.authorizedUser()?.role === 'admin');
 
   // Señales locales
   searchTerm = signal<string>('');
@@ -384,6 +389,6 @@ export class ClientsListComponent implements OnInit {
    * Navegar a configuración
    */
   goToConfig() {
-    this.router.navigate(['/clients/config']);
+    this.router.navigate(['/modules/clients/config']);
   }
 }

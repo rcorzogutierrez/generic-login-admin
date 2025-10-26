@@ -16,6 +16,7 @@ import {
   DEFAULT_MODULE_CONFIG,
   DEFAULT_CLIENT_FIELDS
 } from '../models';
+import { FormLayoutConfig } from '../models/client-module-config.interface';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Injectable({
@@ -427,6 +428,35 @@ export class ClientConfigService {
       console.error('❌ Error actualizando permisos:', error);
       throw error;
     }
+  }
+
+  /**
+   * Actualizar configuración del layout del formulario
+   */
+  async updateFormLayout(formLayout: FormLayoutConfig): Promise<void> {
+    try {
+      const currentConfig = this.config();
+      if (!currentConfig) {
+        throw new Error('Configuración no cargada');
+      }
+
+      await this.updateConfig({
+        formLayout
+      });
+
+      console.log('✅ Layout del formulario actualizado correctamente');
+
+    } catch (error) {
+      console.error('❌ Error actualizando layout del formulario:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener configuración del layout del formulario
+   */
+  getFormLayout(): FormLayoutConfig | undefined {
+    return this.config()?.formLayout;
   }
 
   /**

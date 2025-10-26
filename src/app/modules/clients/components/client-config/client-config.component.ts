@@ -53,6 +53,11 @@ export class ClientConfigComponent implements OnInit {
   fields: FieldConfig[] = [];
   isLoading = false;
 
+  // Form layout
+  get formLayout(): FormLayoutConfig | undefined {
+    return this.configService.getFormLayout();
+  }
+
   // Stats
   get totalFields(): number {
     return this.fields.length;
@@ -296,10 +301,26 @@ export class ClientConfigComponent implements OnInit {
    * Maneja cambios en el layout del formulario
    */
   async onLayoutChange(layout: FormLayoutConfig) {
-    console.log('Layout changed:', layout);
-    // TODO: Implementar guardado en Firestore
-    // await this.configService.updateFormLayout(layout);
-    this.snackBar.open('Diseño actualizado', '', { duration: 2000 });
+    try {
+      console.log('Layout changed:', layout);
+
+      await this.configService.updateFormLayout(layout);
+
+      this.snackBar.open('✅ Diseño del formulario guardado correctamente', '', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+
+      this.cdr.markForCheck();
+    } catch (error) {
+      console.error('Error guardando layout:', error);
+      this.snackBar.open('❌ Error al guardar el diseño del formulario', '', {
+        duration: 4000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+    }
   }
 
   /**

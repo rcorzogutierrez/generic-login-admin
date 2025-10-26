@@ -17,6 +17,15 @@ export const CLIENTS_ROUTES: Routes = [
         title: 'Gestión de Clientes'
       },
       {
+        path: 'config',
+        loadComponent: () =>
+          import('./components/client-config/client-config.component').then(
+            m => m.ClientConfigComponent
+          ),
+        canActivate: [roleGuard(['admin'])],
+        title: 'Configuración del Módulo'
+      },
+      {
         path: 'new',
         loadComponent: () =>
           import('./components/client-form/client-form.component').then(

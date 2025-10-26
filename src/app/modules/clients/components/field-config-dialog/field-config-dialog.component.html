@@ -1,0 +1,320 @@
+<!-- src/app/modules/clients/components/field-config-dialog/field-config-dialog.component.html -->
+<div class="dialog-container">
+
+  <!-- HEADER -->
+  <div class="dialog-header">
+    <div class="flex items-center gap-3">
+      <div class="header-icon">
+        <mat-icon>{{ isEditMode ? 'edit' : 'add_circle' }}</mat-icon>
+      </div>
+      <div>
+        <h2 class="dialog-title">
+          {{ isEditMode ? 'Editar Campo' : 'Nuevo Campo Personalizado' }}
+        </h2>
+        <p class="dialog-subtitle">
+          {{ isEditMode ? 'Modifica la configuración del campo' : 'Crea un campo personalizado para el módulo de clientes' }}
+        </p>
+      </div>
+    </div>
+    <button
+      mat-icon-button
+      (click)="onCancel()"
+      [disabled]="isSaving">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- CONTENT -->
+  <form [formGroup]="fieldForm" (ngSubmit)="onSubmit()" class="dialog-content">
+
+    <!-- INFORMACIÓN BÁSICA -->
+    <section class="form-section">
+      <div class="section-header">
+        <mat-icon class="section-icon">info</mat-icon>
+        <h3 class="section-title">Información Básica</h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- Label -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Etiqueta</mat-label>
+          <input
+            matInput
+            formControlName="label"
+            (blur)="generateNameFromLabel()"
+            placeholder="Ej: Tipo de Cliente">
+          <mat-icon matPrefix>label</mat-icon>
+          <mat-error *ngIf="isFieldInvalid('label')">
+            {{ getErrorMessage('label') }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Name (Internal) -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre Interno</mat-label>
+          <input
+            matInput
+            formControlName="name"
+            placeholder="Ej: customer_type">
+          <mat-icon matPrefix>code</mat-icon>
+          <mat-hint>Identificador único para el campo (no se puede cambiar después)</mat-hint>
+          <mat-error *ngIf="isFieldInvalid('name')">
+            {{ getErrorMessage('name') }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Type -->
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo de Campo</mat-label>
+          <mat-select formControlName="type">
+            @for (type of fieldTypes; track type.value) {
+              <mat-option [value]="type.value">
+                <div class="flex items-center gap-2">
+                  <mat-icon class="!text-base">{{ type.icon }}</mat-icon>
+                  <span>{{ type.label }}</span>
+                </div>
+              </mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>category</mat-icon>
+        </mat-form-field>
+
+        <!-- Form Width -->
+        <mat-form-field appearance="outline">
+          <mat-label>Ancho en Formulario</mat-label>
+          <mat-select formControlName="formWidth">
+            @for (width of formWidths; track width.value) {
+              <mat-option [value]="width.value">{{ width.label }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>view_column</mat-icon>
+        </mat-form-field>
+
+        <!-- Placeholder -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Texto de Placeholder</mat-label>
+          <input
+            matInput
+            formControlName="placeholder"
+            placeholder="Ej: Ingresa el tipo de cliente">
+          <mat-icon matPrefix>text_snippet</mat-icon>
+        </mat-form-field>
+
+        <!-- Help Text -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Texto de Ayuda</mat-label>
+          <textarea
+            matInput
+            formControlName="helpText"
+            rows="2"
+            placeholder="Texto explicativo que aparece debajo del campo"></textarea>
+          <mat-icon matPrefix>help_outline</mat-icon>
+        </mat-form-field>
+      </div>
+    </section>
+
+    <mat-divider></mat-divider>
+
+    <!-- ICONO -->
+    <section class="form-section">
+      <div class="section-header">
+        <mat-icon class="section-icon">palette</mat-icon>
+        <h3 class="section-title">Icono</h3>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width mb-3">
+        <mat-label>Icono de Material Icons</mat-label>
+        <input
+          matInput
+          formControlName="icon"
+          placeholder="Ej: person, email, phone">
+        <mat-icon matPrefix>{{ fieldForm.get('icon')?.value || 'help_outline' }}</mat-icon>
+        <mat-hint>Nombre del icono de Material Icons</mat-hint>
+      </mat-form-field>
+
+      <!-- Iconos sugeridos -->
+      <div class="suggested-icons">
+        @for (icon of suggestedIcons; track icon) {
+          <button
+            type="button"
+            mat-mini-fab
+            color="primary"
+            [class.selected]="fieldForm.get('icon')?.value === icon"
+            (click)="selectIcon(icon)"
+            [matTooltip]="icon">
+            <mat-icon>{{ icon }}</mat-icon>
+          </button>
+        }
+      </div>
+    </section>
+
+    <mat-divider></mat-divider>
+
+    <!-- VALIDACIONES -->
+    <section class="form-section">
+      <div class="section-header">
+        <mat-icon class="section-icon">verified</mat-icon>
+        <h3 class="section-title">Validaciones</h3>
+      </div>
+
+      <!-- Required -->
+      <div class="mb-4">
+        <mat-checkbox formControlName="required" color="primary">
+          Campo Requerido
+        </mat-checkbox>
+      </div>
+
+      <!-- Length validations (for text fields) -->
+      @if (supportsLength()) {
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Longitud Mínima</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="minLength"
+              min="0">
+            <mat-icon matPrefix>format_size</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Longitud Máxima</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="maxLength"
+              min="0">
+            <mat-icon matPrefix>format_size</mat-icon>
+          </mat-form-field>
+        </div>
+      }
+
+      <!-- Min/Max validations (for number/date fields) -->
+      @if (supportsMinMax()) {
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Valor Mínimo</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="min">
+            <mat-icon matPrefix>remove</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Valor Máximo</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="max">
+            <mat-icon matPrefix>add</mat-icon>
+          </mat-form-field>
+        </div>
+      }
+
+      <!-- Pattern validation -->
+      @if (supportsPattern()) {
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Patrón de Validación (RegEx)</mat-label>
+          <input
+            matInput
+            formControlName="pattern"
+            placeholder="Ej: ^[A-Z]{2,5}$">
+          <mat-icon matPrefix>pattern</mat-icon>
+          <mat-hint>Expresión regular para validar el formato</mat-hint>
+        </mat-form-field>
+      }
+
+      <!-- Default Value -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Valor por Defecto</mat-label>
+        <input
+          matInput
+          formControlName="defaultValue"
+          placeholder="Valor inicial del campo">
+        <mat-icon matPrefix>radio_button_checked</mat-icon>
+      </mat-form-field>
+    </section>
+
+    <mat-divider></mat-divider>
+
+    <!-- CONFIGURACIÓN DE TABLA/GRID -->
+    <section class="form-section">
+      <div class="section-header">
+        <mat-icon class="section-icon">table_chart</mat-icon>
+        <h3 class="section-title">Configuración de Tabla</h3>
+      </div>
+
+      <div class="space-y-3">
+        <mat-slide-toggle formControlName="showInGrid" color="primary">
+          Mostrar como columna en la tabla
+        </mat-slide-toggle>
+
+        @if (fieldForm.get('showInGrid')?.value) {
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Ancho de Columna</mat-label>
+              <input
+                matInput
+                formControlName="gridWidth"
+                placeholder="Ej: 150px, 20%">
+              <mat-icon matPrefix>width_wide</mat-icon>
+              <mat-hint>Opcional - Ej: 150px, 20%, auto</mat-hint>
+            </mat-form-field>
+
+            <div class="flex flex-col gap-2">
+              <mat-checkbox formControlName="sortable" color="primary">
+                Ordenable
+              </mat-checkbox>
+              <mat-checkbox formControlName="filterable" color="primary">
+                Filtrable
+              </mat-checkbox>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <mat-divider></mat-divider>
+
+    <!-- ESTADO -->
+    <section class="form-section">
+      <div class="section-header">
+        <mat-icon class="section-icon">toggle_on</mat-icon>
+        <h3 class="section-title">Estado</h3>
+      </div>
+
+      <mat-slide-toggle formControlName="isActive" color="primary">
+        Campo Activo
+      </mat-slide-toggle>
+      <p class="text-xs text-slate-500 mt-2">
+        Los campos inactivos no se mostrarán en los formularios
+      </p>
+    </section>
+
+  </form>
+
+  <!-- FOOTER -->
+  <div class="dialog-footer">
+    <button
+      mat-button
+      type="button"
+      (click)="onCancel()"
+      [disabled]="isSaving">
+      Cancelar
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      (click)="onSubmit()"
+      [disabled]="fieldForm.invalid || isSaving">
+      @if (isSaving) {
+        <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
+      }
+      <mat-icon>{{ isSaving ? '' : (isEditMode ? 'save' : 'add') }}</mat-icon>
+      {{ isSaving ? 'Guardando...' : (isEditMode ? 'Guardar Cambios' : 'Crear Campo') }}
+    </button>
+  </div>
+
+</div>

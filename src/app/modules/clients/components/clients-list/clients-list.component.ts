@@ -384,11 +384,6 @@ export class ClientsListComponent implements OnInit {
    * Navegar a configuración
    */
   goToConfig() {
-    // TODO: Implementar página de configuración del módulo
-    this.snackBar.open(
-      'La configuración de campos personalizados estará disponible próximamente',
-      'Entendido',
-      { duration: 4000 }
-    );
+    this.router.navigate(['/clients/config']);
   }
 }

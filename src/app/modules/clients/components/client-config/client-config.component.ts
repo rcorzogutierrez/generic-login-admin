@@ -17,7 +17,9 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { ClientConfigService } from '../../services/client-config.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { FieldConfig, FieldType } from '../../models';
+import { FormLayoutConfig } from '../../models/client-module-config.interface';
 import { FieldConfigDialogComponent } from '../field-config-dialog/field-config-dialog.component';
+import { FormDesignerComponent } from '../form-designer/form-designer.component';
 
 @Component({
   selector: 'app-client-config',
@@ -32,7 +34,8 @@ import { FieldConfigDialogComponent } from '../field-config-dialog/field-config-
     MatDividerModule,
     MatChipsModule,
     MatTabsModule,
-    DragDropModule
+    DragDropModule,
+    FormDesignerComponent
   ],
   templateUrl: './client-config.component.html',
   styleUrl: './client-config.component.css',
@@ -287,6 +290,16 @@ export class ClientConfigComponent implements OnInit {
       [FieldType.CURRENCY]: 'Moneda'
     };
     return labels[type] || type;
+  }
+
+  /**
+   * Maneja cambios en el layout del formulario
+   */
+  async onLayoutChange(layout: FormLayoutConfig) {
+    console.log('Layout changed:', layout);
+    // TODO: Implementar guardado en Firestore
+    // await this.configService.updateFormLayout(layout);
+    this.snackBar.open('Diseño actualizado', '', { duration: 2000 });
   }
 
   /**

@@ -33,18 +33,23 @@ tbody tr:hover {
   transform: scale(1.001);
 }
 
-/* Estilos para botones de Material */
-::ng-deep button[mat-raised-button] mat-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-  margin-right: 8px;
+/* Botón del empty state - estilos específicos */
+::ng-deep .empty-state-button {
+  margin-top: 16px;
+  min-height: 44px;
+  padding: 0 24px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
 }
 
-::ng-deep .empty-state button[mat-raised-button] {
-  min-height: 44px;
-  padding: 0 24px;
-  font-weight: 600;
+::ng-deep .empty-state-button mat-icon {
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+  line-height: 20px !important;
+  margin: 0 !important;
 }
 
 /* Exponer Math para el template */

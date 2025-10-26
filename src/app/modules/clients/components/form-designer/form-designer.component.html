@@ -74,9 +74,9 @@
 
     <div
       cdkDropList
-      #availableList="cdkDropList"
+      id="available-fields"
       [cdkDropListData]="availableFields()"
-      [cdkDropListConnectedTo]="[]"
+      [cdkDropListConnectedTo]="gridDropListIds()"
       class="palette-grid">
 
       @for (field of availableFields(); track trackByFieldId($index, field)) {
@@ -131,7 +131,10 @@
         @for (cell of rowCells; track trackByCell($index, cell)) {
           <div
             cdkDropList
-            [cdkDropListData]="[]"
+            [id]="getCellDropListId(cell.row, cell.col)"
+            [cdkDropListData]="getCellDropListId(cell.row, cell.col)"
+            [cdkDropListConnectedTo]="getConnectedDropListIds()"
+            (cdkDropListDropped)="onGridCellDrop($event, cell.row, cell.col)"
             class="grid-cell"
             [attr.data-row]="cell.row"
             [attr.data-col]="cell.col">
@@ -149,6 +152,7 @@
                 <button
                   mat-icon-button
                   class="placed-field-remove"
+                  (click)="removeFieldFromGrid(cell.row, cell.col)"
                   matTooltip="Quitar campo">
                   <mat-icon>close</mat-icon>
                 </button>

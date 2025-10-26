@@ -40,7 +40,13 @@ export class FormDesignerComponent {
   columns = signal<2 | 3 | 4>(3);
   spacing = signal<'compact' | 'normal' | 'spacious'>('normal');
 
-  // Layout state
+  // Layout state - Map of "row-col" to field
+  gridFieldPositions = signal<Map<string, FieldConfig>>(new Map());
+
+  // Available fields (not yet placed in grid)
+  availableFields = signal<FieldConfig[]>([]);
+
+  // Computed grid structure
   gridCells = computed(() => {
     const cols = this.columns();
     const rows = Math.max(3, Math.ceil(this.fields.length / cols));
@@ -49,11 +55,10 @@ export class FormDesignerComponent {
     );
   });
 
-  // Available fields (not yet placed in grid)
-  availableFields = signal<FieldConfig[]>([]);
-
-  // Placed fields (in grid)
-  placedFields = signal<Map<string, FieldConfig>>(new Map());
+  // Connected drop list IDs for CDK
+  gridDropListIds = computed(() => {
+    return this.gridCells().flat().map(cell => `grid-${cell.row}-${cell.col}`);
+  });
 
   // Button configuration
   buttonsConfig = signal<FormButtonsConfig>({
@@ -71,18 +76,22 @@ export class FormDesignerComponent {
       this.buttonsConfig.set(this.layout.buttons);
 
       // Separate placed fields from available
-      const placed = new Map<string, FieldConfig>();
+      const gridPositions = new Map<string, FieldConfig>();
       const available: FieldConfig[] = [];
 
       this.fields.forEach(field => {
-        if (this.layout?.fields[field.id]) {
-          placed.set(field.id, field);
+        const fieldPos = this.layout?.fields[field.id];
+        if (fieldPos) {
+          // Field has a position, place it in the grid
+          const key = `${fieldPos.row}-${fieldPos.col}`;
+          gridPositions.set(key, field);
         } else {
+          // Field not positioned, add to available
           available.push(field);
         }
       });
 
-      this.placedFields.set(placed);
+      this.gridFieldPositions.set(gridPositions);
       this.availableFields.set(available);
     } else {
       // All fields start as available
@@ -107,36 +116,100 @@ export class FormDesignerComponent {
   }
 
   /**
-   * Handles drop event for fields
+   * Handles drop event when field is dropped on a grid cell
    */
-  onFieldDrop(event: CdkDragDrop<any>, row: number, col: number) {
-    if (event.previousContainer === event.container) {
-      // Moving within the same container
-      moveItemInArray(
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
-    } else {
-      // Moving from available to grid or vice versa
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
+  onGridCellDrop(event: CdkDragDrop<string>, row: number, col: number) {
+    const cellKey = `${row}-${col}`;
+
+    // Check if cell already has a field
+    if (this.gridFieldPositions().has(cellKey)) {
+      console.log('Cell already occupied');
+      return;
     }
 
-    this.emitLayoutChange();
+    const sourceListId = event.previousContainer.id;
+
+    if (sourceListId === 'available-fields') {
+      // Dragging from palette to grid
+      const field = this.availableFields()[event.previousIndex];
+
+      // Remove from available
+      this.availableFields.update(fields => {
+        const newFields = [...fields];
+        newFields.splice(event.previousIndex, 1);
+        return newFields;
+      });
+
+      // Add to grid
+      this.gridFieldPositions.update(positions => {
+        const newPositions = new Map(positions);
+        newPositions.set(cellKey, field);
+        return newPositions;
+      });
+
+      this.emitLayoutChange();
+    } else if (sourceListId.startsWith('grid-')) {
+      // Moving between grid cells
+      const [sourceRow, sourceCol] = sourceListId.replace('grid-', '').split('-').map(Number);
+      const sourceKey = `${sourceRow}-${sourceCol}`;
+
+      const field = this.gridFieldPositions().get(sourceKey);
+      if (field) {
+        this.gridFieldPositions.update(positions => {
+          const newPositions = new Map(positions);
+          newPositions.delete(sourceKey);
+          newPositions.set(cellKey, field);
+          return newPositions;
+        });
+
+        this.emitLayoutChange();
+      }
+    }
+  }
+
+  /**
+   * Removes a field from the grid and returns it to available fields
+   */
+  removeFieldFromGrid(row: number, col: number) {
+    const cellKey = `${row}-${col}`;
+    const field = this.gridFieldPositions().get(cellKey);
+
+    if (field) {
+      // Remove from grid
+      this.gridFieldPositions.update(positions => {
+        const newPositions = new Map(positions);
+        newPositions.delete(cellKey);
+        return newPositions;
+      });
+
+      // Add back to available
+      this.availableFields.update(fields => [...fields, field]);
+
+      this.emitLayoutChange();
+    }
   }
 
   /**
    * Gets the field placed at a specific cell
    */
   getFieldAtCell(row: number, col: number): FieldConfig | null {
-    // Implementation will depend on how we store field positions
-    // For now, return null
-    return null;
+    const cellKey = `${row}-${col}`;
+    return this.gridFieldPositions().get(cellKey) || null;
+  }
+
+  /**
+   * Gets the drop list ID for a cell
+   */
+  getCellDropListId(row: number, col: number): string {
+    return `grid-${row}-${col}`;
+  }
+
+  /**
+   * Gets all connected drop list IDs for a grid cell
+   * Includes the palette and all other grid cells
+   */
+  getConnectedDropListIds(): string[] {
+    return ['available-fields', ...this.gridDropListIds()];
   }
 
   /**
@@ -188,9 +261,19 @@ export class FormDesignerComponent {
    */
   private buildFieldPositions(): { [fieldId: string]: FieldPosition } {
     const positions: { [fieldId: string]: FieldPosition } = {};
+    const cols = this.columns();
 
-    // TODO: Build actual positions from grid state
-    // For now, return empty object
+    // Build positions from gridFieldPositions
+    this.gridFieldPositions().forEach((field, cellKey) => {
+      const [row, col] = cellKey.split('-').map(Number);
+
+      positions[field.id] = {
+        row,
+        col,
+        colSpan: 1, // Por defecto ocupa 1 columna
+        order: row * cols + col // Orden basado en posición
+      };
+    });
 
     return positions;
   }

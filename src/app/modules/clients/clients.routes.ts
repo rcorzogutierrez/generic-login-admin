@@ -23,7 +23,7 @@ export const CLIENTS_ROUTES: Routes = [
           import('./components/client-config/client-config.component').then(
             m => m.ClientConfigComponent
           ),
-        canActivate: [roleGuard(['admin'])],
+        // Hereda el guard del parent: roleGuard(['admin', 'user'])
         title: 'Configuración del Módulo'
       },
       {

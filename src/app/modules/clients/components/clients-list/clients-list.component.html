@@ -137,6 +137,43 @@
       </div>
     </div>
 
+    <!-- ========== BARRA DE ACCIONES MASIVAS ========== -->
+    @if (selectedClients().length > 0) {
+      <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-6 flex items-center justify-between animate-fadeIn">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+            <mat-icon class="text-white !text-xl">check_circle</mat-icon>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-blue-900">
+              {{ selectedClients().length }} cliente(s) seleccionado(s)
+            </p>
+            <p class="text-xs text-blue-700">
+              Puedes realizar acciones sobre los elementos seleccionados
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            mat-button
+            (click)="selectedClients.set([])"
+            class="text-blue-700 font-medium">
+            <mat-icon>close</mat-icon>
+            Cancelar selección
+          </button>
+
+          <button
+            mat-raised-button
+            (click)="deleteSelectedClients()"
+            class="!bg-red-500 !text-white hover:!bg-red-600 font-semibold">
+            <mat-icon>delete</mat-icon>
+            Eliminar seleccionados
+          </button>
+        </div>
+      </div>
+    }
+
     <!-- ========== TABLA DE CLIENTES ========== -->
     <div class="card-modern">
 

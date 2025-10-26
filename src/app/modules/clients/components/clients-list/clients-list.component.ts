@@ -15,10 +15,16 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // Services
 import { ClientsService } from '../../services/clients.service';
 import { ClientConfigService } from '../../services/client-config.service';
+
+// Components
+import { DeleteClientDialogComponent } from '../delete-client-dialog/delete-client-dialog.component';
+import { DeleteMultipleClientsDialogComponent } from '../delete-multiple-clients-dialog/delete-multiple-clients-dialog.component';
 
 // Models
 import { Client, ClientFilters, ClientSort } from '../../models';
@@ -37,7 +43,9 @@ import { Client, ClientFilters, ClientSort } from '../../models';
     MatMenuModule,
     MatBadgeModule,
     MatChipsModule,
-    MatDividerModule
+    MatDividerModule,
+    MatDialogModule,
+    MatCheckboxModule
   ],
   templateUrl: './clients-list.component.html',
   styleUrl: './clients-list.component.css',
@@ -49,6 +57,7 @@ export class ClientsListComponent implements OnInit {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
+  private dialog = inject(MatDialog);
 
   // Signals del servicio
   clients = this.clientsService.clients;
@@ -195,16 +204,57 @@ export class ClientsListComponent implements OnInit {
    * Eliminar cliente
    */
   async deleteClient(client: Client) {
-    if (!confirm(`¿Estás seguro de eliminar el cliente "${client.name}"?`)) {
+    const dialogRef = this.dialog.open(DeleteClientDialogComponent, {
+      data: { client },
+      width: '600px',
+      disableClose: true
+    });
+
+    const result = await dialogRef.afterClosed().toPromise();
+
+    if (result?.confirmed) {
+      try {
+        await this.clientsService.deleteClient(client.id);
+        this.snackBar.open('Cliente eliminado exitosamente', 'Cerrar', { duration: 3000 });
+        this.cdr.markForCheck();
+      } catch (error) {
+        console.error('Error eliminando cliente:', error);
+        this.snackBar.open('Error al eliminar el cliente', 'Cerrar', { duration: 3000 });
+      }
+    }
+  }
+
+  /**
+   * Eliminar clientes seleccionados
+   */
+  async deleteSelectedClients() {
+    const selectedIds = this.selectedClients();
+    if (selectedIds.length === 0) {
       return;
     }
 
-    try {
-      await this.clientsService.deleteClient(client.id);
-      this.snackBar.open('Cliente eliminado exitosamente', 'Cerrar', { duration: 3000 });
-    } catch (error) {
-      console.error('Error eliminando cliente:', error);
-      this.snackBar.open('Error al eliminar el cliente', 'Cerrar', { duration: 3000 });
+    const clients = this.clients().filter(c => selectedIds.includes(c.id));
+
+    const dialogRef = this.dialog.open(DeleteMultipleClientsDialogComponent, {
+      data: { clients, count: clients.length },
+      width: '700px',
+      disableClose: true
+    });
+
+    const result = await dialogRef.afterClosed().toPromise();
+
+    if (result?.confirmed) {
+      try {
+        // Eliminar todos los clientes seleccionados
+        await Promise.all(selectedIds.map(id => this.clientsService.deleteClient(id)));
+
+        this.selectedClients.set([]);
+        this.snackBar.open(`${clients.length} cliente(s) eliminado(s) exitosamente`, 'Cerrar', { duration: 3000 });
+        this.cdr.markForCheck();
+      } catch (error) {
+        console.error('Error eliminando clientes:', error);
+        this.snackBar.open('Error al eliminar los clientes', 'Cerrar', { duration: 3000 });
+      }
     }
   }
 

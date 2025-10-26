@@ -16,6 +16,7 @@ export const CLIENTS_ROUTES: Routes = [
           ),
         title: 'Gestión de Clientes'
       },
+      // Rutas específicas DEBEN ir antes de las rutas dinámicas (:id)
       {
         path: 'config',
         loadComponent: () =>
@@ -33,6 +34,7 @@ export const CLIENTS_ROUTES: Routes = [
           ),
         title: 'Nuevo Cliente'
       },
+      // Rutas dinámicas van al final
       {
         path: ':id',
         loadComponent: () =>

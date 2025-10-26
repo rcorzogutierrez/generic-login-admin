@@ -34,13 +34,15 @@
             <mat-icon>refresh</mat-icon>
           </button>
 
-          <button
-            mat-icon-button
-            class="icon-btn"
-            (click)="goToConfig()"
-            matTooltip="Configurar módulo">
-            <mat-icon>settings</mat-icon>
-          </button>
+          @if (isAdmin()) {
+            <button
+              mat-icon-button
+              class="icon-btn"
+              (click)="goToConfig()"
+              matTooltip="Configurar módulo">
+              <mat-icon>settings</mat-icon>
+            </button>
+          }
 
           <button
             mat-raised-button

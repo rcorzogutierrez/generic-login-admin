@@ -11,12 +11,15 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTabsModule } from '@angular/material/tabs';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { ClientConfigService } from '../../services/client-config.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { FieldConfig, FieldType } from '../../models';
+import { FormLayoutConfig } from '../../models/client-module-config.interface';
 import { FieldConfigDialogComponent } from '../field-config-dialog/field-config-dialog.component';
+import { FormDesignerComponent } from '../form-designer/form-designer.component';
 
 @Component({
   selector: 'app-client-config',
@@ -30,7 +33,9 @@ import { FieldConfigDialogComponent } from '../field-config-dialog/field-config-
     MatMenuModule,
     MatDividerModule,
     MatChipsModule,
-    DragDropModule
+    MatTabsModule,
+    DragDropModule,
+    FormDesignerComponent
   ],
   templateUrl: './client-config.component.html',
   styleUrl: './client-config.component.css',
@@ -47,6 +52,11 @@ export class ClientConfigComponent implements OnInit {
   currentUser = this.authService.authorizedUser;
   fields: FieldConfig[] = [];
   isLoading = false;
+
+  // Form layout
+  get formLayout(): FormLayoutConfig | undefined {
+    return this.configService.getFormLayout();
+  }
 
   // Stats
   get totalFields(): number {
@@ -285,6 +295,32 @@ export class ClientConfigComponent implements OnInit {
       [FieldType.CURRENCY]: 'Moneda'
     };
     return labels[type] || type;
+  }
+
+  /**
+   * Maneja cambios en el layout del formulario
+   */
+  async onLayoutChange(layout: FormLayoutConfig) {
+    try {
+      console.log('Layout changed:', layout);
+
+      await this.configService.updateFormLayout(layout);
+
+      this.snackBar.open('✅ Diseño del formulario guardado correctamente', '', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+
+      this.cdr.markForCheck();
+    } catch (error) {
+      console.error('Error guardando layout:', error);
+      this.snackBar.open('❌ Error al guardar el diseño del formulario', '', {
+        duration: 4000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+    }
   }
 
   /**

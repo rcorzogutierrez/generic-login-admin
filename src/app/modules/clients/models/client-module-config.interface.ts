@@ -51,6 +51,39 @@ export interface NotificationConfig {
 }
 
 /**
+ * Posición de un campo en el layout del formulario
+ */
+export interface FieldPosition {
+  row: number;                     // Fila en el grid
+  col: number;                     // Columna en el grid
+  colSpan: number;                 // Cuántas columnas ocupa (1-4)
+  order: number;                   // Orden dentro de la fila
+}
+
+/**
+ * Configuración de botones del formulario
+ */
+export interface FormButtonsConfig {
+  position: 'left' | 'center' | 'right';  // Alineación de los botones
+  order: string[];                 // Orden de los botones ['save', 'cancel', 'reset']
+  style: 'inline' | 'stacked';     // Estilo: en línea o apilados
+  showLabels: boolean;             // Mostrar labels en botones
+}
+
+/**
+ * Configuración del layout visual del formulario
+ */
+export interface FormLayoutConfig {
+  columns: 2 | 3 | 4;              // Número de columnas del grid
+  fields: {                        // Posicionamiento de cada campo
+    [fieldId: string]: FieldPosition;
+  };
+  buttons: FormButtonsConfig;      // Configuración de botones
+  spacing: 'compact' | 'normal' | 'spacious';  // Espaciado entre campos
+  showSections: boolean;           // Mostrar secciones/grupos
+}
+
+/**
  * Configuración completa del módulo de clientes
  */
 export interface ClientModuleConfig {
@@ -60,6 +93,9 @@ export interface ClientModuleConfig {
 
   // Configuración de campos
   fields: FieldConfig[];           // Lista de campos (por defecto + personalizados)
+
+  // Configuración del layout del formulario
+  formLayout?: FormLayoutConfig;   // Layout visual del formulario (opcional)
 
   // Configuración del grid
   gridConfig: GridConfiguration;

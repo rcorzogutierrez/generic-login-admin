@@ -321,6 +321,59 @@
 }
 
 /* ============================================
+   TABS CUSTOMIZATION
+   ============================================ */
+.config-tabs {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+::ng-deep .config-tabs .mat-mdc-tab-labels {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 2px solid #e2e8f0;
+  padding: 8px 16px 0 16px;
+}
+
+::ng-deep .config-tabs .mat-mdc-tab {
+  min-width: 160px;
+  height: 56px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #64748b;
+  border-radius: 12px 12px 0 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::ng-deep .config-tabs .mat-mdc-tab:hover {
+  background: rgba(139, 92, 246, 0.05);
+  color: #8b5cf6;
+}
+
+::ng-deep .config-tabs .mat-mdc-tab.mdc-tab--active {
+  background: white;
+  color: #8b5cf6;
+  box-shadow: 0 -2px 8px rgba(139, 92, 246, 0.1);
+}
+
+::ng-deep .config-tabs .mat-mdc-tab .mdc-tab__text-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+::ng-deep .config-tabs .mat-mdc-tab-body-content {
+  padding: 0 24px 24px 24px;
+}
+
+::ng-deep .config-tabs .mdc-tab-indicator__content--underline {
+  border-color: #8b5cf6;
+  border-width: 3px;
+  border-radius: 3px 3px 0 0;
+}
+
+/* ============================================
    ACCESSIBILITY
    ============================================ */
 @media (prefers-reduced-motion: reduce) {
@@ -328,7 +381,8 @@
   .field-icon,
   .cdk-drag-animating,
   .field-card::before,
-  .field-actions {
+  .field-actions,
+  .config-tabs .mat-mdc-tab {
     animation: none !important;
     transition: none !important;
   }

@@ -11,6 +11,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTabsModule } from '@angular/material/tabs';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { ClientConfigService } from '../../services/client-config.service';
@@ -30,6 +31,7 @@ import { FieldConfigDialogComponent } from '../field-config-dialog/field-config-
     MatMenuModule,
     MatDividerModule,
     MatChipsModule,
+    MatTabsModule,
     DragDropModule
   ],
   templateUrl: './client-config.component.html',

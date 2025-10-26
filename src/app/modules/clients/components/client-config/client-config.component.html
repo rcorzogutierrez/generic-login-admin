@@ -63,8 +63,18 @@
     <!-- MAIN CONTENT -->
     @if (!isLoading || fields.length > 0) {
 
-      <!-- Stats -->
-      <section class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+      <!-- TABS -->
+      <mat-tab-group class="config-tabs" animationDuration="300ms">
+
+        <!-- TAB 1: LISTA DE CAMPOS -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="mr-2">list</mat-icon>
+            Lista de Campos
+          </ng-template>
+
+          <!-- Stats -->
+          <section class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6 mt-6">
         <div class="card-corporate">
           <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-4">
             <mat-icon class="!text-2xl text-white">dashboard</mat-icon>
@@ -272,6 +282,52 @@
 
         </section>
       }
+
+        </mat-tab>
+
+        <!-- TAB 2: DISEÑO DE FORMULARIO -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="mr-2">view_quilt</mat-icon>
+            Diseño de Formulario
+          </ng-template>
+
+          <div class="mt-6">
+            <!-- Visual Form Designer will go here -->
+            <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft text-center">
+              <div class="max-w-2xl mx-auto">
+                <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <mat-icon class="!text-5xl text-white">view_quilt</mat-icon>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800 mb-3">
+                  Diseñador Visual de Formulario
+                </h2>
+                <p class="text-slate-600 mb-6">
+                  Próximamente podrás diseñar el layout del formulario de manera visual,<br>
+                  definir columnas, arrastrar campos y posicionar botones.
+                </p>
+                <div class="flex items-center justify-center gap-4 text-sm text-slate-500">
+                  <span class="flex items-center gap-2">
+                    <mat-icon class="!text-lg">grid_view</mat-icon>
+                    Configurar columnas (2, 3, 4)
+                  </span>
+                  <span class="flex items-center gap-2">
+                    <mat-icon class="!text-lg">open_with</mat-icon>
+                    Drag & Drop visual
+                  </span>
+                  <span class="flex items-center gap-2">
+                    <mat-icon class="!text-lg">smart_button</mat-icon>
+                    Posicionar botones
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </mat-tab>
+
+      </mat-tab-group>
+
     }
 
   </div>

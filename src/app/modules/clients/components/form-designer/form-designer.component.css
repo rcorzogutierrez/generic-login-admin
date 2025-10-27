@@ -106,14 +106,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   background: white;
-  padding: 16px;
+  padding: 16px 12px;
   border-radius: 12px;
   border: 2px solid #e2e8f0;
   cursor: grab;
   transition: all 0.2s ease;
   position: relative;
+  min-height: 140px;
+  justify-content: center;
 }
 
 .palette-field:hover {
@@ -130,18 +132,25 @@
   position: absolute !important;
   top: 4px !important;
   right: 4px !important;
-  width: 28px !important;
-  height: 28px !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
   opacity: 0;
   transition: opacity 0.2s ease;
   background: white !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  line-height: 1 !important;
 }
 
 .palette-field-edit mat-icon {
-  font-size: 16px !important;
-  width: 16px !important;
-  height: 16px !important;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
   color: #8b5cf6 !important;
 }
 
@@ -150,29 +159,36 @@
 }
 
 .field-mini-icon {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  flex-shrink: 0;
 }
 
 .field-mini-icon mat-icon {
-  font-size: 24px !important;
-  width: 24px !important;
-  height: 24px !important;
+  font-size: 26px !important;
+  width: 26px !important;
+  height: 26px !important;
   color: white;
 }
 
 .field-mini-label {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   color: #1e293b;
   text-align: center;
-  line-height: 1.3;
+  line-height: 1.4;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .field-mini-chip {
@@ -334,9 +350,9 @@
 .placed-field {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
   border: 2px solid #8b5cf6;
   border-radius: 10px;
@@ -349,8 +365,8 @@
 }
 
 .placed-field-icon {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   border-radius: 10px;
   display: flex;
@@ -360,9 +376,9 @@
 }
 
 .placed-field-icon mat-icon {
-  font-size: 20px !important;
-  width: 20px !important;
-  height: 20px !important;
+  font-size: 22px !important;
+  width: 22px !important;
+  height: 22px !important;
   color: white;
 }
 
@@ -372,19 +388,21 @@
 }
 
 .placed-field-label {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
   color: #1e293b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.4;
 }
 
 .placed-field-type {
-  font-size: 11px;
+  font-size: 10.5px;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  line-height: 1.2;
 }
 
 .placed-field-actions {
@@ -401,16 +419,25 @@
 
 .placed-field-edit,
 .placed-field-remove {
-  width: 28px !important;
-  height: 28px !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
   transition: all 0.2s ease;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  background: white !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
 }
 
 .placed-field-edit mat-icon,
 .placed-field-remove mat-icon {
-  font-size: 16px !important;
-  width: 16px !important;
-  height: 16px !important;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
 }
 
 .placed-field-edit {
@@ -418,7 +445,8 @@
 }
 
 .placed-field-edit:hover {
-  background: rgba(139, 92, 246, 0.1) !important;
+  background: rgba(139, 92, 246, 0.15) !important;
+  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.3) !important;
 }
 
 .placed-field-remove {
@@ -426,7 +454,8 @@
 }
 
 .placed-field-remove:hover {
-  background: rgba(239, 68, 68, 0.1) !important;
+  background: rgba(239, 68, 68, 0.15) !important;
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3) !important;
 }
 
 /* ============================================

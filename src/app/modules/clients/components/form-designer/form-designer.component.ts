@@ -1,5 +1,5 @@
 // src/app/modules/clients/components/form-designer/form-designer.component.ts
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, signal, computed, inject, input, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
@@ -36,8 +36,10 @@ import { FieldConfigDialogComponent } from '../field-config-dialog/field-config-
 export class FormDesignerComponent {
   private dialog = inject(MatDialog);
 
-  @Input() fields: FieldConfig[] = [];
-  @Input() layout?: FormLayoutConfig;
+  // Convert to signal inputs for reactivity
+  fields = input<FieldConfig[]>([]);
+  layout = input<FormLayoutConfig | undefined>();
+
   @Output() layoutChange = new EventEmitter<FormLayoutConfig>();
   @Output() fieldAdded = new EventEmitter<void>();
 
@@ -54,7 +56,7 @@ export class FormDesignerComponent {
   // Computed grid structure
   gridCells = computed(() => {
     const cols = this.columns();
-    const rows = Math.max(3, Math.ceil(this.fields.length / cols));
+    const rows = Math.max(3, Math.ceil(this.fields().length / cols));
     return Array.from({ length: rows }, (_, row) =>
       Array.from({ length: cols }, (_, col) => ({ row, col }))
     );
@@ -73,35 +75,41 @@ export class FormDesignerComponent {
     showLabels: true
   });
 
-  ngOnInit() {
-    // Initialize with existing layout or set all fields as available
-    if (this.layout) {
-      this.columns.set(this.layout.columns);
-      this.spacing.set(this.layout.spacing);
-      this.buttonsConfig.set(this.layout.buttons);
+  constructor() {
+    // React to changes in fields or layout inputs
+    effect(() => {
+      const currentFields = this.fields();
+      const currentLayout = this.layout();
 
-      // Separate placed fields from available
-      const gridPositions = new Map<string, FieldConfig>();
-      const available: FieldConfig[] = [];
+      // Initialize with existing layout or set all fields as available
+      if (currentLayout) {
+        this.columns.set(currentLayout.columns);
+        this.spacing.set(currentLayout.spacing);
+        this.buttonsConfig.set(currentLayout.buttons);
 
-      this.fields.forEach(field => {
-        const fieldPos = this.layout?.fields[field.id];
-        if (fieldPos) {
-          // Field has a position, place it in the grid
-          const key = `${fieldPos.row}-${fieldPos.col}`;
-          gridPositions.set(key, field);
-        } else {
-          // Field not positioned, add to available
-          available.push(field);
-        }
-      });
+        // Separate placed fields from available
+        const gridPositions = new Map<string, FieldConfig>();
+        const available: FieldConfig[] = [];
 
-      this.gridFieldPositions.set(gridPositions);
-      this.availableFields.set(available);
-    } else {
-      // All fields start as available
-      this.availableFields.set([...this.fields]);
-    }
+        currentFields.forEach(field => {
+          const fieldPos = currentLayout.fields[field.id];
+          if (fieldPos) {
+            // Field has a position, place it in the grid
+            const key = `${fieldPos.row}-${fieldPos.col}`;
+            gridPositions.set(key, field);
+          } else {
+            // Field not positioned, add to available
+            available.push(field);
+          }
+        });
+
+        this.gridFieldPositions.set(gridPositions);
+        this.availableFields.set(available);
+      } else {
+        // All fields start as available
+        this.availableFields.set([...currentFields]);
+      }
+    });
   }
 
   /**
@@ -250,7 +258,7 @@ export class FormDesignerComponent {
    * Emits the current layout configuration
    */
   private emitLayoutChange() {
-    const layout: FormLayoutConfig = {
+    const layoutConfig: FormLayoutConfig = {
       columns: this.columns(),
       fields: this.buildFieldPositions(),
       buttons: this.buttonsConfig(),
@@ -258,7 +266,7 @@ export class FormDesignerComponent {
       showSections: false
     };
 
-    this.layoutChange.emit(layout);
+    this.layoutChange.emit(layoutConfig);
   }
 
   /**

@@ -1,5 +1,5 @@
 // src/app/modules/clients/components/field-config-dialog/field-config-dialog.component.ts
-import { Component, Inject, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -45,7 +45,8 @@ export interface FieldConfigDialogData {
   ],
   templateUrl: './field-config-dialog.component.html',
   styleUrl: './field-config-dialog.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None
 })
 export class FieldConfigDialogComponent implements OnInit {
   fieldForm!: FormGroup;

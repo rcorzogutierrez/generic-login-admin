@@ -63,13 +63,25 @@
   <!-- AVAILABLE FIELDS PALETTE -->
   <section class="fields-palette">
     <div class="palette-header">
-      <h3 class="palette-title">
-        <mat-icon>inventory_2</mat-icon>
-        Campos Disponibles
-      </h3>
-      <p class="palette-subtitle">
-        Arrastra los campos al formulario para posicionarlos
-      </p>
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="palette-title">
+            <mat-icon>inventory_2</mat-icon>
+            Campos Disponibles
+          </h3>
+          <p class="palette-subtitle">
+            Arrastra los campos al formulario para posicionarlos
+          </p>
+        </div>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="addNewField()"
+          class="!flex !items-center !gap-2">
+          <mat-icon>add</mat-icon>
+          Nuevo Campo
+        </button>
+      </div>
     </div>
 
     <div

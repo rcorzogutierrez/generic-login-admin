@@ -247,16 +247,51 @@
 }
 
 .dialog-footer button {
-  font-weight: 600;
+  font-weight: 600 !important;
   border-radius: 10px !important;
-  padding: 0 24px !important;
-  height: 44px !important;
-  transition: all 0.3s ease !important;
+  padding: 0 28px !important;
+  height: 48px !important;
+  font-size: 15px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.dialog-footer button:hover {
+/* Cancel button */
+.dialog-footer button[type="button"]:not([color]) {
+  color: #64748b !important;
+  background: transparent !important;
+  border: 2px solid #e2e8f0 !important;
+}
+
+.dialog-footer button[type="button"]:not([color]):hover:not([disabled]) {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Primary button (Submit) */
+.dialog-footer button[color="primary"] {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3) !important;
+  border: none !important;
+}
+
+.dialog-footer button[color="primary"]:hover:not([disabled]) {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4) !important;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.dialog-footer button[color="primary"]:active:not([disabled]) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3) !important;
+}
+
+.dialog-footer button[disabled] {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
 }
 
 /* ============================================
@@ -268,15 +303,24 @@
   width: 100%;
 }
 
-/* Text Field Wrapper - Rounded corners */
+/* Text Field Wrapper - Rounded corners and padding */
 .field-config-dialog .mat-mdc-text-field-wrapper {
-  border-radius: 12px !important;
+  border-radius: 10px !important;
+  background: white !important;
 }
 
-/* Input and textarea base styles */
-.field-config-dialog .mat-mdc-input-element,
+/* Input element - Better sizing */
+.field-config-dialog .mat-mdc-input-element {
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  color: #1e293b !important;
+  padding: 14px 16px !important;
+  height: 48px !important;
+}
+
+/* Select element */
 .field-config-dialog .mat-mdc-select {
-  font-size: 14px !important;
+  font-size: 15px !important;
   font-weight: 500 !important;
   color: #1e293b !important;
 }
@@ -285,17 +329,17 @@
 .field-config-dialog .mdc-notched-outline .mdc-notched-outline__leading,
 .field-config-dialog .mdc-notched-outline .mdc-notched-outline__notch,
 .field-config-dialog .mdc-notched-outline .mdc-notched-outline__trailing {
-  border-color: #cbd5e1 !important;
+  border-color: #e2e8f0 !important;
   border-width: 2px !important;
-  transition: all 0.3s ease !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 /* Outline borders - Hover state */
-.field-config-dialog .mat-mdc-form-field:hover .mdc-notched-outline .mdc-notched-outline__leading,
-.field-config-dialog .mat-mdc-form-field:hover .mdc-notched-outline .mdc-notched-outline__notch,
-.field-config-dialog .mat-mdc-form-field:hover .mdc-notched-outline .mdc-notched-outline__trailing {
-  border-color: #a78bfa !important;
-  border-width: 2px !important;
+.field-config-dialog .mat-mdc-form-field:not(.mat-focused):hover .mdc-notched-outline .mdc-notched-outline__leading,
+.field-config-dialog .mat-mdc-form-field:not(.mat-focused):hover .mdc-notched-outline .mdc-notched-outline__notch,
+.field-config-dialog .mat-mdc-form-field:not(.mat-focused):hover .mdc-notched-outline .mdc-notched-outline__trailing {
+  border-color: #cbd5e1 !important;
+  background: #f8fafc !important;
 }
 
 /* Outline borders - Focused state */
@@ -305,118 +349,199 @@
   border-color: #8b5cf6 !important;
   border-width: 2px !important;
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1) !important;
+  background: white !important;
 }
 
-/* Label styling */
+/* Label styling - Match client-form labels */
 .field-config-dialog .mat-mdc-form-field-label,
 .field-config-dialog .mdc-floating-label {
   color: #64748b !important;
-  font-weight: 600 !important;
-  font-size: 14px !important;
+  font-weight: 500 !important;
+  font-size: 15px !important;
 }
 
 /* Label when focused or filled */
 .field-config-dialog .mat-mdc-form-field.mat-focused .mat-mdc-form-field-label,
 .field-config-dialog .mat-mdc-form-field.mat-focused .mdc-floating-label {
   color: #8b5cf6 !important;
+  font-weight: 600 !important;
 }
 
-/* Prefix icons */
+/* Prefix icons - Larger and more prominent */
 .field-config-dialog .mat-mdc-form-field-icon-prefix {
   color: #8b5cf6 !important;
-  margin-right: 8px !important;
+  margin-right: 10px !important;
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* Focused prefix icon */
+.field-config-dialog .mat-mdc-form-field.mat-focused .mat-mdc-form-field-icon-prefix {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
 }
 
 /* Hint text */
 .field-config-dialog .mat-mdc-form-field-hint {
   color: #94a3b8 !important;
   font-size: 12px !important;
-  font-weight: 500 !important;
+  font-weight: 400 !important;
+  margin-top: 6px !important;
 }
 
 /* Error messages */
 .field-config-dialog .mat-mdc-form-field-error {
   color: #ef4444 !important;
-  font-weight: 600 !important;
-}
-
-/* Select panel */
-.field-config-dialog .mat-mdc-select-panel {
-  border-radius: 12px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-  border: 2px solid #e2e8f0 !important;
-}
-
-/* Select options */
-.field-config-dialog .mat-mdc-option {
   font-weight: 500 !important;
+  font-size: 12px !important;
+  margin-top: 6px !important;
+}
+
+/* Error state borders */
+.field-config-dialog .mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline .mdc-notched-outline__leading,
+.field-config-dialog .mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline .mdc-notched-outline__notch,
+.field-config-dialog .mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline .mdc-notched-outline__trailing {
+  border-color: #ef4444 !important;
+  background: #fef2f2 !important;
+}
+
+/* Error state prefix icon */
+.field-config-dialog .mat-mdc-form-field.mat-form-field-invalid .mat-mdc-form-field-icon-prefix {
+  color: #ef4444 !important;
+}
+
+/* Placeholder color */
+.field-config-dialog .mat-mdc-input-element::placeholder {
+  color: #94a3b8 !important;
+  font-weight: 400 !important;
+  opacity: 1 !important;
+}
+
+/* Select panel - Modern dropdown */
+::ng-deep .mat-mdc-select-panel.field-config-select-panel {
+  border-radius: 12px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  border: 2px solid #e2e8f0 !important;
+  background: white !important;
+  padding: 8px !important;
+  margin-top: 8px !important;
+}
+
+/* Select options - Enhanced appearance */
+::ng-deep .mat-mdc-select-panel.field-config-select-panel .mat-mdc-option {
+  font-weight: 500 !important;
+  font-size: 15px !important;
   padding: 12px 16px !important;
-  transition: all 0.2s ease !important;
+  border-radius: 8px !important;
+  margin: 2px 0 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  color: #1e293b !important;
+  min-height: 44px !important;
 }
 
-.field-config-dialog .mat-mdc-option:hover {
-  background: rgba(139, 92, 246, 0.08) !important;
+::ng-deep .mat-mdc-select-panel.field-config-select-panel .mat-mdc-option:hover {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(139, 92, 246, 0.12) 100%) !important;
+  box-shadow: 0 2px 6px rgba(139, 92, 246, 0.15) !important;
 }
 
-.field-config-dialog .mat-mdc-option.mat-mdc-option-active,
-.field-config-dialog .mat-mdc-option.mdc-list-item--selected {
-  background: rgba(139, 92, 246, 0.12) !important;
+::ng-deep .mat-mdc-select-panel.field-config-select-panel .mat-mdc-option.mat-mdc-option-active,
+::ng-deep .mat-mdc-select-panel.field-config-select-panel .mat-mdc-option.mdc-list-item--selected {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.2) 100%) !important;
+  color: #8b5cf6 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25) !important;
+}
+
+/* Select arrow indicator */
+.field-config-dialog .mat-mdc-select-arrow {
   color: #8b5cf6 !important;
 }
 
 /* Textarea specific */
 .field-config-dialog textarea.mat-mdc-input-element {
-  min-height: 60px !important;
+  min-height: 80px !important;
   line-height: 1.6 !important;
+  padding: 12px 16px !important;
+  resize: vertical;
 }
 
-/* Checkboxes */
+/* Checkboxes - Modern and prominent */
 .field-config-dialog .mat-mdc-checkbox {
   font-weight: 500 !important;
   color: #1e293b !important;
+  font-size: 14px !important;
+}
+
+.field-config-dialog .mat-mdc-checkbox .mdc-checkbox {
+  width: 22px !important;
+  height: 22px !important;
 }
 
 .field-config-dialog .mat-mdc-checkbox .mdc-checkbox__background {
   border-radius: 6px !important;
   border-width: 2px !important;
-  border-color: #cbd5e1 !important;
-  transition: all 0.2s ease !important;
+  border-color: #e2e8f0 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  width: 22px !important;
+  height: 22px !important;
 }
 
 .field-config-dialog .mat-mdc-checkbox:hover .mdc-checkbox__background {
-  border-color: #a78bfa !important;
+  border-color: #cbd5e1 !important;
+  background: #f8fafc !important;
 }
 
 .field-config-dialog .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background {
-  background-color: #8b5cf6 !important;
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
   border-color: #8b5cf6 !important;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3) !important;
 }
 
-/* Slide toggles */
+/* Slide toggles - Polished appearance */
 .field-config-dialog .mat-mdc-slide-toggle {
-  padding: 12px 16px !important;
-  background: #f8fafc !important;
+  padding: 14px 18px !important;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
   border-radius: 10px !important;
   transition: all 0.2s ease !important;
   font-weight: 500 !important;
   color: #1e293b !important;
+  border: 2px solid #e2e8f0 !important;
 }
 
 .field-config-dialog .mat-mdc-slide-toggle:hover {
-  background: #f1f5f9 !important;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.field-config-dialog .mat-mdc-slide-toggle .mdc-switch {
+  width: 48px !important;
 }
 
 .field-config-dialog .mat-mdc-slide-toggle .mdc-switch__track {
-  border-radius: 16px !important;
-  height: 24px !important;
+  border-radius: 20px !important;
+  height: 28px !important;
+  width: 48px !important;
 }
 
 .field-config-dialog .mat-mdc-slide-toggle .mdc-switch__handle {
   border-radius: 50% !important;
+  width: 22px !important;
+  height: 22px !important;
+}
+
+.field-config-dialog .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(139, 92, 246, 0.12) 100%) !important;
+  border-color: rgba(139, 92, 246, 0.3) !important;
 }
 
 .field-config-dialog .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked .mdc-switch__track::after {
   background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+}
+
+.field-config-dialog .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked .mdc-switch__handle::after {
+  background: white !important;
 }
 
 /* ============================================
@@ -444,11 +569,76 @@
 }
 
 /* ============================================
+   ANIMATIONS
+   ============================================ */
+
+/* Form sections fade-in animation */
+.form-section {
+  animation: fadeInSection 0.4s ease-out backwards;
+}
+
+.form-section:nth-child(1) { animation-delay: 0.05s; }
+.form-section:nth-child(2) { animation-delay: 0.1s; }
+.form-section:nth-child(3) { animation-delay: 0.15s; }
+.form-section:nth-child(4) { animation-delay: 0.2s; }
+.form-section:nth-child(5) { animation-delay: 0.25s; }
+.form-section:nth-child(6) { animation-delay: 0.3s; }
+
+@keyframes fadeInSection {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Smooth input focus animation */
+.field-config-dialog .mat-mdc-form-field {
+  animation: fadeInInput 0.3s ease-out backwards;
+}
+
+@keyframes fadeInInput {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Icon button hover pulse */
+.suggested-icons button:hover mat-icon {
+  animation: iconPulse 0.6s ease-in-out;
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+/* Loading spinner in button */
+.dialog-footer mat-spinner {
+  margin-right: 8px;
+  animation: spin 1s linear infinite;
+}
+
+/* ============================================
    ACCESSIBILITY
    ============================================ */
 @media (prefers-reduced-motion: reduce) {
   .dialog-container,
-  .suggested-icons button {
+  .suggested-icons button,
+  .form-section,
+  .mat-mdc-form-field {
     animation: none !important;
     transition: none !important;
   }

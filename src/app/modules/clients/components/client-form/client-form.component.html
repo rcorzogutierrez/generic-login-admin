@@ -62,11 +62,13 @@
 
         <div class="px-8 py-8">
 
-          <!-- Grid de Campos -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Grid de Campos con Layout Personalizado -->
+          <div [class]="getGridClass() + ' ' + getFormSpacing()">
 
-            @for (field of fields(); track field.id) {
-              <div [class]="getFieldWidth(field)">
+            <!-- Renderizar campos según layout personalizado o por defecto -->
+            @for (row of getGridRows(); track $index) {
+              @for (field of row; track field.id) {
+                <div>
 
                 <!-- ========== TEXT / EMAIL / PHONE / URL ========== -->
                 @if (field.type === FieldType.TEXT || field.type === FieldType.EMAIL || field.type === FieldType.PHONE || field.type === FieldType.URL) {
@@ -248,7 +250,8 @@
                   </div>
                 }
 
-              </div>
+                </div>
+              }
             }
 
           </div>
@@ -257,7 +260,7 @@
 
         <!-- ========== ACCIONES ========== -->
         @if (mode() !== 'view') {
-          <div class="px-8 py-6 border-t border-slate-200 bg-slate-50 flex justify-end gap-3 rounded-b-2xl">
+          <div [class]="'px-8 py-6 border-t border-slate-200 bg-slate-50 flex gap-3 rounded-b-2xl ' + getButtonsJustify() + ' ' + getButtonsDirection()">
             <button
               type="button"
               mat-button

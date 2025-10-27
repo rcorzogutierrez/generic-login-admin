@@ -280,7 +280,7 @@ export class FieldConfigDialogComponent implements OnInit {
       const gridConfig = {
         showInGrid: formValue.showInGrid,
         gridOrder: this.data.field?.gridConfig.gridOrder || 0,
-        gridWidth: formValue.gridWidth || undefined,
+        gridWidth: formValue.gridWidth || '',
         sortable: formValue.sortable,
         filterable: formValue.filterable
       };
@@ -289,12 +289,12 @@ export class FieldConfigDialogComponent implements OnInit {
         // Editar campo existente
         const updateData: Partial<FieldConfig> = {
           label: formValue.label.trim(),
-          icon: formValue.icon?.trim() || undefined,
-          placeholder: formValue.placeholder?.trim() || undefined,
-          helpText: formValue.helpText?.trim() || undefined,
+          icon: formValue.icon?.trim() || '',
+          placeholder: formValue.placeholder?.trim() || '',
+          helpText: formValue.helpText?.trim() || '',
           validation,
           formWidth: formValue.formWidth,
-          defaultValue: formValue.defaultValue || undefined,
+          defaultValue: formValue.defaultValue || '',
           gridConfig,
           isActive: formValue.isActive
         };
@@ -312,12 +312,12 @@ export class FieldConfigDialogComponent implements OnInit {
           name: formValue.name.trim(),
           label: formValue.label.trim(),
           type: formValue.type,
-          icon: formValue.icon?.trim() || undefined,
-          placeholder: formValue.placeholder?.trim() || undefined,
-          helpText: formValue.helpText?.trim() || undefined,
+          icon: formValue.icon?.trim() || '',
+          placeholder: formValue.placeholder?.trim() || '',
+          helpText: formValue.helpText?.trim() || '',
           validation,
           formWidth: formValue.formWidth,
-          defaultValue: formValue.defaultValue || undefined,
+          defaultValue: formValue.defaultValue || '',
           gridConfig,
           isActive: formValue.isActive,
           isSystem: false,

@@ -26,6 +26,7 @@ import { ClientConfigService } from '../../services/client-config.service';
 // Models
 import { Client, CreateClientData, UpdateClientData } from '../../models/client.interface';
 import { FieldConfig, FieldType } from '../../models/field-config.interface';
+import { FormLayoutConfig, FieldPosition } from '../../models/client-module-config.interface';
 
 type FormMode = 'create' | 'edit' | 'view';
 
@@ -68,6 +69,7 @@ export class ClientFormComponent implements OnInit {
   isLoading = signal<boolean>(false);
   isSaving = signal<boolean>(false);
   currentClient = signal<Client | null>(null);
+  formLayout = signal<FormLayoutConfig | undefined>(undefined);
 
   // Expose FieldType to template
   FieldType = FieldType;
@@ -91,6 +93,10 @@ export class ClientFormComponent implements OnInit {
       // Obtener campos activos ordenados
       const activeFields = this.configService.getActiveFields();
       this.fields.set(activeFields);
+
+      // Cargar layout personalizado si existe
+      const layout = this.configService.getFormLayout();
+      this.formLayout.set(layout);
 
       // Determinar modo según ruta
       const clientId = this.route.snapshot.paramMap.get('id');
@@ -432,5 +438,144 @@ export class ClientFormComponent implements OnInit {
    */
   hasChanges(): boolean {
     return this.clientForm.dirty;
+  }
+
+  // ========== MÉTODOS PARA LAYOUT PERSONALIZADO ==========
+
+  /**
+   * Obtener número de columnas del grid
+   */
+  getFormColumns(): number {
+    return this.formLayout()?.columns || 2;
+  }
+
+  /**
+   * Obtener espaciado configurado
+   */
+  getFormSpacing(): string {
+    const spacing = this.formLayout()?.spacing || 'normal';
+    switch (spacing) {
+      case 'compact':
+        return 'gap-3';
+      case 'spacious':
+        return 'gap-8';
+      default:
+        return 'gap-6';
+    }
+  }
+
+  /**
+   * Obtener clase de grid según columnas
+   */
+  getGridClass(): string {
+    const cols = this.getFormColumns();
+    const baseClass = 'grid';
+
+    switch (cols) {
+      case 2:
+        return `${baseClass} grid-cols-1 md:grid-cols-2`;
+      case 3:
+        return `${baseClass} grid-cols-1 md:grid-cols-2 lg:grid-cols-3`;
+      case 4:
+        return `${baseClass} grid-cols-1 md:grid-cols-2 lg:grid-cols-4`;
+      default:
+        return `${baseClass} grid-cols-1 md:grid-cols-2`;
+    }
+  }
+
+  /**
+   * Obtener filas del grid con sus campos organizados
+   */
+  getGridRows(): FieldConfig[][] {
+    const layout = this.formLayout();
+    const fields = this.fields();
+
+    if (!layout || !layout.fields || Object.keys(layout.fields).length === 0) {
+      // Sin layout personalizado, usar layout por defecto (lista simple)
+      return [fields];
+    }
+
+    // Organizar campos según posiciones del layout
+    const fieldPositions: Array<{field: FieldConfig, position: FieldPosition}> = [];
+
+    fields.forEach(field => {
+      const position = layout.fields[field.id];
+      if (position) {
+        fieldPositions.push({ field, position });
+      }
+    });
+
+    // Ordenar por row y col
+    fieldPositions.sort((a, b) => {
+      if (a.position.row !== b.position.row) {
+        return a.position.row - b.position.row;
+      }
+      return a.position.col - b.position.col;
+    });
+
+    // Agrupar por filas
+    const rows: FieldConfig[][] = [];
+    let currentRow = -1;
+    let currentRowFields: FieldConfig[] = [];
+
+    fieldPositions.forEach(({field, position}) => {
+      if (position.row !== currentRow) {
+        if (currentRowFields.length > 0) {
+          rows.push(currentRowFields);
+        }
+        currentRow = position.row;
+        currentRowFields = [];
+      }
+      currentRowFields.push(field);
+    });
+
+    if (currentRowFields.length > 0) {
+      rows.push(currentRowFields);
+    }
+
+    return rows;
+  }
+
+  /**
+   * Verificar si usa layout personalizado
+   */
+  hasCustomLayout(): boolean {
+    const layout = this.formLayout();
+    return !!(layout && layout.fields && Object.keys(layout.fields).length > 0);
+  }
+
+  /**
+   * Obtener configuración de botones
+   */
+  getButtonsConfig() {
+    return this.formLayout()?.buttons || {
+      position: 'right',
+      order: ['save', 'cancel'],
+      style: 'inline',
+      showLabels: true
+    };
+  }
+
+  /**
+   * Obtener clase de alineación de botones
+   */
+  getButtonsJustify(): string {
+    const position = this.getButtonsConfig().position;
+    switch (position) {
+      case 'left':
+        return 'justify-start';
+      case 'center':
+        return 'justify-center';
+      default:
+        return 'justify-end';
+    }
+  }
+
+  /**
+   * Obtener clase de dirección de botones
+   */
+  getButtonsDirection(): string {
+    const style = this.getButtonsConfig().style;
+    return style === 'stacked' ? 'flex-col' : 'flex-row';
   }
 }

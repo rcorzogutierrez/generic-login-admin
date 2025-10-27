@@ -324,6 +324,14 @@ export class ClientConfigComponent implements OnInit {
   }
 
   /**
+   * Maneja cuando se agrega un nuevo campo desde el diseñador
+   */
+  async onFieldAdded() {
+    // Recargar la configuración para obtener el nuevo campo
+    await this.loadConfig();
+  }
+
+  /**
    * Vuelve a la lista de clientes
    */
   goBack() {

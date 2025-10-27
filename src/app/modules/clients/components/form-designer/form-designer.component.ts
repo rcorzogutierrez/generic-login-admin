@@ -1,5 +1,5 @@
 // src/app/modules/clients/components/form-designer/form-designer.component.ts
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, signal, computed } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,9 +9,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialog } from '@angular/material/dialog';
 
 import { FieldConfig, FieldType } from '../../models';
 import { FormLayoutConfig, FieldPosition, FormButtonsConfig } from '../../models/client-module-config.interface';
+import { FieldConfigDialogComponent } from '../field-config-dialog/field-config-dialog.component';
 
 @Component({
   selector: 'app-form-designer',
@@ -32,9 +34,12 @@ import { FormLayoutConfig, FieldPosition, FormButtonsConfig } from '../../models
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormDesignerComponent {
+  private dialog = inject(MatDialog);
+
   @Input() fields: FieldConfig[] = [];
   @Input() layout?: FormLayoutConfig;
   @Output() layoutChange = new EventEmitter<FormLayoutConfig>();
+  @Output() fieldAdded = new EventEmitter<void>();
 
   // Configuration signals
   columns = signal<2 | 3 | 4>(3);
@@ -276,6 +281,51 @@ export class FormDesignerComponent {
     });
 
     return positions;
+  }
+
+  /**
+   * Abrir dialog para agregar nuevo campo
+   */
+  addNewField() {
+    const dialogRef = this.dialog.open(FieldConfigDialogComponent, {
+      width: '800px',
+      maxHeight: '90vh',
+      data: {
+        mode: 'create'
+      },
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // El campo fue creado exitosamente
+        // Emitir evento para que el componente padre recargue los campos
+        this.fieldAdded.emit();
+      }
+    });
+  }
+
+  /**
+   * Abrir dialog para editar campo existente
+   */
+  editField(field: FieldConfig) {
+    const dialogRef = this.dialog.open(FieldConfigDialogComponent, {
+      width: '800px',
+      maxHeight: '90vh',
+      data: {
+        mode: 'edit',
+        field: field
+      },
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // El campo fue editado exitosamente
+        // Emitir evento para que el componente padre recargue los campos
+        this.fieldAdded.emit();
+      }
+    });
   }
 
   /**

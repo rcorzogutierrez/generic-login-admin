@@ -306,6 +306,29 @@ export class FormDesignerComponent {
   }
 
   /**
+   * Abrir dialog para editar campo existente
+   */
+  editField(field: FieldConfig) {
+    const dialogRef = this.dialog.open(FieldConfigDialogComponent, {
+      width: '800px',
+      maxHeight: '90vh',
+      data: {
+        mode: 'edit',
+        field: field
+      },
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // El campo fue editado exitosamente
+        // Emitir evento para que el componente padre recargue los campos
+        this.fieldAdded.emit();
+      }
+    });
+  }
+
+  /**
    * Tracking function for @for
    */
   trackByFieldId(index: number, field: FieldConfig): string {

@@ -113,6 +113,7 @@
   border: 2px solid #e2e8f0;
   cursor: grab;
   transition: all 0.2s ease;
+  position: relative;
 }
 
 .palette-field:hover {
@@ -123,6 +124,29 @@
 
 .palette-field:active {
   cursor: grabbing;
+}
+
+.palette-field-edit {
+  position: absolute !important;
+  top: 4px !important;
+  right: 4px !important;
+  width: 28px !important;
+  height: 28px !important;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  background: white !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.palette-field-edit mat-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  color: #8b5cf6 !important;
+}
+
+.palette-field.group:hover .palette-field-edit {
+  opacity: 1;
 }
 
 .field-mini-icon {
@@ -363,14 +387,46 @@
   letter-spacing: 0.5px;
 }
 
-.placed-field-remove {
+.placed-field-actions {
+  display: flex;
+  gap: 4px;
   flex-shrink: 0;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
 
-.placed-field:hover .placed-field-remove {
+.placed-field.group:hover .placed-field-actions {
   opacity: 1;
+}
+
+.placed-field-edit,
+.placed-field-remove {
+  width: 28px !important;
+  height: 28px !important;
+  transition: all 0.2s ease;
+}
+
+.placed-field-edit mat-icon,
+.placed-field-remove mat-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.placed-field-edit {
+  color: #8b5cf6 !important;
+}
+
+.placed-field-edit:hover {
+  background: rgba(139, 92, 246, 0.1) !important;
+}
+
+.placed-field-remove {
+  color: #ef4444 !important;
+}
+
+.placed-field-remove:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
 }
 
 /* ============================================

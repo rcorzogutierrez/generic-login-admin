@@ -94,7 +94,7 @@
       @for (field of availableFields(); track trackByFieldId($index, field)) {
         <div
           cdkDrag
-          class="palette-field"
+          class="palette-field group"
           [matTooltip]="field.label">
           <div class="field-mini-icon">
             <mat-icon>{{ field.icon || getFieldTypeIcon(field.type) }}</mat-icon>
@@ -103,6 +103,14 @@
           <mat-chip class="field-mini-chip">
             {{ field.isSystem ? 'Sistema' : 'Custom' }}
           </mat-chip>
+          <button
+            mat-icon-button
+            class="palette-field-edit"
+            (click)="editField(field)"
+            [matTooltip]="'Editar ' + field.label"
+            (mousedown)="$event.stopPropagation()">
+            <mat-icon>edit</mat-icon>
+          </button>
         </div>
       }
 
@@ -153,7 +161,7 @@
 
             @if (getFieldAtCell(cell.row, cell.col); as field) {
               <!-- Field placed in this cell -->
-              <div cdkDrag class="placed-field">
+              <div cdkDrag class="placed-field group">
                 <div class="placed-field-icon">
                   <mat-icon>{{ field.icon || getFieldTypeIcon(field.type) }}</mat-icon>
                 </div>
@@ -161,13 +169,24 @@
                   <div class="placed-field-label">{{ field.label }}</div>
                   <div class="placed-field-type">{{ field.type }}</div>
                 </div>
-                <button
-                  mat-icon-button
-                  class="placed-field-remove"
-                  (click)="removeFieldFromGrid(cell.row, cell.col)"
-                  matTooltip="Quitar campo">
-                  <mat-icon>close</mat-icon>
-                </button>
+                <div class="placed-field-actions">
+                  <button
+                    mat-icon-button
+                    class="placed-field-edit"
+                    (click)="editField(field)"
+                    (mousedown)="$event.stopPropagation()"
+                    matTooltip="Editar campo">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    class="placed-field-remove"
+                    (click)="removeFieldFromGrid(cell.row, cell.col)"
+                    (mousedown)="$event.stopPropagation()"
+                    matTooltip="Quitar campo">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
               </div>
             } @else {
               <!-- Empty drop zone -->

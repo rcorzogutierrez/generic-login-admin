@@ -244,6 +244,7 @@ export class FormDesignerComponent {
       [FieldType.PHONE]: 'phone',
       [FieldType.SELECT]: 'arrow_drop_down_circle',
       [FieldType.MULTISELECT]: 'checklist',
+      [FieldType.DICTIONARY]: 'list_alt',
       [FieldType.DATE]: 'calendar_today',
       [FieldType.DATETIME]: 'event',
       [FieldType.CHECKBOX]: 'check_box',

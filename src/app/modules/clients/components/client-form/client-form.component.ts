@@ -18,6 +18,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 
 // Services
 import { ClientsService } from '../../services/clients.service';
@@ -27,6 +28,9 @@ import { ClientConfigService } from '../../services/client-config.service';
 import { Client, CreateClientData, UpdateClientData } from '../../models/client.interface';
 import { FieldConfig, FieldType } from '../../models/field-config.interface';
 import { FormLayoutConfig, FieldPosition } from '../../models/client-module-config.interface';
+
+// Components
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 type FormMode = 'create' | 'edit' | 'view';
 
@@ -61,6 +65,7 @@ export class ClientFormComponent implements OnInit {
   private configService = inject(ClientConfigService);
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
+  private dialog = inject(MatDialog);
 
   // Signals
   mode = signal<FormMode>('create');
@@ -347,11 +352,25 @@ export class ClientFormComponent implements OnInit {
    * Cancelar y volver
    */
   onCancel() {
-    if (this.clientForm.dirty && !confirm('¿Descartar los cambios?')) {
-      return;
-    }
+    if (this.clientForm.dirty) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title: '¿Descartar cambios?',
+          message: 'Tienes cambios sin guardar. ¿Estás seguro de que deseas descartarlos?',
+          confirmText: 'Descartar',
+          cancelText: 'Continuar editando',
+          type: 'warning'
+        } as ConfirmDialogData
+      });
 
-    this.router.navigate(['/modules/clients']);
+      dialogRef.afterClosed().subscribe(confirmed => {
+        if (confirmed) {
+          this.router.navigate(['/modules/clients']);
+        }
+      });
+    } else {
+      this.router.navigate(['/modules/clients']);
+    }
   }
 
   /**

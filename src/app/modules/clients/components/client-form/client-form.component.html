@@ -197,6 +197,75 @@
                   </div>
                 }
 
+                <!-- ========== MULTISELECT ========== -->
+                @if (field.type === FieldType.MULTISELECT) {
+                  <div class="input-group flex flex-col gap-2">
+                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                      @if (field.icon) {
+                        <mat-icon class="label-icon !text-lg text-purple-500">{{ field.icon }}</mat-icon>
+                      }
+                      {{ field.label }}
+                      @if (field.validation.required) {
+                        <span class="text-red-500">*</span>
+                      }
+                    </label>
+                    <select
+                      multiple
+                      class="input-field !min-h-[120px]"
+                      [formControlName]="field.name"
+                      [disabled]="mode() === 'view'">
+                      @for (option of field.options; track option.value) {
+                        <option [value]="option.value">{{ option.label }}</option>
+                      }
+                    </select>
+                    <span class="text-xs text-slate-500 mt-1">Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples opciones</span>
+                    @if (field.helpText && !hasError(field.name)) {
+                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
+                    }
+                    @if (hasError(field.name)) {
+                      <div class="input-error">
+                        {{ getErrorMessage(field.name) }}
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- ========== DICTIONARY (Key-Value) ========== -->
+                @if (field.type === FieldType.DICTIONARY) {
+                  <div class="input-group flex flex-col gap-2">
+                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                      @if (field.icon) {
+                        <mat-icon class="label-icon !text-lg text-purple-500">{{ field.icon }}</mat-icon>
+                      }
+                      {{ field.label }}
+                      @if (field.validation.required) {
+                        <span class="text-red-500">*</span>
+                      }
+                    </label>
+                    <div class="space-y-2">
+                      @for (option of field.options; track option.value) {
+                        <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                          <span class="text-sm font-medium text-slate-700 min-w-[100px]">{{ option.label }}:</span>
+                          <input
+                            type="text"
+                            class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            [formControlName]="field.name + '_' + option.value"
+                            [placeholder]="option.label"
+                            [readonly]="mode() === 'view'">
+                        </div>
+                      }
+                    </div>
+                    @if (field.helpText && !hasError(field.name)) {
+                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
+                    }
+                    @if (hasError(field.name)) {
+                      <div class="input-error">
+                        {{ getErrorMessage(field.name) }}
+                      </div>
+                    }
+                  </div>
+                }
+
                 <!-- ========== DATE ========== -->
                 @if (field.type === FieldType.DATE || field.type === FieldType.DATETIME) {
                   <div class="input-group flex flex-col gap-2">

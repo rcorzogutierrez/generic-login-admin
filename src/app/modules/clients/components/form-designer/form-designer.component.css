@@ -618,6 +618,196 @@
 }
 
 /* ============================================
+   PREVIEW SECTION
+   ============================================ */
+.preview-section {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.preview-header {
+  margin-bottom: 20px;
+}
+
+.preview-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+.preview-title mat-icon {
+  font-size: 24px !important;
+  width: 24px !important;
+  height: 24px !important;
+  color: #10b981;
+}
+
+.preview-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.preview-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 2px solid #fde68a;
+}
+
+.preview-warning mat-icon {
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+  color: #f59e0b;
+}
+
+.preview-container {
+  padding: 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
+  border: 2px dashed #cbd5e1;
+}
+
+.preview-form-wrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.preview-form-grid {
+  display: grid;
+  margin-bottom: 32px;
+}
+
+.preview-form-grid.grid-cols-1 {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .preview-form-grid.md\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .preview-form-grid.lg\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .preview-form-grid.lg\:grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .preview-form-grid.lg\:grid-cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.preview-form-grid.gap-3 {
+  gap: 12px;
+}
+
+.preview-form-grid.gap-6 {
+  gap: 24px;
+}
+
+.preview-form-grid.gap-8 {
+  gap: 32px;
+}
+
+.preview-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preview-field-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.preview-field-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  color: #8b5cf6;
+}
+
+.preview-field-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #94a3b8;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.preview-field-help {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.preview-buttons {
+  display: flex;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 2px solid #e2e8f0;
+}
+
+.preview-buttons.justify-start {
+  justify-content: flex-start;
+}
+
+.preview-buttons.justify-center {
+  justify-content: center;
+}
+
+.preview-buttons.justify-end {
+  justify-content: flex-end;
+}
+
+.preview-buttons.flex-col {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.preview-buttons.flex-row {
+  flex-direction: row;
+}
+
+.preview-button {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* ============================================
    ACCESSIBILITY
    ============================================ */
 @media (prefers-reduced-motion: reduce) {

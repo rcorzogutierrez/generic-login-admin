@@ -50,6 +50,7 @@ export class FormDesignerComponent {
   // Configuration signals
   columns = signal<2 | 3 | 4>(3);
   spacing = signal<'compact' | 'normal' | 'spacious'>('normal');
+  hasUnsavedChanges = signal<boolean>(false);
 
   // Layout state - Map of "row-col" to field
   gridFieldPositions = signal<Map<string, FieldConfig>>(new Map());
@@ -121,7 +122,7 @@ export class FormDesignerComponent {
    */
   setColumns(cols: 2 | 3 | 4) {
     this.columns.set(cols);
-    this.emitLayoutChange();
+    this.markAsChanged();
   }
 
   /**
@@ -129,7 +130,7 @@ export class FormDesignerComponent {
    */
   setSpacing(spacing: 'compact' | 'normal' | 'spacious') {
     this.spacing.set(spacing);
-    this.emitLayoutChange();
+    this.markAsChanged();
   }
 
   /**
@@ -164,7 +165,7 @@ export class FormDesignerComponent {
         return newPositions;
       });
 
-      this.emitLayoutChange();
+      this.markAsChanged();
     } else if (sourceListId.startsWith('grid-')) {
       // Moving between grid cells
       const [sourceRow, sourceCol] = sourceListId.replace('grid-', '').split('-').map(Number);
@@ -179,7 +180,7 @@ export class FormDesignerComponent {
           return newPositions;
         });
 
-        this.emitLayoutChange();
+        this.markAsChanged();
       }
     }
   }
@@ -202,7 +203,7 @@ export class FormDesignerComponent {
       // Add back to available
       this.availableFields.update(fields => [...fields, field]);
 
-      this.emitLayoutChange();
+      this.markAsChanged();
     }
   }
 
@@ -234,7 +235,7 @@ export class FormDesignerComponent {
    */
   updateButtonConfig(config: Partial<FormButtonsConfig>) {
     this.buttonsConfig.update(current => ({ ...current, ...config }));
-    this.emitLayoutChange();
+    this.markAsChanged();
   }
 
   /**
@@ -260,9 +261,16 @@ export class FormDesignerComponent {
   }
 
   /**
-   * Emits the current layout configuration
+   * Marca que hay cambios sin guardar
    */
-  private emitLayoutChange() {
+  private markAsChanged() {
+    this.hasUnsavedChanges.set(true);
+  }
+
+  /**
+   * Guarda el layout actual
+   */
+  saveLayout() {
     const layoutConfig: FormLayoutConfig = {
       columns: this.columns(),
       fields: this.buildFieldPositions(),
@@ -272,6 +280,20 @@ export class FormDesignerComponent {
     };
 
     this.layoutChange.emit(layoutConfig);
+    this.hasUnsavedChanges.set(false);
+  }
+
+  /**
+   * Obtiene el layout actual sin guardarlo
+   */
+  getCurrentLayout(): FormLayoutConfig {
+    return {
+      columns: this.columns(),
+      fields: this.buildFieldPositions(),
+      buttons: this.buttonsConfig(),
+      spacing: this.spacing(),
+      showSections: false
+    };
   }
 
   /**
@@ -372,11 +394,43 @@ export class FormDesignerComponent {
 
       // Emitir evento para recargar
       this.fieldAdded.emit();
-      this.emitLayoutChange();
     } catch (error) {
       console.error('Error eliminando campo:', error);
       this.snackBar.open('Error al eliminar el campo', 'Cerrar', { duration: 3000 });
     }
+  }
+
+  /**
+   * Obtiene los campos ordenados para la previsualización
+   */
+  getOrderedFieldsForPreview(): FieldConfig[] {
+    const currentLayout = this.getCurrentLayout();
+    const allFields = this.fields();
+
+    // Si no hay layout o no hay campos posicionados, retornar todos los campos en orden
+    if (!currentLayout.fields || Object.keys(currentLayout.fields).length === 0) {
+      return allFields;
+    }
+
+    // Crear array con campos y sus posiciones
+    const fieldsWithPositions: Array<{ field: FieldConfig; position: any }> = [];
+
+    allFields.forEach(field => {
+      const position = currentLayout.fields[field.id];
+      if (position) {
+        fieldsWithPositions.push({ field, position });
+      }
+    });
+
+    // Ordenar por row y col
+    fieldsWithPositions.sort((a, b) => {
+      if (a.position.row !== b.position.row) {
+        return a.position.row - b.position.row;
+      }
+      return a.position.col - b.position.col;
+    });
+
+    return fieldsWithPositions.map(item => item.field);
   }
 
   /**

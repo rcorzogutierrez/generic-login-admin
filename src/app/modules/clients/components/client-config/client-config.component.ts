@@ -111,25 +111,6 @@ export class ClientConfigComponent implements OnInit {
   }
 
   /**
-   * Abre el dialog para agregar un campo nuevo
-   */
-  addField() {
-    const dialogRef = this.dialog.open(FieldConfigDialogComponent, {
-      width: '800px',
-      maxWidth: '95vw',
-      maxHeight: '90vh',
-      disableClose: true,
-      data: { mode: 'create' }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result?.success) {
-        this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
-      }
-    });
-  }
-
-  /**
    * Abre el dialog para editar un campo
    */
   editField(field: FieldConfig) {

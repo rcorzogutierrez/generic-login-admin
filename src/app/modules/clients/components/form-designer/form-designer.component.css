@@ -158,6 +158,41 @@
   opacity: 1;
 }
 
+.palette-field-delete {
+  position: absolute !important;
+  top: 4px !important;
+  right: 40px !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  background: white !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+.palette-field-delete mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  color: #ef4444 !important;
+}
+
+.palette-field.group:hover .palette-field-delete {
+  opacity: 1;
+}
+
+.palette-field-delete:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3) !important;
+}
+
 .field-mini-icon {
   width: 52px;
   height: 52px;
@@ -418,7 +453,8 @@
 }
 
 .placed-field-edit,
-.placed-field-remove {
+.placed-field-remove,
+.placed-field-delete {
   width: 32px !important;
   height: 32px !important;
   min-width: 32px !important;
@@ -434,7 +470,8 @@
 }
 
 .placed-field-edit mat-icon,
-.placed-field-remove mat-icon {
+.placed-field-remove mat-icon,
+.placed-field-delete mat-icon {
   font-size: 18px !important;
   width: 18px !important;
   height: 18px !important;
@@ -450,10 +487,19 @@
 }
 
 .placed-field-remove {
-  color: #ef4444 !important;
+  color: #64748b !important;
 }
 
 .placed-field-remove:hover {
+  background: rgba(100, 116, 139, 0.15) !important;
+  box-shadow: 0 3px 10px rgba(100, 116, 139, 0.3) !important;
+}
+
+.placed-field-delete {
+  color: #ef4444 !important;
+}
+
+.placed-field-delete:hover {
   background: rgba(239, 68, 68, 0.15) !important;
   box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3) !important;
 }

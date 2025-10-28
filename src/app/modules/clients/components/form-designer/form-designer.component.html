@@ -111,6 +111,16 @@
             (mousedown)="$event.stopPropagation()">
             <mat-icon>edit</mat-icon>
           </button>
+          @if (!field.isSystem) {
+            <button
+              mat-icon-button
+              class="palette-field-delete"
+              (click)="deleteField(field)"
+              [matTooltip]="'Eliminar ' + field.label"
+              (mousedown)="$event.stopPropagation()">
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
         </div>
       }
 
@@ -183,9 +193,19 @@
                     class="placed-field-remove"
                     (click)="removeFieldFromGrid(cell.row, cell.col)"
                     (mousedown)="$event.stopPropagation()"
-                    matTooltip="Quitar campo">
+                    matTooltip="Quitar del formulario">
                     <mat-icon>close</mat-icon>
                   </button>
+                  @if (!field.isSystem) {
+                    <button
+                      mat-icon-button
+                      class="placed-field-delete"
+                      (click)="deleteField(field)"
+                      (mousedown)="$event.stopPropagation()"
+                      matTooltip="Eliminar campo permanentemente">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  }
                 </div>
               </div>
             } @else {

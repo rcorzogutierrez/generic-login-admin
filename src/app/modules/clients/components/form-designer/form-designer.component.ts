@@ -10,10 +10,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { FieldConfig, FieldType } from '../../models';
 import { FormLayoutConfig, FieldPosition, FormButtonsConfig } from '../../models/client-module-config.interface';
 import { FieldConfigDialogComponent } from '../field-config-dialog/field-config-dialog.component';
+import { ClientConfigService } from '../../services/client-config.service';
 
 @Component({
   selector: 'app-form-designer',
@@ -35,6 +37,8 @@ import { FieldConfigDialogComponent } from '../field-config-dialog/field-config-
 })
 export class FormDesignerComponent {
   private dialog = inject(MatDialog);
+  private configService = inject(ClientConfigService);
+  private snackBar = inject(MatSnackBar);
 
   // Convert to signal inputs for reactivity
   fields = input<FieldConfig[]>([]);
@@ -335,6 +339,50 @@ export class FormDesignerComponent {
         this.fieldAdded.emit();
       }
     });
+  }
+
+  /**
+   * Eliminar un campo personalizado permanentemente
+   */
+  async deleteField(field: FieldConfig) {
+    if (field.isSystem) {
+      this.snackBar.open('No se pueden eliminar campos del sistema', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    const confirm = window.confirm(
+      `¿Estás seguro de eliminar el campo "${field.label}"?\n\nEsta acción no se puede deshacer y los datos existentes se perderán.`
+    );
+
+    if (!confirm) return;
+
+    try {
+      await this.configService.deleteField(field.id);
+
+      // Remover del grid si está posicionado
+      const cellKey = Array.from(this.gridFieldPositions().entries())
+        .find(([_, f]) => f.id === field.id)?.[0];
+
+      if (cellKey) {
+        this.gridFieldPositions.update(positions => {
+          const newPositions = new Map(positions);
+          newPositions.delete(cellKey);
+          return newPositions;
+        });
+      }
+
+      // Remover de availableFields si está ahí
+      this.availableFields.update(fields => fields.filter(f => f.id !== field.id));
+
+      this.snackBar.open('Campo eliminado exitosamente', 'Cerrar', { duration: 3000 });
+
+      // Emitir evento para recargar
+      this.fieldAdded.emit();
+      this.emitLayoutChange();
+    } catch (error) {
+      console.error('Error eliminando campo:', error);
+      this.snackBar.open('Error al eliminar el campo', 'Cerrar', { duration: 3000 });
+    }
   }
 
   /**

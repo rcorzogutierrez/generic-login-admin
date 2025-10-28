@@ -159,17 +159,28 @@ export class ClientFormComponent implements OnInit {
     const fields = this.fields();
 
     fields.forEach(field => {
-      // Obtener valor inicial
-      let initialValue = this.getInitialValue(field, client);
+      // Para campos tipo DICTIONARY, crear un control por cada opción
+      if (field.type === FieldType.DICTIONARY && field.options && field.options.length > 0) {
+        field.options.forEach(option => {
+          const controlName = `${field.name}_${option.value}`;
+          const initialValue = this.getDictionaryOptionValue(field, option.value, client);
+          const validators = field.validation.required ? [Validators.required] : [];
 
-      // Crear validadores
-      const validators = this.createValidators(field);
+          formControls[controlName] = [
+            { value: initialValue, disabled: this.mode() === 'view' },
+            validators
+          ];
+        });
+      } else {
+        // Para otros tipos de campos, comportamiento normal
+        let initialValue = this.getInitialValue(field, client);
+        const validators = this.createValidators(field);
 
-      // Crear control
-      formControls[field.name] = [
-        { value: initialValue, disabled: this.mode() === 'view' },
-        validators
-      ];
+        formControls[field.name] = [
+          { value: initialValue, disabled: this.mode() === 'view' },
+          validators
+        ];
+      }
     });
 
     this.clientForm = this.fb.group(formControls);
@@ -194,6 +205,27 @@ export class ClientFormComponent implements OnInit {
     }
 
     return field.defaultValue ?? this.getDefaultValueByType(field.type);
+  }
+
+  /**
+   * Obtener valor de una opción específica de un campo DICTIONARY
+   */
+  private getDictionaryOptionValue(field: FieldConfig, optionValue: string, client?: Client): string {
+    if (!client) {
+      return '';
+    }
+
+    // Buscar en customFields
+    if (client.customFields && field.name in client.customFields) {
+      const dictionaryData = client.customFields[field.name];
+
+      // Si el diccionario es un objeto, buscar la clave específica
+      if (dictionaryData && typeof dictionaryData === 'object' && optionValue in dictionaryData) {
+        return dictionaryData[optionValue] || '';
+      }
+    }
+
+    return '';
   }
 
   /**
@@ -300,12 +332,30 @@ export class ClientFormComponent implements OnInit {
       const customFields: any = {};
 
       this.fields().forEach(field => {
-        const value = formValue[field.name];
+        // Para campos DICTIONARY, reconstruir el objeto desde los controles individuales
+        if (field.type === FieldType.DICTIONARY && field.options && field.options.length > 0) {
+          const dictionaryValue: any = {};
 
-        if (field.isDefault) {
-          defaultFields[field.name] = value;
+          field.options.forEach(option => {
+            const controlName = `${field.name}_${option.value}`;
+            const value = formValue[controlName];
+            dictionaryValue[option.value] = value || '';
+          });
+
+          if (field.isDefault) {
+            defaultFields[field.name] = dictionaryValue;
+          } else {
+            customFields[field.name] = dictionaryValue;
+          }
         } else {
-          customFields[field.name] = value;
+          // Para otros tipos de campos, comportamiento normal
+          const value = formValue[field.name];
+
+          if (field.isDefault) {
+            defaultFields[field.name] = value;
+          } else {
+            customFields[field.name] = value;
+          }
         }
       });
 

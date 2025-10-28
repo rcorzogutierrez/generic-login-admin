@@ -350,12 +350,6 @@ export class FormDesignerComponent {
       return;
     }
 
-    const confirm = window.confirm(
-      `¿Estás seguro de eliminar el campo "${field.label}"?\n\nEsta acción no se puede deshacer y los datos existentes se perderán.`
-    );
-
-    if (!confirm) return;
-
     try {
       await this.configService.deleteField(field.id);
 

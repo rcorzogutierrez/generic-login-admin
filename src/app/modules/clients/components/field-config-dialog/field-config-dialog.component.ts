@@ -1,7 +1,7 @@
 // src/app/modules/clients/components/field-config-dialog/field-config-dialog.component.ts
 import { Component, Inject, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +11,7 @@ import { MatDividerModule } from '@angular/material/divider';
 
 import { ClientConfigService } from '../../services/client-config.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { FieldConfig, FieldType } from '../../models';
+import { FieldConfig, FieldType, FieldOption } from '../../models';
 
 export interface FieldConfigDialogData {
   mode: 'create' | 'edit';
@@ -49,6 +49,7 @@ export class FieldConfigDialogComponent implements OnInit {
     { value: FieldType.PHONE, label: 'Teléfono', icon: 'phone' },
     { value: FieldType.SELECT, label: 'Selector', icon: 'arrow_drop_down_circle' },
     { value: FieldType.MULTISELECT, label: 'Multi-selector', icon: 'checklist' },
+    { value: FieldType.DICTIONARY, label: 'Diccionario (clave-valor)', icon: 'list_alt' },
     { value: FieldType.DATE, label: 'Fecha', icon: 'calendar_today' },
     { value: FieldType.DATETIME, label: 'Fecha/Hora', icon: 'event' },
     { value: FieldType.CHECKBOX, label: 'Casilla', icon: 'check_box' },
@@ -142,13 +143,66 @@ export class FieldConfigDialogComponent implements OnInit {
       filterable: [field?.gridConfig.filterable ?? true],
 
       // Estado
-      isActive: [field?.isActive ?? true]
+      isActive: [field?.isActive ?? true],
+
+      // Opciones (para SELECT, MULTISELECT, DICTIONARY)
+      options: this.fb.array([])
     });
+
+    // Inicializar opciones si existen
+    if (field?.options && field.options.length > 0) {
+      const optionsArray = this.fieldForm.get('options') as FormArray;
+      field.options.forEach(option => {
+        optionsArray.push(this.createOptionFormGroup(option));
+      });
+    }
 
     // Watch type changes para actualizar validaciones sugeridas
     this.fieldForm.get('type')?.valueChanges.subscribe(type => {
       this.updateValidationSuggestions(type);
     });
+  }
+
+  /**
+   * Crear FormGroup para una opción
+   */
+  private createOptionFormGroup(option?: FieldOption) {
+    return this.fb.group({
+      value: [option?.value || '', [Validators.required, Validators.maxLength(100)]],
+      label: [option?.label || '', [Validators.required, Validators.maxLength(100)]],
+      color: [option?.color || '']
+    });
+  }
+
+  /**
+   * Obtener el FormArray de opciones
+   */
+  get options(): FormArray {
+    return this.fieldForm.get('options') as FormArray;
+  }
+
+  /**
+   * Agregar nueva opción
+   */
+  addOption() {
+    this.options.push(this.createOptionFormGroup());
+    this.cdr.markForCheck();
+  }
+
+  /**
+   * Eliminar opción
+   */
+  removeOption(index: number) {
+    this.options.removeAt(index);
+    this.cdr.markForCheck();
+  }
+
+  /**
+   * Verificar si el tipo de campo requiere opciones
+   */
+  requiresOptions(): boolean {
+    const type = this.fieldForm.get('type')?.value;
+    return [FieldType.SELECT, FieldType.MULTISELECT, FieldType.DICTIONARY].includes(type);
   }
 
   /**
@@ -285,6 +339,14 @@ export class FieldConfigDialogComponent implements OnInit {
         filterable: formValue.filterable
       };
 
+      // Validar opciones para tipos que las requieren
+      if (this.requiresOptions() && formValue.options.length === 0) {
+        alert('Debes agregar al menos una opción para este tipo de campo');
+        this.isSaving = false;
+        this.cdr.markForCheck();
+        return;
+      }
+
       if (this.isEditMode && this.data.field) {
         // Editar campo existente
         const updateData: Partial<FieldConfig> = {
@@ -298,6 +360,11 @@ export class FieldConfigDialogComponent implements OnInit {
           gridConfig,
           isActive: formValue.isActive
         };
+
+        // Agregar opciones si el tipo las requiere
+        if (this.requiresOptions()) {
+          updateData.options = formValue.options;
+        }
 
         // Si no es campo del sistema, permitir cambiar tipo
         if (!this.data.field.isSystem) {
@@ -323,6 +390,11 @@ export class FieldConfigDialogComponent implements OnInit {
           isSystem: false,
           isDefault: false
         };
+
+        // Agregar opciones si el tipo las requiere
+        if (this.requiresOptions()) {
+          newField.options = formValue.options;
+        }
 
         await this.configService.addCustomField(newField as any);
         this.dialogRef.close({ success: true, message: 'Campo creado exitosamente' });

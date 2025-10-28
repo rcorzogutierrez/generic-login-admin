@@ -5,6 +5,24 @@
   <div class="designer-header">
     <div class="flex items-center justify-between gap-6 flex-wrap">
 
+      <!-- Save Button -->
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="saveLayout()"
+        [disabled]="!hasUnsavedChanges()"
+        class="!flex !items-center !gap-2 !shadow-lg !px-6">
+        <mat-icon>save</mat-icon>
+        <span class="font-semibold">
+          {{ hasUnsavedChanges() ? 'Guardar Cambios' : 'Guardado' }}
+        </span>
+        @if (hasUnsavedChanges()) {
+          <span class="ml-1 px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full font-bold">
+            Sin guardar
+          </span>
+        }
+      </button>
+
       <!-- Columns Selector -->
       <div class="config-group">
         <label class="config-label">
@@ -218,6 +236,86 @@
           </div>
         }
       }
+    </div>
+  </section>
+
+  <mat-divider class="my-6"></mat-divider>
+
+  <!-- PREVIEW SECTION -->
+  <section class="preview-section">
+    <div class="preview-header">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="preview-title">
+            <mat-icon>preview</mat-icon>
+            Previsualización del Formulario
+          </h3>
+          <p class="preview-subtitle">
+            Así se verá el formulario cuando se cree o edite un cliente
+          </p>
+        </div>
+        @if (hasUnsavedChanges()) {
+          <div class="preview-warning">
+            <mat-icon>warning</mat-icon>
+            <span>Esta previsualización muestra cambios sin guardar</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="preview-container">
+      <div class="preview-form-wrapper">
+        <div
+          class="preview-form-grid"
+          [class.grid-cols-1]="columns() === 2"
+          [class.md:grid-cols-2]="columns() === 2"
+          [class.lg:grid-cols-2]="columns() === 2"
+          [class.lg:grid-cols-3]="columns() === 3"
+          [class.lg:grid-cols-4]="columns() === 4"
+          [class.gap-3]="spacing() === 'compact'"
+          [class.gap-6]="spacing() === 'normal'"
+          [class.gap-8]="spacing() === 'spacious'">
+
+          @for (field of getOrderedFieldsForPreview(); track field.id) {
+            <div class="preview-field">
+              <label class="preview-field-label">
+                @if (field.icon) {
+                  <mat-icon class="preview-field-icon">{{ field.icon }}</mat-icon>
+                }
+                {{ field.label }}
+                @if (field.validation.required) {
+                  <span class="text-red-500">*</span>
+                }
+              </label>
+              <div class="preview-field-input">{{ field.placeholder || field.name }}</div>
+              @if (field.helpText) {
+                <span class="preview-field-help">{{ field.helpText }}</span>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Preview Buttons -->
+        <div
+          class="preview-buttons"
+          [class.justify-start]="buttonsConfig().position === 'left'"
+          [class.justify-center]="buttonsConfig().position === 'center'"
+          [class.justify-end]="buttonsConfig().position === 'right'"
+          [class.flex-col]="buttonsConfig().style === 'stacked'"
+          [class.flex-row]="buttonsConfig().style === 'inline'">
+          @for (btn of buttonsConfig().order; track btn) {
+            <button
+              mat-raised-button
+              [color]="btn === 'save' ? 'primary' : 'basic'"
+              class="preview-button">
+              <mat-icon>{{ btn === 'save' ? 'save' : 'cancel' }}</mat-icon>
+              @if (buttonsConfig().showLabels) {
+                {{ btn === 'save' ? 'Guardar' : 'Cancelar' }}
+              }
+            </button>
+          }
+        </div>
+      </div>
     </div>
   </section>
 

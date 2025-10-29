@@ -127,6 +127,8 @@ export class ClientsListComponent implements OnInit {
    */
   async loadData() {
     try {
+      console.log('📂 ClientsListComponent.loadData() - Iniciando...');
+
       // Cargar configuración y clientes en paralelo
       await Promise.all([
         this.configService.initialize(),
@@ -134,17 +136,31 @@ export class ClientsListComponent implements OnInit {
       ]);
 
       const config = this.config();
-      if (config) {
-        this.itemsPerPage.set(config.gridConfig.itemsPerPage);
+      console.log('   Config cargada:', config ? 'existe' : 'null');
+
+      if (config && config.gridConfig) {
+        console.log('   gridConfig existe, aplicando configuración');
+        this.itemsPerPage.set(config.gridConfig.itemsPerPage || 25);
         this.currentSort.set({
-          field: config.gridConfig.sortBy,
-          direction: config.gridConfig.sortOrder
+          field: config.gridConfig.sortBy || 'name',
+          direction: config.gridConfig.sortOrder || 'asc'
+        });
+        console.log('   itemsPerPage:', config.gridConfig.itemsPerPage);
+        console.log('   sortBy:', config.gridConfig.sortBy);
+      } else {
+        console.warn('⚠️ config o config.gridConfig no existe, usando valores por defecto');
+        // Usar valores por defecto si no hay configuración
+        this.itemsPerPage.set(25);
+        this.currentSort.set({
+          field: 'name',
+          direction: 'asc'
         });
       }
 
+      console.log('✅ Datos cargados correctamente');
       this.cdr.markForCheck();
     } catch (error) {
-      console.error('Error cargando datos:', error);
+      console.error('❌ Error cargando datos:', error);
       this.snackBar.open('Error al cargar los datos', 'Cerrar', { duration: 3000 });
     }
   }

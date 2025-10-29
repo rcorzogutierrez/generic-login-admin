@@ -285,9 +285,14 @@ export class ClientConfigComponent implements OnInit {
    */
   async onLayoutChange(layout: FormLayoutConfig) {
     try {
-      console.log('Layout changed:', layout);
+      console.log('📥 ClientConfigComponent.onLayoutChange() - Layout recibido:', layout);
+      console.log('   Campos en layout:', Object.keys(layout.fields).length);
+      console.log('   Columnas:', layout.columns);
+      console.log('   Spacing:', layout.spacing);
 
+      console.log('🔄 Llamando a configService.updateFormLayout()...');
       await this.configService.updateFormLayout(layout);
+      console.log('✅ updateFormLayout() completado exitosamente');
 
       this.snackBar.open('✅ Diseño del formulario guardado correctamente', '', {
         duration: 3000,
@@ -297,7 +302,7 @@ export class ClientConfigComponent implements OnInit {
 
       this.cdr.markForCheck();
     } catch (error) {
-      console.error('Error guardando layout:', error);
+      console.error('❌ Error guardando layout:', error);
       this.snackBar.open('❌ Error al guardar el diseño del formulario', '', {
         duration: 4000,
         horizontalPosition: 'end',

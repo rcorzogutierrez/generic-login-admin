@@ -58,6 +58,9 @@ export class FormDesignerComponent {
   // Available fields (not yet placed in grid)
   availableFields = signal<FieldConfig[]>([]);
 
+  // Track if layout has been initialized to prevent re-loading on every change
+  private isLayoutInitialized = false;
+
   // Computed grid structure
   gridCells = computed(() => {
     const cols = this.columns();
@@ -81,52 +84,96 @@ export class FormDesignerComponent {
   });
 
   constructor() {
-    // React to changes in fields or layout inputs
+    // Effect 1: Cargar el layout inicial UNA SOLA VEZ
     effect(() => {
       const currentFields = this.fields();
       const currentLayout = this.layout();
 
-      // Initialize with existing layout or set all fields as available
-      if (currentLayout) {
-        this.columns.set(currentLayout.columns);
-        this.spacing.set(currentLayout.spacing);
-        this.buttonsConfig.set(currentLayout.buttons);
+      console.log('🔄 Effect 1 (Layout inicial) - isLayoutInitialized:', this.isLayoutInitialized);
+      console.log('   currentFields.length:', currentFields.length);
+      console.log('   currentLayout:', currentLayout ? 'exists' : 'undefined');
 
-        // Crear un Set de IDs de campos actuales para búsqueda rápida
-        const currentFieldIds = new Set(currentFields.map(f => f.id));
+      // Solo cargar el layout la primera vez
+      if (!this.isLayoutInitialized && currentFields.length > 0) {
+        console.log('📥 Cargando layout inicial...');
 
-        // Separate placed fields from available
-        const gridPositions = new Map<string, FieldConfig>();
-        const available: FieldConfig[] = [];
+        // Initialize with existing layout or set all fields as available
+        if (currentLayout) {
+          this.columns.set(currentLayout.columns);
+          this.spacing.set(currentLayout.spacing);
+          this.buttonsConfig.set(currentLayout.buttons);
 
-        currentFields.forEach(field => {
-          const fieldPos = currentLayout.fields[field.id];
-          if (fieldPos) {
-            // Field has a position, place it in the grid
-            const key = `${fieldPos.row}-${fieldPos.col}`;
-            gridPositions.set(key, field);
-          } else {
-            // Field not positioned, add to available
-            available.push(field);
+          // Crear un Set de IDs de campos actuales para búsqueda rápida
+          const currentFieldIds = new Set(currentFields.map(f => f.id));
+
+          // Separate placed fields from available
+          const gridPositions = new Map<string, FieldConfig>();
+          const available: FieldConfig[] = [];
+
+          currentFields.forEach(field => {
+            const fieldPos = currentLayout.fields[field.id];
+            if (fieldPos) {
+              // Field has a position, place it in the grid
+              const key = `${fieldPos.row}-${fieldPos.col}`;
+              gridPositions.set(key, field);
+              console.log(`   ✓ Campo posicionado: ${field.label} en (${fieldPos.row},${fieldPos.col})`);
+            } else {
+              // Field not positioned, add to available
+              available.push(field);
+              console.log(`   ○ Campo disponible: ${field.label}`);
+            }
+          });
+
+          // Detectar si hay campos en el layout que ya no existen
+          const layoutFieldIds = Object.keys(currentLayout.fields);
+          const orphanedFields = layoutFieldIds.filter(id => !currentFieldIds.has(id));
+
+          if (orphanedFields.length > 0) {
+            console.warn('⚠️ Layout contiene referencias a campos inexistentes:', orphanedFields);
           }
-        });
 
-        // Detectar si hay campos en el layout que ya no existen
-        const layoutFieldIds = Object.keys(currentLayout.fields);
-        const orphanedFields = layoutFieldIds.filter(id => !currentFieldIds.has(id));
+          this.gridFieldPositions.set(gridPositions);
+          this.availableFields.set(available);
 
-        if (orphanedFields.length > 0) {
-          console.warn('⚠️ Layout contiene referencias a campos inexistentes:', orphanedFields);
-          console.warn('Estos campos serán ignorados en la previsualización.');
-          // Nota: No guardamos automáticamente para no sobrescribir el layout sin intervención del usuario
-          // El usuario debe guardar explícitamente para limpiar estas referencias
+          console.log(`✅ Layout cargado: ${gridPositions.size} campos en grid, ${available.length} disponibles`);
+        } else {
+          // All fields start as available
+          this.availableFields.set([...currentFields]);
+          console.log(`✅ Sin layout guardado: ${currentFields.length} campos disponibles`);
         }
 
-        this.gridFieldPositions.set(gridPositions);
-        this.availableFields.set(available);
+        // Marcar como inicializado para no volver a cargar
+        this.isLayoutInitialized = true;
+        console.log('🔒 Layout inicializado, no se volverá a cargar automáticamente');
       } else {
-        // All fields start as available
-        this.availableFields.set([...currentFields]);
+        console.log('⏭️ Effect 1 ignorado (ya inicializado o sin campos)');
+      }
+    });
+
+    // Effect 2: Detectar nuevos campos agregados después de la inicialización
+    effect(() => {
+      const currentFields = this.fields();
+
+      // Solo ejecutar si el layout ya fue inicializado
+      if (this.isLayoutInitialized && currentFields.length > 0) {
+        console.log('🔄 Effect 2 (Nuevos campos) - Verificando nuevos campos...');
+
+        // Obtener IDs de campos que ya están en el grid o en availableFields
+        const gridFieldIds = new Set<string>();
+        this.gridFieldPositions().forEach(field => gridFieldIds.add(field.id));
+
+        const availFieldIds = new Set(this.availableFields().map(f => f.id));
+
+        // Encontrar nuevos campos que no están ni en grid ni en availableFields
+        const newFields = currentFields.filter(field =>
+          !gridFieldIds.has(field.id) && !availFieldIds.has(field.id)
+        );
+
+        if (newFields.length > 0) {
+          console.log(`   ➕ ${newFields.length} campos nuevos detectados:`, newFields.map(f => f.label));
+          // Agregar nuevos campos a availableFields
+          this.availableFields.update(current => [...current, ...newFields]);
+        }
       }
     });
   }
@@ -285,16 +332,26 @@ export class FormDesignerComponent {
    * Guarda el layout actual
    */
   saveLayout() {
+    console.log('💾 saveLayout() - Guardando layout...');
+    console.log('   Grid positions:', this.gridFieldPositions().size);
+    console.log('   Columns:', this.columns());
+    console.log('   Spacing:', this.spacing());
+
+    const fieldPositions = this.buildFieldPositions();
+    console.log('   Field positions a guardar:', Object.keys(fieldPositions).length);
+
     const layoutConfig: FormLayoutConfig = {
       columns: this.columns(),
-      fields: this.buildFieldPositions(),
+      fields: fieldPositions,
       buttons: this.buttonsConfig(),
       spacing: this.spacing(),
       showSections: false
     };
 
+    console.log('📤 Emitiendo layoutChange event:', layoutConfig);
     this.layoutChange.emit(layoutConfig);
     this.hasUnsavedChanges.set(false);
+    console.log('✅ Layout emitido, hasUnsavedChanges = false');
   }
 
   /**

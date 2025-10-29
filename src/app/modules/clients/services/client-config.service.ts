@@ -435,16 +435,21 @@ export class ClientConfigService {
    */
   async updateFormLayout(formLayout: FormLayoutConfig): Promise<void> {
     try {
+      console.log('🔧 ClientConfigService.updateFormLayout() - Iniciando...');
+      console.log('   Layout recibido:', formLayout);
+      console.log('   Campos en layout:', Object.keys(formLayout.fields).length);
+
       const currentConfig = this.config();
       if (!currentConfig) {
         throw new Error('Configuración no cargada');
       }
 
+      console.log('📝 Llamando a updateConfig()...');
       await this.updateConfig({
         formLayout
       });
 
-      console.log('✅ Layout del formulario actualizado correctamente');
+      console.log('✅ Layout del formulario actualizado correctamente en Firestore');
 
     } catch (error) {
       console.error('❌ Error actualizando layout del formulario:', error);

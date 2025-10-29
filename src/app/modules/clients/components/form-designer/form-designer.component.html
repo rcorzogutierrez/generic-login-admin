@@ -265,56 +265,67 @@
 
     <div class="preview-container">
       <div class="preview-form-wrapper">
-        <div
-          class="preview-form-grid"
-          [class.grid-cols-1]="columns() === 2"
-          [class.md:grid-cols-2]="columns() === 2"
-          [class.lg:grid-cols-2]="columns() === 2"
-          [class.lg:grid-cols-3]="columns() === 3"
-          [class.lg:grid-cols-4]="columns() === 4"
-          [class.gap-3]="spacing() === 'compact'"
-          [class.gap-6]="spacing() === 'normal'"
-          [class.gap-8]="spacing() === 'spacious'">
+        @if (getOrderedFieldsForPreview().length === 0) {
+          <!-- Empty state cuando no hay campos en el grid -->
+          <div class="flex flex-col items-center justify-center py-12 text-center">
+            <mat-icon class="text-slate-300 mb-4" style="font-size: 64px; width: 64px; height: 64px;">drag_indicator</mat-icon>
+            <h3 class="text-lg font-semibold text-slate-600 mb-2">No hay campos en el formulario</h3>
+            <p class="text-sm text-slate-500 max-w-md">
+              Arrastra campos desde la paleta de "Campos Disponibles" al diseñador para verlos en la previsualización.
+            </p>
+          </div>
+        } @else {
+          <div
+            class="preview-form-grid"
+            [class.grid-cols-1]="columns() === 2"
+            [class.md:grid-cols-2]="columns() === 2"
+            [class.lg:grid-cols-2]="columns() === 2"
+            [class.lg:grid-cols-3]="columns() === 3"
+            [class.lg:grid-cols-4]="columns() === 4"
+            [class.gap-3]="spacing() === 'compact'"
+            [class.gap-6]="spacing() === 'normal'"
+            [class.gap-8]="spacing() === 'spacious'">
 
-          @for (field of getOrderedFieldsForPreview(); track field.id) {
-            <div class="preview-field">
-              <label class="preview-field-label">
-                @if (field.icon) {
-                  <mat-icon class="preview-field-icon">{{ field.icon }}</mat-icon>
+            @for (field of getOrderedFieldsForPreview(); track field.id) {
+              <div class="preview-field">
+                <label class="preview-field-label">
+                  @if (field.icon) {
+                    <mat-icon class="preview-field-icon">{{ field.icon }}</mat-icon>
+                  }
+                  {{ field.label }}
+                  @if (field.validation.required) {
+                    <span class="text-red-500">*</span>
+                  }
+                </label>
+                <div class="preview-field-input">{{ field.placeholder || field.name }}</div>
+                @if (field.helpText) {
+                  <span class="preview-field-help">{{ field.helpText }}</span>
                 }
-                {{ field.label }}
-                @if (field.validation.required) {
-                  <span class="text-red-500">*</span>
-                }
-              </label>
-              <div class="preview-field-input">{{ field.placeholder || field.name }}</div>
-              @if (field.helpText) {
-                <span class="preview-field-help">{{ field.helpText }}</span>
-              }
-            </div>
-          }
-        </div>
+              </div>
+            }
+          </div>
 
-        <!-- Preview Buttons -->
-        <div
-          class="preview-buttons"
-          [class.justify-start]="buttonsConfig().position === 'left'"
-          [class.justify-center]="buttonsConfig().position === 'center'"
-          [class.justify-end]="buttonsConfig().position === 'right'"
-          [class.flex-col]="buttonsConfig().style === 'stacked'"
-          [class.flex-row]="buttonsConfig().style === 'inline'">
-          @for (btn of buttonsConfig().order; track btn) {
-            <button
-              mat-raised-button
-              [color]="btn === 'save' ? 'primary' : 'basic'"
-              class="preview-button">
-              <mat-icon>{{ btn === 'save' ? 'save' : 'cancel' }}</mat-icon>
-              @if (buttonsConfig().showLabels) {
-                {{ btn === 'save' ? 'Guardar' : 'Cancelar' }}
-              }
-            </button>
-          }
-        </div>
+          <!-- Preview Buttons -->
+          <div
+            class="preview-buttons"
+            [class.justify-start]="buttonsConfig().position === 'left'"
+            [class.justify-center]="buttonsConfig().position === 'center'"
+            [class.justify-end]="buttonsConfig().position === 'right'"
+            [class.flex-col]="buttonsConfig().style === 'stacked'"
+            [class.flex-row]="buttonsConfig().style === 'inline'">
+            @for (btn of buttonsConfig().order; track btn) {
+              <button
+                mat-raised-button
+                [color]="btn === 'save' ? 'primary' : 'basic'"
+                class="preview-button">
+                <mat-icon>{{ btn === 'save' ? 'save' : 'cancel' }}</mat-icon>
+                @if (buttonsConfig().showLabels) {
+                  {{ btn === 'save' ? 'Guardar' : 'Cancelar' }}
+                }
+              </button>
+            }
+          </div>
+        }
       </div>
     </div>
   </section>

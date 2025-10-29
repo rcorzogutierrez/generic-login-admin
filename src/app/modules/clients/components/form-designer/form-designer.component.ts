@@ -92,6 +92,9 @@ export class FormDesignerComponent {
         this.spacing.set(currentLayout.spacing);
         this.buttonsConfig.set(currentLayout.buttons);
 
+        // Crear un Set de IDs de campos actuales para búsqueda rápida
+        const currentFieldIds = new Set(currentFields.map(f => f.id));
+
         // Separate placed fields from available
         const gridPositions = new Map<string, FieldConfig>();
         const available: FieldConfig[] = [];
@@ -107,6 +110,17 @@ export class FormDesignerComponent {
             available.push(field);
           }
         });
+
+        // Detectar si hay campos en el layout que ya no existen
+        const layoutFieldIds = Object.keys(currentLayout.fields);
+        const orphanedFields = layoutFieldIds.filter(id => !currentFieldIds.has(id));
+
+        if (orphanedFields.length > 0) {
+          console.warn('⚠️ Layout contiene referencias a campos inexistentes:', orphanedFields);
+          console.warn('Estos campos serán ignorados en la previsualización.');
+          // Nota: No guardamos automáticamente para no sobrescribir el layout sin intervención del usuario
+          // El usuario debe guardar explícitamente para limpiar estas referencias
+        }
 
         this.gridFieldPositions.set(gridPositions);
         this.availableFields.set(available);
@@ -402,14 +416,17 @@ export class FormDesignerComponent {
 
   /**
    * Obtiene los campos ordenados para la previsualización
+   * IMPORTANTE: Solo muestra los campos que están posicionados en el grid,
+   * NO los campos disponibles en la paleta
    */
   getOrderedFieldsForPreview(): FieldConfig[] {
     const currentLayout = this.getCurrentLayout();
     const allFields = this.fields();
 
-    // Si no hay layout o no hay campos posicionados, retornar todos los campos en orden
+    // Si no hay campos posicionados, retornar array vacío
+    // La previsualización debe estar vacía si no hay campos en el grid
     if (!currentLayout.fields || Object.keys(currentLayout.fields).length === 0) {
-      return allFields;
+      return [];
     }
 
     // Crear array con campos y sus posiciones

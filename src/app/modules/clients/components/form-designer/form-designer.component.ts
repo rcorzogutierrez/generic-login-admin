@@ -176,6 +176,58 @@ export class FormDesignerComponent {
         }
       }
     });
+
+    // Effect 3: Actualizar referencias de campos cuando se editan
+    effect(() => {
+      const currentFields = this.fields();
+
+      // Solo ejecutar si el layout ya fue inicializado
+      if (this.isLayoutInitialized && currentFields.length > 0) {
+        console.log('🔄 Effect 3 (Actualizar referencias) - Actualizando referencias de campos...');
+
+        // Crear un mapa de campos actuales por ID para búsqueda rápida
+        const fieldsMap = new Map(currentFields.map(f => [f.id, f]));
+
+        // Actualizar referencias en gridFieldPositions
+        let gridUpdated = false;
+        this.gridFieldPositions.update(positions => {
+          const newPositions = new Map<string, FieldConfig>();
+          positions.forEach((oldField, key) => {
+            const updatedField = fieldsMap.get(oldField.id);
+            if (updatedField) {
+              // Verificar si el campo cambió (comparar referencias)
+              if (updatedField !== oldField) {
+                console.log(`   🔄 Actualizando campo en grid: ${updatedField.label} (${key})`);
+                gridUpdated = true;
+              }
+              newPositions.set(key, updatedField);
+            } else {
+              // El campo fue eliminado, mantener el viejo por seguridad
+              newPositions.set(key, oldField);
+            }
+          });
+          return newPositions;
+        });
+
+        // Actualizar referencias en availableFields
+        let availableUpdated = false;
+        this.availableFields.update(fields => {
+          return fields.map(oldField => {
+            const updatedField = fieldsMap.get(oldField.id);
+            if (updatedField && updatedField !== oldField) {
+              console.log(`   🔄 Actualizando campo disponible: ${updatedField.label}`);
+              availableUpdated = true;
+              return updatedField;
+            }
+            return oldField;
+          });
+        });
+
+        if (gridUpdated || availableUpdated) {
+          console.log('✅ Referencias de campos actualizadas');
+        }
+      }
+    });
   }
 
   /**

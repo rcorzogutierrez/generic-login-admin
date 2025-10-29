@@ -416,38 +416,45 @@ export class FormDesignerComponent {
 
   /**
    * Obtiene los campos ordenados para la previsualización
-   * IMPORTANTE: Solo muestra los campos que están posicionados en el grid,
-   * NO los campos disponibles en la paleta
+   * IMPORTANTE: Solo muestra los campos que están ACTUALMENTE posicionados en el grid,
+   * NO los campos disponibles en la paleta ni campos del layout guardado
    */
   getOrderedFieldsForPreview(): FieldConfig[] {
-    const currentLayout = this.getCurrentLayout();
-    const allFields = this.fields();
+    const gridPositions = this.gridFieldPositions();
 
-    // Si no hay campos posicionados, retornar array vacío
-    // La previsualización debe estar vacía si no hay campos en el grid
-    if (!currentLayout.fields || Object.keys(currentLayout.fields).length === 0) {
+    console.log('🔍 Preview: gridFieldPositions size:', gridPositions.size);
+
+    // Si no hay campos en el grid, retornar array vacío
+    if (gridPositions.size === 0) {
+      console.log('✅ Preview: Grid vacío, mostrando 0 campos');
       return [];
     }
 
-    // Crear array con campos y sus posiciones
-    const fieldsWithPositions: Array<{ field: FieldConfig; position: any }> = [];
+    // Convertir el Map a array con información de posición
+    const fieldsWithPositions: Array<{
+      field: FieldConfig;
+      row: number;
+      col: number;
+    }> = [];
 
-    allFields.forEach(field => {
-      const position = currentLayout.fields[field.id];
-      if (position) {
-        fieldsWithPositions.push({ field, position });
-      }
+    gridPositions.forEach((field, cellKey) => {
+      const [row, col] = cellKey.split('-').map(Number);
+      fieldsWithPositions.push({ field, row, col });
+      console.log(`  - Campo en grid: ${field.label} (${row},${col})`);
     });
 
     // Ordenar por row y col
     fieldsWithPositions.sort((a, b) => {
-      if (a.position.row !== b.position.row) {
-        return a.position.row - b.position.row;
+      if (a.row !== b.row) {
+        return a.row - b.row;
       }
-      return a.position.col - b.position.col;
+      return a.col - b.col;
     });
 
-    return fieldsWithPositions.map(item => item.field);
+    const result = fieldsWithPositions.map(item => item.field);
+    console.log(`✅ Preview mostrando ${result.length} campos`);
+
+    return result;
   }
 
   /**

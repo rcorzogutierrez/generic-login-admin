@@ -65,7 +65,7 @@ export class ClientConfigService {
       if (docSnap.exists()) {
         const data = docSnap.data();
         console.log('✅ Documento encontrado en Firestore');
-        console.log('   Fields en documento:', data.fields?.length || 0);
+        console.log('   Fields en documento:', data['fields']?.length || 0);
 
         const config = {
           id: docSnap.id,

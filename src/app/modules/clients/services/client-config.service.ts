@@ -59,17 +59,30 @@ export class ClientConfigService {
       this.isLoading.set(true);
       this.error.set(null);
 
+      console.log('📂 loadConfig() - Cargando configuración...');
       const docSnap = await getDoc(this.configDoc);
 
       if (docSnap.exists()) {
+        const data = docSnap.data();
+        console.log('✅ Documento encontrado en Firestore');
+        console.log('   Fields en documento:', data.fields?.length || 0);
+
         const config = {
           id: docSnap.id,
-          ...docSnap.data() as Omit<ClientModuleConfig, 'id'>
+          ...data as Omit<ClientModuleConfig, 'id'>
         };
+
+        // Asegurar que fields siempre sea un array
+        if (!config.fields || !Array.isArray(config.fields)) {
+          console.warn('⚠️ Fields no es un array válido, inicializando como array vacío');
+          config.fields = [];
+        }
 
         this.config.set(config);
         this.fields.set(config.fields);
+        console.log('✅ Configuración cargada:', config.fields.length, 'campos');
       } else {
+        console.log('⚠️ Documento no existe, creando configuración por defecto');
         // Crear configuración por defecto si no existe
         await this.createDefaultConfig();
       }
@@ -172,6 +185,8 @@ export class ClientConfigService {
    */
   async addCustomField(fieldConfig: Omit<FieldConfig, 'id' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>): Promise<FieldConfig> {
     try {
+      console.log('➕ addCustomField() - Agregando nuevo campo...');
+
       const currentUser = this.authService.authorizedUser();
       if (!currentUser) {
         throw new Error('Usuario no autenticado');
@@ -190,10 +205,19 @@ export class ClientConfigService {
         updatedBy: currentUser.uid
       };
 
-      const currentFields = this.fields();
+      // Obtener campos actuales y asegurar que sea un array
+      let currentFields = this.fields();
+      if (!currentFields || !Array.isArray(currentFields)) {
+        console.warn('⚠️ currentFields no es un array, inicializando como array vacío');
+        currentFields = [];
+      }
+
+      console.log('   Campos actuales:', currentFields.length);
       const updatedFields = [...currentFields, newField];
+      console.log('   Campos después de agregar:', updatedFields.length);
 
       await this.updateConfig({ fields: updatedFields });
+      console.log('✅ Campo agregado exitosamente');
 
       return newField;
 
@@ -213,7 +237,12 @@ export class ClientConfigService {
         throw new Error('Usuario no autenticado');
       }
 
-      const currentFields = this.fields();
+      let currentFields = this.fields();
+      if (!currentFields || !Array.isArray(currentFields)) {
+        console.warn('⚠️ currentFields no es un array en updateField');
+        currentFields = [];
+      }
+
       const fieldIndex = currentFields.findIndex(f => f.id === fieldId);
 
       if (fieldIndex === -1) {
@@ -247,7 +276,12 @@ export class ClientConfigService {
    */
   async deleteField(fieldId: string): Promise<void> {
     try {
-      const currentFields = this.fields();
+      let currentFields = this.fields();
+      if (!currentFields || !Array.isArray(currentFields)) {
+        console.warn('⚠️ currentFields no es un array en deleteField');
+        currentFields = [];
+      }
+
       const field = currentFields.find(f => f.id === fieldId);
 
       if (!field) {
@@ -286,7 +320,11 @@ export class ClientConfigService {
    */
   async reorderFields(fieldIds: string[]): Promise<void> {
     try {
-      const currentFields = this.fields();
+      let currentFields = this.fields();
+      if (!currentFields || !Array.isArray(currentFields)) {
+        console.warn('⚠️ currentFields no es un array en reorderFields');
+        currentFields = [];
+      }
 
       // Crear mapa de campos por ID
       const fieldsMap = new Map(currentFields.map(f => [f.id, f]));
@@ -326,7 +364,11 @@ export class ClientConfigService {
    */
   async reorderGridColumns(fieldIds: string[]): Promise<void> {
     try {
-      const currentFields = this.fields();
+      let currentFields = this.fields();
+      if (!currentFields || !Array.isArray(currentFields)) {
+        console.warn('⚠️ currentFields no es un array en reorderGridColumns');
+        currentFields = [];
+      }
 
       const updatedFields = currentFields.map(field => {
         const gridOrder = fieldIds.indexOf(field.id);
@@ -354,7 +396,11 @@ export class ClientConfigService {
    * Obtener campos activos ordenados por formOrder
    */
   getActiveFields(): FieldConfig[] {
-    return this.fields()
+    const fields = this.fields();
+    if (!fields || !Array.isArray(fields)) {
+      return [];
+    }
+    return fields
       .filter(f => f.isActive)
       .sort((a, b) => a.formOrder - b.formOrder);
   }
@@ -363,7 +409,11 @@ export class ClientConfigService {
    * Obtener campos visibles en el grid ordenados por gridOrder
    */
   getGridFields(): FieldConfig[] {
-    return this.fields()
+    const fields = this.fields();
+    if (!fields || !Array.isArray(fields)) {
+      return [];
+    }
+    return fields
       .filter(f => f.isActive && f.gridConfig.showInGrid)
       .sort((a, b) => a.gridConfig.gridOrder - b.gridConfig.gridOrder);
   }
@@ -372,14 +422,22 @@ export class ClientConfigService {
    * Obtener un campo por nombre
    */
   getFieldByName(name: string): FieldConfig | undefined {
-    return this.fields().find(f => f.name === name);
+    const fields = this.fields();
+    if (!fields || !Array.isArray(fields)) {
+      return undefined;
+    }
+    return fields.find(f => f.name === name);
   }
 
   /**
    * Validar nombre de campo único
    */
   isFieldNameUnique(name: string, excludeId?: string): boolean {
-    return !this.fields().some(f =>
+    const fields = this.fields();
+    if (!fields || !Array.isArray(fields)) {
+      return true; // Si no hay campos, el nombre es único
+    }
+    return !fields.some(f =>
       f.name === name && f.id !== excludeId
     );
   }

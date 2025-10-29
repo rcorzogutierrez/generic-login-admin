@@ -5,23 +5,38 @@
   <div class="designer-header">
     <div class="flex items-center justify-between gap-6 flex-wrap">
 
-      <!-- Save Button -->
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="saveLayout()"
-        [disabled]="!hasUnsavedChanges()"
-        class="!flex !items-center !gap-2 !shadow-lg !px-6">
-        <mat-icon>save</mat-icon>
-        <span class="font-semibold">
-          {{ hasUnsavedChanges() ? 'Guardar Cambios' : 'Guardado' }}
-        </span>
-        @if (hasUnsavedChanges()) {
-          <span class="ml-1 px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full font-bold">
-            Sin guardar
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-3">
+        <!-- Save Button -->
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="saveLayout()"
+          [disabled]="!hasUnsavedChanges()"
+          class="!flex !items-center !gap-2 !shadow-lg !px-6">
+          <mat-icon>save</mat-icon>
+          <span class="font-semibold">
+            {{ hasUnsavedChanges() ? 'Guardar Cambios' : 'Guardado' }}
           </span>
-        }
-      </button>
+          @if (hasUnsavedChanges()) {
+            <span class="ml-1 px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full font-bold">
+              Sin guardar
+            </span>
+          }
+        </button>
+
+        <!-- Clear Grid Button -->
+        <button
+          mat-raised-button
+          color="warn"
+          (click)="clearGrid()"
+          [disabled]="gridFieldPositions().size === 0"
+          class="!flex !items-center !gap-2"
+          matTooltip="Quitar todos los campos del grid y moverlos a disponibles">
+          <mat-icon>clear_all</mat-icon>
+          <span class="font-semibold">Limpiar Grid</span>
+        </button>
+      </div>
 
       <!-- Columns Selector -->
       <div class="config-group">

@@ -200,9 +200,14 @@ export class FormDesignerComponent {
   onGridCellDrop(event: CdkDragDrop<string>, row: number, col: number) {
     const cellKey = `${row}-${col}`;
 
+    console.log('🎯 onGridCellDrop - Iniciando...');
+    console.log('   Target cell:', cellKey);
+    console.log('   Source container:', event.previousContainer.id);
+    console.log('   Previous index:', event.previousIndex);
+
     // Check if cell already has a field
     if (this.gridFieldPositions().has(cellKey)) {
-      console.log('Cell already occupied');
+      console.log('⛔ Celda ya ocupada, cancelando drop');
       return;
     }
 
@@ -211,6 +216,7 @@ export class FormDesignerComponent {
     if (sourceListId === 'available-fields') {
       // Dragging from palette to grid
       const field = this.availableFields()[event.previousIndex];
+      console.log(`   ➕ Moviendo campo "${field.label}" de paleta a grid (${cellKey})`);
 
       // Remove from available
       this.availableFields.update(fields => {
@@ -226,6 +232,7 @@ export class FormDesignerComponent {
         return newPositions;
       });
 
+      console.log(`   ✅ Campo agregado al grid. Total en grid: ${this.gridFieldPositions().size}`);
       this.markAsChanged();
     } else if (sourceListId.startsWith('grid-')) {
       // Moving between grid cells
@@ -234,6 +241,8 @@ export class FormDesignerComponent {
 
       const field = this.gridFieldPositions().get(sourceKey);
       if (field) {
+        console.log(`   🔀 Moviendo campo "${field.label}" de ${sourceKey} a ${cellKey}`);
+
         this.gridFieldPositions.update(positions => {
           const newPositions = new Map(positions);
           newPositions.delete(sourceKey);
@@ -241,6 +250,7 @@ export class FormDesignerComponent {
           return newPositions;
         });
 
+        console.log(`   ✅ Campo movido. Total en grid: ${this.gridFieldPositions().size}`);
         this.markAsChanged();
       }
     }
@@ -253,7 +263,12 @@ export class FormDesignerComponent {
     const cellKey = `${row}-${col}`;
     const field = this.gridFieldPositions().get(cellKey);
 
+    console.log(`❌ removeFieldFromGrid - Removiendo campo en (${row},${col})`);
+
     if (field) {
+      console.log(`   Campo a remover: "${field.label}"`);
+      console.log(`   Grid size antes: ${this.gridFieldPositions().size}`);
+
       // Remove from grid
       this.gridFieldPositions.update(positions => {
         const newPositions = new Map(positions);
@@ -264,7 +279,13 @@ export class FormDesignerComponent {
       // Add back to available
       this.availableFields.update(fields => [...fields, field]);
 
+      console.log(`   ✅ Campo removido del grid`);
+      console.log(`   Grid size después: ${this.gridFieldPositions().size}`);
+      console.log(`   Campos disponibles: ${this.availableFields().length}`);
+
       this.markAsChanged();
+    } else {
+      console.log(`   ⚠️ No se encontró campo en la celda ${cellKey}`);
     }
   }
 
@@ -352,6 +373,30 @@ export class FormDesignerComponent {
     this.layoutChange.emit(layoutConfig);
     this.hasUnsavedChanges.set(false);
     console.log('✅ Layout emitido, hasUnsavedChanges = false');
+  }
+
+  /**
+   * Limpia todo el grid y mueve todos los campos a disponibles
+   */
+  clearGrid() {
+    console.log('🗑️ clearGrid() - Limpiando todo el grid...');
+    console.log('   Campos en grid antes:', this.gridFieldPositions().size);
+
+    const fieldsInGrid: FieldConfig[] = [];
+    this.gridFieldPositions().forEach(field => {
+      fieldsInGrid.push(field);
+    });
+
+    // Limpiar el grid
+    this.gridFieldPositions.set(new Map());
+
+    // Mover todos los campos a disponibles
+    this.availableFields.update(current => [...current, ...fieldsInGrid]);
+
+    console.log('   ✅ Grid limpiado');
+    console.log('   Campos disponibles ahora:', this.availableFields().length);
+
+    this.markAsChanged();
   }
 
   /**

@@ -148,7 +148,7 @@ export class ClientsListComponent implements OnInit {
         console.log('   itemsPerPage:', config.gridConfig.itemsPerPage);
         console.log('   sortBy:', config.gridConfig.sortBy);
       } else {
-        console.warn('⚠️ config o config.gridConfig no existe, usando valores por defecto');
+        console.log('ℹ️ Usando configuración por defecto del grid');
         // Usar valores por defecto si no hay configuración
         this.itemsPerPage.set(25);
         this.currentSort.set({

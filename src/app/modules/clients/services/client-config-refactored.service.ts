@@ -25,6 +25,7 @@ export class ClientConfigServiceRefactored extends ModuleConfigBaseService<Clien
   protected getDefaultConfig(): Omit<ClientModuleConfig, 'id' | 'lastModified' | 'modifiedBy'> {
     return {
       ...DEFAULT_MODULE_CONFIG,
+      fields: [], // Los campos se agregarán desde defaultFields
       // Asegurar que settings específicos de clientes estén incluidos
       settings: {
         enableTags: true,

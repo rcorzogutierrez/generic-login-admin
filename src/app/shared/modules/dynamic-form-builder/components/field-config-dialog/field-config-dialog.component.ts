@@ -11,7 +11,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 
 import { AuthService } from '../../../../../core/services/auth.service';
-import { FieldConfig, FieldType, FieldOption, ModuleConfigBaseService } from '../../models';
+import { FieldConfig, FieldType, FieldOption } from '../../models';
+import { ModuleConfigBaseService } from '../../services';
 
 export interface FieldConfigDialogData {
   mode: 'create' | 'edit';

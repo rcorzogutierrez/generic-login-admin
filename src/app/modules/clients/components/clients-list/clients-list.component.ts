@@ -20,7 +20,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // Services
 import { ClientsService } from '../../services/clients.service';
-import { ClientConfigService } from '../../services/client-config.service';
+import { ClientConfigServiceRefactored } from '../../services/client-config-refactored.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
 // Components
@@ -54,7 +54,7 @@ import { Client, ClientFilters, ClientSort } from '../../models';
 })
 export class ClientsListComponent implements OnInit {
   private clientsService = inject(ClientsService);
-  private configService = inject(ClientConfigService);
+  private configService = inject(ClientConfigServiceRefactored);
   private authService = inject(AuthService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);

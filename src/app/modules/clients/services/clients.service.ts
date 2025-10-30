@@ -95,18 +95,38 @@ export class ClientsService {
         constraints.push(where('assignedTo', '==', filters.assignedTo));
       }
 
-      // Aplicar ordenamiento
-      if (sort) {
-        constraints.push(orderBy(sort.field, sort.direction));
-      } else {
-        constraints.push(orderBy('name', 'asc'));
-      }
+      // NOTA: Temporalmente comentamos el orderBy para diagnosticar
+      // Si el problema es el orderBy, esta query debería funcionar
+      // // Aplicar ordenamiento
+      // if (sort) {
+      //   constraints.push(orderBy(sort.field, sort.direction));
+      // } else {
+      //   constraints.push(orderBy('name', 'asc'));
+      // }
 
       const q = query(this.clientsCollection, ...constraints);
-      console.log('🔍 Ejecutando query en Firestore con', constraints.length, 'constraints');
+      console.log('🔍 Ejecutando query en Firestore con', constraints.length, 'constraints (orderBy deshabilitado temporalmente para debug)');
 
       const snapshot = await getDocs(q);
-      console.log('📦 Snapshot obtenido:', { docsCount: snapshot.docs.length, empty: snapshot.empty });
+      console.log('📦 Snapshot obtenido:', {
+        docsCount: snapshot.docs.length,
+        empty: snapshot.empty,
+        size: snapshot.size,
+        metadata: snapshot.metadata
+      });
+
+      if (snapshot.docs.length > 0) {
+        console.log('📄 Primer documento de ejemplo:', {
+          id: snapshot.docs[0].id,
+          data: snapshot.docs[0].data()
+        });
+      } else {
+        console.warn('⚠️ No se encontraron documentos en la colección "clients"');
+        console.log('   Verifica que:');
+        console.log('   1. Los documentos existen en Firestore');
+        console.log('   2. Los documentos tienen el campo "name" (requerido para ordenamiento)');
+        console.log('   3. No hay reglas de seguridad bloqueando la lectura');
+      }
 
       const clients: Client[] = snapshot.docs.map((docSnapshot) => ({
         id: docSnapshot.id,
@@ -114,6 +134,20 @@ export class ClientsService {
       }));
 
       console.log('👥 Clientes mapeados desde Firestore:', clients.length);
+
+      // Ordenar en memoria (ya que deshabilitamos orderBy en la query)
+      const sortField = sort?.field || 'name';
+      const sortDirection = sort?.direction || 'asc';
+      clients.sort((a: any, b: any) => {
+        const aVal = a[sortField] || '';
+        const bVal = b[sortField] || '';
+        if (sortDirection === 'asc') {
+          return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+        } else {
+          return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+        }
+      });
+      console.log('📊 Clientes ordenados en memoria por:', sortField, sortDirection);
 
       // Aplicar filtro de búsqueda en memoria (para búsqueda global)
       let filteredClients = clients;

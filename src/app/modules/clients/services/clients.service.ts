@@ -58,16 +58,13 @@ export class ClientsService {
    * Inicializar el servicio - cargar todos los clientes
    */
   async initialize(): Promise<void> {
-    console.log('🔄 ClientsService.initialize() - Iniciando...', { isInitialized: this.isInitialized });
-
     if (this.isInitialized) {
-      console.log('ℹ️ ClientsService ya inicializado, saltando carga');
       return;
     }
 
     await this.loadClients();
     this.isInitialized = true;
-    console.log('✅ ClientsService.initialize() - Completado', { totalClients: this.clients().length });
+    console.log('✅ ClientsService inicializado -', this.clients().length, 'clientes cargados');
   }
 
   /**
@@ -75,7 +72,6 @@ export class ClientsService {
    */
   async loadClients(filters?: ClientFilters, sort?: ClientSort): Promise<void> {
     try {
-      console.log('📥 ClientsService.loadClients() - Iniciando carga desde Firestore...', { filters, sort });
       this.isLoading.set(true);
       this.error.set(null);
 
@@ -95,37 +91,16 @@ export class ClientsService {
         constraints.push(where('assignedTo', '==', filters.assignedTo));
       }
 
-      // NOTA: Temporalmente comentamos el orderBy para diagnosticar
-      // Si el problema es el orderBy, esta query debería funcionar
-      // // Aplicar ordenamiento
-      // if (sort) {
-      //   constraints.push(orderBy(sort.field, sort.direction));
-      // } else {
-      //   constraints.push(orderBy('name', 'asc'));
-      // }
+      // NOTA: No usamos orderBy de Firestore porque requiere índices compuestos
+      // y puede fallar si algunos documentos no tienen el campo de ordenamiento.
+      // En su lugar, ordenamos en memoria después de recuperar los documentos,
+      // lo cual es más eficiente para colecciones pequeñas/medianas (<1000 docs).
 
       const q = query(this.clientsCollection, ...constraints);
-      console.log('🔍 Ejecutando query en Firestore con', constraints.length, 'constraints (orderBy deshabilitado temporalmente para debug)');
-
       const snapshot = await getDocs(q);
-      console.log('📦 Snapshot obtenido:', {
-        docsCount: snapshot.docs.length,
-        empty: snapshot.empty,
-        size: snapshot.size,
-        metadata: snapshot.metadata
-      });
 
-      if (snapshot.docs.length > 0) {
-        console.log('📄 Primer documento de ejemplo:', {
-          id: snapshot.docs[0].id,
-          data: snapshot.docs[0].data()
-        });
-      } else {
+      if (snapshot.empty) {
         console.warn('⚠️ No se encontraron documentos en la colección "clients"');
-        console.log('   Verifica que:');
-        console.log('   1. Los documentos existen en Firestore');
-        console.log('   2. Los documentos tienen el campo "name" (requerido para ordenamiento)');
-        console.log('   3. No hay reglas de seguridad bloqueando la lectura');
       }
 
       const clients: Client[] = snapshot.docs.map((docSnapshot) => ({
@@ -133,21 +108,20 @@ export class ClientsService {
         ...docSnapshot.data() as Omit<Client, 'id'>
       }));
 
-      console.log('👥 Clientes mapeados desde Firestore:', clients.length);
-
-      // Ordenar en memoria (ya que deshabilitamos orderBy en la query)
-      const sortField = sort?.field || 'name';
-      const sortDirection = sort?.direction || 'asc';
-      clients.sort((a: any, b: any) => {
-        const aVal = a[sortField] || '';
-        const bVal = b[sortField] || '';
-        if (sortDirection === 'asc') {
-          return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
-        } else {
-          return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
-        }
-      });
-      console.log('📊 Clientes ordenados en memoria por:', sortField, sortDirection);
+      // Ordenar en memoria por el campo especificado
+      if (clients.length > 0) {
+        const sortField = sort?.field || 'name';
+        const sortDirection = sort?.direction || 'asc';
+        clients.sort((a: any, b: any) => {
+          const aVal = a[sortField] || '';
+          const bVal = b[sortField] || '';
+          if (sortDirection === 'asc') {
+            return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+          } else {
+            return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+          }
+        });
+      }
 
       // Aplicar filtro de búsqueda en memoria (para búsqueda global)
       let filteredClients = clients;
@@ -159,12 +133,10 @@ export class ClientsService {
           client.phone?.includes(term) ||
           client.company?.toLowerCase().includes(term)
         );
-        console.log('🔎 Después de filtro de búsqueda:', filteredClients.length, 'clientes');
       }
 
       this.clients.set(filteredClients);
       this.calculateStats(filteredClients);
-      console.log('✅ Clientes cargados y stats calculados:', { total: filteredClients.length });
 
     } catch (error) {
       console.error('❌ Error cargando clientes:', error);

@@ -22,7 +22,7 @@ import { MatDialog } from '@angular/material/dialog';
 
 // Services
 import { ClientsService } from '../../services/clients.service';
-import { ClientConfigService } from '../../services/client-config.service';
+import { ClientConfigServiceRefactored } from '../../services/client-config-refactored.service';
 
 // Models
 import { Client, CreateClientData, UpdateClientData } from '../../models/client.interface';
@@ -62,7 +62,7 @@ export class ClientFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private clientsService = inject(ClientsService);
-  private configService = inject(ClientConfigService);
+  private configService = inject(ClientConfigServiceRefactored);
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
   private dialog = inject(MatDialog);

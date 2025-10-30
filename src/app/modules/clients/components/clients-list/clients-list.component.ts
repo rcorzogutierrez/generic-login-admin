@@ -379,23 +379,61 @@ export class ClientsListComponent implements OnInit {
   /**
    * Formatear valor del campo
    */
-  formatFieldValue(value: any, fieldType: string): string {
+  formatFieldValue(value: any, field: any): string {
     if (value === null || value === undefined) {
       return '-';
     }
 
+    const fieldType = field.type;
+
     switch (fieldType) {
       case 'date':
         return new Date(value).toLocaleDateString();
+
       case 'datetime':
         return new Date(value).toLocaleString();
+
       case 'checkbox':
         return value ? 'Sí' : 'No';
+
       case 'currency':
         return new Intl.NumberFormat('es-ES', {
           style: 'currency',
           currency: 'USD'
         }).format(value);
+
+      case 'select':
+        // Buscar el label correspondiente al value en las opciones
+        if (field.options && Array.isArray(field.options)) {
+          const option = field.options.find((opt: any) => opt.value === value);
+          return option ? option.label : String(value);
+        }
+        return String(value);
+
+      case 'multiselect':
+        // Manejar múltiples valores
+        if (Array.isArray(value) && field.options) {
+          const labels = value.map((val: string) => {
+            const option = field.options.find((opt: any) => opt.value === val);
+            return option ? option.label : val;
+          });
+          return labels.join(', ');
+        }
+        return String(value);
+
+      case 'dictionary':
+        // Formatear objeto como pares clave-valor
+        if (typeof value === 'object' && value !== null) {
+          const entries = Object.entries(value);
+          if (entries.length === 0) {
+            return '-';
+          }
+          // Mostrar los primeros 2 pares clave-valor
+          const display = entries.slice(0, 2).map(([key, val]) => `${key}: ${val}`).join(', ');
+          return entries.length > 2 ? `${display}, ...` : display;
+        }
+        return String(value);
+
       default:
         return String(value);
     }

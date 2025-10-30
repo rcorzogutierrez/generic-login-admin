@@ -428,8 +428,18 @@ export class ClientsListComponent implements OnInit {
           if (entries.length === 0) {
             return '-';
           }
-          // Mostrar los primeros 2 pares clave-valor
-          const display = entries.slice(0, 2).map(([key, val]) => `${key}: ${val}`).join(', ');
+          // Mostrar los primeros 2 pares clave-valor con labels
+          const display = entries.slice(0, 2).map(([key, val]) => {
+            // Buscar el label correspondiente al key en las opciones
+            let displayKey = key;
+            if (field.options && Array.isArray(field.options)) {
+              const option = field.options.find((opt: any) => opt.value === key);
+              if (option) {
+                displayKey = option.label;
+              }
+            }
+            return `${displayKey}: ${val}`;
+          }).join(', ');
           return entries.length > 2 ? `${display}, ...` : display;
         }
         return String(value);

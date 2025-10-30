@@ -227,9 +227,6 @@
                     [style.width]="field.gridConfig.gridWidth || 'auto'"
                     (click)="field.gridConfig.sortable ? sortBy(field.name) : null">
                     <div class="flex items-center gap-2">
-                      @if (field.icon) {
-                        <mat-icon class="!text-base">{{ field.icon }}</mat-icon>
-                      }
                       <span>{{ field.label }}</span>
                       @if (field.gridConfig.sortable && currentSort().field === field.name) {
                         <mat-icon class="!text-base">

@@ -89,15 +89,32 @@ export class ClientsListComponent implements OnInit {
   filteredClients = computed(() => {
     const clients = this.clients();
     const search = this.searchTerm().toLowerCase();
+    const fields = this.gridFields();
 
     if (!search) return clients;
 
-    return clients.filter(client =>
-      client.name.toLowerCase().includes(search) ||
-      client.email?.toLowerCase().includes(search) ||
-      client.phone?.includes(search) ||
-      client.company?.toLowerCase().includes(search)
-    );
+    return clients.filter(client => {
+      // Buscar en todos los campos visibles en el grid
+      for (const field of fields) {
+        const value = this.getFieldValue(client, field.name);
+
+        if (value !== null && value !== undefined) {
+          // Para campos tipo select/dictionary, usar el valor formateado (labels)
+          const formattedValue = this.formatFieldValue(value, field);
+          if (formattedValue.toLowerCase().includes(search)) {
+            return true;
+          }
+        }
+      }
+
+      // También buscar en campos por defecto que no estén en el grid
+      if (client.name?.toLowerCase().includes(search)) return true;
+      if (client.email?.toLowerCase().includes(search)) return true;
+      if (client.phone?.includes(search)) return true;
+      if (client.company?.toLowerCase().includes(search)) return true;
+
+      return false;
+    });
   });
 
   paginatedClients = computed(() => {

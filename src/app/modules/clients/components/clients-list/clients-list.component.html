@@ -272,7 +272,7 @@
                   <!-- Columnas Dinámicas -->
                   @for (field of gridFields(); track field.id) {
                     <td class="px-4 py-3 text-sm text-slate-700">
-                      {{ formatFieldValue(getFieldValue(client, field.name), field.type) }}
+                      {{ formatFieldValue(getFieldValue(client, field.name), field) }}
                     </td>
                   }
 

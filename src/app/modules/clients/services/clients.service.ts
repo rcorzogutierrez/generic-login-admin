@@ -58,12 +58,16 @@ export class ClientsService {
    * Inicializar el servicio - cargar todos los clientes
    */
   async initialize(): Promise<void> {
+    console.log('🔄 ClientsService.initialize() - Iniciando...', { isInitialized: this.isInitialized });
+
     if (this.isInitialized) {
+      console.log('ℹ️ ClientsService ya inicializado, saltando carga');
       return;
     }
 
     await this.loadClients();
     this.isInitialized = true;
+    console.log('✅ ClientsService.initialize() - Completado', { totalClients: this.clients().length });
   }
 
   /**
@@ -71,6 +75,7 @@ export class ClientsService {
    */
   async loadClients(filters?: ClientFilters, sort?: ClientSort): Promise<void> {
     try {
+      console.log('📥 ClientsService.loadClients() - Iniciando carga desde Firestore...', { filters, sort });
       this.isLoading.set(true);
       this.error.set(null);
 
@@ -98,12 +103,17 @@ export class ClientsService {
       }
 
       const q = query(this.clientsCollection, ...constraints);
+      console.log('🔍 Ejecutando query en Firestore con', constraints.length, 'constraints');
+
       const snapshot = await getDocs(q);
+      console.log('📦 Snapshot obtenido:', { docsCount: snapshot.docs.length, empty: snapshot.empty });
 
       const clients: Client[] = snapshot.docs.map((docSnapshot) => ({
         id: docSnapshot.id,
         ...docSnapshot.data() as Omit<Client, 'id'>
       }));
+
+      console.log('👥 Clientes mapeados desde Firestore:', clients.length);
 
       // Aplicar filtro de búsqueda en memoria (para búsqueda global)
       let filteredClients = clients;
@@ -115,10 +125,12 @@ export class ClientsService {
           client.phone?.includes(term) ||
           client.company?.toLowerCase().includes(term)
         );
+        console.log('🔎 Después de filtro de búsqueda:', filteredClients.length, 'clientes');
       }
 
       this.clients.set(filteredClients);
       this.calculateStats(filteredClients);
+      console.log('✅ Clientes cargados y stats calculados:', { total: filteredClients.length });
 
     } catch (error) {
       console.error('❌ Error cargando clientes:', error);

@@ -84,7 +84,7 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
           config.fields = [];
         }
 
-        this.config.set(config);
+        this.config.set(config as TConfig);
         this.fields.set(config.fields);
       } else {
         // Crear configuración por defecto si no existe

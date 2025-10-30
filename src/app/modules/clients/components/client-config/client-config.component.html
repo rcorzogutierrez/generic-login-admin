@@ -59,6 +59,8 @@
         <app-form-designer
           [fields]="fields"
           [layout]="formLayout"
+          [configService]="configService"
+          [moduleName]="'clientes'"
           (layoutChange)="onLayoutChange($event)"
           (fieldAdded)="onFieldAdded()">
         </app-form-designer>

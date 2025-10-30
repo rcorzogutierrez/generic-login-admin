@@ -13,7 +13,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { FieldConfig, FieldType, FormLayoutConfig, FieldPosition, FormButtonsConfig, ModuleConfigBaseService } from '../../models';
+import { FieldConfig, FieldType, FormLayoutConfig, FieldPosition, FormButtonsConfig } from '../../models';
+import { ModuleConfigBaseService } from '../../services';
 import { FieldConfigDialogComponent } from '../field-config-dialog/field-config-dialog.component';
 
 /**

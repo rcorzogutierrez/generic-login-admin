@@ -14,12 +14,12 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTabsModule } from '@angular/material/tabs';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
-import { ClientConfigService } from '../../services/client-config.service';
+import { ClientConfigServiceRefactored } from '../../services/client-config-refactored.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { FieldConfig, FieldType } from '../../models';
 import { FormLayoutConfig } from '../../models/client-module-config.interface';
-import { FieldConfigDialogComponent } from '../field-config-dialog/field-config-dialog.component';
-import { FormDesignerComponent } from '../form-designer/form-designer.component';
+// Importar componentes compartidos del módulo dynamic-form-builder
+import { FormDesignerComponent, FieldConfigDialogComponent } from '../../../../shared/modules/dynamic-form-builder';
 
 @Component({
   selector: 'app-client-config',
@@ -42,7 +42,8 @@ import { FormDesignerComponent } from '../form-designer/form-designer.component'
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ClientConfigComponent implements OnInit {
-  private configService = inject(ClientConfigService);
+  // Hacer configService público para que pueda ser pasado al template
+  configService = inject(ClientConfigServiceRefactored);
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
@@ -119,12 +120,19 @@ export class ClientConfigComponent implements OnInit {
       maxWidth: '95vw',
       maxHeight: '90vh',
       disableClose: true,
-      data: { mode: 'edit', field }
+      data: {
+        mode: 'edit',
+        field,
+        configService: this.configService,
+        moduleName: 'clientes'
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result?.success) {
         this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+        // Recargar configuración después de editar
+        this.loadConfig();
       }
     });
   }
@@ -290,9 +298,9 @@ export class ClientConfigComponent implements OnInit {
       console.log('   Columnas:', layout.columns);
       console.log('   Spacing:', layout.spacing);
 
-      console.log('🔄 Llamando a configService.updateFormLayout()...');
-      await this.configService.updateFormLayout(layout);
-      console.log('✅ updateFormLayout() completado exitosamente');
+      console.log('🔄 Llamando a configService.saveFormLayout()...');
+      await this.configService.saveFormLayout(layout);
+      console.log('✅ saveFormLayout() completado exitosamente');
 
       this.snackBar.open('✅ Diseño del formulario guardado correctamente', '', {
         duration: 3000,

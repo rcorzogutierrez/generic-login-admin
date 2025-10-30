@@ -297,6 +297,20 @@
           </div>
         </div>
 
+        <!-- Ayuda contextual para DICTIONARY -->
+        @if (fieldForm.get('type')?.value === 'dictionary') {
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+            <div class="flex items-start gap-2">
+              <mat-icon class="!text-blue-600 !text-lg mt-0.5">info</mat-icon>
+              <div class="text-xs text-blue-800">
+                <p class="font-semibold mb-1">¿Cómo funcionan las claves del diccionario?</p>
+                <p class="mb-2"><strong>Valor (ID interno):</strong> Identificador único que se guardará en la base de datos (ej: "customer_name", "age")</p>
+                <p><strong>Etiqueta (Texto visible):</strong> Texto descriptivo que verá el usuario en el formulario (ej: "Nombre del Cliente", "Edad")</p>
+              </div>
+            </div>
+          </div>
+        }
+
         <div formArrayName="options" class="space-y-3">
           @for (option of options.controls; track $index) {
             <div [formGroupName]="$index" class="bg-purple-50 border border-purple-200 rounded-xl p-4">
@@ -306,28 +320,42 @@
                   <div class="input-group flex flex-col gap-2">
                     <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
                       <mat-icon class="label-icon !text-base text-purple-500">vpn_key</mat-icon>
-                      Valor (clave)
+                      @if (fieldForm.get('type')?.value === 'dictionary') {
+                        Valor (ID interno)
+                      } @else {
+                        Valor (clave)
+                      }
                       <span class="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       class="input-field text-sm"
                       formControlName="value"
-                      placeholder="Ej: active">
+                      [placeholder]="fieldForm.get('type')?.value === 'dictionary' ? 'Ej: customer_name' : 'Ej: active'">
+                    @if (fieldForm.get('type')?.value === 'dictionary') {
+                      <span class="text-xs text-slate-500">ID que se guarda en la BD</span>
+                    }
                   </div>
 
                   <!-- Etiqueta (label) -->
                   <div class="input-group flex flex-col gap-2">
                     <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
                       <mat-icon class="label-icon !text-base text-purple-500">label</mat-icon>
-                      Etiqueta
+                      @if (fieldForm.get('type')?.value === 'dictionary') {
+                        Etiqueta (Texto visible)
+                      } @else {
+                        Etiqueta
+                      }
                       <span class="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       class="input-field text-sm"
                       formControlName="label"
-                      placeholder="Ej: Activo">
+                      [placeholder]="fieldForm.get('type')?.value === 'dictionary' ? 'Ej: Nombre del Cliente' : 'Ej: Activo'">
+                    @if (fieldForm.get('type')?.value === 'dictionary') {
+                      <span class="text-xs text-slate-500">Texto que verá el usuario</span>
+                    }
                   </div>
 
                   <!-- Color (opcional) -->

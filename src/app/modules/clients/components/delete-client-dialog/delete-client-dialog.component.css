@@ -66,72 +66,6 @@
     margin: 0;
     line-height: 1.6;
   }
-  
-  /* ============================================
-     CLIENT INFO BOX
-     ============================================ */
-  .client-info-box {
-    background: linear-gradient(135deg, #fef2f2, #fee2e2);
-    border: 2px solid #fecaca;
-    border-radius: 16px;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .client-avatar {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 20px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-
-  .client-details {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .client-name {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1e293b;
-  }
-
-  .client-email {
-    font-size: 14px;
-    color: #64748b;
-    font-weight: 500;
-  }
-
-  .client-company {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 700;
-    width: fit-content;
-    margin-top: 4px;
-    background: #dbeafe;
-    color: #1e40af;
-    border: 1px solid #93c5fd;
-  }
-
-  .client-company mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-  }
 
   /* ============================================
      CUSTOM FIELDS SECTION
@@ -506,19 +440,6 @@
   
     .dialog-content {
       padding: 0 16px 20px;
-    }
-  
-    .client-info-box {
-      flex-direction: column;
-      text-align: center;
-    }
-
-    .client-avatar {
-      margin: 0 auto;
-    }
-
-    .client-company {
-      margin: 4px auto 0;
     }
 
     .custom-field-item {

@@ -45,7 +45,7 @@
               @for (field of customFieldsToShow(); track field.id) {
                 <div class="custom-field-item">
                   <span class="field-label">{{ field.label }}:</span>
-                  <span class="field-value">{{ getCustomFieldValue(field.id) }}</span>
+                  <span class="field-value">{{ getCustomFieldValue(field) }}</span>
                 </div>
               }
             </div>

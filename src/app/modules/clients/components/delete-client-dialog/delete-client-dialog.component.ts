@@ -97,11 +97,11 @@ export class DeleteClientDialogComponent {
     return colors[Math.abs(hash) % colors.length];
   }
 
-  getCustomFieldValue(fieldId: string): any {
-    const value = this.data.client.customFields?.[fieldId];
-    console.log(`🔎 Buscando valor para campo ${fieldId}:`, value);
-    console.log('📦 customFields completo:', this.data.client.customFields);
-    return value || '-';
+  getCustomFieldValue(field: FieldConfig): any {
+    // Usar field.name como clave en customFields (no field.id)
+    const value = this.data.client.customFields?.[field.name];
+    console.log(`🔎 Buscando valor para campo ${field.name} (id: ${field.id}):`, value);
+    return value !== undefined && value !== null && value !== '' ? value : '-';
   }
 
   canConfirm(): boolean {

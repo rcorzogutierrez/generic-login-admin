@@ -1,6 +1,6 @@
 // src/app/modules/clients/components/delete-client-dialog/delete-client-dialog.component.ts
 
-import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -11,6 +11,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Client } from '../../models/client.interface';
 import { validateConfirmation } from '../../../../shared/utils/confirmation.utils';
+import { ClientConfigServiceRefactored } from '../../services/client-config-refactored.service';
+import { FieldConfig } from '../../../../shared/models/field-config.interface';
 
 export interface DeleteClientDialogData {
   client: Client;
@@ -36,6 +38,22 @@ export interface DeleteClientDialogData {
 export class DeleteClientDialogComponent {
   confirmationText = '';
   isDeleting = false;
+
+  private configService = inject(ClientConfigServiceRefactored);
+
+  // Computed signal para obtener los primeros 3 campos personalizados
+  customFieldsToShow = computed(() => {
+    const config = this.configService.config();
+    if (!config?.fields) return [];
+
+    // Filtrar solo campos personalizados (custom fields)
+    const customFields = config.fields.filter(field =>
+      field.id.startsWith('custom_') && field.enabled !== false
+    );
+
+    // Tomar los primeros 3
+    return customFields.slice(0, 3);
+  });
 
   constructor(
     public dialogRef: MatDialogRef<DeleteClientDialogComponent>,
@@ -68,6 +86,10 @@ export class DeleteClientDialogComponent {
       hash = email.charCodeAt(i) + ((hash << 5) - hash);
     }
     return colors[Math.abs(hash) % colors.length];
+  }
+
+  getCustomFieldValue(fieldId: string): any {
+    return this.data.client.customFields?.[fieldId] || '-';
   }
 
   canConfirm(): boolean {

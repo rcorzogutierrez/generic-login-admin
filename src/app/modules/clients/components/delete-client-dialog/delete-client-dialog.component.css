@@ -132,7 +132,66 @@
     width: 16px;
     height: 16px;
   }
-  
+
+  /* ============================================
+     CUSTOM FIELDS SECTION
+     ============================================ */
+  .custom-fields-section {
+    margin-top: 16px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .custom-fields-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #0c4a6e;
+    margin-bottom: 12px;
+  }
+
+  .custom-fields-title mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #0284c7;
+  }
+
+  .custom-fields-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .custom-field-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  .field-label {
+    font-weight: 600;
+    color: #475569;
+  }
+
+  .field-value {
+    color: #1e293b;
+    font-weight: 500;
+    text-align: right;
+    max-width: 60%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   /* ============================================
      WARNING LIST
      ============================================ */
@@ -461,7 +520,18 @@
     .client-company {
       margin: 4px auto 0;
     }
-  
+
+    .custom-field-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .field-value {
+      text-align: left;
+      max-width: 100%;
+    }
+
     .confirmation-section {
       padding: 20px;
     }

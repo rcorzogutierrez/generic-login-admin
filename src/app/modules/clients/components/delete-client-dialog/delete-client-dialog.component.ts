@@ -69,34 +69,6 @@ export class DeleteClientDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: DeleteClientDialogData
   ) {}
 
-  getInitials(): string {
-    const name = this.data.client.name || '';
-    const parts = name.trim().split(' ');
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  }
-
-  getClientColor(): string {
-    const email = this.data.client.email || this.data.client.name || '';
-
-    // Return default color if no email or name
-    if (!email) {
-      return '#3b82f6';
-    }
-
-    const colors = [
-      '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b',
-      '#10b981', '#06b6d4', '#6366f1', '#ef4444'
-    ];
-    let hash = 0;
-    for (let i = 0; i < email.length; i++) {
-      hash = email.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return colors[Math.abs(hash) % colors.length];
-  }
-
   getCustomFieldValue(field: FieldConfig): any {
     // Usar field.name como clave en customFields (no field.id)
     const value = this.data.client.customFields?.[field.name];

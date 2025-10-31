@@ -44,15 +44,24 @@ export class DeleteClientDialogComponent {
   // Computed signal para obtener los primeros 3 campos personalizados
   customFieldsToShow = computed(() => {
     const config = this.configService.config();
-    if (!config?.fields) return [];
+    if (!config?.fields) {
+      console.log('❌ No hay configuración de campos');
+      return [];
+    }
 
-    // Filtrar solo campos personalizados (custom fields) que estén activos
+    // Filtrar campos que sean personalizados (no default) y que estén activos
     const customFields = config.fields.filter(field =>
-      field.id.startsWith('custom_') && field.isActive
+      !field.isDefault && field.isActive
     );
 
+    console.log('🔍 Total campos custom activos:', customFields.length);
+    console.log('📋 Campos custom:', customFields.map(f => ({ id: f.id, label: f.label, isActive: f.isActive, isDefault: f.isDefault })));
+
     // Tomar los primeros 3
-    return customFields.slice(0, 3);
+    const fieldsToShow = customFields.slice(0, 3);
+    console.log('✅ Mostrando:', fieldsToShow.map(f => f.label));
+
+    return fieldsToShow;
   });
 
   constructor(
@@ -89,7 +98,10 @@ export class DeleteClientDialogComponent {
   }
 
   getCustomFieldValue(fieldId: string): any {
-    return this.data.client.customFields?.[fieldId] || '-';
+    const value = this.data.client.customFields?.[fieldId];
+    console.log(`🔎 Buscando valor para campo ${fieldId}:`, value);
+    console.log('📦 customFields completo:', this.data.client.customFields);
+    return value || '-';
   }
 
   canConfirm(): boolean {

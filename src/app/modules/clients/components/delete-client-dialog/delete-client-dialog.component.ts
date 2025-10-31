@@ -12,7 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { Client } from '../../models/client.interface';
 import { validateConfirmation } from '../../../../shared/utils/confirmation.utils';
 import { ClientConfigServiceRefactored } from '../../services/client-config-refactored.service';
-import { FieldConfig } from '../../../../shared/models/field-config.interface';
+import { FieldConfig } from '../../../../shared/modules/dynamic-form-builder/models/field-config.interface';
 
 export interface DeleteClientDialogData {
   client: Client;
@@ -46,9 +46,9 @@ export class DeleteClientDialogComponent {
     const config = this.configService.config();
     if (!config?.fields) return [];
 
-    // Filtrar solo campos personalizados (custom fields)
+    // Filtrar solo campos personalizados (custom fields) que estén activos
     const customFields = config.fields.filter(field =>
-      field.id.startsWith('custom_') && field.enabled !== false
+      field.id.startsWith('custom_') && field.isActive
     );
 
     // Tomar los primeros 3

@@ -68,9 +68,9 @@
   }
   
   /* ============================================
-     USER INFO BOX
+     CLIENT INFO BOX
      ============================================ */
-  .user-info-box {
+  .client-info-box {
     background: linear-gradient(135deg, #fef2f2, #fee2e2);
     border: 2px solid #fecaca;
     border-radius: 16px;
@@ -79,8 +79,8 @@
     align-items: center;
     gap: 16px;
   }
-  
-  .user-avatar {
+
+  .client-avatar {
     width: 56px;
     height: 56px;
     border-radius: 14px;
@@ -92,27 +92,27 @@
     font-weight: 700;
     flex-shrink: 0;
   }
-  
-  .user-details {
+
+  .client-details {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 6px;
   }
-  
-  .user-name {
+
+  .client-name {
     font-size: 18px;
     font-weight: 700;
     color: #1e293b;
   }
-  
-  .user-email {
+
+  .client-email {
     font-size: 14px;
     color: #64748b;
     font-weight: 500;
   }
-  
-  .user-role {
+
+  .client-company {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -122,30 +122,15 @@
     font-weight: 700;
     width: fit-content;
     margin-top: 4px;
-  }
-  
-  .user-role mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-  }
-  
-  .role-admin {
-    background: #fef3c7;
-    color: #d97706;
-    border: 1px solid #fbbf24;
-  }
-  
-  .role-user {
     background: #dbeafe;
     color: #1e40af;
     border: 1px solid #93c5fd;
   }
-  
-  .role-viewer {
-    background: #f3e8ff;
-    color: #7c3aed;
-    border: 1px solid #c4b5fd;
+
+  .client-company mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
   }
   
   /* ============================================
@@ -446,16 +431,16 @@
       padding: 0 16px 20px;
     }
   
-    .user-info-box {
+    .client-info-box {
       flex-direction: column;
       text-align: center;
     }
-  
-    .user-avatar {
+
+    .client-avatar {
       margin: 0 auto;
     }
-  
-    .user-role {
+
+    .client-company {
       margin: 4px auto 0;
     }
   

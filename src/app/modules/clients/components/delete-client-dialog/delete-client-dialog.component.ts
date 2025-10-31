@@ -52,7 +52,13 @@ export class DeleteClientDialogComponent {
   }
 
   getClientColor(): string {
-    const email = this.data.client.email || this.data.client.name;
+    const email = this.data.client.email || this.data.client.name || '';
+
+    // Return default color if no email or name
+    if (!email) {
+      return '#3b82f6';
+    }
+
     const colors = [
       '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b',
       '#10b981', '#06b6d4', '#6366f1', '#ef4444'

@@ -1,4 +1,4 @@
-/* src/app/admin/components/delete-user-dialog/delete-user-dialog.component.css */
+/* src/app/modules/clients/components/delete-client-dialog/delete-client-dialog.component.css */
 
 /* ============================================
    CONTAINER PRINCIPAL
@@ -374,30 +374,48 @@
   .delete-btn {
     background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
     color: white !important;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 12px 24px !important;
+    min-height: 48px !important;
   }
-  
+
+  .delete-btn mat-icon {
+    color: white !important;
+    margin-right: 4px;
+  }
+
   .delete-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
   }
-  
+
   .delete-btn mat-spinner {
     margin-right: 8px;
   }
-  
+
   /* ============================================
      MATERIAL OVERRIDES
      ============================================ */
   ::ng-deep .mat-mdc-form-field-subscript-wrapper {
     display: none;
   }
-  
+
   ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
     border-radius: 20px;
+  }
+
+  /* Force button text visibility */
+  ::ng-deep .delete-btn .mdc-button__label {
+    color: white !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+  }
+
+  ::ng-deep .cancel-btn .mdc-button__label {
+    font-size: 15px !important;
   }
   
   /* ============================================

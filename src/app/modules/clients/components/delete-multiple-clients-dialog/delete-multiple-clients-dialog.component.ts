@@ -52,11 +52,17 @@ export class DeleteMultipleClientsDialogComponent {
     );
 
     console.log('🔍 Total campos custom activos:', customFields.length);
-    console.log('📋 Campos custom:', customFields.map(f => ({ id: f.id, label: f.label, isActive: f.isActive, isDefault: f.isDefault })));
+    console.log('📋 Campos custom:', customFields.map(f => ({
+      id: f.id,
+      name: f.name,
+      label: f.label,
+      isActive: f.isActive,
+      isDefault: f.isDefault
+    })));
 
     // Tomar los primeros 3 para mostrar en cada cliente
     const fieldsToShow = customFields.slice(0, 3);
-    console.log('✅ Mostrando:', fieldsToShow.map(f => f.label));
+    console.log('✅ Mostrando campos:', fieldsToShow.map(f => ({ name: f.name, label: f.label })));
 
     return fieldsToShow;
   });
@@ -78,8 +84,8 @@ export class DeleteMultipleClientsDialogComponent {
   }
 
   getClientInitials(client: Client): string {
-    const name = client.name || '';
-    const parts = name.trim().split(' ');
+    const name = client.name || 'NN';
+    const parts = name.trim().split(' ').filter(p => p.length > 0);
     if (parts.length >= 2) {
       return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
@@ -87,7 +93,7 @@ export class DeleteMultipleClientsDialogComponent {
   }
 
   getClientColor(client: Client): string {
-    const email = client.email || client.name;
+    const email = client.email || client.name || 'default';
     const colors = [
       '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b',
       '#10b981', '#06b6d4', '#6366f1', '#ef4444'
@@ -101,8 +107,18 @@ export class DeleteMultipleClientsDialogComponent {
 
   getCustomFieldValue(client: Client, field: FieldConfig): any {
     // Usar field.name como clave en customFields (no field.id)
-    const value = client.customFields?.[field.name];
-    console.log(`🔎 Buscando valor para campo ${field.name} (id: ${field.id}) en cliente ${client.id}:`, value);
+    const customFields = client.customFields || {};
+    const value = customFields[field.name];
+
+    console.log(`🔎 Buscando valor para campo:`, {
+      fieldName: field.name,
+      fieldLabel: field.label,
+      fieldId: field.id,
+      clientId: client.id,
+      customFieldsKeys: Object.keys(customFields),
+      valorEncontrado: value
+    });
+
     return value !== undefined && value !== null && value !== '' ? value : '-';
   }
 

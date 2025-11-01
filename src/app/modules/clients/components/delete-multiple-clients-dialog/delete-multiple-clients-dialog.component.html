@@ -1,57 +1,53 @@
 <!-- delete-multiple-clients-dialog.component.html -->
 
-<div class="max-w-[700px]">
+<div class="delete-dialog">
 
   <!-- HEADER -->
-  <div class="text-center px-6 pt-6 pb-4">
-    <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center warning-icon">
-      <mat-icon class="!text-[36px] !w-[36px] !h-[36px] text-red-600">warning</mat-icon>
+  <div class="dialog-header">
+    <div class="warning-icon">
+      <mat-icon>warning</mat-icon>
     </div>
-    <h2 mat-dialog-title class="text-2xl font-bold text-slate-800 m-0">⚠️ Eliminar Múltiples Clientes</h2>
+    <h2 mat-dialog-title>⚠️ Eliminar Múltiples Clientes</h2>
   </div>
 
   <!-- CONTENT -->
-  <mat-dialog-content class="px-6 pb-6">
-    <div class="flex flex-col gap-5">
+  <mat-dialog-content class="dialog-content">
+    <div class="warning-message">
 
       <!-- Mensaje principal -->
-      <p class="text-[15px] text-slate-600 text-center m-0 leading-relaxed">
-        Estás a punto de <strong class="text-slate-800">eliminar permanentemente {{ data.count }} cliente(s)</strong>:
+      <p class="main-warning">
+        Estás a punto de <strong>eliminar permanentemente {{ data.count }} cliente(s)</strong>:
       </p>
 
-      <!-- LISTA DE CLIENTES -->
-      <div class="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 rounded-2xl overflow-hidden">
-        <!-- Header de la lista -->
-        <div class="bg-gradient-to-br from-red-600 to-red-700 text-white px-5 py-3 flex items-center gap-2.5 font-bold text-sm">
-          <mat-icon class="!text-[20px] !w-[20px] !h-[20px]">group</mat-icon>
+      <!-- TABLA DE CLIENTES -->
+      <div class="clients-table-section">
+        <!-- Header de la tabla -->
+        <div class="table-header">
+          <mat-icon>group</mat-icon>
           <span>Clientes seleccionados ({{ data.count }})</span>
         </div>
 
         <!-- Tabla scrollable -->
-        <div class="clients-table max-h-[400px] overflow-auto bg-white">
-          <table class="w-full">
+        <div class="table-container">
+          <table class="clients-table">
             <!-- Encabezado de tabla -->
-            <thead class="sticky top-0 bg-slate-100 border-b-2 border-slate-200 z-10">
+            <thead>
               <tr>
-                <th class="px-3 py-2.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wide">
-                  Cliente
-                </th>
+                <th class="th-cliente">Cliente</th>
                 @if (customFieldsToShow().length > 0) {
-                  <th class="px-3 py-2.5 text-center text-xs font-bold text-slate-700 uppercase tracking-wide border-l border-slate-200" [attr.colspan]="customFieldsToShow().length">
-                    <div class="flex items-center justify-center gap-2">
-                      <mat-icon class="!text-[16px] !w-[16px] !h-[16px]">info</mat-icon>
+                  <th class="th-datos-adicionales" [attr.colspan]="customFieldsToShow().length">
+                    <div class="th-datos-content">
+                      <mat-icon>info</mat-icon>
                       <span>Datos adicionales</span>
                     </div>
                   </th>
                 }
               </tr>
               @if (customFieldsToShow().length > 0) {
-                <tr>
-                  <th class="px-3 py-2 bg-slate-50"></th>
+                <tr class="sub-header">
+                  <th></th>
                   @for (field of customFieldsToShow(); track field.id) {
-                    <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600 bg-slate-50 border-l border-slate-200">
-                      {{ field.label }}
-                    </th>
+                    <th class="th-field">{{ field.label }}</th>
                   }
                 </tr>
               }
@@ -60,22 +56,21 @@
             <!-- Cuerpo de tabla -->
             <tbody>
               @for (client of data.clients.slice(0, 5); track client.id) {
-                <tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                <tr class="client-row">
                   <!-- Columna cliente con avatar -->
-                  <td class="px-3 py-2.5">
-                    <div class="flex items-center gap-2.5">
-                      <div class="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
-                           [style.background]="getClientColor(client)">
+                  <td class="td-cliente">
+                    <div class="client-info">
+                      <div class="client-avatar" [style.background]="getClientColor(client)">
                         {{ getClientInitials(client) }}
                       </div>
-                      <span class="text-sm font-semibold text-slate-800 truncate">{{ client.name }}</span>
+                      <span class="client-name">{{ client.name }}</span>
                     </div>
                   </td>
 
                   <!-- Columnas de datos adicionales -->
                   @if (customFieldsToShow().length > 0) {
                     @for (field of customFieldsToShow(); track field.id) {
-                      <td class="px-3 py-2.5 text-sm text-slate-600 border-l border-slate-200">
+                      <td class="td-field">
                         {{ getCustomFieldValue(client, field) }}
                       </td>
                     }
@@ -87,8 +82,8 @@
 
           <!-- Indicador de más clientes -->
           @if (data.clients.length > 5) {
-            <div class="flex items-center justify-center gap-2 p-3 bg-slate-100 border-t border-slate-300 text-slate-600 text-sm font-semibold">
-              <mat-icon class="!text-lg">more_horiz</mat-icon>
+            <div class="more-clients">
+              <mat-icon>more_horiz</mat-icon>
               <span>y {{ data.clients.length - 5 }} cliente(s) más...</span>
             </div>
           }
@@ -96,42 +91,40 @@
       </div>
 
       <!-- ADVERTENCIAS -->
-      <div class="flex flex-col gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
-        <div class="flex items-start gap-3 text-amber-900 text-sm font-medium">
-          <mat-icon class="!text-[20px] !w-[20px] !h-[20px] text-red-600 flex-shrink-0 mt-0.5">error</mat-icon>
+      <div class="warning-list">
+        <div class="warning-item">
+          <mat-icon class="danger-icon">error</mat-icon>
           <span>Esta acción <strong>NO se puede deshacer</strong></span>
         </div>
-        <div class="flex items-start gap-3 text-amber-900 text-sm font-medium">
-          <mat-icon class="!text-[20px] !w-[20px] !h-[20px] text-red-600 flex-shrink-0 mt-0.5">delete_forever</mat-icon>
+        <div class="warning-item">
+          <mat-icon class="danger-icon">delete_forever</mat-icon>
           <span>Se eliminarán <strong>todos los datos</strong> de estos clientes</span>
         </div>
-        <div class="flex items-start gap-3 text-amber-900 text-sm font-medium">
-          <mat-icon class="!text-[20px] !w-[20px] !h-[20px] text-red-600 flex-shrink-0 mt-0.5">block</mat-icon>
+        <div class="warning-item">
+          <mat-icon class="danger-icon">block</mat-icon>
           <span>La información se perderá <strong>permanentemente</strong></span>
         </div>
       </div>
 
       <!-- CONFIRMACIÓN DE SEGURIDAD -->
-      <div class="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-300 rounded-2xl p-6 shadow-[0_4px_12px_rgba(234,179,8,0.1)]">
+      <div class="confirmation-section">
         <!-- Label -->
-        <p class="text-[15px] font-semibold text-amber-900 m-0 mb-4 text-center flex items-center justify-center gap-2 flex-wrap">
+        <p class="confirmation-label">
           <span>Para confirmar, escribe:</span>
-          <span class="keyword-badge bg-gradient-to-br from-red-600 to-red-700 text-white px-4 py-1.5 rounded-lg font-bold text-sm tracking-wider shadow-[0_4px_12px_rgba(220,38,38,0.3)]">
-            ELIMINAR
-          </span>
+          <span class="keyword-badge">ELIMINAR</span>
         </p>
 
         <!-- Input wrapper -->
-        <div class="flex flex-col gap-2">
+        <div class="confirmation-input-wrapper">
           <!-- Input con icono -->
-          <div class="input-container relative w-full">
-            <div class="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-6 h-6">
-              <mat-icon class="input-icon !text-[20px] !w-[20px] !h-[20px] text-slate-400">
+          <div class="input-container">
+            <div class="input-icon-wrapper">
+              <mat-icon class="input-icon">
                 {{ confirmationText.toUpperCase() === 'ELIMINAR' ? 'check_circle' : 'edit' }}
               </mat-icon>
             </div>
             <input
-              class="confirmation-input-custom w-full px-4 pl-[52px] py-4 border-2 border-slate-200 rounded-xl text-[15px] font-semibold font-mono tracking-wider bg-white text-slate-800 uppercase outline-none"
+              class="confirmation-input-custom"
               [(ngModel)]="confirmationText"
               [disabled]="isDeleting"
               (keyup.enter)="onConfirm()"
@@ -144,13 +137,13 @@
 
           <!-- Status feedback -->
           @if (confirmationText.length > 0) {
-            <div class="flex items-center justify-end h-6">
+            <div class="input-status">
               @if (confirmationText.toUpperCase() === 'ELIMINAR') {
-                <span class="text-sm font-semibold text-green-600 flex items-center gap-1 animate-fadeInUp">
+                <span class="status-text">
                   ✓ Correcto
                 </span>
               } @else {
-                <span class="text-sm font-semibold text-red-600 flex items-center gap-1 animate-fadeInUp">
+                <span class="status-text error">
                   ✗ Incorrecto
                 </span>
               }
@@ -160,7 +153,7 @@
 
         <!-- Hint -->
         @if (confirmationText.length === 0) {
-          <div class="text-sm text-amber-900 text-center mt-2 font-medium animate-fadeIn">
+          <div class="hint-text">
             💡 Escribe exactamente la palabra indicada para continuar
           </div>
         }
@@ -170,27 +163,28 @@
   </mat-dialog-content>
 
   <!-- ACTIONS -->
-  <mat-dialog-actions class="px-6 py-4 border-t border-slate-200 flex gap-3 justify-end">
+  <mat-dialog-actions class="dialog-actions">
     <!-- Botón cancelar -->
     <button
       mat-stroked-button
-      class="!px-5 !py-2.5 !border-2 !border-slate-200 !text-slate-600 !rounded-xl !text-sm !font-semibold hover:!bg-slate-50 hover:!border-slate-300"
+      class="cancel-btn"
       (click)="onCancel()"
       [disabled]="isDeleting">
-      <mat-icon class="!mr-2">close</mat-icon>
+      <mat-icon>close</mat-icon>
       Cancelar
     </button>
 
     <!-- Botón eliminar -->
     <button
       mat-raised-button
-      class="!px-5 !py-2.5 !bg-gradient-to-br !from-red-600 !to-red-700 !text-white !rounded-xl !text-sm !font-semibold !shadow-[0_4px_12px_rgba(220,38,38,0.25)] hover:!shadow-[0_6px_16px_rgba(220,38,38,0.35)]"
+      color="warn"
+      class="delete-btn"
       (click)="onConfirm()"
       [disabled]="!canConfirm() || isDeleting">
       @if (isDeleting) {
         <mat-spinner diameter="20"></mat-spinner>
       } @else {
-        <mat-icon class="!mr-2">delete_sweep</mat-icon>
+        <mat-icon>delete_sweep</mat-icon>
       }
       {{ isDeleting ? 'Eliminando...' : 'Eliminar ' + data.count + ' Cliente(s)' }}
     </button>

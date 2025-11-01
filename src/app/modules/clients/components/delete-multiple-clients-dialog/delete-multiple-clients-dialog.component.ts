@@ -42,7 +42,6 @@ export class DeleteMultipleClientsDialogComponent {
   customFieldsToShow = computed(() => {
     const config = this.configService.config();
     if (!config?.fields) {
-      console.log('❌ No hay configuración de campos');
       return [];
     }
 
@@ -51,37 +50,14 @@ export class DeleteMultipleClientsDialogComponent {
       !field.isDefault && field.isActive
     );
 
-    console.log('🔍 Total campos custom activos:', customFields.length);
-    console.log('📋 Campos custom:', customFields.map(f => ({
-      id: f.id,
-      name: f.name,
-      label: f.label,
-      isActive: f.isActive,
-      isDefault: f.isDefault
-    })));
-
     // Tomar los primeros 3 para mostrar en cada cliente
-    const fieldsToShow = customFields.slice(0, 3);
-    console.log('✅ Mostrando campos:', fieldsToShow.map(f => ({ name: f.name, label: f.label })));
-
-    return fieldsToShow;
+    return customFields.slice(0, 3);
   });
 
   constructor(
     public dialogRef: MatDialogRef<DeleteMultipleClientsDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DeleteMultipleClientsDialogData
-  ) {
-    console.log('🚀 DeleteMultipleClientsDialogComponent constructor');
-    console.log('📦 Clientes recibidos:', this.data.clients);
-    console.log('🔧 Config service:', this.configService);
-    console.log('⚙️ Config actual:', this.configService.config());
-
-    // Log de los primeros clientes con sus customFields
-    if (this.data.clients.length > 0) {
-      console.log('👤 Primer cliente completo:', this.data.clients[0]);
-      console.log('📝 customFields del primer cliente:', this.data.clients[0].customFields);
-    }
-  }
+  ) {}
 
   getClientInitials(client: Client): string {
     const name = client.name || 'NN';
@@ -105,21 +81,95 @@ export class DeleteMultipleClientsDialogComponent {
     return colors[Math.abs(hash) % colors.length];
   }
 
-  getCustomFieldValue(client: Client, field: FieldConfig): any {
-    // Usar field.name como clave en customFields (no field.id)
-    const customFields = client.customFields || {};
-    const value = customFields[field.name];
+  /**
+   * Obtener valor del campo dinámicamente
+   */
+  getFieldValue(client: Client, fieldName: string): any {
+    if (fieldName in client) {
+      return (client as any)[fieldName];
+    }
+    return client.customFields?.[fieldName];
+  }
 
-    console.log(`🔎 Buscando valor para campo:`, {
-      fieldName: field.name,
-      fieldLabel: field.label,
-      fieldId: field.id,
-      clientId: client.id,
-      customFieldsKeys: Object.keys(customFields),
-      valorEncontrado: value
-    });
+  /**
+   * Formatear valor del campo según su tipo
+   */
+  formatFieldValue(value: any, field: FieldConfig): string {
+    if (value === null || value === undefined || value === '') {
+      return '-';
+    }
 
-    return value !== undefined && value !== null && value !== '' ? value : '-';
+    const fieldType = field.type;
+
+    switch (fieldType) {
+      case 'date':
+        return new Date(value).toLocaleDateString();
+
+      case 'datetime':
+        return new Date(value).toLocaleString();
+
+      case 'checkbox':
+        return value ? 'Sí' : 'No';
+
+      case 'currency':
+        return new Intl.NumberFormat('es-ES', {
+          style: 'currency',
+          currency: 'USD'
+        }).format(value);
+
+      case 'select':
+        // Buscar el label correspondiente al value en las opciones
+        if (field.options && Array.isArray(field.options)) {
+          const option = field.options.find((opt: any) => opt.value === value);
+          return option ? option.label : String(value);
+        }
+        return String(value);
+
+      case 'multiselect':
+        // Manejar múltiples valores
+        if (Array.isArray(value) && field.options) {
+          const labels = value.map((val: string) => {
+            const option = field.options.find((opt: any) => opt.value === val);
+            return option ? option.label : val;
+          });
+          return labels.join(', ');
+        }
+        return String(value);
+
+      case 'dictionary':
+        // Formatear objeto como pares clave-valor
+        if (typeof value === 'object' && value !== null) {
+          const entries = Object.entries(value);
+          if (entries.length === 0) {
+            return '-';
+          }
+          // Mostrar los primeros 2 pares clave-valor con labels
+          const display = entries.slice(0, 2).map(([key, val]) => {
+            // Buscar el label correspondiente al key en las opciones
+            let displayKey = key;
+            if (field.options && Array.isArray(field.options)) {
+              const option = field.options.find((opt: any) => opt.value === key);
+              if (option) {
+                displayKey = option.label;
+              }
+            }
+            return `${displayKey}: ${val}`;
+          }).join(', ');
+          return entries.length > 2 ? `${display}, ...` : display;
+        }
+        return String(value);
+
+      default:
+        return String(value);
+    }
+  }
+
+  /**
+   * Obtener valor formateado del campo personalizado
+   */
+  getCustomFieldValue(client: Client, field: FieldConfig): string {
+    const value = this.getFieldValue(client, field.name);
+    return this.formatFieldValue(value, field);
   }
 
   canConfirm(): boolean {

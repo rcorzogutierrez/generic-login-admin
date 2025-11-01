@@ -127,9 +127,10 @@ export class DeleteMultipleClientsDialogComponent {
 
       case 'multiselect':
         // Manejar múltiples valores
-        if (Array.isArray(value) && field.options) {
+        if (Array.isArray(value) && field.options && Array.isArray(field.options)) {
+          const options = field.options; // Capturar en variable local para TypeScript
           const labels = value.map((val: string) => {
-            const option = field.options.find((opt: any) => opt.value === val);
+            const option = options.find((opt: any) => opt.value === val);
             return option ? option.label : val;
           });
           return labels.join(', ');
@@ -143,12 +144,13 @@ export class DeleteMultipleClientsDialogComponent {
           if (entries.length === 0) {
             return '-';
           }
+          const fieldOptions = field.options; // Capturar en variable local
           // Mostrar los primeros 2 pares clave-valor con labels
           const display = entries.slice(0, 2).map(([key, val]) => {
             // Buscar el label correspondiente al key en las opciones
             let displayKey = key;
-            if (field.options && Array.isArray(field.options)) {
-              const option = field.options.find((opt: any) => opt.value === key);
+            if (fieldOptions && Array.isArray(fieldOptions)) {
+              const option = fieldOptions.find((opt: any) => opt.value === key);
               if (option) {
                 displayKey = option.label;
               }

@@ -143,13 +143,8 @@ h2 {
   border-bottom: 2px solid #e2e8f0;
 }
 
-.th-cliente {
-  min-width: 200px;
-}
-
 .th-datos-adicionales {
   text-align: center;
-  border-left: 1px solid #e2e8f0;
 }
 
 .th-datos-content {
@@ -172,6 +167,10 @@ h2 {
   color: #64748b;
   padding: 8px 12px;
   border-bottom: 1px solid #e2e8f0;
+}
+
+.th-cliente-name {
+  min-width: 200px;
 }
 
 .th-field {

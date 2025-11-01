@@ -64,7 +64,18 @@ export class DeleteMultipleClientsDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<DeleteMultipleClientsDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DeleteMultipleClientsDialogData
-  ) {}
+  ) {
+    console.log('🚀 DeleteMultipleClientsDialogComponent constructor');
+    console.log('📦 Clientes recibidos:', this.data.clients);
+    console.log('🔧 Config service:', this.configService);
+    console.log('⚙️ Config actual:', this.configService.config());
+
+    // Log de los primeros clientes con sus customFields
+    if (this.data.clients.length > 0) {
+      console.log('👤 Primer cliente completo:', this.data.clients[0]);
+      console.log('📝 customFields del primer cliente:', this.data.clients[0].customFields);
+    }
+  }
 
   getClientInitials(client: Client): string {
     const name = client.name || '';

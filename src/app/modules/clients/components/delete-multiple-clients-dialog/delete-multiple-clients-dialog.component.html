@@ -40,17 +40,19 @@
               <!-- Info -->
               <div class="flex-1 flex flex-col gap-1 min-w-0">
                 <span class="text-sm font-semibold text-slate-800 truncate">{{ client.name }}</span>
-                @if (client.email) {
-                  <span class="text-xs text-slate-500 truncate">{{ client.email }}</span>
+
+                <!-- Campos personalizados dinámicos -->
+                @if (customFieldsToShow().length > 0) {
+                  <div class="flex flex-col gap-0.5">
+                    @for (field of customFieldsToShow(); track field.id) {
+                      <span class="text-xs text-slate-500 truncate">
+                        <span class="font-medium">{{ field.label }}:</span>
+                        {{ getCustomFieldValue(client, field) }}
+                      </span>
+                    }
+                  </div>
                 }
               </div>
-
-              <!-- Company badge -->
-              @if (client.company) {
-                <div class="px-2.5 py-1 rounded-md text-[11px] font-bold uppercase flex-shrink-0 border bg-purple-100 text-purple-700 border-purple-200">
-                  {{ client.company }}
-                </div>
-              }
             </div>
           }
 

@@ -1,6 +1,6 @@
 // src/app/modules/clients/components/delete-multiple-clients-dialog/delete-multiple-clients-dialog.component.ts
 
-import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -9,6 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Client } from '../../models/client.interface';
 import { validateConfirmation } from '../../../../shared/utils/confirmation.utils';
+import { ClientConfigServiceRefactored } from '../../services/client-config-refactored.service';
+import { FieldConfig } from '../../../../shared/modules/dynamic-form-builder/models/field-config.interface';
 
 export interface DeleteMultipleClientsDialogData {
   clients: Client[];
@@ -33,6 +35,31 @@ export interface DeleteMultipleClientsDialogData {
 export class DeleteMultipleClientsDialogComponent {
   confirmationText = '';
   isDeleting = false;
+
+  private configService = inject(ClientConfigServiceRefactored);
+
+  // Computed signal para obtener los campos personalizados a mostrar
+  customFieldsToShow = computed(() => {
+    const config = this.configService.config();
+    if (!config?.fields) {
+      console.log('❌ No hay configuración de campos');
+      return [];
+    }
+
+    // Filtrar campos que sean personalizados (no default) y que estén activos
+    const customFields = config.fields.filter(field =>
+      !field.isDefault && field.isActive
+    );
+
+    console.log('🔍 Total campos custom activos:', customFields.length);
+    console.log('📋 Campos custom:', customFields.map(f => ({ id: f.id, label: f.label, isActive: f.isActive, isDefault: f.isDefault })));
+
+    // Tomar los primeros 3 para mostrar en cada cliente
+    const fieldsToShow = customFields.slice(0, 3);
+    console.log('✅ Mostrando:', fieldsToShow.map(f => f.label));
+
+    return fieldsToShow;
+  });
 
   constructor(
     public dialogRef: MatDialogRef<DeleteMultipleClientsDialogComponent>,
@@ -59,6 +86,13 @@ export class DeleteMultipleClientsDialogComponent {
       hash = email.charCodeAt(i) + ((hash << 5) - hash);
     }
     return colors[Math.abs(hash) % colors.length];
+  }
+
+  getCustomFieldValue(client: Client, field: FieldConfig): any {
+    // Usar field.name como clave en customFields (no field.id)
+    const value = client.customFields?.[field.name];
+    console.log(`🔎 Buscando valor para campo ${field.name} (id: ${field.id}) en cliente ${client.id}:`, value);
+    return value !== undefined && value !== null && value !== '' ? value : '-';
   }
 
   canConfirm(): boolean {

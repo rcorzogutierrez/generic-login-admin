@@ -78,8 +78,8 @@ export class DeleteMultipleClientsDialogComponent {
   }
 
   getClientInitials(client: Client): string {
-    const name = client.name || '';
-    const parts = name.trim().split(' ');
+    const name = client.name || 'NN';
+    const parts = name.trim().split(' ').filter(p => p.length > 0);
     if (parts.length >= 2) {
       return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
@@ -87,7 +87,7 @@ export class DeleteMultipleClientsDialogComponent {
   }
 
   getClientColor(client: Client): string {
-    const email = client.email || client.name;
+    const email = client.email || client.name || 'default';
     const colors = [
       '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b',
       '#10b981', '#06b6d4', '#6366f1', '#ef4444'

@@ -33,24 +33,19 @@
             <!-- Encabezado de tabla -->
             <thead>
               <tr>
-                <th class="th-cliente">Cliente</th>
-                @if (customFieldsToShow().length > 0) {
-                  <th class="th-datos-adicionales" [attr.colspan]="customFieldsToShow().length">
-                    <div class="th-datos-content">
-                      <mat-icon>info</mat-icon>
-                      <span>Datos adicionales</span>
-                    </div>
-                  </th>
+                <th class="th-datos-adicionales" [attr.colspan]="customFieldsToShow().length + 1">
+                  <div class="th-datos-content">
+                    <mat-icon>info</mat-icon>
+                    <span>Datos adicionales</span>
+                  </div>
+                </th>
+              </tr>
+              <tr class="sub-header">
+                <th class="th-cliente-name">Cliente</th>
+                @for (field of customFieldsToShow(); track field.id) {
+                  <th class="th-field">{{ field.label }}</th>
                 }
               </tr>
-              @if (customFieldsToShow().length > 0) {
-                <tr class="sub-header">
-                  <th></th>
-                  @for (field of customFieldsToShow(); track field.id) {
-                    <th class="th-field">{{ field.label }}</th>
-                  }
-                </tr>
-              }
             </thead>
 
             <!-- Cuerpo de tabla -->
@@ -68,12 +63,10 @@
                   </td>
 
                   <!-- Columnas de datos adicionales -->
-                  @if (customFieldsToShow().length > 0) {
-                    @for (field of customFieldsToShow(); track field.id) {
-                      <td class="td-field">
-                        {{ getCustomFieldValue(client, field) }}
-                      </td>
-                    }
+                  @for (field of customFieldsToShow(); track field.id) {
+                    <td class="td-field">
+                      {{ getCustomFieldValue(client, field) }}
+                    </td>
                   }
                 </tr>
               }

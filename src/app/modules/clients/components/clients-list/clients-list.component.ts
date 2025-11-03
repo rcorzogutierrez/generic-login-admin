@@ -23,12 +23,13 @@ import { ClientsService } from '../../services/clients.service';
 import { ClientConfigServiceRefactored } from '../../services/client-config-refactored.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
-// Components
-import { DeleteClientDialogComponent } from '../delete-client-dialog/delete-client-dialog.component';
-import { DeleteMultipleClientsDialogComponent } from '../delete-multiple-clients-dialog/delete-multiple-clients-dialog.component';
+// Generic Components
+import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
+import { GenericDeleteMultipleDialogComponent } from '../../../../shared/components/generic-delete-multiple-dialog/generic-delete-multiple-dialog.component';
 
 // Models
 import { Client, ClientFilters, ClientSort } from '../../models';
+import { createGenericConfig } from '../../clients-config';
 
 @Component({
   selector: 'app-clients-list',
@@ -68,6 +69,12 @@ export class ClientsListComponent implements OnInit {
 
   config = this.configService.config;
   gridFields = computed(() => this.configService.getGridFields());
+
+  // Generic config for delete dialogs
+  genericConfig = computed(() => {
+    const clientConfig = this.config();
+    return clientConfig ? createGenericConfig(clientConfig) : null;
+  });
 
   // Verificar si el usuario es admin
   isAdmin = computed(() => this.authService.authorizedUser()?.role === 'admin');
@@ -242,8 +249,17 @@ export class ClientsListComponent implements OnInit {
    * Eliminar cliente
    */
   async deleteClient(client: Client) {
-    const dialogRef = this.dialog.open(DeleteClientDialogComponent, {
-      data: { client },
+    const config = this.genericConfig();
+    if (!config) {
+      this.snackBar.open('Configuración no disponible', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    const dialogRef = this.dialog.open(GenericDeleteDialogComponent, {
+      data: {
+        entity: client as any,
+        config: config
+      },
       width: '600px',
       disableClose: true
     });
@@ -271,11 +287,21 @@ export class ClientsListComponent implements OnInit {
       return;
     }
 
+    const config = this.genericConfig();
+    if (!config) {
+      this.snackBar.open('Configuración no disponible', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
     const clients = this.clients().filter(c => selectedIds.includes(c.id));
 
-    const dialogRef = this.dialog.open(DeleteMultipleClientsDialogComponent, {
-      data: { clients, count: clients.length },
-      width: '700px',
+    const dialogRef = this.dialog.open(GenericDeleteMultipleDialogComponent, {
+      data: {
+        entities: clients as any[],
+        count: clients.length,
+        config: config
+      },
+      width: '800px',
       disableClose: true
     });
 

@@ -102,6 +102,13 @@ export class ClientFormComponent implements OnInit {
       activeFields.forEach((f, i) => {
         console.log(`   ${i + 1}. ${f.label} (${f.name}) - Tipo: ${f.type} - formOrder: ${f.formOrder}`);
       });
+
+      // Advertencia si hay campos sin formOrder
+      const withoutOrder = activeFields.filter(f => f.formOrder === undefined || f.formOrder === null);
+      if (withoutOrder.length > 0) {
+        console.warn(`   ⚠️ ${withoutOrder.length} campo(s) sin formOrder definido - el orden podría ser impredecible`);
+      }
+
       this.fields.set(activeFields);
 
       // Cargar layout personalizado si existe
@@ -168,6 +175,7 @@ export class ClientFormComponent implements OnInit {
     fields.forEach(field => {
       // Para campos tipo DICTIONARY, crear un control por cada opción
       if (field.type === FieldType.DICTIONARY && field.options && field.options.length > 0) {
+        console.log(`   📖 Campo DICTIONARY: ${field.label} tiene ${field.options.length} opciones`);
         field.options.forEach(option => {
           const controlName = `${field.name}_${option.value}`;
           const initialValue = this.getDictionaryOptionValue(field, option.value, client);
@@ -178,6 +186,8 @@ export class ClientFormComponent implements OnInit {
             validators
           ];
         });
+      } else if (field.type === FieldType.DICTIONARY) {
+        console.warn(`   ⚠️ Campo DICTIONARY: ${field.label} NO tiene opciones - no se renderizará`);
       } else {
         // Para otros tipos de campos, comportamiento normal
         let initialValue = this.getInitialValue(field, client);
@@ -571,8 +581,15 @@ export class ClientFormComponent implements OnInit {
     if (!layout || !layout.fields || Object.keys(layout.fields).length === 0) {
       // Sin layout personalizado, usar layout por defecto (lista simple)
       console.log('   Usando layout por defecto (una sola fila)');
+      console.log('   Campos que se van a renderizar:');
+      fields.forEach((f, i) => {
+        console.log(`     ${i + 1}. ${f.label} (${f.name}) - Tipo: ${f.type}`);
+      });
       return [fields];
     }
+
+    console.log('   ⚠️ Usando layout personalizado');
+    console.log('   Layout tiene', Object.keys(layout.fields).length, 'posiciones definidas');
 
     // Organizar campos según posiciones del layout
     const fieldPositions: Array<{field: FieldConfig, position: FieldPosition}> = [];
@@ -580,7 +597,10 @@ export class ClientFormComponent implements OnInit {
     fields.forEach(field => {
       const position = layout.fields[field.id];
       if (position) {
+        console.log(`     ✅ ${field.label} tiene posición en layout`);
         fieldPositions.push({ field, position });
+      } else {
+        console.warn(`     ❌ ${field.label} NO tiene posición en layout - SE OMITIRÁ`);
       }
     });
 

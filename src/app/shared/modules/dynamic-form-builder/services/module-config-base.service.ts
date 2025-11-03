@@ -400,6 +400,100 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
   }
 
   /**
+   * Diagnosticar un campo específico por nombre
+   * Útil para debugging de campos individuales
+   */
+  diagnoseField(fieldNameOrLabel: string): void {
+    const fields = this.fields();
+    const searchTerm = fieldNameOrLabel.toLowerCase();
+
+    const field = fields.find(f =>
+      f.name.toLowerCase().includes(searchTerm) ||
+      f.label.toLowerCase().includes(searchTerm)
+    );
+
+    if (!field) {
+      console.error(`❌ Campo "${fieldNameOrLabel}" no encontrado`);
+      console.log('Campos disponibles:', fields.map(f => f.label).join(', '));
+      return;
+    }
+
+    console.group(`🔍 DIAGNÓSTICO: ${field.label}`);
+
+    console.group('📋 INFORMACIÓN BÁSICA');
+    console.log('ID:', field.id);
+    console.log('Nombre interno:', field.name);
+    console.log('Etiqueta:', field.label);
+    console.log('Tipo:', field.type);
+    console.groupEnd();
+
+    console.group('🔧 ESTADO');
+    console.log('isActive:', field.isActive, field.isActive ? '✅' : '❌');
+    console.log('isDefault:', field.isDefault);
+    console.log('isSystem:', field.isSystem);
+    console.groupEnd();
+
+    console.group('📝 CONFIGURACIÓN DE FORMULARIO');
+    console.log('formOrder:', field.formOrder);
+    console.log('formWidth:', field.formWidth);
+    console.log('Aparece en formulario:', field.isActive ? 'SÍ ✅' : 'NO ❌');
+    console.groupEnd();
+
+    console.group('📊 CONFIGURACIÓN DE GRID');
+    console.log('showInGrid:', field.gridConfig.showInGrid, field.gridConfig.showInGrid ? '✅' : '❌');
+    console.log('gridOrder:', field.gridConfig.gridOrder);
+    console.log('gridWidth:', field.gridConfig.gridWidth);
+    console.log('Aparece en grid:', (field.isActive && field.gridConfig.showInGrid) ? 'SÍ ✅' : 'NO ❌');
+    console.groupEnd();
+
+    // Análisis de problemas
+    const problems = [];
+    if (!field.isActive && field.gridConfig.showInGrid) {
+      problems.push('showInGrid está activado pero el campo está inactivo - INCONSISTENCIA');
+    }
+    if (field.isActive && field.formOrder > 100) {
+      problems.push('formOrder muy alto - el campo podría estar muy abajo en el formulario');
+    }
+    if (field.isActive && !field.formWidth) {
+      problems.push('formWidth no definido - podría tener problemas de visualización');
+    }
+
+    if (problems.length > 0) {
+      console.group('⚠️ PROBLEMAS DETECTADOS');
+      problems.forEach(p => console.warn(p));
+      console.groupEnd();
+    } else {
+      console.log('✅ No se detectaron problemas de configuración');
+    }
+
+    console.group('💡 SOLUCIONES');
+    if (!field.isActive && field.gridConfig.showInGrid) {
+      console.log('OPCIÓN 1: Activar el campo');
+      console.log('  → Ve a /modules/clients/config');
+      console.log('  → Busca el campo "' + field.label + '"');
+      console.log('  → Activa el toggle "Activo"');
+      console.log('');
+      console.log('OPCIÓN 2: Desactivar "Mostrar en Grid"');
+      console.log('  → Ve a /modules/clients/config');
+      console.log('  → Busca el campo "' + field.label + '"');
+      console.log('  → Desactiva "Mostrar en Grid"');
+    } else if (field.isActive && !field.gridConfig.showInGrid) {
+      console.log('El campo está activo solo en formulario.');
+      console.log('Si quieres que aparezca en el grid:');
+      console.log('  → Ve a /modules/clients/config');
+      console.log('  → Busca el campo "' + field.label + '"');
+      console.log('  → Activa "Mostrar en Grid"');
+    } else if (field.isActive && field.gridConfig.showInGrid) {
+      console.log('El campo está correctamente configurado para aparecer en formulario Y grid.');
+    } else {
+      console.log('El campo está inactivo y no aparece en ningún lado (correcto).');
+    }
+    console.groupEnd();
+
+    console.groupEnd();
+  }
+
+  /**
    * Limpiar el servicio
    */
   clear(): void {

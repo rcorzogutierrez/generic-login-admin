@@ -1,7 +1,30 @@
 # 🔍 Diagnóstico de Configuración de Campos
 
 ## Problema Reportado
-Un campo aparece en la columna del grid pero no en el formulario de crear/editar cliente.
+El campo **"Costo"** aparece en la columna del grid pero no en el formulario de crear/editar cliente.
+
+## ⚡ DIAGNÓSTICO RÁPIDO (RECOMENDADO)
+
+### Ejecuta este comando en la consola del navegador:
+
+1. **Abre tu aplicación** en el navegador
+2. **Ve a**: `http://localhost:4200/modules/clients`
+3. **Abre la consola del navegador** (F12 → Consola)
+4. **Ejecuta**:
+
+```javascript
+// Abrir temporalmente el servicio en window (solo para debugging)
+const clientsList = document.querySelector('app-clients-list');
+const component = ng.getComponent(clientsList);
+window.debugConfigService = component.configService;
+
+// Diagnosticar el campo "Costo"
+window.debugConfigService.diagnoseField('costo');
+```
+
+5. **Copia la salida completa** y envíamela para análisis
+
+---
 
 ## Cómo Ejecutar el Diagnóstico
 

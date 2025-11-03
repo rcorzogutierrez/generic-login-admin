@@ -33,7 +33,7 @@
             <!-- Encabezado de tabla -->
             <thead>
               <tr>
-                <th class="th-datos-adicionales" [attr.colspan]="customFieldsToShow().length + 1">
+                <th class="th-datos-adicionales" [attr.colspan]="customFieldsToShow().length">
                   <div class="th-datos-content">
                     <mat-icon>info</mat-icon>
                     <span>Datos adicionales</span>
@@ -41,7 +41,6 @@
                 </th>
               </tr>
               <tr class="sub-header">
-                <th class="th-cliente-name">Cliente</th>
                 @for (field of customFieldsToShow(); track field.id) {
                   <th class="th-field">{{ field.label }}</th>
                 }
@@ -52,16 +51,6 @@
             <tbody>
               @for (client of data.clients.slice(0, 5); track client.id) {
                 <tr class="client-row">
-                  <!-- Columna cliente con avatar -->
-                  <td class="td-cliente">
-                    <div class="client-info">
-                      <div class="client-avatar" [style.background]="getClientColor(client)">
-                        {{ getClientInitials(client) }}
-                      </div>
-                      <span class="client-name">{{ client.name }}</span>
-                    </div>
-                  </td>
-
                   <!-- Columnas de datos adicionales -->
                   @for (field of customFieldsToShow(); track field.id) {
                     <td class="td-field">

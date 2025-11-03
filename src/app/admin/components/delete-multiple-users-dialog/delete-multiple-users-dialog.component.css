@@ -6,10 +6,7 @@
   animation: pulse 2s infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
+/* Reutiliza pulse de styles.css */
 
 /* ============================================
    LISTA DE USUARIOS - ESPECÍFICO
@@ -68,10 +65,7 @@
   animation: checkBounce 0.5s ease;
 }
 
-@keyframes checkBounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-}
+/* Reutiliza checkBounce de styles.css */
 
 .confirmation-input-custom.invalid {
   border-color: #ef4444;
@@ -84,11 +78,7 @@
   color: #ef4444;
 }
 
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-8px); }
-  75% { transform: translateX(8px); }
-}
+/* Reutiliza shake de styles.css */
 
 /* ============================================
    ANIMACIONES DE BADGES
@@ -98,16 +88,7 @@
   animation: keywordPulse 2s infinite;
 }
 
-@keyframes keywordPulse {
-  0%, 100% { 
-    transform: scale(1);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-  }
-  50% { 
-    transform: scale(1.05);
-    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
-  }
-}
+/* Reutiliza keywordPulse de styles.css */
 
 /* ============================================
    TRANSICIONES SUAVES

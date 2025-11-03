@@ -22,16 +22,7 @@
 .card-corporate:nth-child(3) { animation-delay: 0.15s; }
 .card-corporate:nth-child(4) { animation-delay: 0.2s; }
 
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* Reutiliza slideInUp de styles.css */
 
 /* Animación para los items de actividad */
 .space-y-5 > div {
@@ -44,16 +35,7 @@
 .space-y-5 > div:nth-child(4) { animation-delay: 0.4s; }
 .space-y-5 > div:nth-child(5) { animation-delay: 0.5s; }
 
-@keyframes fadeInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+/* Reutiliza fadeInLeft de styles.css */
 
 /* ============================================
    ESTILOS PARA ICONOS DE ACTIVIDAD

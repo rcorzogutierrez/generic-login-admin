@@ -39,10 +39,7 @@
 .module-card:nth-child(5) { animation-delay: 0.25s; }
 .module-card:nth-child(6) { animation-delay: 0.3s; }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+/* Reutiliza fadeIn de styles.css */
 
 /* ============================================
    SCROLLBAR PERSONALIZADO

@@ -146,18 +146,9 @@
     content: '⚠';
     font-size: 14px;
   }
-  
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-4px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
+
+  /* Reutiliza slideDown de styles.css */
+
   /* Estado disabled */
   .input-field:disabled {
     background: #f1f5f9;
@@ -200,15 +191,12 @@
     color: var(--primary-blue); 
   }
   
-  .role-icon-viewer { 
-    color: var(--purple-accent); 
+  .role-icon-viewer {
+    color: var(--purple-accent);
   }
-  
-  @keyframes iconPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
-  
+
+  /* Reutiliza iconPulse de styles.css */
+
   /* ============================================
      PERMISSION & MODULE CARDS
      ============================================ */
@@ -270,13 +258,9 @@
     color: #7c3aed;
     animation: iconBounce 0.5s ease-out;
   }
-  
-  @keyframes iconBounce {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2) rotate(5deg); }
-    100% { transform: scale(1) rotate(0deg); }
-  }
-  
+
+  /* Reutiliza iconBounce de styles.css */
+
   /* ============================================
      CHIPS PREVIEW
      ============================================ */

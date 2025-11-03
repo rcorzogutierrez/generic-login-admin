@@ -17,18 +17,9 @@
   .bg-white {
     animation: fadeInUp 0.4s ease-out;
   }
-  
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
+
+  /* Reutiliza fadeInUp de styles.css */
+
   /* ============================================
      LOGO PREVIEW ANIMATIONS
      ============================================ */
@@ -36,18 +27,9 @@
   img[alt="Logo"] {
     animation: fadeInScale 0.3s ease-out;
   }
-  
-  @keyframes fadeInScale {
-    from {
-      opacity: 0;
-      transform: scale(0.8);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-  
+
+  /* Reutiliza fadeInScale de styles.css */
+
   /* ============================================
      FILE INPUT CUSTOMIZATION
      ============================================ */

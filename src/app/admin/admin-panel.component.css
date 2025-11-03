@@ -26,16 +26,7 @@
 .admin-table-row:nth-child(4) { animation-delay: 0.2s; }
 .admin-table-row:nth-child(5) { animation-delay: 0.25s; }
 
-@keyframes fadeInRow {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+/* Reutiliza fadeInRow de styles.css */
 
 /* Animación para las tarjetas de stats */
 .card-corporate {
@@ -47,16 +38,7 @@
 .card-corporate:nth-child(3) { animation-delay: 0.15s; }
 .card-corporate:nth-child(4) { animation-delay: 0.2s; }
 
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* Reutiliza slideInUp de styles.css */
 
 /* Mejora de accesibilidad para checkboxes */
 input[type="checkbox"]:focus-visible {
@@ -74,16 +56,7 @@ input[type="checkbox"]:focus-visible {
   animation: fadeInUp 0.3s ease-out;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* Reutiliza fadeInUp de styles.css */
 
 /* Estilo para el indeterminate state del checkbox principal */
 input[type="checkbox"]:indeterminate {

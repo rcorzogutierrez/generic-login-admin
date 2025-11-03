@@ -11,12 +11,9 @@
    .warning-icon {
     animation: pulse 2s infinite;
   }
-  
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-  }
-  
+
+  /* Reutiliza pulse de styles.css */
+
   /* ============================================
      OPTION CARDS - ESPECÍFICO
      ============================================ */
@@ -61,12 +58,9 @@
     color: #dc2626;
     animation: dangerPulse 2s infinite;
   }
-  
-  @keyframes dangerPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-  }
-  
+
+  /* Reutiliza dangerPulse de styles.css */
+
   /* ============================================
      INPUT DE CONFIRMACIÓN - REUTILIZADO
      ============================================ */
@@ -92,12 +86,9 @@
     color: #10b981;
     animation: checkBounce 0.5s ease;
   }
-  
-  @keyframes checkBounce {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-  }
-  
+
+  /* Reutiliza checkBounce de styles.css */
+
   .confirmation-input-custom.invalid {
     border-color: #ef4444;
     background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
@@ -108,31 +99,18 @@
   .input-container:has(.confirmation-input-custom.invalid) .input-icon {
     color: #ef4444;
   }
-  
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-8px); }
-    75% { transform: translateX(8px); }
-  }
-  
+
+  /* Reutiliza shake de styles.css */
+
   /* ============================================
      KEYWORD BADGE ANIMATION
      ============================================ */
   .keyword-badge {
     animation: keywordPulse 2s infinite;
   }
-  
-  @keyframes keywordPulse {
-    0%, 100% { 
-      transform: scale(1);
-      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-    }
-    50% { 
-      transform: scale(1.05);
-      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
-    }
-  }
-  
+
+  /* Reutiliza keywordPulse de styles.css */
+
   /* ============================================
      SCROLLBAR PERSONALIZADO
      ============================================ */

@@ -97,6 +97,11 @@ export class ClientFormComponent implements OnInit {
 
       // Obtener campos activos ordenados
       const activeFields = this.configService.getActiveFields();
+      console.log('📝 FORMULARIO: Campos activos cargados:', activeFields.length);
+      console.log('   Lista de campos:');
+      activeFields.forEach((f, i) => {
+        console.log(`   ${i + 1}. ${f.label} (${f.name}) - Tipo: ${f.type} - formOrder: ${f.formOrder}`);
+      });
       this.fields.set(activeFields);
 
       // Cargar layout personalizado si existe
@@ -157,6 +162,8 @@ export class ClientFormComponent implements OnInit {
   private buildForm(client?: Client) {
     const formControls: any = {};
     const fields = this.fields();
+
+    console.log('🔨 buildForm(): Construyendo formulario con', fields.length, 'campos');
 
     fields.forEach(field => {
       // Para campos tipo DICTIONARY, crear un control por cada opción
@@ -559,8 +566,11 @@ export class ClientFormComponent implements OnInit {
     const layout = this.formLayout();
     const fields = this.fields();
 
+    console.log('🎨 getGridRows(): Total de campos a renderizar:', fields.length);
+
     if (!layout || !layout.fields || Object.keys(layout.fields).length === 0) {
       // Sin layout personalizado, usar layout por defecto (lista simple)
+      console.log('   Usando layout por defecto (una sola fila)');
       return [fields];
     }
 

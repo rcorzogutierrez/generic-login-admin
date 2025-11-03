@@ -169,11 +169,7 @@ h2 {
   border-bottom: 1px solid #e2e8f0;
 }
 
-.th-cliente-name {
-  min-width: 200px;
-}
-
-.th-field {
+.th-field:not(:first-child) {
   border-left: 1px solid #e2e8f0;
 }
 
@@ -190,41 +186,11 @@ h2 {
   padding: 12px;
   font-size: 13px;
   color: #475569;
-}
-
-.td-cliente {
   font-weight: 500;
 }
 
-.td-field {
+.td-field:not(:first-child) {
   border-left: 1px solid #e2e8f0;
-}
-
-.client-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.client-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  font-size: 12px;
-  flex-shrink: 0;
-}
-
-.client-name {
-  font-weight: 600;
-  color: #1e293b;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .more-clients {

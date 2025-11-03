@@ -283,12 +283,27 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
 
   /**
    * Obtener campos visibles en el grid
+   * IMPORTANTE: Si hay un layout personalizado, solo se muestran los campos que están en ese layout
    */
   getGridFields(): FieldConfig[] {
     const fields = this.fields();
-    return fields
-      .filter(field => field.isActive && field.gridConfig.showInGrid)
-      .sort((a, b) => a.gridConfig.gridOrder - b.gridConfig.gridOrder);
+    const layout = this.getFormLayout();
+
+    // Filtro base: campos activos con showInGrid = true
+    let gridFields = fields.filter(field => field.isActive && field.gridConfig.showInGrid);
+
+    // Si hay layout personalizado, filtrar solo campos que estén en el layout
+    if (layout && layout.fields && Object.keys(layout.fields).length > 0) {
+      const fieldsInLayout = new Set(Object.keys(layout.fields));
+      gridFields = gridFields.filter(field => fieldsInLayout.has(field.id));
+
+      console.log('📊 getGridFields(): Layout personalizado detectado');
+      console.log(`   Campos activos con showInGrid: ${fields.filter(f => f.isActive && f.gridConfig.showInGrid).length}`);
+      console.log(`   Campos en layout: ${fieldsInLayout.size}`);
+      console.log(`   Campos finales en grid: ${gridFields.length}`);
+    }
+
+    return gridFields.sort((a, b) => a.gridConfig.gridOrder - b.gridConfig.gridOrder);
   }
 
   /**
@@ -296,6 +311,42 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
    */
   getFormLayout(): FormLayoutConfig | undefined {
     return this.config()?.formLayout;
+  }
+
+  /**
+   * Obtener campos que están en uso (en el layout personalizado)
+   * Si no hay layout personalizado, retorna todos los campos activos
+   */
+  getFieldsInUse(): FieldConfig[] {
+    const fields = this.fields();
+    const layout = this.getFormLayout();
+
+    if (!layout || !layout.fields || Object.keys(layout.fields).length === 0) {
+      // Sin layout personalizado, todos los campos activos están "en uso"
+      return fields.filter(field => field.isActive);
+    }
+
+    // Con layout personalizado, solo los campos que están en el layout están "en uso"
+    const fieldsInLayout = new Set(Object.keys(layout.fields));
+    return fields.filter(field => field.isActive && fieldsInLayout.has(field.id));
+  }
+
+  /**
+   * Obtener campos disponibles pero no en uso
+   * (campos activos que NO están en el layout personalizado)
+   */
+  getAvailableFieldsNotInUse(): FieldConfig[] {
+    const fields = this.fields();
+    const layout = this.getFormLayout();
+
+    if (!layout || !layout.fields || Object.keys(layout.fields).length === 0) {
+      // Sin layout personalizado, no hay campos "disponibles pero no en uso"
+      return [];
+    }
+
+    // Campos activos que NO están en el layout
+    const fieldsInLayout = new Set(Object.keys(layout.fields));
+    return fields.filter(field => field.isActive && !fieldsInLayout.has(field.id));
   }
 
   /**

@@ -1,0 +1,175 @@
+<!-- generic-delete-multiple-dialog.component.html -->
+
+<div class="delete-dialog">
+
+  <!-- HEADER -->
+  <div class="dialog-header">
+    <div class="warning-icon">
+      <mat-icon>warning</mat-icon>
+    </div>
+    <h2 mat-dialog-title>⚠️ Eliminar Múltiples {{ data.config.entityNamePlural }}</h2>
+  </div>
+
+  <!-- CONTENT -->
+  <mat-dialog-content class="dialog-content">
+    <div class="warning-message">
+
+      <!-- Mensaje principal -->
+      <p class="main-warning">
+        Estás a punto de <strong>eliminar permanentemente {{ data.count }} {{ data.count === 1 ? data.config.entityName : data.config.entityNamePlural }}</strong>:
+      </p>
+
+      <!-- TABLA DE ENTIDADES -->
+      <div class="entities-table-section">
+        <!-- Header de la tabla -->
+        <div class="table-header">
+          <mat-icon>group</mat-icon>
+          <span>{{ data.config.entityNamePlural }} seleccionados ({{ data.count }})</span>
+        </div>
+
+        <!-- Tabla scrollable -->
+        <div class="table-container">
+          <table class="entities-table">
+            <!-- Encabezado de tabla -->
+            <thead>
+              <tr>
+                <th class="th-datos-adicionales" [attr.colspan]="fieldsToShow().length">
+                  <div class="th-datos-content">
+                    <mat-icon>info</mat-icon>
+                    <span>Datos adicionales</span>
+                  </div>
+                </th>
+              </tr>
+              <tr class="sub-header">
+                @for (field of fieldsToShow(); track field.name) {
+                  <th class="th-field">{{ field.label }}</th>
+                }
+              </tr>
+            </thead>
+
+            <!-- Cuerpo de tabla -->
+            <tbody>
+              @for (entity of data.entities.slice(0, 5); track entity.id) {
+                <tr class="entity-row">
+                  <!-- Columnas de datos adicionales -->
+                  @for (field of fieldsToShow(); track field.name) {
+                    <td class="td-field">
+                      {{ getCustomFieldValue(entity, field) }}
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+
+          <!-- Indicador de más entidades -->
+          @if (data.entities.length > 5) {
+            <div class="more-entities">
+              <mat-icon>more_horiz</mat-icon>
+              <span>y {{ data.entities.length - 5 }} {{ data.config.entityName }}(s) más...</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ADVERTENCIAS -->
+      <div class="warning-list">
+        <div class="warning-item">
+          <mat-icon class="danger-icon">error</mat-icon>
+          <span>Esta acción <strong>NO se puede deshacer</strong></span>
+        </div>
+        <div class="warning-item">
+          <mat-icon class="danger-icon">delete_forever</mat-icon>
+          <span>Se eliminarán <strong>todos los datos</strong> de estos {{ data.config.entityNamePlural }}</span>
+        </div>
+        <div class="warning-item">
+          <mat-icon class="danger-icon">block</mat-icon>
+          <span>La información se perderá <strong>permanentemente</strong></span>
+        </div>
+      </div>
+
+      <!-- CONFIRMACIÓN DE SEGURIDAD -->
+      <div class="confirmation-section">
+        <!-- Label -->
+        <p class="confirmation-label">
+          <span>Para confirmar, escribe:</span>
+          <span class="keyword-badge">ELIMINAR</span>
+        </p>
+
+        <!-- Input wrapper -->
+        <div class="confirmation-input-wrapper">
+          <!-- Input con icono -->
+          <div class="input-container">
+            <div class="input-icon-wrapper">
+              <mat-icon class="input-icon">
+                {{ confirmationText.toUpperCase() === 'ELIMINAR' ? 'check_circle' : 'edit' }}
+              </mat-icon>
+            </div>
+            <input
+              class="confirmation-input-custom"
+              [(ngModel)]="confirmationText"
+              [disabled]="isDeleting"
+              (keyup.enter)="onConfirm()"
+              placeholder="Escribe ELIMINAR aquí..."
+              autocomplete="off"
+              [class.valid]="confirmationText.toUpperCase() === 'ELIMINAR'"
+              [class.invalid]="confirmationText.length > 0 && confirmationText.toUpperCase() !== 'ELIMINAR'"
+            >
+          </div>
+
+          <!-- Status feedback -->
+          @if (confirmationText.length > 0) {
+            <div class="input-status">
+              @if (confirmationText.toUpperCase() === 'ELIMINAR') {
+                <span class="status-text">
+                  ✓ Correcto
+                </span>
+              } @else {
+                <span class="status-text error">
+                  ✗ Incorrecto
+                </span>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Hint -->
+        @if (confirmationText.length === 0) {
+          <div class="hint-text">
+            💡 Escribe exactamente la palabra indicada para continuar
+          </div>
+        }
+      </div>
+
+    </div>
+  </mat-dialog-content>
+
+  <!-- ACTIONS -->
+  <mat-dialog-actions class="dialog-actions">
+    <!-- Botón cancelar -->
+    <button
+      mat-stroked-button
+      class="cancel-btn"
+      (click)="onCancel()"
+      [disabled]="isDeleting">
+      <mat-icon>close</mat-icon>
+      Cancelar
+    </button>
+
+    <!-- Botón eliminar -->
+    <button
+      mat-raised-button
+      color="warn"
+      class="delete-btn"
+      (click)="onConfirm()"
+      [disabled]="!canConfirm() || isDeleting">
+      @if (isDeleting) {
+        <mat-spinner diameter="20"></mat-spinner>
+      } @else {
+        <mat-icon>delete_sweep</mat-icon>
+      }
+      {{ isDeleting ? 'Eliminando...' : 'Eliminar ' + data.count + ' ' + (data.count === 1 ? data.config.entityName : data.config.entityNamePlural) }}
+    </button>
+  </mat-dialog-actions>
+
+</div>

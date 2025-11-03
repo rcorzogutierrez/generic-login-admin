@@ -324,6 +324,82 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
   }
 
   /**
+   * Diagnosticar problemas con la configuración de campos
+   * Útil para debugging - ejecutar desde consola del navegador
+   */
+  diagnoseFields(): void {
+    const fields = this.fields();
+
+    console.group('📊 DIAGNÓSTICO DE CAMPOS');
+    console.log(`Total de campos: ${fields.length}\n`);
+
+    // Agrupar por estado
+    const active = fields.filter(f => f.isActive);
+    const inactive = fields.filter(f => !f.isActive);
+    const inGrid = fields.filter(f => f.isActive && f.gridConfig.showInGrid);
+    const inFormOnly = fields.filter(f => f.isActive && !f.gridConfig.showInGrid);
+
+    console.log(`✅ Campos activos: ${active.length}`);
+    console.log(`❌ Campos inactivos: ${inactive.length}`);
+    console.log(`📊 En grid: ${inGrid.length}`);
+    console.log(`📝 Solo en formulario: ${inFormOnly.length}\n`);
+
+    // Buscar problemas potenciales
+    console.group('🔍 ANÁLISIS DETALLADO');
+
+    fields.forEach(field => {
+      const problems: string[] = [];
+
+      // Problema: showInGrid=true pero isActive=false
+      if (!field.isActive && field.gridConfig.showInGrid) {
+        problems.push('⚠️ Marcado para grid pero está inactivo');
+      }
+
+      // Advertencia: Campo activo solo en formulario
+      if (field.isActive && !field.gridConfig.showInGrid && !field.isSystem) {
+        problems.push('ℹ️ Solo visible en formulario (no en grid)');
+      }
+
+      if (problems.length > 0) {
+        console.group(`${field.label} (${field.name})`);
+        console.log(`  ID: ${field.id}`);
+        console.log(`  isActive: ${field.isActive}`);
+        console.log(`  showInGrid: ${field.gridConfig.showInGrid}`);
+        console.log(`  formOrder: ${field.formOrder}`);
+        console.log(`  gridOrder: ${field.gridConfig.gridOrder}`);
+        problems.forEach(p => console.log(`  ${p}`));
+        console.groupEnd();
+      }
+    });
+
+    console.groupEnd();
+
+    // Listar campos por categoría
+    console.group('📋 CAMPOS POR CATEGORÍA');
+
+    if (inGrid.length > 0) {
+      console.group(`Campos en Grid (${inGrid.length})`);
+      inGrid.forEach(f => console.log(`  - ${f.label} (${f.name})`));
+      console.groupEnd();
+    }
+
+    if (inFormOnly.length > 0) {
+      console.group(`Solo en Formulario (${inFormOnly.length})`);
+      inFormOnly.forEach(f => console.log(`  - ${f.label} (${f.name})`));
+      console.groupEnd();
+    }
+
+    if (inactive.length > 0) {
+      console.group(`Inactivos (${inactive.length})`);
+      inactive.forEach(f => console.log(`  - ${f.label} (${f.name}) - showInGrid: ${f.gridConfig.showInGrid}`));
+      console.groupEnd();
+    }
+
+    console.groupEnd();
+    console.groupEnd();
+  }
+
+  /**
    * Limpiar el servicio
    */
   clear(): void {

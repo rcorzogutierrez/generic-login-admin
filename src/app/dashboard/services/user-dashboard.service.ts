@@ -1,7 +1,5 @@
 // src/app/dashboard/services/user-dashboard.service.ts - REFACTORIZADO
 import { Injectable } from '@angular/core';
-import { Observable, from, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
 import { FirestoreUserService, FirestoreUser } from '../../core/services/firestore-user.service';
 
 export interface UserDashboardData {
@@ -56,19 +54,17 @@ export class UserDashboardService {
   /**
    * Obtiene datos del dashboard por email (identificador más confiable)
    */
-  getUserDashboardData(email: string): Observable<UserDashboardData> {
-    return from(this.firestoreUserService.findUserByEmail(email)).pipe(
-      map(result => {
-        if (!result) {
-          throw new Error('Usuario no encontrado');
-        }
-        return this.buildDashboardData(result.data);
-      }),
-      catchError(error => {
-        console.error('Error obteniendo datos del dashboard:', error);
-        return of(this.getDefaultDashboardData());
-      })
-    );
+  async getUserDashboardData(email: string): Promise<UserDashboardData> {
+    try {
+      const result = await this.firestoreUserService.findUserByEmail(email);
+      if (!result) {
+        throw new Error('Usuario no encontrado');
+      }
+      return this.buildDashboardData(result.data);
+    } catch (error) {
+      console.error('Error obteniendo datos del dashboard:', error);
+      return this.getDefaultDashboardData();
+    }
   }
 
   /**

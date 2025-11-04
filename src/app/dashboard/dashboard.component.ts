@@ -1,5 +1,5 @@
 // src/app/dashboard/dashboard.component.ts - OPTIMIZADO PARA TAILWIND + MATERIAL
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,7 +14,6 @@ import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
 import { UserDashboardService, UserDashboardData, DashboardAction } from './services/user-dashboard.service';
-import { Subject, takeUntil } from 'rxjs';
 import { AppConfigService } from '../core/services/app-config.service';
 
 interface QuickAction {
@@ -53,16 +52,14 @@ interface KeyMetric {
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent implements OnInit {
   user = this.authService.authorizedUser;
   userDashboard: UserDashboardData | null = null;
   appName = this.appConfigService.appName;
   logoUrl = this.appConfigService.logoUrl;
-  footerText = this.appConfigService.footerText; 
+  footerText = this.appConfigService.footerText;
   loading = true;
   error: string | null = null;
-  
-  private destroy$ = new Subject<void>();
 
   // Propiedades optimizadas
   quickActions: QuickAction[] = [];
@@ -80,15 +77,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.loadUserDashboard();
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   /**
    * Carga datos y construye información optimizada
    */
-  private loadUserDashboard() {
+  private async loadUserDashboard() {
     const currentUser = this.user();
     
     if (!currentUser?.email) {
@@ -100,20 +92,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
 
-    this.userDashboardService.getUserDashboardData(currentUser.email)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.userDashboard = data;
-          this.buildOptimizedData(data);
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Error cargando dashboard:', error);
-          this.error = 'Error al cargar tu información personal';
-          this.loading = false;
-        }
-      });
+    try {
+      const data = await this.userDashboardService.getUserDashboardData(currentUser.email);
+      this.userDashboard = data;
+      this.buildOptimizedData(data);
+      this.loading = false;
+    } catch (error) {
+      console.error('Error cargando dashboard:', error);
+      this.error = 'Error al cargar tu información personal';
+      this.loading = false;
+    }
   }
 
   /**

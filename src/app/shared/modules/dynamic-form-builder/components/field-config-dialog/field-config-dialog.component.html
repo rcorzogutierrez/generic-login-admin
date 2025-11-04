@@ -68,8 +68,9 @@
             class="input-field"
             formControlName="name"
             placeholder="Ej: customer_type"
-            [readonly]="isEditMode">
-          <span class="text-xs text-slate-500 mt-1">Identificador único para el campo (no se puede cambiar después)</span>
+            [readonly]="isEditMode"
+            aria-describedby="name-help-shared">
+          <span id="name-help-shared" class="text-xs text-slate-500 mt-1">Identificador único para el campo (no se puede cambiar después)</span>
           @if (isFieldInvalid('name')) {
             <div class="input-error">
               {{ getErrorMessage('name') }}
@@ -152,8 +153,9 @@
           type="text"
           class="input-field"
           formControlName="icon"
-          placeholder="Ej: person, email, phone">
-        <span class="text-xs text-slate-500 mt-1">Nombre del icono de Material Icons</span>
+          placeholder="Ej: person, email, phone"
+          aria-describedby="icon-help-shared">
+        <span id="icon-help-shared" class="text-xs text-slate-500 mt-1">Nombre del icono de Material Icons</span>
       </div>
 
       <!-- Iconos sugeridos -->
@@ -266,8 +268,9 @@
             type="text"
             class="input-field"
             formControlName="pattern"
-            placeholder="Ej: ^[A-Z]{2,5}$">
-          <span class="text-xs text-slate-500 mt-1">Expresión regular para validar el formato</span>
+            placeholder="Ej: ^[A-Z]{2,5}$"
+            aria-describedby="pattern-help-shared">
+          <span id="pattern-help-shared" class="text-xs text-slate-500 mt-1">Expresión regular para validar el formato</span>
         </div>
       }
 
@@ -446,8 +449,9 @@
                 type="text"
                 class="input-field"
                 formControlName="gridWidth"
-                placeholder="Ej: 150px, 20%">
-              <span class="text-xs text-slate-500 mt-1">Opcional - Ej: 150px, 20%, auto</span>
+                placeholder="Ej: 150px, 20%"
+                aria-describedby="gridWidth-help-shared">
+              <span id="gridWidth-help-shared" class="text-xs text-slate-500 mt-1">Opcional - Ej: 150px, 20%, auto</span>
             </div>
 
             <div class="flex flex-col gap-3">

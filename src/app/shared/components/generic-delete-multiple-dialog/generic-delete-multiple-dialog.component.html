@@ -29,7 +29,8 @@
 
         <!-- Tabla scrollable -->
         <div class="table-container">
-          <table class="entities-table">
+          <table class="entities-table" role="table" aria-label="Tabla de entidades a eliminar">
+            <caption class="sr-only">Listado de {{ data.config.entityNamePlural }} seleccionados para eliminar</caption>
             <!-- Encabezado de tabla -->
             <thead>
               <tr>

@@ -27,12 +27,13 @@
       <div class="flex items-center gap-3 flex-wrap">
       
         <!-- Action Buttons -->
-        <button mat-icon-button 
+        <button mat-icon-button
                 class="icon-btn"
                 [matBadge]="getNotificationCount()"
                 [matBadgeHidden]="getNotificationCount() === 0"
                 matBadgeColor="warn"
                 matTooltip="Notificaciones"
+                aria-label="Ver notificaciones"
                 (click)="goToNotifications()">
           <mat-icon>notifications</mat-icon>
         </button>        

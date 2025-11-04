@@ -12,7 +12,8 @@
             mat-icon-button
             class="icon-btn"
             (click)="goBack()"
-            matTooltip="Volver a clientes">
+            matTooltip="Volver a clientes"
+            aria-label="Volver a clientes">
             <mat-icon>arrow_back</mat-icon>
           </button>
 
@@ -36,7 +37,8 @@
             class="icon-btn"
             (click)="loadConfig()"
             [disabled]="isLoading"
-            matTooltip="Recargar configuración">
+            matTooltip="Recargar configuración"
+            aria-label="Recargar configuración">
             <mat-icon>refresh</mat-icon>
           </button>
         </div>

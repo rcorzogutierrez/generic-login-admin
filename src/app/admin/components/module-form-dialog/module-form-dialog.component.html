@@ -16,11 +16,12 @@
           </p>
         </div>
       </div>
-      <button 
-        mat-icon-button 
-        (click)="onCancel()" 
+      <button
+        mat-icon-button
+        (click)="onCancel()"
         class="!text-white !bg-white/10 hover:!bg-white/20"
-        [disabled]="isSaving">
+        [disabled]="isSaving"
+        aria-label="Cerrar diálogo">
         <mat-icon>close</mat-icon>
       </button>
     </div>

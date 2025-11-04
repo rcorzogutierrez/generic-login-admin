@@ -15,7 +15,8 @@
             class="icon-btn"
             (click)="goBack()"
             [disabled]="isLoading"
-            matTooltip="Volver al panel de admin">
+            matTooltip="Volver al panel de admin"
+            aria-label="Volver al panel de admin">
             <mat-icon>arrow_back</mat-icon>
           </button>
 
@@ -123,7 +124,7 @@
                   </div>
 
                   <!-- Actions Menu -->
-                  <button mat-icon-button [matMenuTriggerFor]="roleMenu">
+                  <button mat-icon-button [matMenuTriggerFor]="roleMenu" aria-label="Abrir menú de opciones del rol">
                     <mat-icon>more_vert</mat-icon>
                   </button>
                   <mat-menu #roleMenu="matMenu">

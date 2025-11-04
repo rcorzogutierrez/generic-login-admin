@@ -10,11 +10,12 @@
         
         <!-- Left Section -->
         <div class="flex items-center gap-4">
-          <button 
-            mat-icon-button 
+          <button
+            mat-icon-button
             class="icon-btn"
             (click)="goBack()"
-            matTooltip="Volver al panel de admin">
+            matTooltip="Volver al panel de admin"
+            aria-label="Volver al panel de admin">
             <mat-icon>arrow_back</mat-icon>
           </button>
           
@@ -33,12 +34,13 @@
         
         <!-- Right Section -->
         <div class="flex items-center gap-3">
-          <button 
-            mat-icon-button 
+          <button
+            mat-icon-button
             class="icon-btn"
             (click)="loadConfiguration()"
             [disabled]="isLoading()"
-            matTooltip="Recargar configuración">
+            matTooltip="Recargar configuración"
+            aria-label="Recargar configuración">
             <mat-icon>refresh</mat-icon>
           </button>
         </div>
@@ -220,12 +222,13 @@
                       />
                     </div>
                     <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
-                      <button 
-                        mat-icon-button 
+                      <button
+                        mat-icon-button
                         class="!text-white"
                         (click)="removeLogo()"
                         [disabled]="isUploadingLogo()"
-                        matTooltip="Eliminar logo">
+                        matTooltip="Eliminar logo"
+                        aria-label="Eliminar logo">
                         <mat-icon>delete</mat-icon>
                       </button>
                     </div>
@@ -252,10 +255,11 @@
                         {{ (selectedLogoFile()!.size / 1024).toFixed(2) }} KB
                       </p>
                     </div>
-                    <button 
-                      mat-icon-button 
+                    <button
+                      mat-icon-button
                       (click)="selectedLogoFile.set(null); logoPreviewUrl.set(currentConfig()?.logoUrl || '')"
-                      class="!text-blue-600">
+                      class="!text-blue-600"
+                      aria-label="Cancelar archivo seleccionado">
                       <mat-icon>close</mat-icon>
                     </button>
                   </div>

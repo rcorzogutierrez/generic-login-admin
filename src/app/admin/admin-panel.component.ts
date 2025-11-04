@@ -20,10 +20,11 @@ import { Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
 import { AdminService, User, AdminStats } from './services/admin.service';
 import { AddUserDialogComponent } from './components/add-user-dialog/add-user-dialog.component';
-import { DeleteUserDialogComponent } from './components/delete-user-dialog/delete-user-dialog.component';
-import { DeleteMultipleUsersDialogComponent } from './components/delete-multiple-users-dialog/delete-multiple-users-dialog.component';
+import { GenericDeleteDialogComponent } from '../shared/components/generic-delete-dialog/generic-delete-dialog.component';
+import { GenericDeleteMultipleDialogComponent } from '../shared/components/generic-delete-multiple-dialog/generic-delete-multiple-dialog.component';
 import { AssignModulesDialogComponent } from './components/assign-modules-dialog/assign-modules-dialog.component';
 import { EditUserRoleDialogComponent } from './components/edit-user-role-dialog/edit-user-role-dialog.component';
+import { ADMIN_USERS_CONFIG, adaptUserToGenericEntity } from './config/admin-users.config';
 
 @Component({
   selector: 'app-admin-panel',
@@ -377,14 +378,15 @@ export class AdminPanelComponent implements OnInit {
       u.uid && this.selectedUsers.has(u.uid)
     );
 
-    // Abrir dialog de confirmación para eliminación múltiple
-    const dialogRef = this.dialog.open(DeleteMultipleUsersDialogComponent, {
+    // Abrir dialog de confirmación genérico para eliminación múltiple
+    const dialogRef = this.dialog.open(GenericDeleteMultipleDialogComponent, {
       width: '700px',
       maxWidth: '90vw',
       disableClose: true,
       data: {
-        users: selectedUsersList,
-        count: selectedCount
+        entities: selectedUsersList.map(adaptUserToGenericEntity),
+        count: selectedCount,
+        config: ADMIN_USERS_CONFIG
       }
     });
 
@@ -757,14 +759,14 @@ export class AdminPanelComponent implements OnInit {
       }
     }
 
-    // Abrir dialog de confirmación
-    const dialogRef = this.dialog.open(DeleteUserDialogComponent, {
+    // Abrir dialog de confirmación genérico
+    const dialogRef = this.dialog.open(GenericDeleteDialogComponent, {
       width: '600px',
       maxWidth: '90vw',
       disableClose: true,
       data: {
-        user: user,
-        currentUserEmail: this.currentUser()?.email
+        entity: adaptUserToGenericEntity(user),
+        config: ADMIN_USERS_CONFIG
       }
     });
 

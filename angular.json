@@ -45,6 +45,7 @@
               "@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.css",
               "src/styles/delete-dialog-base.css",
+              "src/styles/field-config-dialog-base.css",
               "src/styles/dialog-inputs.css",
               "src/styles/scrollbars.css"
             ],
@@ -130,6 +131,7 @@
               "@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.css",
               "src/styles/delete-dialog-base.css",
+              "src/styles/field-config-dialog-base.css",
               "src/styles/dialog-inputs.css",
               "src/styles/scrollbars.css"
             ],

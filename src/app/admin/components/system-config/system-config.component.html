@@ -84,17 +84,18 @@
                   Nombre de la Aplicación *
                 </label>
                 <mat-form-field class="w-full" appearance="outline">
-                  <input 
-                    matInput 
+                  <input
+                    matInput
                     formControlName="appName"
                     placeholder="Ej: Mi Sistema Admin"
-                    maxlength="50">
+                    maxlength="50"
+                    aria-describedby="appName-help">
                   <mat-hint align="end">{{ configForm.get('appName')?.value?.length || 0 }}/50</mat-hint>
                   @if (isFieldInvalid('appName')) {
                     <mat-error>{{ getErrorMessage('appName') }}</mat-error>
                   }
                 </mat-form-field>
-                <p class="text-xs text-slate-500 flex items-center gap-1.5">
+                <p id="appName-help" class="text-xs text-slate-500 flex items-center gap-1.5">
                   <mat-icon class="!text-sm">info_outline</mat-icon>
                   Este nombre aparecerá en el login, navbar y título del navegador
                 </p>
@@ -107,18 +108,19 @@
                   Descripción de la Aplicación
                 </label>
                 <mat-form-field class="w-full" appearance="outline">
-                  <textarea 
-                    matInput 
+                  <textarea
+                    matInput
                     formControlName="appDescription"
                     placeholder="Ej: Sistema de autenticación y gestión de usuarios"
                     rows="3"
-                    maxlength="200"></textarea>
+                    maxlength="200"
+                    aria-describedby="appDescription-help"></textarea>
                   <mat-hint align="end">{{ configForm.get('appDescription')?.value?.length || 0 }}/200</mat-hint>
                   @if (isFieldInvalid('appDescription')) {
                     <mat-error>{{ getErrorMessage('appDescription') }}</mat-error>
                   }
                 </mat-form-field>
-                <p class="text-xs text-slate-500 flex items-center gap-1.5">
+                <p id="appDescription-help" class="text-xs text-slate-500 flex items-center gap-1.5">
                   <mat-icon class="!text-sm">info_outline</mat-icon>
                   Se mostrará en la pantalla de login
                 </p>
@@ -131,16 +133,17 @@
                   Email de Contacto del Administrador *
                 </label>
                 <mat-form-field class="w-full" appearance="outline">
-                  <input 
-                    matInput 
+                  <input
+                    matInput
                     type="email"
                     formControlName="adminContactEmail"
-                    placeholder="admin@empresa.com">
+                    placeholder="admin@empresa.com"
+                    aria-describedby="adminContactEmail-help">
                   @if (isFieldInvalid('adminContactEmail')) {
                     <mat-error>{{ getErrorMessage('adminContactEmail') }}</mat-error>
                   }
                 </mat-form-field>
-                <p class="text-xs text-slate-500 flex items-center gap-1.5">
+                <p id="adminContactEmail-help" class="text-xs text-slate-500 flex items-center gap-1.5">
                   <mat-icon class="!text-sm">info_outline</mat-icon>
                   Email para soporte y contacto del sistema
                 </p>
@@ -153,17 +156,18 @@
                   Texto del Footer
                 </label>
                 <mat-form-field class="w-full" appearance="outline">
-                  <input 
-                    matInput 
+                  <input
+                    matInput
                     formControlName="footerText"
                     placeholder="Ej: © 2025 Mi Empresa. Todos los derechos reservados."
-                    maxlength="100">
+                    maxlength="100"
+                    aria-describedby="footerText-help">
                   <mat-hint align="end">{{ configForm.get('footerText')?.value?.length || 0 }}/100</mat-hint>
                   @if (isFieldInvalid('footerText')) {
                     <mat-error>{{ getErrorMessage('footerText') }}</mat-error>
                   }
                 </mat-form-field>
-                <p class="text-xs text-slate-500 flex items-center gap-1.5">
+                <p id="footerText-help" class="text-xs text-slate-500 flex items-center gap-1.5">
                   <mat-icon class="!text-sm">info_outline</mat-icon>
                   Se mostrará en el footer del dashboard
                 </p>

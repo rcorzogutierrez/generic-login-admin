@@ -8,11 +8,12 @@
         
         <!-- Left Section -->
         <div class="flex items-center gap-4">
-          <button 
-            mat-icon-button 
+          <button
+            mat-icon-button
             class="icon-btn"
             (click)="goBack()"
-            matTooltip="Volver al panel de admin">
+            matTooltip="Volver al panel de admin"
+            aria-label="Volver al panel de admin">
             <mat-icon>arrow_back</mat-icon>
           </button>
           
@@ -31,12 +32,13 @@
         
         <!-- Right Section -->
         <div class="flex items-center gap-3">
-          <button 
-            mat-icon-button 
+          <button
+            mat-icon-button
             class="icon-btn"
             (click)="loadModules()"
             [disabled]="isLoading"
-            matTooltip="Recargar módulos">
+            matTooltip="Recargar módulos"
+            aria-label="Recargar módulos">
             <mat-icon>refresh</mat-icon>
           </button>
           
@@ -216,10 +218,11 @@
 
                 <!-- Actions -->
                 <div class="module-actions">
-                  <button 
+                  <button
                     mat-icon-button
                     [matMenuTriggerFor]="moduleMenu"
-                    class="icon-btn">
+                    class="icon-btn"
+                    aria-label="Abrir menú de opciones del módulo">
                     <mat-icon>more_vert</mat-icon>
                   </button>
 

@@ -10,11 +10,12 @@
         
         <!-- Left Section -->
         <div class="flex items-center gap-4">
-          <button 
-          mat-icon-button 
+          <button
+          mat-icon-button
           class="icon-btn"
           (click)="goBack()"
-          matTooltip="Volver al Dashboard">
+          matTooltip="Volver al Dashboard"
+          aria-label="Volver al dashboard">
           <mat-icon>arrow_back</mat-icon>
         </button>
           <div class="header-icon-container">
@@ -34,7 +35,7 @@
          
           
           <!-- Icon Buttons -->
-          <button mat-icon-button class="icon-btn" matTooltip="Notificaciones" (click)="goToNotifications()">
+          <button mat-icon-button class="icon-btn" matTooltip="Notificaciones" aria-label="Ver notificaciones" (click)="goToNotifications()">
             <mat-icon>notifications</mat-icon>
           </button>
          
@@ -348,7 +349,7 @@
 
                 <!-- Actions -->
                 <td class="px-6 py-4 text-center">
-                  <button mat-icon-button [matMenuTriggerFor]="userMenu" class="icon-btn">
+                  <button mat-icon-button [matMenuTriggerFor]="userMenu" class="icon-btn" aria-label="Abrir menú de opciones de usuario">
                     <mat-icon>more_horiz</mat-icon>
                   </button>
                   <mat-menu #userMenu="matMenu">

@@ -19,7 +19,8 @@
     <button
       mat-icon-button
       (click)="onCancel()"
-      [disabled]="isSaving">
+      [disabled]="isSaving"
+      aria-label="Cerrar diálogo">
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -380,6 +381,7 @@
                   color="warn"
                   (click)="removeOption($index)"
                   matTooltip="Eliminar opción"
+                  aria-label="Eliminar opción"
                   class="mt-6">
                   <mat-icon>delete</mat-icon>
                 </button>

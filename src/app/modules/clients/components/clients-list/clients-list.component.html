@@ -30,7 +30,8 @@
             class="icon-btn"
             (click)="refresh()"
             [disabled]="isLoading()"
-            matTooltip="Actualizar">
+            matTooltip="Actualizar"
+            aria-label="Actualizar lista de clientes">
             <mat-icon>refresh</mat-icon>
           </button>
 
@@ -39,7 +40,8 @@
               mat-icon-button
               class="icon-btn"
               (click)="goToConfig()"
-              matTooltip="Configurar módulo">
+              matTooltip="Configurar módulo"
+              aria-label="Configurar módulo de clientes">
               <mat-icon>settings</mat-icon>
             </button>
           }
@@ -133,7 +135,8 @@
           <button
             mat-icon-button
             (click)="onSearch('')"
-            matTooltip="Limpiar búsqueda">
+            matTooltip="Limpiar búsqueda"
+            aria-label="Limpiar búsqueda">
             <mat-icon>close</mat-icon>
           </button>
         }
@@ -294,7 +297,8 @@
                     <button
                       mat-icon-button
                       [matMenuTriggerFor]="menu"
-                      (click)="$event.stopPropagation()">
+                      (click)="$event.stopPropagation()"
+                      aria-label="Abrir menú de opciones del cliente">
                       <mat-icon>more_vert</mat-icon>
                     </button>
 
@@ -339,7 +343,8 @@
               <button
                 mat-icon-button
                 (click)="goToPage(currentPage() - 1)"
-                [disabled]="currentPage() === 0">
+                [disabled]="currentPage() === 0"
+                aria-label="Página anterior">
                 <mat-icon>chevron_left</mat-icon>
               </button>
 
@@ -350,7 +355,8 @@
               <button
                 mat-icon-button
                 (click)="goToPage(currentPage() + 1)"
-                [disabled]="currentPage() >= totalPages() - 1">
+                [disabled]="currentPage() >= totalPages() - 1"
+                aria-label="Página siguiente">
                 <mat-icon>chevron_right</mat-icon>
               </button>
             </div>

@@ -10,11 +10,12 @@
         
         <!-- Left Section -->
         <div class="flex items-center gap-4">
-          <button 
-            mat-icon-button 
+          <button
+            mat-icon-button
             class="icon-btn"
             (click)="goBack()"
-            matTooltip="Volver al panel de admin">
+            matTooltip="Volver al panel de admin"
+            aria-label="Volver al panel de admin">
             <mat-icon>arrow_back</mat-icon>
           </button>
           <div class="header-icon-container">
@@ -32,20 +33,22 @@
         <!-- Right Section -->
         <div class="flex items-center gap-3 flex-wrap">     
           <!-- Refresh Button -->
-          <button mat-icon-button 
+          <button mat-icon-button
                   class="icon-btn"
                   (click)="refreshLogs()"
                   [disabled]="isLoading"
-                  matTooltip="Actualizar logs">
+                  matTooltip="Actualizar logs"
+                  aria-label="Actualizar logs del sistema">
             <mat-icon [class.spinning]="isLoading">refresh</mat-icon>
           </button>
 
           <!-- Delete Logs Button -->
-          <button mat-icon-button 
+          <button mat-icon-button
                   class="icon-btn !border-red-200 !text-red-600 hover:!bg-red-50 hover:!border-red-500"
                   (click)="openDeleteLogsDialog()"
                   [disabled]="isLoading"
-                  matTooltip="Eliminar logs del sistema">
+                  matTooltip="Eliminar logs del sistema"
+                  aria-label="Eliminar logs del sistema">
             <mat-icon>delete_sweep</mat-icon>
           </button>
 

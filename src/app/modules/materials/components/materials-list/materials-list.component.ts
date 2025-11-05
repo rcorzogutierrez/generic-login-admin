@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 
 import { MaterialsService } from '../../services';
@@ -28,7 +29,8 @@ import { MATERIALS_CONFIG, adaptMaterialToGenericEntity } from '../../config/mat
     MatInputModule,
     MatTooltipModule,
     MatMenuModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatDividerModule
   ],
   templateUrl: './materials-list.component.html',
   styleUrl: './materials-list.component.css'
@@ -179,5 +181,20 @@ export class MaterialsListComponent implements OnInit {
 
   trackById(index: number, material: Material): string {
     return material.id;
+  }
+
+  /**
+   * Helper methods to avoid arrow functions in templates
+   */
+  getActiveMaterials(): Material[] {
+    return this.materials().filter(m => m.isActive);
+  }
+
+  getActiveMaterialsCount(): number {
+    return this.getActiveMaterials().length;
+  }
+
+  getFilteredActiveMaterials(): Material[] {
+    return this.filteredMaterials().filter(m => m.isActive);
   }
 }

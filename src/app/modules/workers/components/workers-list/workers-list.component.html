@@ -16,8 +16,8 @@
             <h1 class="text-2xl font-bold text-slate-800 mb-1">Gestión de Trabajadores</h1>
             <p class="text-sm text-slate-500">
               {{ workers().length }} trabajadores
-              @if (workers().filter(w => w.isActive).length > 0) {
-                <span class="text-green-600 font-semibold"> • {{ workers().filter(w => w.isActive).length }} activos</span>
+              @if (getActiveWorkersCount() > 0) {
+                <span class="text-green-600 font-semibold"> • {{ getActiveWorkersCount() }} activos</span>
               }
             </p>
           </div>

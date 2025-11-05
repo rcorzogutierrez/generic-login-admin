@@ -3,6 +3,14 @@
  */
 
 import { GenericEntity, GenericModuleConfig } from '../../../shared/models/generic-entity.interface';
+import {
+  FieldType,
+  FieldConfig,
+  FieldOption
+} from '../../../shared/modules/dynamic-form-builder/models/field-config.interface';
+
+// Re-export shared types for convenience
+export { FieldType, FieldConfig, FieldOption };
 
 /**
  * Interfaz para Worker (Trabajadores/Empleados)
@@ -37,70 +45,6 @@ export interface WorkerModuleConfig extends GenericModuleConfig {
     autoDeactivate?: boolean;
     deactivateDays?: number;
   };
-}
-
-/**
- * Tipos de campo disponibles
- */
-export enum FieldType {
-  TEXT = 'TEXT',
-  NUMBER = 'NUMBER',
-  EMAIL = 'EMAIL',
-  PHONE = 'PHONE',
-  SELECT = 'SELECT',
-  MULTISELECT = 'MULTISELECT',
-  DICTIONARY = 'DICTIONARY',
-  DATE = 'DATE',
-  DATETIME = 'DATETIME',
-  CHECKBOX = 'CHECKBOX',
-  TEXTAREA = 'TEXTAREA',
-  URL = 'URL',
-  CURRENCY = 'CURRENCY'
-}
-
-/**
- * Configuración de campo personalizado
- */
-export interface FieldConfig {
-  id: string;
-  name: string;
-  label: string;
-  type: FieldType;
-  icon?: string;
-  placeholder?: string;
-  helpText?: string;
-  validation: {
-    required: boolean;
-    minLength?: number;
-    maxLength?: number;
-    min?: number;
-    max?: number;
-    pattern?: string;
-  };
-  formOrder: number;
-  formWidth: 'full' | 'half' | 'third';
-  defaultValue?: any;
-  gridConfig: {
-    showInGrid: boolean;
-    gridOrder: number;
-    gridWidth?: string;
-    sortable: boolean;
-    filterable: boolean;
-  };
-  options?: FieldOption[];
-  isActive: boolean;
-  isSystem: boolean;
-  isDefault: boolean;
-  createdAt: Date;
-  createdBy: string;
-  updatedAt?: Date;
-  updatedBy?: string;
-}
-
-export interface FieldOption {
-  value: string;
-  label: string;
-  color?: string;
 }
 
 export const DEFAULT_MODULE_CONFIG: Partial<WorkerModuleConfig> = {

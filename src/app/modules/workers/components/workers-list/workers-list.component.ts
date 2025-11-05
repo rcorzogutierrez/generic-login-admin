@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 
 import { WorkersService } from '../../services';
@@ -28,7 +29,8 @@ import { WORKERS_CONFIG, adaptWorkerToGenericEntity } from '../../config/workers
     MatInputModule,
     MatTooltipModule,
     MatMenuModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatDividerModule
   ],
   templateUrl: './workers-list.component.html',
   styleUrl: './workers-list.component.css'
@@ -180,5 +182,20 @@ export class WorkersListComponent implements OnInit {
 
   trackById(index: number, worker: Worker): string {
     return worker.id;
+  }
+
+  /**
+   * Helper methods to avoid arrow functions in templates
+   */
+  getActiveWorkers(): Worker[] {
+    return this.workers().filter(w => w.isActive);
+  }
+
+  getActiveWorkersCount(): number {
+    return this.getActiveWorkers().length;
+  }
+
+  getFilteredActiveWorkers(): Worker[] {
+    return this.filteredWorkers().filter(w => w.isActive);
   }
 }

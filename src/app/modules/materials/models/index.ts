@@ -3,6 +3,14 @@
  */
 
 import { GenericEntity, GenericModuleConfig } from '../../../shared/models/generic-entity.interface';
+import {
+  FieldType,
+  FieldConfig,
+  FieldOption
+} from '../../../shared/modules/dynamic-form-builder/models/field-config.interface';
+
+// Re-export shared types for convenience
+export { FieldType, FieldConfig, FieldOption };
 
 /**
  * Interfaz para Material (Materiales/Inventario)
@@ -36,85 +44,6 @@ export interface MaterialModuleConfig extends GenericModuleConfig {
     autoExpiry?: boolean;
     expiryDays?: number;
   };
-}
-
-/**
- * Tipos de campo disponibles para Materials
- */
-export enum FieldType {
-  TEXT = 'TEXT',
-  NUMBER = 'NUMBER',
-  EMAIL = 'EMAIL',
-  PHONE = 'PHONE',
-  SELECT = 'SELECT',
-  MULTISELECT = 'MULTISELECT',
-  DICTIONARY = 'DICTIONARY',
-  DATE = 'DATE',
-  DATETIME = 'DATETIME',
-  CHECKBOX = 'CHECKBOX',
-  TEXTAREA = 'TEXTAREA',
-  URL = 'URL',
-  CURRENCY = 'CURRENCY'
-}
-
-/**
- * Configuración de campo personalizado
- */
-export interface FieldConfig {
-  id: string;
-  name: string;
-  label: string;
-  type: FieldType;
-  icon?: string;
-  placeholder?: string;
-  helpText?: string;
-
-  // Validaciones
-  validation: {
-    required: boolean;
-    minLength?: number;
-    maxLength?: number;
-    min?: number;
-    max?: number;
-    pattern?: string;
-  };
-
-  // Configuración de formulario
-  formOrder: number;
-  formWidth: 'full' | 'half' | 'third';
-  defaultValue?: any;
-
-  // Configuración de grid
-  gridConfig: {
-    showInGrid: boolean;
-    gridOrder: number;
-    gridWidth?: string;
-    sortable: boolean;
-    filterable: boolean;
-  };
-
-  // Opciones (para SELECT, MULTISELECT, DICTIONARY)
-  options?: FieldOption[];
-
-  // Estado
-  isActive: boolean;
-  isSystem: boolean;
-  isDefault: boolean;
-
-  // Metadatos
-  createdAt: Date;
-  createdBy: string;
-  updatedAt?: Date;
-  updatedBy?: string;
-}
-
-/**
- * Opción para campos SELECT, MULTISELECT, DICTIONARY
- */
-export interface FieldOption {
-  value: string;
-  label: string;
-  color?: string;
 }
 
 /**

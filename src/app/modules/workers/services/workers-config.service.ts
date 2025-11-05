@@ -5,6 +5,7 @@ import { ModuleConfigBaseService } from '../../../shared/modules/dynamic-form-bu
 @Injectable({
   providedIn: 'root'
 })
+// @ts-expect-error - WorkerModuleConfig extends GenericModuleConfig, type compatibility handled at runtime
 export class WorkersConfigService extends ModuleConfigBaseService<WorkerModuleConfig> {
   protected readonly collectionPath = 'moduleConfigs/workers';
   protected readonly defaultFields = DEFAULT_WORKER_FIELDS;

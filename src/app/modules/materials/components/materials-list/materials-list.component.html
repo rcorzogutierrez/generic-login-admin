@@ -16,8 +16,8 @@
             <h1 class="text-2xl font-bold text-slate-800 mb-1">Gestión de Materiales</h1>
             <p class="text-sm text-slate-500">
               {{ materials().length }} materiales
-              @if (materials().filter(m => m.isActive).length > 0) {
-                <span class="text-green-600 font-semibold"> • {{ materials().filter(m => m.isActive).length }} activos</span>
+              @if (getActiveMaterialsCount() > 0) {
+                <span class="text-green-600 font-semibold"> • {{ getActiveMaterialsCount() }} activos</span>
               }
             </p>
           </div>

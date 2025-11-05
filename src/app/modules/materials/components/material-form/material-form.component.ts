@@ -22,6 +22,7 @@ import { MaterialsConfigService } from '../../services/materials-config.service'
 import { Material } from '../../models';
 import { FieldConfig, FieldType } from '../../../../modules/clients/models';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 type FormMode = 'create' | 'edit' | 'view';
 
@@ -56,6 +57,7 @@ export class MaterialFormComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private cdr = inject(ChangeDetectorRef);
+  private authService = inject(AuthService);
 
   mode = signal<FormMode>('create');
   materialForm!: FormGroup;
@@ -262,6 +264,10 @@ export class MaterialFormComponent implements OnInit {
         }
       });
 
+      // Get current user ID
+      const currentUser = this.authService.authorizedUser();
+      const currentUserUid = currentUser?.uid || '';
+
       if (this.mode() === 'create') {
         // Crear nuevo material
         const materialData = {
@@ -269,7 +275,7 @@ export class MaterialFormComponent implements OnInit {
           customFields
         };
 
-        const result = await this.materialsService.createMaterial(materialData, 'current-user-uid');
+        const result = await this.materialsService.createMaterial(materialData, currentUserUid);
 
         if (result.success) {
           this.snackBar.open('Material creado exitosamente', 'Cerrar', { duration: 3000 });
@@ -291,7 +297,7 @@ export class MaterialFormComponent implements OnInit {
           }
         };
 
-        const result = await this.materialsService.updateMaterial(material.id, updateData);
+        const result = await this.materialsService.updateMaterial(material.id, updateData, currentUserUid);
 
         if (result.success) {
           this.snackBar.open('Material actualizado exitosamente', 'Cerrar', { duration: 3000 });

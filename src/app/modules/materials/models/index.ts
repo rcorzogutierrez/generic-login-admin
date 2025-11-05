@@ -1,0 +1,187 @@
+/**
+ * Modelos y tipos para el módulo de Materials
+ */
+
+import { GenericEntity, GenericModuleConfig } from '../../../shared/models/generic-entity.interface';
+
+/**
+ * Interfaz para Material (Materiales/Inventario)
+ */
+export interface Material extends GenericEntity {
+  // Campos del sistema (obligatorios)
+  name: string;
+  code: string;
+  description?: string;
+
+  // Campos personalizables
+  customFields?: { [key: string]: any };
+
+  // Metadatos del sistema
+  isActive: boolean;
+  createdAt: Date;
+  createdBy: string;
+  updatedAt?: Date;
+  updatedBy?: string;
+}
+
+/**
+ * Configuración del módulo de Materials
+ */
+export interface MaterialModuleConfig extends GenericModuleConfig {
+  settings: {
+    enableTags?: boolean;
+    enableCategories?: boolean;
+    enableStock?: boolean;
+    requireApproval?: boolean;
+    autoExpiry?: boolean;
+    expiryDays?: number;
+  };
+}
+
+/**
+ * Tipos de campo disponibles para Materials
+ */
+export enum FieldType {
+  TEXT = 'TEXT',
+  NUMBER = 'NUMBER',
+  EMAIL = 'EMAIL',
+  PHONE = 'PHONE',
+  SELECT = 'SELECT',
+  MULTISELECT = 'MULTISELECT',
+  DICTIONARY = 'DICTIONARY',
+  DATE = 'DATE',
+  DATETIME = 'DATETIME',
+  CHECKBOX = 'CHECKBOX',
+  TEXTAREA = 'TEXTAREA',
+  URL = 'URL',
+  CURRENCY = 'CURRENCY'
+}
+
+/**
+ * Configuración de campo personalizado
+ */
+export interface FieldConfig {
+  id: string;
+  name: string;
+  label: string;
+  type: FieldType;
+  icon?: string;
+  placeholder?: string;
+  helpText?: string;
+
+  // Validaciones
+  validation: {
+    required: boolean;
+    minLength?: number;
+    maxLength?: number;
+    min?: number;
+    max?: number;
+    pattern?: string;
+  };
+
+  // Configuración de formulario
+  formOrder: number;
+  formWidth: 'full' | 'half' | 'third';
+  defaultValue?: any;
+
+  // Configuración de grid
+  gridConfig: {
+    showInGrid: boolean;
+    gridOrder: number;
+    gridWidth?: string;
+    sortable: boolean;
+    filterable: boolean;
+  };
+
+  // Opciones (para SELECT, MULTISELECT, DICTIONARY)
+  options?: FieldOption[];
+
+  // Estado
+  isActive: boolean;
+  isSystem: boolean;
+  isDefault: boolean;
+
+  // Metadatos
+  createdAt: Date;
+  createdBy: string;
+  updatedAt?: Date;
+  updatedBy?: string;
+}
+
+/**
+ * Opción para campos SELECT, MULTISELECT, DICTIONARY
+ */
+export interface FieldOption {
+  value: string;
+  label: string;
+  color?: string;
+}
+
+/**
+ * Configuración por defecto del módulo
+ */
+export const DEFAULT_MODULE_CONFIG: Partial<MaterialModuleConfig> = {
+  collection: 'materials',
+  entityName: 'Material',
+  entityNamePlural: 'Materiales',
+  fields: [],
+  settings: {
+    enableTags: true,
+    enableCategories: true,
+    enableStock: true,
+    requireApproval: false,
+    autoExpiry: false,
+    expiryDays: 365
+  }
+};
+
+/**
+ * Campos por defecto del sistema (no editables)
+ */
+export const DEFAULT_MATERIAL_FIELDS: Partial<FieldConfig>[] = [
+  {
+    name: 'name',
+    label: 'Nombre del Material',
+    type: FieldType.TEXT,
+    icon: 'inventory_2',
+    placeholder: 'Ej: Cemento Portland',
+    helpText: 'Nombre descriptivo del material',
+    validation: { required: true, minLength: 2, maxLength: 100 },
+    formOrder: 0,
+    formWidth: 'full',
+    gridConfig: { showInGrid: true, gridOrder: 0, sortable: true, filterable: true },
+    isActive: true,
+    isSystem: true,
+    isDefault: true
+  },
+  {
+    name: 'code',
+    label: 'Código',
+    type: FieldType.TEXT,
+    icon: 'qr_code',
+    placeholder: 'Ej: MAT-001',
+    helpText: 'Código único del material',
+    validation: { required: true, minLength: 2, maxLength: 50 },
+    formOrder: 1,
+    formWidth: 'half',
+    gridConfig: { showInGrid: true, gridOrder: 1, sortable: true, filterable: true },
+    isActive: true,
+    isSystem: true,
+    isDefault: true
+  },
+  {
+    name: 'description',
+    label: 'Descripción',
+    type: FieldType.TEXTAREA,
+    icon: 'description',
+    placeholder: 'Descripción detallada del material...',
+    helpText: 'Información adicional sobre el material',
+    validation: { required: false, maxLength: 500 },
+    formOrder: 2,
+    formWidth: 'full',
+    gridConfig: { showInGrid: false, gridOrder: 2, sortable: false, filterable: false },
+    isActive: true,
+    isSystem: true,
+    isDefault: false
+  }
+];

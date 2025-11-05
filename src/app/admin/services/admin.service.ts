@@ -876,13 +876,6 @@ export class AdminService {
     }));
   }
 
-  /**
-   * Obtiene emails existentes
-   */
-  getExistingEmails(): string[] {
-    return this.usersSignal().map(user => this.normalizeEmail(user.email));
-  }
-
   // ============================================
   // MÉTODOS PRIVADOS DE UTILIDAD
   // ============================================

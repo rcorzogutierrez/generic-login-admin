@@ -95,33 +95,6 @@ export class UiUtilsService {
     return [...array, item];
   }
 
-  /**
-   * Obtiene el mensaje de error apropiado para un control de formulario
-   * Centraliza la lógica de validación de formularios
-   */
-  getFormFieldError(control: AbstractControl | null, fieldLabel: string): string {
-    if (!control || !control.errors) return '';
-
-    if (control.hasError('required')) {
-      return `${fieldLabel} es requerido`;
-    }
-    if (control.hasError('email')) {
-      return 'Email inválido';
-    }
-    if (control.hasError('minlength')) {
-      const len = control.getError('minlength').requiredLength;
-      return `Mínimo ${len} caracteres`;
-    }
-    if (control.hasError('maxlength')) {
-      const len = control.getError('maxlength').requiredLength;
-      return `Máximo ${len} caracteres`;
-    }
-    if (control.hasError('pattern')) {
-      return 'Formato inválido';
-    }
-
-    return 'Campo inválido';
-  }
 
   /**
    * Formatea una fecha relativa (ej: "Hace 5 minutos", "Ayer", etc.)

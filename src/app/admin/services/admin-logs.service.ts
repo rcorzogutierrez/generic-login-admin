@@ -422,51 +422,6 @@ export class AdminLogsService {
   }
 
   /**
-   * Obtiene estadísticas de logs
-   */
-  async getLogsStats(filters?: LogsFilter): Promise<{
-    total: number;
-    byAction: { [key: string]: number };
-    byUser: { [key: string]: number };
-  }> {
-    try {
-      const logsRef = collection(this.db, 'admin_logs');
-      let q = query(logsRef, orderBy('timestamp', 'desc'), limit(500));
-
-      if (filters?.action && filters.action !== 'all') {
-        q = query(q, where('action', '==', filters.action));
-      }
-
-      const querySnapshot = await getDocs(q);
-      
-      const stats = {
-        total: querySnapshot.size,
-        byAction: {} as { [key: string]: number },
-        byUser: {} as { [key: string]: number }
-      };
-
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        const action = data['action'];
-        const user = data['performedByEmail'];
-
-        if (action) {
-          stats.byAction[action] = (stats.byAction[action] || 0) + 1;
-        }
-
-        if (user) {
-          stats.byUser[user] = (stats.byUser[user] || 0) + 1;
-        }
-      });
-
-      return stats;
-    } catch (error) {
-      console.error('❌ Error obteniendo estadísticas:', error);
-      return { total: 0, byAction: {}, byUser: {} };
-    }
-  }
-
-  /**
    * Exporta logs a JSON
    */
   async exportLogs(filters?: LogsFilter): Promise<AdminLog[]> {

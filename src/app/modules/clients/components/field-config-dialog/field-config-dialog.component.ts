@@ -9,7 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 
-import { ClientConfigService } from '../../services/client-config.service';
+import { ClientConfigServiceRefactored } from '../../services/client-config-refactored.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { FieldConfig, FieldType, FieldOption } from '../../models';
 
@@ -77,7 +77,7 @@ export class FieldConfigDialogComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private configService: ClientConfigService,
+    private configService: ClientConfigServiceRefactored,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
     public dialogRef: MatDialogRef<FieldConfigDialogComponent>,

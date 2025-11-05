@@ -1,7 +1,7 @@
 <!-- material-form.component.html -->
 
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[900px] mx-auto p-5">
+  <div class="max-w-[1100px] mx-auto p-5">
 
     @if (isLoading()) {
       <!-- Loading State -->
@@ -63,80 +63,223 @@
 
         <div class="px-8 py-8">
 
-          <!-- Grid de Campos -->
+          <!-- Grid de Campos Dinámicos -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            <!-- Nombre -->
-            <div class="input-group flex flex-col gap-2">
-              <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                <mat-icon class="label-icon !text-lg text-green-500">inventory_2</mat-icon>
-                Nombre del Material
-                <span class="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                class="input-field"
-                formControlName="name"
-                placeholder="Ej: Cemento Portland"
-                [readonly]="mode() === 'view'">
-              @if (hasError('name')) {
-                <div class="input-error">
-                  {{ getErrorMessage('name') }}
-                </div>
-              }
-            </div>
+            @for (field of fields(); track field.id) {
+              <div [class]="getFieldWidth(field)">
 
-            <!-- Código -->
-            <div class="input-group flex flex-col gap-2">
-              <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                <mat-icon class="label-icon !text-lg text-green-500">tag</mat-icon>
-                Código
-                <span class="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                class="input-field"
-                formControlName="code"
-                placeholder="Ej: MAT-001"
-                [readonly]="mode() === 'view'">
-              @if (hasError('code')) {
-                <div class="input-error">
-                  {{ getErrorMessage('code') }}
-                </div>
-              }
-            </div>
+                <!-- ========== TEXT / EMAIL / PHONE / URL ========== -->
+                @if (field.type === FieldType.TEXT || field.type === FieldType.EMAIL || field.type === FieldType.PHONE || field.type === FieldType.URL) {
+                  <div class="input-group flex flex-col gap-2">
+                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                      @if (field.icon) {
+                        <mat-icon class="label-icon !text-lg text-green-500">{{ field.icon }}</mat-icon>
+                      }
+                      {{ field.label }}
+                      @if (field.validation.required) {
+                        <span class="text-red-500">*</span>
+                      }
+                    </label>
+                    <input
+                      [type]="field.type === FieldType.EMAIL ? 'email' : field.type === FieldType.URL ? 'url' : field.type === FieldType.PHONE ? 'tel' : 'text'"
+                      class="input-field"
+                      [formControlName]="field.name"
+                      [placeholder]="field.placeholder || ''"
+                      [readonly]="mode() === 'view'">
+                    @if (field.helpText && !hasError(field.name)) {
+                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
+                    }
+                    @if (hasError(field.name)) {
+                      <div class="input-error">
+                        {{ getErrorMessage(field.name) }}
+                      </div>
+                    }
+                  </div>
+                }
 
-            <!-- Descripción (ancho completo) -->
-            <div class="col-span-2 input-group flex flex-col gap-2">
-              <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                <mat-icon class="label-icon !text-lg text-green-500">description</mat-icon>
-                Descripción
-              </label>
-              <textarea
-                class="input-field resize-y min-h-[100px]"
-                formControlName="description"
-                placeholder="Descripción detallada del material..."
-                [readonly]="mode() === 'view'"></textarea>
-              @if (hasError('description')) {
-                <div class="input-error">
-                  {{ getErrorMessage('description') }}
-                </div>
-              }
-            </div>
+                <!-- ========== NUMBER / CURRENCY ========== -->
+                @if (field.type === FieldType.NUMBER || field.type === FieldType.CURRENCY) {
+                  <div class="input-group flex flex-col gap-2">
+                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                      @if (field.icon) {
+                        <mat-icon class="label-icon !text-lg text-green-500">{{ field.icon }}</mat-icon>
+                      }
+                      {{ field.label }}
+                      @if (field.validation.required) {
+                        <span class="text-red-500">*</span>
+                      }
+                    </label>
+                    <div class="relative">
+                      @if (field.type === FieldType.CURRENCY) {
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-semibold">$</span>
+                      }
+                      <input
+                        type="number"
+                        [class]="'input-field' + (field.type === FieldType.CURRENCY ? ' pl-10' : '')"
+                        [formControlName]="field.name"
+                        [placeholder]="field.placeholder || ''"
+                        [min]="field.validation.min ?? null"
+                        [max]="field.validation.max ?? null"
+                        [readonly]="mode() === 'view'">
+                    </div>
+                    @if (field.helpText && !hasError(field.name)) {
+                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
+                    }
+                    @if (hasError(field.name)) {
+                      <div class="input-error">
+                        {{ getErrorMessage(field.name) }}
+                      </div>
+                    }
+                  </div>
+                }
 
-            <!-- Estado Activo -->
-            <div class="input-group flex flex-col gap-2">
-              <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                <mat-icon class="label-icon !text-lg text-green-500">check_circle</mat-icon>
-                Estado
-              </label>
-              <mat-checkbox
-                formControlName="isActive"
-                [disabled]="mode() === 'view'"
-                class="custom-checkbox">
-                Material activo
-              </mat-checkbox>
-            </div>
+                <!-- ========== TEXTAREA ========== -->
+                @if (field.type === FieldType.TEXTAREA) {
+                  <div class="input-group flex flex-col gap-2">
+                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                      @if (field.icon) {
+                        <mat-icon class="label-icon !text-lg text-green-500">{{ field.icon }}</mat-icon>
+                      }
+                      {{ field.label }}
+                      @if (field.validation.required) {
+                        <span class="text-red-500">*</span>
+                      }
+                    </label>
+                    <textarea
+                      class="input-field !h-auto py-3"
+                      [formControlName]="field.name"
+                      [placeholder]="field.placeholder || ''"
+                      rows="3"
+                      [maxlength]="field.validation.maxLength ?? null"
+                      [readonly]="mode() === 'view'"></textarea>
+                    @if (field.helpText && !hasError(field.name)) {
+                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
+                    }
+                    @if (hasError(field.name)) {
+                      <div class="input-error">
+                        {{ getErrorMessage(field.name) }}
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- ========== SELECT ========== -->
+                @if (field.type === FieldType.SELECT) {
+                  <div class="input-group flex flex-col gap-2">
+                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                      @if (field.icon) {
+                        <mat-icon class="label-icon !text-lg text-green-500">{{ field.icon }}</mat-icon>
+                      }
+                      {{ field.label }}
+                      @if (field.validation.required) {
+                        <span class="text-red-500">*</span>
+                      }
+                    </label>
+                    <select
+                      class="input-field"
+                      [formControlName]="field.name"
+                      [disabled]="mode() === 'view'">
+                      <option value="">{{ field.placeholder || 'Seleccionar...' }}</option>
+                      @for (option of field.options; track option.value) {
+                        <option [value]="option.value">{{ option.label }}</option>
+                      }
+                    </select>
+                    @if (field.helpText && !hasError(field.name)) {
+                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
+                    }
+                    @if (hasError(field.name)) {
+                      <div class="input-error">
+                        {{ getErrorMessage(field.name) }}
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- ========== MULTISELECT ========== -->
+                @if (field.type === FieldType.MULTISELECT) {
+                  <div class="input-group flex flex-col gap-2">
+                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                      @if (field.icon) {
+                        <mat-icon class="label-icon !text-lg text-green-500">{{ field.icon }}</mat-icon>
+                      }
+                      {{ field.label }}
+                      @if (field.validation.required) {
+                        <span class="text-red-500">*</span>
+                      }
+                    </label>
+                    <select
+                      multiple
+                      class="input-field !min-h-[120px]"
+                      [formControlName]="field.name"
+                      [disabled]="mode() === 'view'">
+                      @for (option of field.options; track option.value) {
+                        <option [value]="option.value">{{ option.label }}</option>
+                      }
+                    </select>
+                    <span class="text-xs text-slate-500 mt-1">Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples opciones</span>
+                    @if (field.helpText && !hasError(field.name)) {
+                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
+                    }
+                    @if (hasError(field.name)) {
+                      <div class="input-error">
+                        {{ getErrorMessage(field.name) }}
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- ========== DATE / DATETIME ========== -->
+                @if (field.type === FieldType.DATE || field.type === FieldType.DATETIME) {
+                  <div class="input-group flex flex-col gap-2">
+                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                      @if (field.icon) {
+                        <mat-icon class="label-icon !text-lg text-green-500">{{ field.icon }}</mat-icon>
+                      }
+                      {{ field.label }}
+                      @if (field.validation.required) {
+                        <span class="text-red-500">*</span>
+                      }
+                    </label>
+                    <input
+                      [type]="field.type === FieldType.DATETIME ? 'datetime-local' : 'date'"
+                      class="input-field"
+                      [formControlName]="field.name"
+                      [readonly]="mode() === 'view'">
+                    @if (field.helpText && !hasError(field.name)) {
+                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
+                    }
+                    @if (hasError(field.name)) {
+                      <div class="input-error">
+                        {{ getErrorMessage(field.name) }}
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- ========== CHECKBOX ========== -->
+                @if (field.type === FieldType.CHECKBOX) {
+                  <div class="input-group flex flex-col gap-2">
+                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                      @if (field.icon) {
+                        <mat-icon class="label-icon !text-lg text-green-500">{{ field.icon }}</mat-icon>
+                      }
+                      {{ field.label }}
+                    </label>
+                    <mat-checkbox
+                      [formControlName]="field.name"
+                      [disabled]="mode() === 'view'"
+                      class="custom-checkbox">
+                      {{ field.placeholder || field.label }}
+                    </mat-checkbox>
+                    @if (field.helpText) {
+                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
+                    }
+                  </div>
+                }
+
+              </div>
+            }
 
           </div>
 

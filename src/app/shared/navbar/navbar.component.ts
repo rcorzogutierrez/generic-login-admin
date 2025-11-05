@@ -9,6 +9,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../core/services/auth.service';
 import { AppConfigService } from '../../core/services/app-config.service';
+import { AdminService } from '../../admin/services/admin.service';
+import { ModulesService } from '../../admin/services/modules.service';
 
 @Component({
   selector: 'app-navbar',
@@ -33,9 +35,14 @@ export class NavbarComponent implements OnInit {
   logoUrl = this.appConfigService.logoUrl;
   logoBackgroundColor = this.appConfigService.logoBackgroundColor;
 
+  // Módulos asignados al usuario
+  userModules = signal<string[]>([]);
+
   constructor(
     public authService: AuthService,
     private appConfigService: AppConfigService,
+    private adminService: AdminService,
+    private modulesService: ModulesService,
     private router: Router
   ) {}
 
@@ -48,6 +55,41 @@ export class NavbarComponent implements OnInit {
       logoUrl: this.logoUrl()
     });
     console.log('🧭 Navbar cargado para:', this.user()?.email);
+
+    // Cargar módulos del usuario
+    await this.loadUserModules();
+  }
+
+  /**
+   * Carga los módulos asignados al usuario
+   */
+  async loadUserModules() {
+    try {
+      const userEmail = this.user()?.email;
+      if (!userEmail) return;
+
+      // Inicializar servicios
+      await this.adminService.initialize();
+      await this.modulesService.initialize();
+
+      // Obtener datos del usuario
+      const users = this.adminService.users();
+      const currentUserData = users.find(u => u.email === userEmail);
+
+      if (currentUserData?.modules) {
+        this.userModules.set(currentUserData.modules);
+        console.log('📦 Módulos cargados para navbar:', currentUserData.modules);
+      }
+    } catch (error) {
+      console.error('Error cargando módulos del usuario:', error);
+    }
+  }
+
+  /**
+   * Verifica si el usuario tiene un módulo específico asignado
+   */
+  hasModule(moduleName: string): boolean {
+    return this.userModules().includes(moduleName);
   }
 
   getUserInitials(): string {

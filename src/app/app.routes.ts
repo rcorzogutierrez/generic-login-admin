@@ -42,6 +42,16 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./modules/clients/clients.routes').then(m => m.CLIENTS_ROUTES),
   },
+  {
+    path: 'materials',
+    loadChildren: () =>
+      import('./modules/materials/materials.routes').then(m => m.MATERIALS_ROUTES),
+  },
+  {
+    path: 'workers',
+    loadChildren: () =>
+      import('./modules/workers/workers.routes').then(m => m.WORKERS_ROUTES),
+  },
 
   // RUTAS DE ADMINISTRACIÓN
   {

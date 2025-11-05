@@ -1,0 +1,74 @@
+<!-- src/app/modules/workers/components/worker-config/worker-config.component.html -->
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
+  <div class="max-w-[1400px] mx-auto p-5">
+
+    <!-- HEADER -->
+    <header class="page-header">
+      <div class="flex items-center justify-between gap-5 flex-wrap">
+
+        <!-- Left Section -->
+        <div class="flex items-center gap-4">
+          <button
+            mat-icon-button
+            class="icon-btn"
+            (click)="goBack()"
+            matTooltip="Volver a trabajadores"
+            aria-label="Volver a trabajadores">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+
+          <div class="header-icon-container" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+            <mat-icon>settings</mat-icon>
+          </div>
+
+          <div>
+            <h1 class="text-2xl font-bold text-slate-800 mb-1">Configuración de Trabajadores</h1>
+            <p class="text-sm text-slate-600 flex items-center gap-2 font-medium">
+              <span class="status-dot"></span>
+              Administra campos personalizados y configuración
+            </p>
+          </div>
+        </div>
+
+        <!-- Right Section -->
+        <div class="flex items-center gap-3">
+          <button
+            mat-icon-button
+            class="icon-btn"
+            (click)="loadConfig()"
+            [disabled]="isLoading"
+            matTooltip="Recargar configuración"
+            aria-label="Recargar configuración">
+            <mat-icon>refresh</mat-icon>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- LOADING STATE -->
+    @if (isLoading && fields.length === 0) {
+      <div class="empty-state">
+        <div class="w-12 h-12 border-4 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
+        <p class="mt-4 text-slate-600 font-medium">Cargando configuración...</p>
+      </div>
+    }
+
+    <!-- MAIN CONTENT -->
+    @if (!isLoading || fields.length > 0) {
+
+      <!-- DISEÑADOR DE FORMULARIO -->
+      <section class="mt-6">
+        <app-form-designer
+          [fields]="fields"
+          [layout]="formLayout"
+          [configService]="configService"
+          [moduleName]="'trabajadores'"
+          (layoutChange)="onLayoutChange($event)"
+          (fieldAdded)="onFieldAdded()">
+        </app-form-designer>
+      </section>
+
+    }
+
+  </div>
+</div>

@@ -41,6 +41,8 @@ export class UserModulesComponent implements OnInit {
     'dashboard': '/dashboard',
     'user-management': '/admin',
     'clients': '/modules/clients',
+    'materials': '/materials',
+    'workers': '/workers',
     'analytics': '/analytics',
     'settings': '/admin/config',
     'notifications': '/notifications',

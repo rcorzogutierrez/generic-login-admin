@@ -20,8 +20,8 @@ export const WORKERS_ROUTES: Routes = [
       {
         path: 'config',
         loadComponent: () =>
-          import('../clients/components/client-config/client-config.component').then(
-            m => m.ClientConfigComponent
+          import('./components/worker-config/worker-config.component').then(
+            m => m.WorkerConfigComponent
           ),
         canActivate: [roleGuard(['admin'])],
         title: 'Configuración de Trabajadores'

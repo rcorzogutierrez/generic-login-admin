@@ -20,8 +20,8 @@ export const MATERIALS_ROUTES: Routes = [
       {
         path: 'config',
         loadComponent: () =>
-          import('../clients/components/client-config/client-config.component').then(
-            m => m.ClientConfigComponent
+          import('./components/material-config/material-config.component').then(
+            m => m.MaterialConfigComponent
           ),
         canActivate: [roleGuard(['admin'])],
         title: 'Configuración de Materiales'

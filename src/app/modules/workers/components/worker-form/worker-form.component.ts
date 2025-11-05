@@ -120,7 +120,7 @@ export class WorkerFormComponent implements OnInit {
 
       if (!worker) {
         this.snackBar.open('Trabajador no encontrado', 'Cerrar', { duration: 3000 });
-        this.router.navigate(['/workers']);
+        this.router.navigate(['/modules/workers']);
         return;
       }
 
@@ -279,7 +279,7 @@ export class WorkerFormComponent implements OnInit {
 
         if (result.success) {
           this.snackBar.open('Trabajador creado exitosamente', 'Cerrar', { duration: 3000 });
-          this.router.navigate(['/workers']);
+          this.router.navigate(['/modules/workers']);
         } else {
           this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
         }
@@ -301,7 +301,7 @@ export class WorkerFormComponent implements OnInit {
 
         if (result.success) {
           this.snackBar.open('Trabajador actualizado exitosamente', 'Cerrar', { duration: 3000 });
-          this.router.navigate(['/workers']);
+          this.router.navigate(['/modules/workers']);
         } else {
           this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
         }
@@ -330,7 +330,7 @@ export class WorkerFormComponent implements OnInit {
 
       dialogRef.afterClosed().subscribe(confirmed => {
         if (confirmed) {
-          this.router.navigate(['/workers']);
+          this.router.navigate(['/modules/workers']);
         }
       });
     } else {

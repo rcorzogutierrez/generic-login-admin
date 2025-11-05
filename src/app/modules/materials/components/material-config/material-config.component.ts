@@ -141,7 +141,7 @@ export class MaterialConfigComponent implements OnInit {
    * Vuelve a la lista de materiales
    */
   goBack() {
-    this.router.navigate(['/materials']);
+    this.router.navigate(['/modules/materials']);
   }
 
   /**

@@ -141,7 +141,7 @@ export class WorkerConfigComponent implements OnInit {
    * Vuelve a la lista de trabajadores
    */
   goBack() {
-    this.router.navigate(['/workers']);
+    this.router.navigate(['/modules/workers']);
   }
 
   /**

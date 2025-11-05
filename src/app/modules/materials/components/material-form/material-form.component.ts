@@ -120,7 +120,7 @@ export class MaterialFormComponent implements OnInit {
 
       if (!material) {
         this.snackBar.open('Material no encontrado', 'Cerrar', { duration: 3000 });
-        this.router.navigate(['/materials']);
+        this.router.navigate(['/modules/materials']);
         return;
       }
 
@@ -279,7 +279,7 @@ export class MaterialFormComponent implements OnInit {
 
         if (result.success) {
           this.snackBar.open('Material creado exitosamente', 'Cerrar', { duration: 3000 });
-          this.router.navigate(['/materials']);
+          this.router.navigate(['/modules/materials']);
         } else {
           this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
         }
@@ -301,7 +301,7 @@ export class MaterialFormComponent implements OnInit {
 
         if (result.success) {
           this.snackBar.open('Material actualizado exitosamente', 'Cerrar', { duration: 3000 });
-          this.router.navigate(['/materials']);
+          this.router.navigate(['/modules/materials']);
         } else {
           this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
         }
@@ -330,7 +330,7 @@ export class MaterialFormComponent implements OnInit {
 
       dialogRef.afterClosed().subscribe(confirmed => {
         if (confirmed) {
-          this.router.navigate(['/materials']);
+          this.router.navigate(['/modules/materials']);
         }
       });
     } else {

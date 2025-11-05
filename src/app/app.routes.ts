@@ -43,12 +43,12 @@ export const routes: Routes = [
       import('./modules/clients/clients.routes').then(m => m.CLIENTS_ROUTES),
   },
   {
-    path: 'materials',
+    path: 'modules/materials',
     loadChildren: () =>
       import('./modules/materials/materials.routes').then(m => m.MATERIALS_ROUTES),
   },
   {
-    path: 'workers',
+    path: 'modules/workers',
     loadChildren: () =>
       import('./modules/workers/workers.routes').then(m => m.WORKERS_ROUTES),
   },

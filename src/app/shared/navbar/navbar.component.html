@@ -48,6 +48,24 @@
           <mat-icon>group</mat-icon>
           <span>Clientes</span>
         </a>
+        @if (hasModule('materials')) {
+          <a
+            class="nav-link"
+            routerLink="/materials"
+            routerLinkActive="active">
+            <mat-icon>inventory_2</mat-icon>
+            <span>Materiales</span>
+          </a>
+        }
+        @if (hasModule('workers')) {
+          <a
+            class="nav-link"
+            routerLink="/workers"
+            routerLinkActive="active">
+            <mat-icon>engineering</mat-icon>
+            <span>Trabajadores</span>
+          </a>
+        }
         @if (isAdmin()) {
           <a
             class="nav-link"

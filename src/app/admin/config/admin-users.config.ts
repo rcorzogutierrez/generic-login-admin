@@ -43,9 +43,8 @@ export const ADMIN_USERS_CONFIG: GenericModuleConfig = {
   fields: [
     {
       name: 'displayName',
-      label: 'Nombre',
+      label: 'Usuario',
       type: 'text',
-      isDefault: true,
       showInDelete: true,
       showInGrid: true
     },
@@ -53,7 +52,6 @@ export const ADMIN_USERS_CONFIG: GenericModuleConfig = {
       name: 'email',
       label: 'Email',
       type: 'email',
-      isDefault: true,
       showInDelete: true,
       showInGrid: true
     },

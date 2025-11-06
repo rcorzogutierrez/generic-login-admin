@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -12,11 +12,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 
-import { WorkersService } from '../../services';
+import { WorkersService, WorkersConfigService } from '../../services';
 import { Worker } from '../../models';
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
 import { GenericDeleteMultipleDialogComponent } from '../../../../shared/components/generic-delete-multiple-dialog/generic-delete-multiple-dialog.component';
-import { WORKERS_CONFIG, adaptWorkerToGenericEntity } from '../../config/workers.config';
+import { createGenericConfig } from '../../config/workers.config';
 
 @Component({
   selector: 'app-workers-list',
@@ -44,8 +44,17 @@ export class WorkersListComponent implements OnInit {
   filteredWorkers = signal<Worker[]>([]);
   displayedWorkers = signal<Worker[]>([]);
 
+  config = this.configService.config;
+
+  // Generic config for delete dialogs
+  genericConfig = computed(() => {
+    const workerConfig = this.config();
+    return workerConfig ? createGenericConfig(workerConfig) : null;
+  });
+
   constructor(
     private workersService: WorkersService,
+    private configService: WorkersConfigService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router
@@ -53,7 +62,10 @@ export class WorkersListComponent implements OnInit {
 
   async ngOnInit() {
     this.isLoading = true;
-    await this.workersService.initialize();
+    await Promise.all([
+      this.configService.initialize(),
+      this.workersService.initialize()
+    ]);
     this.applyFilters();
     this.isLoading = false;
   }
@@ -87,11 +99,17 @@ export class WorkersListComponent implements OnInit {
   }
 
   async deleteWorker(worker: Worker) {
+    const config = this.genericConfig();
+    if (!config) {
+      this.snackBar.open('Configuración no disponible', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
     const dialogRef = this.dialog.open(GenericDeleteDialogComponent, {
       width: '600px',
       data: {
-        entity: adaptWorkerToGenericEntity(worker),
-        config: WORKERS_CONFIG
+        entity: worker as any,
+        config: config
       }
     });
 
@@ -114,14 +132,20 @@ export class WorkersListComponent implements OnInit {
       return;
     }
 
+    const config = this.genericConfig();
+    if (!config) {
+      this.snackBar.open('Configuración no disponible', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
     const selectedList = this.workers().filter(w => this.selectedWorkers.has(w.id));
 
     const dialogRef = this.dialog.open(GenericDeleteMultipleDialogComponent, {
       width: '700px',
       data: {
-        entities: selectedList.map(adaptWorkerToGenericEntity),
+        entities: selectedList as any[],
         count: selectedList.length,
-        config: WORKERS_CONFIG
+        config: config
       }
     });
 

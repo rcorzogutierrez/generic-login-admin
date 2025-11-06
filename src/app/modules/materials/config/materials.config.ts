@@ -1,64 +1,79 @@
 /**
  * Configuración de materials para diálogos genéricos de eliminación
- * Similar a admin-users.config.ts para reutilizar componentes genéricos
+ * Similar a clients-config.ts para reutilizar componentes genéricos
  */
 
-import { GenericModuleConfig } from '../../../shared/models/generic-entity.interface';
-import { Material } from '../models';
+import { GenericModuleConfig, GenericFieldConfig } from '../../../shared/models/generic-entity.interface';
+import { FieldConfig, FieldType, MaterialModuleConfig } from '../models';
 
 /**
- * Configuración del módulo de materials para diálogos genéricos
+ * Convierte el tipo de campo de FieldType a string genérico
  */
-export const MATERIALS_CONFIG: GenericModuleConfig = {
-  collection: 'materials',
-  entityName: 'Material',
-  entityNamePlural: 'Materiales',
-  deleteDialogFieldsCount: 3,
-
-  fields: [
-    {
-      name: 'name',
-      label: 'Nombre',
-      type: 'text',
-      showInDelete: true,
-      showInGrid: true
-    },
-    {
-      name: 'code',
-      label: 'Código',
-      type: 'text',
-      showInDelete: true,
-      showInGrid: true
-    },
-    {
-      name: 'description',
-      label: 'Descripción',
-      type: 'text',
-      showInDelete: true,
-      showInGrid: false,
-      format: (desc: string) => {
-        if (!desc) return '-';
-        return desc.length > 50 ? desc.substring(0, 50) + '...' : desc;
-      }
-    },
-    {
-      name: 'isActive',
-      label: 'Estado',
-      type: 'checkbox',
-      showInDelete: false,
-      showInGrid: true,
-      format: (isActive: boolean) => isActive ? '✓ Activo' : '✗ Inactivo'
-    }
-  ]
-};
+function mapFieldType(fieldType: FieldType): GenericFieldConfig['type'] {
+  switch (fieldType) {
+    case FieldType.TEXT:
+      return 'text';
+    case FieldType.NUMBER:
+      return 'number';
+    case FieldType.EMAIL:
+      return 'email';
+    case FieldType.PHONE:
+      return 'phone';
+    case FieldType.SELECT:
+      return 'select';
+    case FieldType.MULTISELECT:
+      return 'multiselect';
+    case FieldType.DICTIONARY:
+      return 'dictionary';
+    case FieldType.DATE:
+      return 'date';
+    case FieldType.DATETIME:
+      return 'datetime';
+    case FieldType.CHECKBOX:
+      return 'checkbox';
+    case FieldType.TEXTAREA:
+      return 'text';
+    case FieldType.URL:
+      return 'text';
+    case FieldType.CURRENCY:
+      return 'currency';
+    default:
+      return 'text';
+  }
+}
 
 /**
- * Adapta un Material al formato GenericEntity
- * GenericEntity requiere 'id' mientras Material ya lo tiene
+ * Convierte FieldConfig[] a GenericFieldConfig[]
  */
-export function adaptMaterialToGenericEntity(material: Material): any {
+function mapFieldsToGeneric(fields: FieldConfig[]): GenericFieldConfig[] {
+  return fields
+    .filter(field => field.isActive && !field.isSystem)
+    .map(field => ({
+      name: field.name,
+      label: field.label,
+      type: mapFieldType(field.type),
+      options: field.options,
+      showInGrid: field.gridConfig?.showInGrid || false,
+      showInDelete: field.gridConfig?.showInGrid !== false,
+      isDefault: field.isDefault
+    }));
+}
+
+/**
+ * Crea GenericModuleConfig a partir de MaterialModuleConfig
+ */
+export function createGenericConfig(materialConfig: MaterialModuleConfig): GenericModuleConfig {
   return {
-    ...material,
-    id: material.id // Material ya tiene id desde GenericEntity
+    collection: 'materials',
+    entityName: 'Material',
+    entityNamePlural: 'Materiales',
+    deleteDialogFieldsCount: 3,
+    searchFields: ['name', 'code', 'description'],
+    defaultSort: {
+      field: materialConfig.gridConfig?.sortBy || 'name',
+      direction: materialConfig.gridConfig?.sortOrder || 'asc'
+    },
+    itemsPerPage: materialConfig.gridConfig?.itemsPerPage || 25,
+    fields: mapFieldsToGeneric(materialConfig.fields)
   };
 }

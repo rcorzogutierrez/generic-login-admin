@@ -34,8 +34,9 @@ export function moduleGuard(requiredModule: string): CanActivateFn {
 
     try {
       // Solo verificar módulos asignados para usuarios no-admin
-      console.log(`🔄 moduleGuard: Inicializando AdminService...`);
-      await adminService.initialize();
+      // IMPORTANTE: Usar forceRefresh=true para obtener siempre datos frescos de permisos
+      console.log(`🔄 moduleGuard: Inicializando AdminService (forceRefresh)...`);
+      await adminService.initialize(true);
 
       // Obtener datos del usuario desde Firebase
       const users = adminService.users();

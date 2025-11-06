@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { WorkerModuleConfig, DEFAULT_MODULE_CONFIG, DEFAULT_WORKER_FIELDS } from '../models';
+import { WorkerModuleConfig, DEFAULT_MODULE_CONFIG } from '../models';
 import { ModuleConfigBaseService } from '../../../shared/modules/dynamic-form-builder';
 
 @Injectable({
@@ -8,7 +8,7 @@ import { ModuleConfigBaseService } from '../../../shared/modules/dynamic-form-bu
 // @ts-expect-error - WorkerModuleConfig extends GenericModuleConfig, type compatibility handled at runtime
 export class WorkersConfigService extends ModuleConfigBaseService<WorkerModuleConfig> {
   protected readonly collectionPath = 'moduleConfigs/workers';
-  protected readonly defaultFields = DEFAULT_WORKER_FIELDS;
+  protected readonly defaultFields = []; // Sin campos por defecto - solo los configurados en el builder
 
   protected getDefaultConfig(): Omit<WorkerModuleConfig, 'id' | 'lastModified' | 'modifiedBy'> {
     return {

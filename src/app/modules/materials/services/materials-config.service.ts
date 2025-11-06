@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { MaterialModuleConfig, DEFAULT_MODULE_CONFIG, DEFAULT_MATERIAL_FIELDS } from '../models';
+import { MaterialModuleConfig, DEFAULT_MODULE_CONFIG } from '../models';
 import { ModuleConfigBaseService } from '../../../shared/modules/dynamic-form-builder';
 
 @Injectable({
@@ -15,7 +15,7 @@ export class MaterialsConfigService extends ModuleConfigBaseService<MaterialModu
 
   // Implementación de propiedades abstractas
   protected readonly collectionPath = 'moduleConfigs/materials';
-  protected readonly defaultFields = DEFAULT_MATERIAL_FIELDS;
+  protected readonly defaultFields = []; // Sin campos por defecto - solo los configurados en el builder
 
   /**
    * Retorna la configuración por defecto del módulo de materials

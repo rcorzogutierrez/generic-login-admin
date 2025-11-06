@@ -165,16 +165,18 @@
                     class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
                 </th>
 
-                <!-- Columnas -->
-                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                  Nombre
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider w-40">
-                  Código
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                  Descripción
-                </th>
+                <!-- Columnas Dinámicas -->
+                @for (field of gridFields(); track field.id) {
+                  <th
+                    class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider"
+                    [style.width]="field.gridConfig.gridWidth || 'auto'">
+                    <div class="flex items-center gap-2">
+                      <span>{{ field.label }}</span>
+                    </div>
+                  </th>
+                }
+
+                <!-- Estado -->
                 <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider w-32">
                   Estado
                 </th>
@@ -200,20 +202,12 @@
                       class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
                   </td>
 
-                  <!-- Nombre -->
-                  <td class="px-4 py-3 text-sm text-slate-700 font-medium">
-                    {{ material.name }}
-                  </td>
-
-                  <!-- Código -->
-                  <td class="px-4 py-3 text-sm text-slate-600">
-                    {{ material.code }}
-                  </td>
-
-                  <!-- Descripción -->
-                  <td class="px-4 py-3 text-sm text-slate-600">
-                    {{ material.description || '-' }}
-                  </td>
+                  <!-- Columnas Dinámicas -->
+                  @for (field of gridFields(); track field.id) {
+                    <td class="px-4 py-3 text-sm text-slate-700">
+                      {{ formatFieldValue(getFieldValue(material, field.name), field) }}
+                    </td>
+                  }
 
                   <!-- Estado -->
                   <td class="px-4 py-3">

@@ -23,6 +23,7 @@ import { MatDialog } from '@angular/material/dialog';
 // Services
 import { ClientsService } from '../../services/clients.service';
 import { ClientConfigServiceRefactored } from '../../services/client-config-refactored.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 // Models
 import { Client, CreateClientData, UpdateClientData } from '../../models/client.interface';
@@ -66,6 +67,7 @@ export class ClientFormComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
   private dialog = inject(MatDialog);
+  private authService = inject(AuthService);
 
   // Signals
   mode = signal<FormMode>('create');
@@ -112,13 +114,36 @@ export class ClientFormComponent implements OnInit {
       // Validar que existan campos configurados
       if (activeFields.length === 0) {
         console.warn('⚠️ No hay campos configurados en el módulo de Clients');
-        this.snackBar.open('⚠️ No hay campos configurados. Por favor, configura los campos del formulario primero.', 'Ir a Configuración', {
-          duration: 8000,
-          horizontalPosition: 'center',
-          verticalPosition: 'top'
-        }).onAction().subscribe(() => {
-          this.router.navigate(['/modules/clients/config']);
-        });
+
+        const currentUser = this.authService.authorizedUser();
+        const isAdmin = currentUser?.role === 'admin';
+
+        if (isAdmin) {
+          // Admin: mostrar botón para ir a configuración
+          this.snackBar.open(
+            '⚠️ No hay campos configurados. Por favor, configura los campos del formulario primero.',
+            'Ir a Configuración',
+            {
+              duration: 8000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top'
+            }
+          ).onAction().subscribe(() => {
+            this.router.navigate(['/modules/clients/config']);
+          });
+        } else {
+          // Usuario normal: solo mostrar mensaje
+          this.snackBar.open(
+            '⚠️ No hay campos configurados. Contacta al administrador para configurar este módulo.',
+            'Cerrar',
+            {
+              duration: 8000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top'
+            }
+          );
+        }
+
         this.router.navigate(['/modules/clients']);
         return;
       }

@@ -62,6 +62,7 @@ export class WorkerFormComponent implements OnInit {
   mode = signal<FormMode>('create');
   workerForm!: FormGroup;
   fields = signal<FieldConfig[]>([]);
+  formLayout = signal<any>(null); // FormLayoutConfig
   isLoading = signal<boolean>(false);
   isSaving = signal<boolean>(false);
   currentWorker = signal<Worker | null>(null);
@@ -86,6 +87,11 @@ export class WorkerFormComponent implements OnInit {
       const activeFields = this.configService.getActiveFields();
       console.log('📝 FORMULARIO WORKERS: Campos activos cargados:', activeFields.length);
       this.fields.set(activeFields);
+
+      // Cargar layout del formulario
+      const layout = this.configService.getFormLayout();
+      this.formLayout.set(layout);
+      console.log('📐 Layout del formulario cargado:', layout ? `${layout.columns} columnas` : 'sin layout');
 
       // Determinar modo según ruta
       const workerId = this.route.snapshot.paramMap.get('id');
@@ -380,5 +386,56 @@ export class WorkerFormComponent implements OnInit {
       default:
         return 'col-span-2 md:col-span-1';
     }
+  }
+
+  /**
+   * Obtener número de columnas del grid
+   */
+  getGridColumns(): number {
+    const layout = this.formLayout();
+    return layout?.columns || 2;
+  }
+
+  /**
+   * Obtener estilo inline para el grid según el número de columnas
+   */
+  getGridStyle(): { [key: string]: string } {
+    const columns = this.getGridColumns();
+    return {
+      'display': 'grid',
+      'grid-template-columns': `repeat(${columns}, minmax(0, 1fr))`,
+      'gap': '1.5rem'
+    };
+  }
+
+  /**
+   * Obtener estilo inline para posicionar un campo en el grid
+   */
+  getFieldStyle(field: any): { [key: string]: string } {
+    const layout = this.formLayout();
+
+    // Si no hay layout, usar comportamiento por defecto (flow normal del grid)
+    if (!layout || !layout.fields || !field.id) {
+      return {};
+    }
+
+    const position = layout.fields[field.id];
+
+    // Si el campo no tiene posición en el layout, usar flow normal
+    if (!position) {
+      return {};
+    }
+
+    // Calcular grid-column basado en la columna y colSpan
+    const colStart = position.col + 1; // CSS Grid usa índices 1-based
+    const colEnd = colStart + (position.colSpan || 1);
+
+    // Calcular grid-row
+    const rowStart = position.row + 1; // CSS Grid usa índices 1-based
+
+    return {
+      'grid-column': `${colStart} / ${colEnd}`,
+      'grid-row': `${rowStart}`
+    };
   }
 }

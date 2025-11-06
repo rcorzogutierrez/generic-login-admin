@@ -64,10 +64,10 @@
         <div class="px-8 py-8">
 
           <!-- Grid de Campos Dinámicos -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div [ngStyle]="getGridStyle()">
 
             @for (field of fields(); track field.id) {
-              <div [class]="getFieldWidth(field)">
+              <div [ngStyle]="getFieldStyle(field)">
 
                 <!-- ========== TEXT / EMAIL / PHONE / URL ========== -->
                 @if (field.type === FieldType.TEXT || field.type === FieldType.EMAIL || field.type === FieldType.PHONE || field.type === FieldType.URL) {

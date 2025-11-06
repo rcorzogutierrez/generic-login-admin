@@ -17,6 +17,7 @@ import { Worker } from '../../models';
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
 import { GenericDeleteMultipleDialogComponent } from '../../../../shared/components/generic-delete-multiple-dialog/generic-delete-multiple-dialog.component';
 import { createGenericConfig } from '../../config/workers.config';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-workers-list',
@@ -58,7 +59,8 @@ export class WorkersListComponent implements OnInit {
     private configService: WorkersConfigService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   async ngOnInit() {
@@ -97,6 +99,24 @@ export class WorkersListComponent implements OnInit {
 
   editWorker(worker: Worker) {
     this.router.navigate(['/modules/workers', worker.id, 'edit']);
+  }
+
+  async toggleActive(worker: Worker) {
+    const currentUser = this.authService.authorizedUser();
+    if (!currentUser?.uid) {
+      this.snackBar.open('Usuario no autenticado', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    const newStatus = !worker.isActive;
+    const result = await this.workersService.toggleActive(worker.id, newStatus, currentUser.uid);
+
+    if (result.success) {
+      this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
+      this.applyFilters();
+    } else {
+      this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+    }
   }
 
   async deleteWorker(worker: Worker) {

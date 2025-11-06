@@ -225,6 +225,35 @@ export class MaterialsService {
   }
 
   /**
+   * Activa o inactiva un material
+   */
+  async toggleActive(materialId: string, isActive: boolean, currentUserUid: string): Promise<OperationResult> {
+    try {
+      const materialsRef = collection(this.db, 'materials');
+      const materialDocRef = doc(materialsRef, materialId);
+
+      await updateDoc(materialDocRef, {
+        isActive,
+        updatedAt: Timestamp.now(),
+        updatedBy: currentUserUid
+      });
+
+      await this.loadMaterials();
+
+      return {
+        success: true,
+        message: `Material ${isActive ? 'activado' : 'inactivado'} exitosamente`
+      };
+    } catch (error: any) {
+      console.error('❌ Error cambiando estado del material:', error);
+      return {
+        success: false,
+        message: 'Error al cambiar estado del material: ' + error.message
+      };
+    }
+  }
+
+  /**
    * Busca materials por término
    */
   searchMaterials(searchTerm: string): Material[] {

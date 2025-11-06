@@ -17,6 +17,7 @@ import { Material } from '../../models';
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
 import { GenericDeleteMultipleDialogComponent } from '../../../../shared/components/generic-delete-multiple-dialog/generic-delete-multiple-dialog.component';
 import { createGenericConfig } from '../../config/materials.config';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-materials-list',
@@ -58,7 +59,8 @@ export class MaterialsListComponent implements OnInit {
     private configService: MaterialsConfigService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   async ngOnInit() {
@@ -107,6 +109,24 @@ export class MaterialsListComponent implements OnInit {
 
   editMaterial(material: Material) {
     this.router.navigate(['/modules/materials', material.id, 'edit']);
+  }
+
+  async toggleActive(material: Material) {
+    const currentUser = this.authService.authorizedUser();
+    if (!currentUser?.uid) {
+      this.snackBar.open('Usuario no autenticado', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    const newStatus = !material.isActive;
+    const result = await this.materialsService.toggleActive(material.id, newStatus, currentUser.uid);
+
+    if (result.success) {
+      this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
+      this.applyFilters();
+    } else {
+      this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+    }
   }
 
   async deleteMaterial(material: Material) {

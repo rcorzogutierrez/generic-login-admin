@@ -41,13 +41,15 @@
           <mat-icon>dashboard</mat-icon>
           <span>Dashboard</span>
         </a>
-        <a
-          class="nav-link"
-          routerLink="/modules/clients"
-          routerLinkActive="active">
-          <mat-icon>group</mat-icon>
-          <span>Clientes</span>
-        </a>
+        @if (hasModule('clients')) {
+          <a
+            class="nav-link"
+            routerLink="/modules/clients"
+            routerLinkActive="active">
+            <mat-icon>group</mat-icon>
+            <span>Clientes</span>
+          </a>
+        }
         @if (hasModule('materials')) {
           <a
             class="nav-link"

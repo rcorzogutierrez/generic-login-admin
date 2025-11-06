@@ -106,7 +106,7 @@ export class MaterialsListComponent implements OnInit {
   }
 
   editMaterial(material: Material) {
-    this.router.navigate(['/modules/materials/edit', material.id]);
+    this.router.navigate(['/modules/materials', material.id, 'edit']);
   }
 
   async deleteMaterial(material: Material) {

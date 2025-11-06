@@ -12,11 +12,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 
-import { MaterialsService } from '../../services';
+import { MaterialsService, MaterialsConfigService } from '../../services';
 import { Material } from '../../models';
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
 import { GenericDeleteMultipleDialogComponent } from '../../../../shared/components/generic-delete-multiple-dialog/generic-delete-multiple-dialog.component';
-import { MATERIALS_CONFIG, adaptMaterialToGenericEntity } from '../../config/materials.config';
+import { createGenericConfig } from '../../config/materials.config';
 
 @Component({
   selector: 'app-materials-list',
@@ -44,8 +44,17 @@ export class MaterialsListComponent implements OnInit {
   filteredMaterials = signal<Material[]>([]);
   displayedMaterials = signal<Material[]>([]);
 
+  config = this.configService.config;
+
+  // Generic config for delete dialogs
+  genericConfig = computed(() => {
+    const materialConfig = this.config();
+    return materialConfig ? createGenericConfig(materialConfig) : null;
+  });
+
   constructor(
     private materialsService: MaterialsService,
+    private configService: MaterialsConfigService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router
@@ -53,7 +62,10 @@ export class MaterialsListComponent implements OnInit {
 
   async ngOnInit() {
     this.isLoading = true;
-    await this.materialsService.initialize();
+    await Promise.all([
+      this.configService.initialize(),
+      this.materialsService.initialize()
+    ]);
     this.applyFilters();
     this.isLoading = false;
   }
@@ -86,11 +98,17 @@ export class MaterialsListComponent implements OnInit {
   }
 
   async deleteMaterial(material: Material) {
+    const config = this.genericConfig();
+    if (!config) {
+      this.snackBar.open('Configuración no disponible', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
     const dialogRef = this.dialog.open(GenericDeleteDialogComponent, {
       width: '600px',
       data: {
-        entity: adaptMaterialToGenericEntity(material),
-        config: MATERIALS_CONFIG
+        entity: material as any,
+        config: config
       }
     });
 
@@ -113,14 +131,20 @@ export class MaterialsListComponent implements OnInit {
       return;
     }
 
+    const config = this.genericConfig();
+    if (!config) {
+      this.snackBar.open('Configuración no disponible', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
     const selectedList = this.materials().filter(m => this.selectedMaterials.has(m.id));
 
     const dialogRef = this.dialog.open(GenericDeleteMultipleDialogComponent, {
       width: '700px',
       data: {
-        entities: selectedList.map(adaptMaterialToGenericEntity),
+        entities: selectedList as any[],
         count: selectedList.length,
-        config: MATERIALS_CONFIG
+        config: config
       }
     });
 

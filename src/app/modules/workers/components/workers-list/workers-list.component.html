@@ -242,9 +242,12 @@
                       <button mat-menu-item (click)="toggleActive(worker)">
                         @if (worker.isActive) {
                           <mat-icon class="text-orange-600">visibility_off</mat-icon>
-                          <span>Inactivar</span>
                         } @else {
                           <mat-icon class="text-green-600">visibility</mat-icon>
+                        }
+                        @if (worker.isActive) {
+                          <span>Inactivar</span>
+                        } @else {
                           <span>Activar</span>
                         }
                       </button>

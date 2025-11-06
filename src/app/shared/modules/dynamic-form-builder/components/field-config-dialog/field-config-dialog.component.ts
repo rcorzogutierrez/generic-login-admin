@@ -379,6 +379,44 @@ export class FieldConfigDialogComponent implements OnInit {
           updateData.type = formValue.type;
         }
 
+        // Validar que no se quite el último campo obligatorio
+        const currentFieldWasRequired = this.data.field.validation?.required === true;
+        const newFieldWillBeRequired = validation.required === true;
+        const currentFieldWasActive = this.data.field.isActive === true;
+        const newFieldWillBeActive = formValue.isActive === true;
+
+        if (currentFieldWasRequired && !newFieldWillBeRequired) {
+          // El usuario está intentando quitar "required" de este campo
+          // Verificar si hay otros campos con required
+          const allFields = this.data.configService.getActiveFields();
+          const otherRequiredFields = allFields.filter(f =>
+            f.id !== this.data.field!.id && f.validation?.required === true
+          );
+
+          if (otherRequiredFields.length === 0) {
+            alert('⚠️ No puedes quitar la validación obligatoria de este campo porque es el único campo obligatorio en el formulario.\n\nDebes tener al menos un campo obligatorio.');
+            this.isSaving = false;
+            this.cdr.markForCheck();
+            return;
+          }
+        }
+
+        if (currentFieldWasRequired && currentFieldWasActive && !newFieldWillBeActive) {
+          // El usuario está intentando desactivar un campo obligatorio
+          // Verificar si hay otros campos activos con required
+          const allFields = this.data.configService.getActiveFields();
+          const otherRequiredFields = allFields.filter(f =>
+            f.id !== this.data.field!.id && f.validation?.required === true
+          );
+
+          if (otherRequiredFields.length === 0) {
+            alert('⚠️ No puedes inactivar este campo porque es el único campo obligatorio activo en el formulario.\n\nDebes tener al menos un campo obligatorio activo.');
+            this.isSaving = false;
+            this.cdr.markForCheck();
+            return;
+          }
+        }
+
         await this.data.configService.updateField(this.data.field.id, updateData);
         this.dialogRef.close({ success: true, message: 'Campo actualizado exitosamente' });
       } else {

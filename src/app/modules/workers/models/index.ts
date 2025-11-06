@@ -37,9 +37,17 @@ export interface Worker extends GenericEntity {
 /**
  * Configuración del módulo de Workers
  */
-export interface WorkerModuleConfig extends GenericModuleConfig {
-  fields: FieldConfig[];  // Sobrescribe el tipo de fields de GenericModuleConfig
+export interface WorkerModuleConfig {
+  // Identificación
+  id?: string;
+
+  // Configuración de campos
+  fields: FieldConfig[];
+
+  // Configuración del grid
   gridConfig?: GridConfiguration;
+
+  // Configuración adicional
   settings: {
     enableTags?: boolean;
     enableDepartments?: boolean;
@@ -48,12 +56,17 @@ export interface WorkerModuleConfig extends GenericModuleConfig {
     autoDeactivate?: boolean;
     deactivateDays?: number;
   };
+
+  // Metadata
+  version?: string;
+  isActive?: boolean;
+  lastModified?: any;
+  modifiedBy?: string;
+  createdAt?: any;
+  createdBy?: string;
 }
 
 export const DEFAULT_MODULE_CONFIG: Partial<WorkerModuleConfig> = {
-  collection: 'workers',
-  entityName: 'Trabajador',
-  entityNamePlural: 'Trabajadores',
   fields: [],
   settings: {
     enableTags: true,

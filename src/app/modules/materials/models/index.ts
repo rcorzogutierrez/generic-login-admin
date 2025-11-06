@@ -36,9 +36,17 @@ export interface Material extends GenericEntity {
 /**
  * Configuración del módulo de Materials
  */
-export interface MaterialModuleConfig extends GenericModuleConfig {
-  fields: FieldConfig[];  // Sobrescribe el tipo de fields de GenericModuleConfig
+export interface MaterialModuleConfig {
+  // Identificación
+  id?: string;
+
+  // Configuración de campos
+  fields: FieldConfig[];
+
+  // Configuración del grid
   gridConfig?: GridConfiguration;
+
+  // Configuración adicional
   settings: {
     enableTags?: boolean;
     enableCategories?: boolean;
@@ -47,15 +55,20 @@ export interface MaterialModuleConfig extends GenericModuleConfig {
     autoExpiry?: boolean;
     expiryDays?: number;
   };
+
+  // Metadata
+  version?: string;
+  isActive?: boolean;
+  lastModified?: any;
+  modifiedBy?: string;
+  createdAt?: any;
+  createdBy?: string;
 }
 
 /**
  * Configuración por defecto del módulo
  */
 export const DEFAULT_MODULE_CONFIG: Partial<MaterialModuleConfig> = {
-  collection: 'materials',
-  entityName: 'Material',
-  entityNamePlural: 'Materiales',
   fields: [],
   settings: {
     enableTags: true,

@@ -67,6 +67,17 @@ export class MaterialsListComponent implements OnInit {
       this.configService.initialize(),
       this.materialsService.initialize()
     ]);
+
+    // Debug: ver qué campos tenemos
+    console.log('🔍 MaterialsListComponent - Campos totales:', this.configService.fields().length);
+    console.log('🔍 MaterialsListComponent - Campos del grid:', this.gridFields().length);
+    console.log('🔍 MaterialsListComponent - Grid fields:', this.gridFields().map(f => ({
+      name: f.name,
+      label: f.label,
+      isActive: f.isActive,
+      showInGrid: f.gridConfig?.showInGrid
+    })));
+
     this.applyFilters();
     this.isLoading = false;
   }

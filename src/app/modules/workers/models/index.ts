@@ -8,6 +8,7 @@ import {
   FieldConfig,
   FieldOption
 } from '../../../shared/modules/dynamic-form-builder/models/field-config.interface';
+import { GridConfiguration } from '../../../shared/modules/dynamic-form-builder/models/module-config.interface';
 
 // Re-export shared types for convenience
 export { FieldType, FieldConfig, FieldOption };
@@ -37,6 +38,8 @@ export interface Worker extends GenericEntity {
  * Configuración del módulo de Workers
  */
 export interface WorkerModuleConfig extends GenericModuleConfig {
+  fields: FieldConfig[];  // Sobrescribe el tipo de fields de GenericModuleConfig
+  gridConfig?: GridConfiguration;
   settings: {
     enableTags?: boolean;
     enableDepartments?: boolean;

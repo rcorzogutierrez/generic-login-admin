@@ -108,6 +108,21 @@ export class MaterialConfigComponent implements OnInit {
       console.log('   Columnas:', layout.columns);
       console.log('   Spacing:', layout.spacing);
 
+      // Validar que exista al menos un campo obligatorio
+      const activeFields = this.configService.getActiveFields();
+      const hasRequiredField = activeFields.some(field => field.validation?.required === true);
+
+      if (!hasRequiredField) {
+        console.warn('⚠️ No hay campos obligatorios en el formulario');
+        this.snackBar.open('⚠️ Debes tener al menos un campo obligatorio en el formulario', 'Cerrar', {
+          duration: 5000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-warning']
+        });
+        return;
+      }
+
       console.log('🔄 Llamando a configService.saveFormLayout()...');
       await this.configService.saveFormLayout(layout);
       console.log('✅ saveFormLayout() completado exitosamente');

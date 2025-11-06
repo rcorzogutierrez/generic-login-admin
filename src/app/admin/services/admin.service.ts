@@ -111,9 +111,10 @@ export class AdminService {
 
   /**
    * ✅ NUEVO: Inicializa la carga de usuarios solo cuando se necesita
+   * @param forceRefresh Si es true, recarga los usuarios incluso si ya están inicializados
    */
-  async initialize(): Promise<void> {
-    if (this.isInitialized) {
+  async initialize(forceRefresh: boolean = false): Promise<void> {
+    if (this.isInitialized && !forceRefresh) {
       return;
     }
 

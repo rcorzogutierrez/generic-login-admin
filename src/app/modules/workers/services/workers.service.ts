@@ -171,6 +171,31 @@ export class WorkersService {
     }
   }
 
+  async toggleActive(workerId: string, isActive: boolean, currentUserUid: string): Promise<OperationResult> {
+    try {
+      const workersRef = collection(this.db, 'workers');
+      const workerDocRef = doc(workersRef, workerId);
+
+      await updateDoc(workerDocRef, {
+        isActive,
+        updatedAt: Timestamp.now(),
+        updatedBy: currentUserUid
+      });
+
+      await this.loadWorkers();
+
+      return {
+        success: true,
+        message: `Trabajador ${isActive ? 'activado' : 'inactivado'} exitosamente`
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: 'Error al cambiar estado del trabajador: ' + error.message
+      };
+    }
+  }
+
   searchWorkers(searchTerm: string): Worker[] {
     if (!searchTerm.trim()) return this.workersSignal();
 

@@ -86,6 +86,21 @@ export class WorkerFormComponent implements OnInit {
       // Obtener campos activos ordenados
       const activeFields = this.configService.getActiveFields();
       console.log('📝 FORMULARIO WORKERS: Campos activos cargados:', activeFields.length);
+
+      // Validar que existan campos configurados
+      if (activeFields.length === 0) {
+        console.warn('⚠️ No hay campos configurados en el módulo de Workers');
+        this.snackBar.open('⚠️ No hay campos configurados. Por favor, configura los campos del formulario primero.', 'Ir a Configuración', {
+          duration: 8000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top'
+        }).onAction().subscribe(() => {
+          this.router.navigate(['/modules/workers/config']);
+        });
+        this.router.navigate(['/modules/workers']);
+        return;
+      }
+
       this.fields.set(activeFields);
 
       // Cargar layout del formulario

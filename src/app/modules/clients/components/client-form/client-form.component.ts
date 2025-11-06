@@ -109,6 +109,20 @@ export class ClientFormComponent implements OnInit {
         console.warn(`   ⚠️ ${withoutOrder.length} campo(s) sin formOrder definido - el orden podría ser impredecible`);
       }
 
+      // Validar que existan campos configurados
+      if (activeFields.length === 0) {
+        console.warn('⚠️ No hay campos configurados en el módulo de Clients');
+        this.snackBar.open('⚠️ No hay campos configurados. Por favor, configura los campos del formulario primero.', 'Ir a Configuración', {
+          duration: 8000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top'
+        }).onAction().subscribe(() => {
+          this.router.navigate(['/modules/clients/config']);
+        });
+        this.router.navigate(['/modules/clients']);
+        return;
+      }
+
       this.fields.set(activeFields);
 
       // Cargar layout personalizado si existe

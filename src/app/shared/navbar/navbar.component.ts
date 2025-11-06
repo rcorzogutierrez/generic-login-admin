@@ -65,30 +65,50 @@ export class NavbarComponent implements OnInit {
    */
   async loadUserModules() {
     try {
-      const userEmail = this.user()?.email;
-      if (!userEmail) return;
+      const currentUser = this.user();
+      if (!currentUser?.email) return;
 
-      // Inicializar servicios
-      await this.adminService.initialize();
+      // Si es admin, tiene acceso a todos los módulos automáticamente
+      if (currentUser.role === 'admin') {
+        // Los admins ven todos los módulos disponibles
+        await this.modulesService.initialize();
+        const allModules = this.modulesService.getActiveModules().map(m => m.value);
+        this.userModules.set(allModules);
+        console.log('📦 Admin - Todos los módulos cargados para navbar:', allModules);
+        return;
+      }
+
+      // Para usuarios normales, cargar módulos asignados con datos frescos
+      // IMPORTANTE: Usar forceRefresh para obtener permisos actualizados
+      await this.adminService.initialize(true);
       await this.modulesService.initialize();
 
       // Obtener datos del usuario
       const users = this.adminService.users();
-      const currentUserData = users.find(u => u.email === userEmail);
+      const currentUserData = users.find(u => u.email === currentUser.email);
 
       if (currentUserData?.modules) {
         this.userModules.set(currentUserData.modules);
         console.log('📦 Módulos cargados para navbar:', currentUserData.modules);
+      } else {
+        console.warn('⚠️ Usuario sin módulos asignados');
+        this.userModules.set([]);
       }
     } catch (error) {
-      console.error('Error cargando módulos del usuario:', error);
+      console.error('❌ Error cargando módulos del usuario:', error);
     }
   }
 
   /**
    * Verifica si el usuario tiene un módulo específico asignado
+   * Los admins tienen acceso a todos los módulos automáticamente
    */
   hasModule(moduleName: string): boolean {
+    // Los admins ven todos los módulos
+    if (this.isAdmin()) {
+      return true;
+    }
+    // Usuarios normales solo ven módulos asignados
     return this.userModules().includes(moduleName);
   }
 

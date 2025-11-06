@@ -96,7 +96,7 @@ export class WorkersListComponent implements OnInit {
   }
 
   editWorker(worker: Worker) {
-    this.router.navigate(['/modules/workers/edit', worker.id]);
+    this.router.navigate(['/modules/workers', worker.id, 'edit']);
   }
 
   async deleteWorker(worker: Worker) {

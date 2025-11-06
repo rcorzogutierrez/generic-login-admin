@@ -14,6 +14,8 @@ export function moduleGuard(requiredModule: string): CanActivateFn {
     const adminService = inject(AdminService);
     const router = inject(Router);
 
+    console.log(`🔐 moduleGuard: Verificando acceso al módulo '${requiredModule}'`);
+
     // Verificar si el usuario está autenticado
     const user = authService.authorizedUser();
     if (!user?.email) {
@@ -22,13 +24,25 @@ export function moduleGuard(requiredModule: string): CanActivateFn {
       return false;
     }
 
+    console.log(`👤 moduleGuard: Usuario autenticado - ${user.email} (${user.role})`);
+
+    // Si es admin, permitir acceso inmediato a todos los módulos
+    if (user.role === 'admin') {
+      console.log(`✅ moduleGuard: Admin tiene acceso completo al módulo '${requiredModule}'`);
+      return true;
+    }
+
     try {
-      // Inicializar AdminService si no está inicializado
+      // Solo verificar módulos asignados para usuarios no-admin
+      console.log(`🔄 moduleGuard: Inicializando AdminService...`);
       await adminService.initialize();
 
       // Obtener datos del usuario desde Firebase
       const users = adminService.users();
+      console.log(`📊 moduleGuard: Total usuarios cargados: ${users.length}`);
+
       const currentUserData = users.find(u => u.email === user.email);
+      console.log(`📋 moduleGuard: Datos del usuario:`, currentUserData);
 
       // Verificar si el usuario tiene el módulo asignado
       if (currentUserData?.modules?.includes(requiredModule)) {
@@ -36,13 +50,8 @@ export function moduleGuard(requiredModule: string): CanActivateFn {
         return true;
       }
 
-      // Si es admin, permitir acceso a todos los módulos
-      if (user.role === 'admin') {
-        console.log(`✅ moduleGuard: Admin tiene acceso completo al módulo '${requiredModule}'`);
-        return true;
-      }
-
       console.warn(`⛔ moduleGuard: Usuario no tiene acceso al módulo '${requiredModule}'`);
+      console.warn(`   Módulos asignados:`, currentUserData?.modules);
       router.navigate(['/dashboard']);
       return false;
 

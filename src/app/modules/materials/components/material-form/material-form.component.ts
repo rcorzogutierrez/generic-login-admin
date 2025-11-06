@@ -86,6 +86,21 @@ export class MaterialFormComponent implements OnInit {
       // Obtener campos activos ordenados
       const activeFields = this.configService.getActiveFields();
       console.log('📝 FORMULARIO MATERIALS: Campos activos cargados:', activeFields.length);
+
+      // Validar que existan campos configurados
+      if (activeFields.length === 0) {
+        console.warn('⚠️ No hay campos configurados en el módulo de Materials');
+        this.snackBar.open('⚠️ No hay campos configurados. Por favor, configura los campos del formulario primero.', 'Ir a Configuración', {
+          duration: 8000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top'
+        }).onAction().subscribe(() => {
+          this.router.navigate(['/modules/materials/config']);
+        });
+        this.router.navigate(['/modules/materials']);
+        return;
+      }
+
       this.fields.set(activeFields);
 
       // Cargar layout del formulario

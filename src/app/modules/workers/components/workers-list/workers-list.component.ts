@@ -79,11 +79,11 @@ export class WorkersListComponent implements OnInit {
   }
 
   createWorker() {
-    this.router.navigate(['/workers/new']);
+    this.router.navigate(['/modules/workers/new']);
   }
 
   editWorker(worker: Worker) {
-    this.router.navigate(['/workers/edit', worker.id]);
+    this.router.navigate(['/modules/workers/edit', worker.id]);
   }
 
   async deleteWorker(worker: Worker) {
@@ -169,7 +169,7 @@ export class WorkersListComponent implements OnInit {
   }
 
   goToConfig() {
-    this.router.navigate(['/workers/config']);
+    this.router.navigate(['/modules/workers/config']);
   }
 
   async refreshData() {

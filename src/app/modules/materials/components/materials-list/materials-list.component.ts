@@ -78,11 +78,11 @@ export class MaterialsListComponent implements OnInit {
   }
 
   createMaterial() {
-    this.router.navigate(['/materials/new']);
+    this.router.navigate(['/modules/materials/new']);
   }
 
   editMaterial(material: Material) {
-    this.router.navigate(['/materials/edit', material.id]);
+    this.router.navigate(['/modules/materials/edit', material.id]);
   }
 
   async deleteMaterial(material: Material) {
@@ -168,7 +168,7 @@ export class MaterialsListComponent implements OnInit {
   }
 
   goToConfig() {
-    this.router.navigate(['/materials/config']);
+    this.router.navigate(['/modules/materials/config']);
   }
 
   async refreshData() {

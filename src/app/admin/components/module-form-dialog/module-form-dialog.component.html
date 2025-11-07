@@ -50,15 +50,15 @@
               }
             </label>
             <mat-form-field class="w-full" appearance="outline">
-              <input 
-                matInput 
+              <input
+                matInput
                 formControlName="value"
-                placeholder="ej: user-management"
+                placeholder="ej: clients, materials, workers"
                 [readonly]="isEditMode">
               @if (isFieldInvalid('value')) {
                 <mat-error>{{ getErrorMessage('value') }}</mat-error>
               }
-              <mat-hint>Letras, números, guiones y guiones bajos</mat-hint>
+              <mat-hint>Escribe manualmente o usa el botón 🪄 para generar desde el nombre</mat-hint>
             </mat-form-field>
             @if (isEditMode) {
               <p class="text-xs text-amber-600 flex items-center gap-1">
@@ -75,11 +75,10 @@
               Nombre del Módulo *
             </label>
             <mat-form-field class="w-full" appearance="outline">
-              <input 
-                matInput 
+              <input
+                matInput
                 formControlName="label"
-                placeholder="ej: Gestión de Usuarios"
-                (blur)="generateValueFromLabel()">
+                placeholder="ej: Gestión de Usuarios">
               @if (isFieldInvalid('label')) {
                 <mat-error>{{ getErrorMessage('label') }}</mat-error>
               }

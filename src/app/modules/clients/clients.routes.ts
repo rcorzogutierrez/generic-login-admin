@@ -2,11 +2,12 @@
 
 import { Routes } from '@angular/router';
 import { roleGuard } from '../../core/guards/role.guard';
+import { moduleGuard } from '../../core/guards/module.guard';
 
 export const CLIENTS_ROUTES: Routes = [
   {
     path: '',
-    canActivate: [roleGuard(['admin', 'user'])],
+    canActivate: [roleGuard(['admin', 'user']), moduleGuard('clients')],
     children: [
       {
         path: '',

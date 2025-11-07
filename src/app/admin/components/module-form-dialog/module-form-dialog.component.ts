@@ -44,16 +44,30 @@ export class ModuleFormDialogComponent implements OnInit {
   isSaving = false;
   isEditMode = false;
 
-  // Iconos sugeridos de Material
+  // Iconos sugeridos de Material - Organizados por categoría
   suggestedIcons = [
-    'dashboard', 'people', 'analytics', 'settings', 
-    'notifications', 'history', 'apps', 'extension',
-    'inventory', 'assignment', 'description', 'assessment',
-    'bar_chart', 'pie_chart', 'timeline', 'folder',
-    'storage', 'cloud', 'security', 'vpn_key',
-    'shopping_cart', 'store', 'payment', 'receipt',
-    'calendar_today', 'event', 'schedule', 'alarm',
-    'email', 'chat', 'forum', 'contacts'
+    // Sistema y Admin
+    'dashboard', 'settings', 'admin_panel_settings', 'security', 'vpn_key',
+    // Usuarios y Personas
+    'people', 'group', 'person', 'contacts', 'badge',
+    // Negocio y Comercio
+    'store', 'shopping_cart', 'payment', 'receipt', 'attach_money',
+    // Inventario y Materiales
+    'inventory', 'inventory_2', 'warehouse', 'package', 'local_shipping',
+    // Trabajadores y Recursos Humanos
+    'engineering', 'construction', 'work', 'business_center', 'card_travel',
+    // Analítica y Reportes
+    'analytics', 'assessment', 'bar_chart', 'pie_chart', 'timeline',
+    // Documentos y Archivos
+    'description', 'assignment', 'folder', 'folder_open', 'article',
+    // Comunicación
+    'email', 'chat', 'forum', 'notifications', 'campaign',
+    // Calendario y Tiempo
+    'calendar_today', 'event', 'schedule', 'alarm', 'access_time',
+    // Aplicaciones y Módulos
+    'apps', 'extension', 'widgets', 'view_module', 'grid_view',
+    // Almacenamiento y Nube
+    'storage', 'cloud', 'cloud_upload', 'cloud_download', 'backup'
   ];
 
   constructor(

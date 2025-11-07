@@ -38,16 +38,6 @@
             <label class="flex items-center gap-2 text-sm font-semibold text-slate-800">
               <mat-icon class="!text-lg text-purple-500">code</mat-icon>
               Identificador *
-              @if (!isEditMode) {
-                <button 
-                  type="button"
-                  mat-icon-button
-                  class="!w-6 !h-6"
-                  (click)="generateValueFromLabel()"
-                  matTooltip="Generar desde el nombre">
-                  <mat-icon class="!text-base">auto_fix_high</mat-icon>
-                </button>
-              }
             </label>
             <mat-form-field class="w-full" appearance="outline">
               <input
@@ -55,10 +45,21 @@
                 formControlName="value"
                 placeholder="ej: clients, materials, workers"
                 [readonly]="isEditMode">
+              @if (!isEditMode) {
+                <button
+                  matSuffix
+                  type="button"
+                  mat-icon-button
+                  (click)="generateValueFromLabel()"
+                  matTooltip="Generar desde el nombre"
+                  class="text-purple-600 hover:text-purple-700 hover:bg-purple-50 transition-colors">
+                  <mat-icon>auto_fix_high</mat-icon>
+                </button>
+              }
               @if (isFieldInvalid('value')) {
                 <mat-error>{{ getErrorMessage('value') }}</mat-error>
               }
-              <mat-hint>Escribe manualmente o usa el botón 🪄 para generar desde el nombre</mat-hint>
+              <mat-hint>Escribe manualmente o usa el botón para generar</mat-hint>
             </mat-form-field>
             @if (isEditMode) {
               <p class="text-xs text-amber-600 flex items-center gap-1">
@@ -114,20 +115,25 @@
           </label>
           
           <!-- Input + Preview -->
-          <div class="flex gap-3">
+          <div class="flex gap-3 items-start">
             <mat-form-field class="flex-1" appearance="outline">
-              <input 
-                matInput 
+              <mat-label>Nombre del icono</mat-label>
+              <input
+                matInput
                 formControlName="icon"
-                placeholder="ej: dashboard">
+                placeholder="ej: dashboard, people, analytics">
               @if (isFieldInvalid('icon')) {
                 <mat-error>{{ getErrorMessage('icon') }}</mat-error>
               }
+              <mat-hint>Nombre del icono de Material Icons</mat-hint>
             </mat-form-field>
-            
+
             <!-- Preview -->
-            <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
-              <mat-icon class="!text-2xl text-white">
+            <div
+              class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md"
+              matTooltip="Vista previa del icono"
+              matTooltipPosition="above">
+              <mat-icon class="text-3xl text-white">
                 {{ moduleForm.get('icon')?.value || 'extension' }}
               </mat-icon>
             </div>
@@ -135,20 +141,24 @@
   
           <!-- Iconos sugeridos -->
           <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-3">
-              Iconos sugeridos (click para seleccionar):
+            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+              <mat-icon class="text-base text-purple-500">palette</mat-icon>
+              Iconos sugeridos (click para seleccionar)
             </p>
-            <div class="grid grid-cols-8 gap-2 max-h-[200px] overflow-y-auto">
+            <div class="grid grid-cols-6 sm:grid-cols-8 lg:grid-cols-10 gap-2 max-h-[200px] overflow-y-auto pr-1">
               @for (icon of suggestedIcons; track icon) {
                 <button
                   type="button"
-                  class="w-10 h-10 flex items-center justify-center rounded-lg border-2 transition-all hover:bg-purple-50 hover:border-purple-500"
+                  class="w-10 h-10 flex items-center justify-center rounded-lg border-2 transition-all duration-200 hover:bg-purple-50 hover:border-purple-500 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1"
                   [class.bg-purple-100]="moduleForm.get('icon')?.value === icon"
                   [class.border-purple-500]="moduleForm.get('icon')?.value === icon"
                   [class.border-slate-200]="moduleForm.get('icon')?.value !== icon"
+                  [class.shadow-sm]="moduleForm.get('icon')?.value === icon"
                   (click)="selectIcon(icon)"
-                  [matTooltip]="icon">
-                  <mat-icon class="!text-xl">{{ icon }}</mat-icon>
+                  [matTooltip]="icon"
+                  matTooltipPosition="above"
+                  [attr.aria-label]="'Seleccionar icono ' + icon">
+                  <mat-icon [class.text-purple-600]="moduleForm.get('icon')?.value === icon">{{ icon }}</mat-icon>
                 </button>
               }
             </div>

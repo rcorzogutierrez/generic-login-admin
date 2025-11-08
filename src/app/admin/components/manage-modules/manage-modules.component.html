@@ -130,123 +130,133 @@
         </div>
       }
 
-      <!-- MODULES LIST -->
+      <!-- MODULES GRID -->
       @if (modules.length > 0) {
-        <section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-soft">
-          
-          <!-- Info de drag & drop -->
+        <section>
+
+          <!-- Info Header -->
           <div class="flex items-center justify-between mb-6">
             <div>
               <h2 class="text-lg font-bold text-slate-800 mb-1">Módulos del Sistema</h2>
-              <p class="text-sm text-slate-600">
+              <p class="text-sm text-slate-600 flex items-center gap-2">
+                <mat-icon class="!text-sm text-purple-500">drag_indicator</mat-icon>
                 Arrastra para reordenar • {{ modules.length }} módulo(s)
               </p>
             </div>
-            
-            @if (modules.length === 0) {
-              <button 
-                mat-stroked-button
-                (click)="initializeDefaultModules()">
-                <mat-icon>auto_fix_high</mat-icon>
-                Inicializar por Defecto
-              </button>
-            }
           </div>
 
-          <!-- Lista con drag & drop -->
-          <div 
+          <!-- Grid con drag & drop -->
+          <div
             cdkDropList
+            cdkDropListOrientation="mixed"
             (cdkDropListDropped)="onModuleDrop($event)"
-            class="space-y-3">
-            
-            @for (module of modules; track module.id) {
-              <div 
+            class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+            @for (module of modules; track trackByModuleId($index, module)) {
+              <div
                 cdkDrag
-                class="module-card group"
+                class="module-card-grid group"
                 [class.inactive]="!module.isActive">
-                
-                <!-- Drag Handle -->
-                <div cdkDragHandle class="drag-handle">
-                  <mat-icon class="text-slate-400 cursor-move">drag_indicator</mat-icon>
-                </div>
 
-                <!-- Icon -->
-                <div 
-                  class="module-icon"
-                  [class.inactive-icon]="!module.isActive">
-                  <mat-icon>{{ module.icon }}</mat-icon>
-                </div>
-
-                <!-- Content -->
-                <div class="module-content">
-                  <div class="flex items-center gap-3 mb-1">
-                    <h3 class="module-title">{{ module.label }}</h3>
-                    
-                    @if (!module.isActive) {
-                      <span class="badge badge-status-inactive">
-                        <mat-icon class="!text-sm">cancel</mat-icon>
-                        Inactivo
-                      </span>
-                    }
-                    
-                    @if (module.usersCount && module.usersCount > 0) {
-                      <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-md font-semibold">
-                        {{ module.usersCount }} usuario(s)
-                      </span>
-                    }
+                <!-- Card Header con Drag Handle -->
+                <div class="flex items-center justify-between mb-4">
+                  <div cdkDragHandle class="drag-handle-grid">
+                    <mat-icon class="text-slate-400">drag_indicator</mat-icon>
                   </div>
-                  
-                  <p class="module-description">{{ module.description }}</p>
-                  
-                  <div class="flex items-center gap-4 mt-2 text-xs text-slate-500">
-                    <span class="flex items-center gap-1">
-                      <mat-icon class="!text-sm">code</mat-icon>
-                      {{ module.value }}
-                    </span>
-                    @if (module.route) {
-                      <span class="flex items-center gap-1">
-                        <mat-icon class="!text-sm">link</mat-icon>
-                        {{ module.route }}
-                      </span>
-                    }
-                    <span class="flex items-center gap-1">
-                      <mat-icon class="!text-sm">sort</mat-icon>
-                      Orden: {{ module.order }}
-                    </span>
-                  </div>
-                </div>
 
-                <!-- Actions -->
-                <div class="module-actions">
                   <button
                     mat-icon-button
                     [matMenuTriggerFor]="moduleMenu"
-                    class="icon-btn"
-                    aria-label="Abrir menú de opciones del módulo">
-                    <mat-icon>more_vert</mat-icon>
+                    class="opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Opciones del módulo">
+                    <mat-icon class="text-slate-600">more_vert</mat-icon>
                   </button>
 
                   <mat-menu #moduleMenu="matMenu">
                     <button mat-menu-item (click)="editModule(module)">
-                      <mat-icon>edit</mat-icon>
-                      Editar
+                      <mat-icon class="text-blue-600">edit</mat-icon>
+                      <span>Editar</span>
                     </button>
-                    
+
                     <button mat-menu-item (click)="toggleModuleStatus(module)">
-                      <mat-icon>{{ module.isActive ? 'cancel' : 'check_circle' }}</mat-icon>
-                      {{ module.isActive ? 'Desactivar' : 'Activar' }}
+                      @if (module.isActive) {
+                        <mat-icon class="text-amber-600">cancel</mat-icon>
+                      } @else {
+                        <mat-icon class="text-green-600">check_circle</mat-icon>
+                      }
+                      <span>{{ module.isActive ? 'Desactivar' : 'Activar' }}</span>
                     </button>
 
                     <mat-divider></mat-divider>
-                    
-                    <button 
-                      mat-menu-item 
+
+                    <button
+                      mat-menu-item
                       (click)="deleteModule(module)"
                       class="!text-red-600">
-                      <mat-icon class="!text-red-600">delete</mat-icon>
-                      Eliminar
+                      <mat-icon class="text-red-600">delete</mat-icon>
+                      <span>Eliminar</span>
                     </button>
                   </mat-menu>
+                </div>
+
+                <!-- Module Icon -->
+                <div class="flex justify-center mb-4">
+                  <div
+                    class="module-icon-grid"
+                    [class.inactive-icon]="!module.isActive">
+                    <mat-icon>{{ module.icon }}</mat-icon>
+                  </div>
+                </div>
+
+                <!-- Module Info -->
+                <div class="text-center mb-4">
+                  <h3 class="module-title-grid mb-2">{{ module.label }}</h3>
+                  <p class="module-description-grid mb-3">{{ module.description }}</p>
+
+                  <!-- Status Badge -->
+                  <div class="flex items-center justify-center gap-2 flex-wrap">
+                    @if (!module.isActive) {
+                      <span class="badge-inactive">
+                        <mat-icon class="!text-xs">cancel</mat-icon>
+                        Inactivo
+                      </span>
+                    } @else {
+                      <span class="badge-active">
+                        <mat-icon class="!text-xs">check_circle</mat-icon>
+                        Activo
+                      </span>
+                    }
+
+                    @if (module.usersCount && module.usersCount > 0) {
+                      <span class="badge-users">
+                        <mat-icon class="!text-xs">people</mat-icon>
+                        {{ module.usersCount }}
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <!-- Module Meta -->
+                <div class="space-y-2">
+                  <div class="meta-item">
+                    <mat-icon class="!text-sm text-purple-500">code</mat-icon>
+                    <span class="meta-label">Identificador:</span>
+                    <code class="meta-value">{{ module.value }}</code>
+                  </div>
+
+                  @if (module.route) {
+                    <div class="meta-item">
+                      <mat-icon class="!text-sm text-blue-500">link</mat-icon>
+                      <span class="meta-label">Ruta:</span>
+                      <code class="meta-value">{{ module.route }}</code>
+                    </div>
+                  }
+
+                  <div class="meta-item">
+                    <mat-icon class="!text-sm text-slate-500">sort</mat-icon>
+                    <span class="meta-label">Orden:</span>
+                    <span class="meta-value">{{ module.order }}</span>
+                  </div>
                 </div>
 
               </div>

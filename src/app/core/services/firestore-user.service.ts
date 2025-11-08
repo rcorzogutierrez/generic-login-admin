@@ -112,6 +112,7 @@ export class FirestoreUserService {
   /**
    * Busca un usuario por cualquier identificador (email, uid, docId)
    * Método inteligente que intenta todas las opciones
+   * IMPORTANTE: Busca por email PRIMERO para usuarios pre-autorizados
    */
   async findUser(identifier: string): Promise<{ ref: DocumentReference, data: FirestoreUser } | null> {
     // Intentar por email si tiene formato de email
@@ -120,13 +121,34 @@ export class FirestoreUserService {
       if (result) return result;
     }
 
-    // Intentar por UID
+    // Intentar por UID en el campo 'uid' del documento
     const resultByUid = await this.findUserByUid(identifier);
     if (resultByUid) return resultByUid;
 
-    // Intentar por doc ID
+    // Intentar por doc ID directamente
     const resultByDocId = await this.findUserByDocId(identifier);
     if (resultByDocId) return resultByDocId;
+
+    // ✅ NUEVO: Si el UID no se encontró, buscar en todos los documentos
+    // Esto maneja el caso donde el documento se guardó con ID basado en email
+    // pero necesitamos encontrarlo por UID de Firebase Auth
+    try {
+      const usersRef = collection(this.db, this.usersCollection);
+      const querySnapshot = await getDocs(usersRef);
+
+      for (const docSnap of querySnapshot.docs) {
+        const data = docSnap.data();
+        // Si el documento tiene este UID en su campo 'uid', lo encontramos
+        if (data['uid'] === identifier) {
+          return {
+            ref: docSnap.ref,
+            data: { uid: docSnap.id, ...data } as FirestoreUser
+          };
+        }
+      }
+    } catch (error) {
+      console.error('Error en búsqueda exhaustiva de usuario:', error);
+    }
 
     return null;
   }

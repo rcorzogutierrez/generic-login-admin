@@ -37,13 +37,50 @@ import { AuthService } from '../../../../core/services/auth.service';
   styleUrl: './workers-list.component.css'
 })
 export class WorkersListComponent implements OnInit {
-  searchTerm = '';
-  selectedWorkers = new Set<string>();
+  searchTerm = signal<string>('');
+  selectedWorkers = signal<string[]>([]);
   isLoading = false;
 
+  // Paginación
+  currentPage = signal<number>(0);
+  itemsPerPage = signal<number>(25);
+
+  // Math para templates
+  Math = Math;
+
   workers = this.workersService.workers;
-  filteredWorkers = signal<Worker[]>([]);
-  displayedWorkers = signal<Worker[]>([]);
+
+  // Workers filtrados
+  filteredWorkers = computed(() => {
+    const workers = this.workers();
+    const search = this.searchTerm().toLowerCase();
+
+    if (!search) return workers;
+
+    return workers.filter(w =>
+      w.name.toLowerCase().includes(search) ||
+      w.email.toLowerCase().includes(search) ||
+      (w.position && w.position.toLowerCase().includes(search)) ||
+      (w.phone && w.phone.toLowerCase().includes(search))
+    );
+  });
+
+  // Workers paginados
+  paginatedWorkers = computed(() => {
+    const workers = this.filteredWorkers();
+    const page = this.currentPage();
+    const perPage = this.itemsPerPage();
+    const start = page * perPage;
+    const end = start + perPage;
+
+    return workers.slice(start, end);
+  });
+
+  totalPages = computed(() => {
+    const total = this.filteredWorkers().length;
+    const perPage = this.itemsPerPage();
+    return Math.ceil(total / perPage);
+  });
 
   config = this.configService.config;
   gridFields = computed(() => this.configService.getGridFields());
@@ -69,28 +106,25 @@ export class WorkersListComponent implements OnInit {
       this.configService.initialize(),
       this.workersService.initialize()
     ]);
-    this.applyFilters();
+
+    // Cargar configuración de paginación
+    const config = this.config();
+    if (config && config.gridConfig) {
+      this.itemsPerPage.set(config.gridConfig.itemsPerPage || 25);
+    }
+
     this.isLoading = false;
   }
 
-  applyFilters() {
-    const term = this.searchTerm.toLowerCase().trim();
-    const workers = this.workers();
+  onSearch(term: string) {
+    this.searchTerm.set(term);
+    this.currentPage.set(0); // Reset a primera página al buscar
+  }
 
-    if (!term) {
-      this.filteredWorkers.set(workers);
-    } else {
-      this.filteredWorkers.set(
-        workers.filter(w =>
-          w.name.toLowerCase().includes(term) ||
-          w.email.toLowerCase().includes(term) ||
-          (w.position && w.position.toLowerCase().includes(term)) ||
-          (w.phone && w.phone.toLowerCase().includes(term))
-        )
-      );
+  goToPage(page: number) {
+    if (page >= 0 && page < this.totalPages()) {
+      this.currentPage.set(page);
     }
-
-    this.displayedWorkers.set(this.filteredWorkers().slice(0, 50));
   }
 
   createWorker() {
@@ -113,7 +147,6 @@ export class WorkersListComponent implements OnInit {
 
     if (result.success) {
       this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
-      this.applyFilters();
     } else {
       this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
     }
@@ -139,7 +172,6 @@ export class WorkersListComponent implements OnInit {
         const deleteResult = await this.workersService.deleteWorker(worker.id);
         if (deleteResult.success) {
           this.snackBar.open('Trabajador eliminado exitosamente', 'Cerrar', { duration: 3000 });
-          this.applyFilters();
         } else {
           this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 4000 });
         }
@@ -148,7 +180,8 @@ export class WorkersListComponent implements OnInit {
   }
 
   async deleteSelectedWorkers() {
-    if (this.selectedWorkers.size === 0) {
+    const selectedIds = this.selectedWorkers();
+    if (selectedIds.length === 0) {
       this.snackBar.open('Selecciona al menos un trabajador', 'Cerrar', { duration: 3000 });
       return;
     }
@@ -159,7 +192,7 @@ export class WorkersListComponent implements OnInit {
       return;
     }
 
-    const selectedList = this.workers().filter(w => this.selectedWorkers.has(w.id));
+    const selectedList = this.workers().filter(w => selectedIds.includes(w.id));
 
     const dialogRef = this.dialog.open(GenericDeleteMultipleDialogComponent, {
       width: '700px',
@@ -172,14 +205,11 @@ export class WorkersListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result?.confirmed) {
-        const deleteResult = await this.workersService.deleteMultipleWorkers(
-          Array.from(this.selectedWorkers)
-        );
+        const deleteResult = await this.workersService.deleteMultipleWorkers(selectedIds);
 
         if (deleteResult.success) {
           this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 3000 });
-          this.selectedWorkers.clear();
-          this.applyFilters();
+          this.selectedWorkers.set([]);
         } else {
           this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 4000 });
         }
@@ -188,29 +218,43 @@ export class WorkersListComponent implements OnInit {
   }
 
   toggleSelection(workerId: string) {
-    if (this.selectedWorkers.has(workerId)) {
-      this.selectedWorkers.delete(workerId);
+    const selected = this.selectedWorkers();
+    if (selected.includes(workerId)) {
+      this.selectedWorkers.set(selected.filter(id => id !== workerId));
     } else {
-      this.selectedWorkers.add(workerId);
+      this.selectedWorkers.set([...selected, workerId]);
     }
   }
 
   isSelected(workerId: string): boolean {
-    return this.selectedWorkers.has(workerId);
+    return this.selectedWorkers().includes(workerId);
   }
 
   toggleSelectAll() {
-    if (this.selectedWorkers.size === this.displayedWorkers().length) {
+    const selected = this.selectedWorkers();
+    const paginated = this.paginatedWorkers();
+
+    if (selected.length === paginated.length) {
       this.clearSelection();
     } else {
-      this.displayedWorkers().forEach(worker => {
-        this.selectedWorkers.add(worker.id);
-      });
+      this.selectedWorkers.set(paginated.map(worker => worker.id));
     }
   }
 
+  isAllSelected(): boolean {
+    const selected = this.selectedWorkers();
+    const paginated = this.paginatedWorkers();
+    return paginated.length > 0 && selected.length === paginated.length;
+  }
+
+  isIndeterminate(): boolean {
+    const selected = this.selectedWorkers();
+    const paginated = this.paginatedWorkers();
+    return selected.length > 0 && selected.length < paginated.length;
+  }
+
   clearSelection() {
-    this.selectedWorkers.clear();
+    this.selectedWorkers.set([]);
   }
 
   goToConfig() {
@@ -220,7 +264,6 @@ export class WorkersListComponent implements OnInit {
   async refreshData() {
     this.isLoading = true;
     await this.workersService.initialize();
-    this.applyFilters();
     this.isLoading = false;
     this.snackBar.open('Datos actualizados', 'Cerrar', { duration: 2000 });
   }

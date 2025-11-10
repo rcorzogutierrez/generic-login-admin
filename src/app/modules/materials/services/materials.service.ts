@@ -9,7 +9,8 @@ import {
   query,
   where,
   orderBy,
-  Timestamp
+  Timestamp,
+  doc
 } from 'firebase/firestore';
 import {
   getDocsWithLogging as getDocs,
@@ -17,14 +18,8 @@ import {
   updateDocWithLogging as updateDoc,
   deleteDocWithLogging as deleteDoc
 } from '../../../shared/utils/firebase-logger.utils';
+import { OperationResult } from '../../../shared/models';
 import { Material } from '../models';
-
-export interface OperationResult {
-  success: boolean;
-  message: string;
-  data?: any;
-  errors?: string[];
-}
 
 @Injectable({
   providedIn: 'root'
@@ -269,6 +264,3 @@ export class MaterialsService {
     );
   }
 }
-
-// Import necesario que falta
-import { doc } from 'firebase/firestore';

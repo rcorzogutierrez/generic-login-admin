@@ -12,6 +12,9 @@ export * from './models';
 // Export all services
 export * from './services';
 
+// Export utilities
+export * from './utils';
+
 // Export components
 export { FormDesignerComponent } from './components/form-designer/form-designer.component';
 export { FieldConfigDialogComponent, FieldConfigDialogData } from './components/field-config-dialog/field-config-dialog.component';

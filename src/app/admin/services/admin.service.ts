@@ -204,13 +204,13 @@ export class AdminService {
   private async checkDuplicateEmail(email: string): Promise<{ isValid: boolean; result?: any }> {
     const existingUsers = this.usersSignal();
     const emailExists = existingUsers.some(user =>
-      this.normalizeEmail(user.email) === this.normalizeEmail(email)
+      normalizeEmail(user.email) === normalizeEmail(email)
     );
 
     if (emailExists) {
       await this.logUserAction('create_user_failed', '', {
         reason: 'email_already_exists',
-        attemptedEmail: this.normalizeEmail(email),
+        attemptedEmail: normalizeEmail(email),
         performedBy: this.auth.currentUser?.email || 'system',
         timestamp: new Date().toISOString()
       });
@@ -232,8 +232,8 @@ export class AdminService {
   private normalizeUserData(userData: CreateUserRequest): CreateUserRequest {
     return {
       ...userData,
-      email: this.normalizeEmail(userData.email),
-      displayName: this.formatDisplayName(userData.displayName)
+      email: normalizeEmail(userData.email),
+      displayName: formatDisplayName(userData.displayName)
     };
   }
 
@@ -256,8 +256,8 @@ export class AdminService {
       createdByEmail: this.auth.currentUser?.email || 'system',
       accountStatus: 'pending_first_login',
       profileComplete: false,
-      avatarColor: this.getAvatarColor(normalizedData.email),
-      initials: this.getInitials(normalizedData.displayName),
+      avatarColor: getAvatarColor(normalizedData.email),
+      initials: getInitials(normalizedData.displayName),
       preAuthorized: true,
       firstLoginDate: null
     };
@@ -267,9 +267,9 @@ export class AdminService {
    * Guarda un nuevo usuario en Firestore
    */
   private async saveNewUser(normalizedData: CreateUserRequest): Promise<string> {
-    const tempUid = `pre_${Date.now()}_${this.generateShortId()}`;
+    const tempUid = `pre_${Date.now()}_${generateShortId()}`;
     const userDocData = this.buildUserDocument(normalizedData, tempUid);
-    const docId = this.normalizeEmail(normalizedData.email).replace(/[@.]/g, '_');
+    const docId = normalizeEmail(normalizedData.email).replace(/[@.]/g, '_');
 
     await this.logUserAction('create_user_attempt', docId, {
       targetUser: {
@@ -459,10 +459,10 @@ export class AdminService {
         updatedBy: this.auth.currentUser?.uid || 'system',
         updatedByEmail: this.auth.currentUser?.email || 'system'
       };
-      
+
       if (updateData.displayName !== undefined) {
-        dataToUpdate.displayName = this.formatDisplayName(updateData.displayName);
-        dataToUpdate.initials = this.getInitials(dataToUpdate.displayName);
+        dataToUpdate.displayName = formatDisplayName(updateData.displayName);
+        dataToUpdate.initials = getInitials(dataToUpdate.displayName);
       }
       
       if (updateData.role !== undefined) {

@@ -1,5 +1,5 @@
-// src/app/admin/services/admin-logs.service.ts - CON FUNCIONALIDAD DE ELIMINACIÓN
-import { Injectable } from '@angular/core';
+// src/app/admin/services/admin-logs.service.ts - OPTIMIZADO CON SIGNALS (Angular 20)
+import { Injectable, signal, computed } from '@angular/core';
 import {
   getFirestore,
   collection,
@@ -18,7 +18,6 @@ import {
   getDocsWithLogging as getDocs,
   deleteDocWithLogging as deleteDoc
 } from '../../shared/utils/firebase-logger.utils';
-import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface AdminLog {
   id: string;
@@ -54,13 +53,37 @@ export interface DeleteLogsResult {
   errors?: string[];
 }
 
+/**
+ * Servicio de Logs de Auditoría - Optimizado con Angular 20 Signals
+ *
+ * Gestiona la visualización, filtrado y eliminación de logs de auditoría del sistema.
+ * Ahora usa Signals en lugar de RxJS para mejor rendimiento y simplicidad.
+ *
+ * @example
+ * ```typescript
+ * // Obtener logs con paginación
+ * const page = await logsService.getLogsPaginated(15, { action: 'create_user' });
+ * console.log(page.logs); // Array de logs
+ * console.log(page.hasMore); // ¿Hay más páginas?
+ *
+ * // Eliminar logs antiguos
+ * const result = await logsService.deleteLogsOlderThan(30); // > 30 días
+ * console.log(result.deletedCount);
+ * ```
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class AdminLogsService {
   private db = getFirestore();
-  private logsSubject = new BehaviorSubject<AdminLog[]>([]);
-  public logs$ = this.logsSubject.asObservable();
+
+  // ✅ MODERNIZADO: Signal en lugar de BehaviorSubject
+  private _logs = signal<AdminLog[]>([]);
+  readonly logs = this._logs.asReadonly();
+
+  // Computed signals para estadísticas
+  readonly totalLogs = computed(() => this._logs().length);
+  readonly latestLog = computed(() => this._logs()[0] || null);
 
   private readonly LOGS_PER_PAGE = 15;
   private readonly BATCH_SIZE = 500; // Firestore batch limit

@@ -19,6 +19,7 @@ import {
 } from '../../shared/utils/firebase-logger.utils';
 import { BehaviorSubject } from 'rxjs';
 import { SystemModule, ModuleFormData } from '../models/system-module.interface';
+import { logAuditAction } from '../../shared/utils/audit-logger.utils';
 
 export interface ModuleOperationResult {
   success: boolean;
@@ -569,7 +570,8 @@ export class ModulesService {
   }
 
   /**
-   * Log de acciones para auditoría
+   * ✅ REFACTORIZADO: Log de acciones para auditoría
+   * Ahora usa utilidad centralizada de audit-logger.utils
    */
   private async logModuleAction(
     action: string,
@@ -577,21 +579,12 @@ export class ModulesService {
     details: any,
     currentUserUid: string
   ): Promise<void> {
-    try {
-      const logData = {
-        action,
-        targetUserId: moduleId,
-        performedBy: currentUserUid,
-        performedByEmail: 'system', // Obtener del authService si es necesario
-        timestamp: new Date(),
-        details: JSON.stringify(details),
-        ip: 'unknown'
-      };
-
-      await addDoc(collection(this.db, 'admin_logs'), logData);
-    } catch (error) {
-      console.warn('Error logging module action:', error);
-    }
+    await logAuditAction({
+      action,
+      targetId: moduleId,
+      details,
+      performedBy: currentUserUid
+    });
   }
 
   /**

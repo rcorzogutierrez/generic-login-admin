@@ -23,6 +23,17 @@ import {
 } from 'firebase/auth';
 import { ModulesService } from './modules.service';
 import { handleError, createSuccessResult, createErrorResult } from '../../shared/utils/error-handler.utils';
+import {
+  logAuditAction,
+  AuditActionTypes
+} from '../../shared/utils/audit-logger.utils';
+import {
+  normalizeEmail,
+  formatDisplayName,
+  getInitials,
+  getAvatarColor,
+  generateShortId
+} from '../../shared/utils/string.utils';
 
 // ============================================
 // INTERFACES
@@ -881,22 +892,16 @@ export class AdminService {
   // MÉTODOS PRIVADOS DE UTILIDAD
   // ============================================
 
+  /**
+   * ✅ REFACTORIZADO: Ahora usa utilidad centralizada de audit-logger.utils
+   * @deprecated Usar logAuditAction directamente
+   */
   private async logUserAction(action: string, targetUserId: string, details: any): Promise<void> {
-    try {
-      const logData = {
-        action,
-        targetUserId,
-        performedBy: this.auth.currentUser?.uid || 'system',
-        performedByEmail: this.auth.currentUser?.email || 'system',
-        timestamp: new Date(),
-        details: JSON.stringify(details),
-        ip: 'unknown'
-      };
-
-      await addDoc(collection(this.db, 'admin_logs'), logData);
-    } catch (error) {
-      console.warn('⚠️ Error logging action:', error);
-    }
+    await logAuditAction({
+      action,
+      targetId: targetUserId,
+      details
+    });
   }
 
   private validateUserData(userData: any): { isValid: boolean; errors: string[] } {
@@ -926,49 +931,9 @@ export class AdminService {
     };
   }
 
-  private normalizeEmail(email: string): string {
-    if (!email) return '';
-    return email.trim().toLowerCase();
-  }
-
-  private formatDisplayName(name: string): string {
-    if (!name) return '';
-    
-    return name
-      .trim()
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
-  }
-
-  private getInitials(displayName: string): string {
-    if (!displayName) return '??';
-    
-    const words = displayName.trim().split(' ');
-    if (words.length === 1) {
-      return words[0].charAt(0).toUpperCase();
-    }
-    
-    return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
-  }
-
-  private getAvatarColor(email: string): string {
-    if (!email) return '#6b7280';
-    
-    const colors = [
-      '#ef4444', '#f97316', '#eab308', '#22c55e', 
-      '#06b6d4', '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899'
-    ];
-
-    let hash = 0;
-    for (let i = 0; i < email.length; i++) {
-      hash = email.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    return colors[Math.abs(hash) % colors.length];
-  }
-
-  private generateShortId(): string {
-    return Math.random().toString(36).substring(2, 9);
-  }
+  /**
+   * ✅ NOTA: Estos métodos ahora son utilidades compartidas importadas desde string.utils.ts
+   * Se mantienen como referencia pero ya no se usan localmente.
+   * Todas las llamadas en este servicio usan las versiones importadas.
+   */
 }

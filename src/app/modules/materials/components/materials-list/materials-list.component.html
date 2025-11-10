@@ -65,16 +65,16 @@
         <input
           type="text"
           placeholder="Buscar por nombre, código o descripción..."
-          [(ngModel)]="searchTerm"
-          (ngModelChange)="applyFilters()"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearch($event)"
           class="flex-1 px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-medium
                  focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all
                  placeholder:text-slate-400">
 
-        @if (searchTerm) {
+        @if (searchTerm()) {
           <button
             mat-icon-button
-            (click)="searchTerm = ''; applyFilters()"
+            (click)="onSearch('')"
             matTooltip="Limpiar búsqueda"
             aria-label="Limpiar búsqueda">
             <mat-icon>close</mat-icon>
@@ -84,7 +84,7 @@
     </div>
 
     <!-- ========== BARRA DE ACCIONES MASIVAS ========== -->
-    @if (selectedMaterials.size > 0) {
+    @if (selectedMaterials().length > 0) {
       <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-6 flex items-center justify-between animate-fadeIn">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
@@ -92,7 +92,7 @@
           </div>
           <div>
             <p class="text-sm font-bold text-blue-900">
-              {{ selectedMaterials.size }} material(es) seleccionado(s)
+              {{ selectedMaterials().length }} material(es) seleccionado(s)
             </p>
             <p class="text-xs text-blue-700">
               Puedes realizar acciones sobre los elementos seleccionados
@@ -129,7 +129,7 @@
           <div class="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
           <p class="text-sm text-slate-500 mt-4">Cargando materiales...</p>
         </div>
-      } @else if (displayedMaterials().length === 0) {
+      } @else if (paginatedMaterials().length === 0) {
         <!-- Empty State -->
         <div class="empty-state">
           <mat-icon>inventory_2</mat-icon>
@@ -159,8 +159,8 @@
                 <th class="px-4 py-3 text-left w-12">
                   <input
                     type="checkbox"
-                    [checked]="selectedMaterials.size > 0 && selectedMaterials.size === displayedMaterials().length"
-                    [indeterminate]="selectedMaterials.size > 0 && selectedMaterials.size < displayedMaterials().length"
+                    [checked]="isAllSelected()"
+                    [indeterminate]="isIndeterminate()"
                     (change)="toggleSelectAll()"
                     class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
                 </th>
@@ -188,7 +188,7 @@
 
             <!-- Body -->
             <tbody class="divide-y divide-slate-200">
-              @for (material of displayedMaterials(); track material.id) {
+              @for (material of paginatedMaterials(); track material.id) {
                 <tr
                   class="hover:bg-slate-50 transition-colors"
                   [class.bg-blue-50]="isSelected(material.id)">
@@ -266,17 +266,36 @@
           </table>
         </div>
 
-        <!-- Mostrar información si hay más elementos -->
-        @if (filteredMaterials().length > displayedMaterials().length) {
-          <div class="px-4 py-4 border-t border-slate-200 text-sm text-slate-600 text-center bg-amber-50">
-            Mostrando {{ displayedMaterials().length }} de {{ filteredMaterials().length }} materiales.
-            <button
-              mat-button
-              color="primary"
-              (click)="displayedMaterials.set(filteredMaterials())"
-              class="ml-2">
-              Mostrar todos
-            </button>
+        <!-- ========== PAGINACIÓN ========== -->
+        @if (totalPages() > 1) {
+          <div class="flex items-center justify-between px-4 py-4 border-t border-slate-200">
+            <div class="text-sm text-slate-600">
+              Mostrando {{ (currentPage() * itemsPerPage()) + 1 }} a
+              {{ Math.min((currentPage() + 1) * itemsPerPage(), filteredMaterials().length) }}
+              de {{ filteredMaterials().length }} materiales
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                mat-icon-button
+                (click)="goToPage(currentPage() - 1)"
+                [disabled]="currentPage() === 0"
+                aria-label="Página anterior">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+
+              <span class="text-sm font-medium text-slate-700">
+                Página {{ currentPage() + 1 }} de {{ totalPages() }}
+              </span>
+
+              <button
+                mat-icon-button
+                (click)="goToPage(currentPage() + 1)"
+                [disabled]="currentPage() >= totalPages() - 1"
+                aria-label="Página siguiente">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </div>
           </div>
         }
 

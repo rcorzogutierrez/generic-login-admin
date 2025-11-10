@@ -37,13 +37,49 @@ import { AuthService } from '../../../../core/services/auth.service';
   styleUrl: './materials-list.component.css'
 })
 export class MaterialsListComponent implements OnInit {
-  searchTerm = '';
+  searchTerm = signal<string>('');
   selectedMaterials = signal<string[]>([]);
   isLoading = false;
 
+  // Paginación
+  currentPage = signal<number>(0);
+  itemsPerPage = signal<number>(25);
+
+  // Math para templates
+  Math = Math;
+
   materials = this.materialsService.materials;
-  filteredMaterials = signal<Material[]>([]);
-  displayedMaterials = signal<Material[]>([]);
+
+  // Materials filtrados
+  filteredMaterials = computed(() => {
+    const materials = this.materials();
+    const search = this.searchTerm().toLowerCase();
+
+    if (!search) return materials;
+
+    return materials.filter(m =>
+      m.name.toLowerCase().includes(search) ||
+      m.code.toLowerCase().includes(search) ||
+      (m.description && m.description.toLowerCase().includes(search))
+    );
+  });
+
+  // Materials paginados
+  paginatedMaterials = computed(() => {
+    const materials = this.filteredMaterials();
+    const page = this.currentPage();
+    const perPage = this.itemsPerPage();
+    const start = page * perPage;
+    const end = start + perPage;
+
+    return materials.slice(start, end);
+  });
+
+  totalPages = computed(() => {
+    const total = this.filteredMaterials().length;
+    const perPage = this.itemsPerPage();
+    return Math.ceil(total / perPage);
+  });
 
   config = this.configService.config;
   gridFields = computed(() => this.configService.getGridFields());
@@ -70,37 +106,24 @@ export class MaterialsListComponent implements OnInit {
       this.materialsService.initialize()
     ]);
 
-    // Debug: ver qué campos tenemos
-    console.log('🔍 MaterialsListComponent - Campos totales:', this.configService.fields().length);
-    console.log('🔍 MaterialsListComponent - Campos del grid:', this.gridFields().length);
-    console.log('🔍 MaterialsListComponent - Grid fields:', this.gridFields().map(f => ({
-      name: f.name,
-      label: f.label,
-      isActive: f.isActive,
-      showInGrid: f.gridConfig?.showInGrid
-    })));
+    // Cargar configuración de paginación
+    const config = this.config();
+    if (config && config.gridConfig) {
+      this.itemsPerPage.set(config.gridConfig.itemsPerPage || 25);
+    }
 
-    this.applyFilters();
     this.isLoading = false;
   }
 
-  applyFilters() {
-    const term = this.searchTerm.toLowerCase().trim();
-    const materials = this.materials();
+  onSearch(term: string) {
+    this.searchTerm.set(term);
+    this.currentPage.set(0); // Reset a primera página al buscar
+  }
 
-    if (!term) {
-      this.filteredMaterials.set(materials);
-    } else {
-      this.filteredMaterials.set(
-        materials.filter(m =>
-          m.name.toLowerCase().includes(term) ||
-          m.code.toLowerCase().includes(term) ||
-          (m.description && m.description.toLowerCase().includes(term))
-        )
-      );
+  goToPage(page: number) {
+    if (page >= 0 && page < this.totalPages()) {
+      this.currentPage.set(page);
     }
-
-    this.displayedMaterials.set(this.filteredMaterials().slice(0, 50));
   }
 
   createMaterial() {
@@ -123,7 +146,6 @@ export class MaterialsListComponent implements OnInit {
 
     if (result.success) {
       this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
-      this.applyFilters();
     } else {
       this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
     }
@@ -149,7 +171,6 @@ export class MaterialsListComponent implements OnInit {
         const deleteResult = await this.materialsService.deleteMaterial(material.id);
         if (deleteResult.success) {
           this.snackBar.open('Material eliminado exitosamente', 'Cerrar', { duration: 3000 });
-          this.applyFilters();
         } else {
           this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 4000 });
         }
@@ -188,7 +209,6 @@ export class MaterialsListComponent implements OnInit {
         if (deleteResult.success) {
           this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 3000 });
           this.selectedMaterials.set([]);
-          this.applyFilters();
         } else {
           this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 4000 });
         }
@@ -211,13 +231,25 @@ export class MaterialsListComponent implements OnInit {
 
   toggleSelectAll() {
     const selected = this.selectedMaterials();
-    const displayed = this.displayedMaterials();
+    const paginated = this.paginatedMaterials();
 
-    if (selected.length === displayed.length) {
+    if (selected.length === paginated.length) {
       this.clearSelection();
     } else {
-      this.selectedMaterials.set(displayed.map(material => material.id));
+      this.selectedMaterials.set(paginated.map(material => material.id));
     }
+  }
+
+  isAllSelected(): boolean {
+    const selected = this.selectedMaterials();
+    const paginated = this.paginatedMaterials();
+    return paginated.length > 0 && selected.length === paginated.length;
+  }
+
+  isIndeterminate(): boolean {
+    const selected = this.selectedMaterials();
+    const paginated = this.paginatedMaterials();
+    return selected.length > 0 && selected.length < paginated.length;
   }
 
   clearSelection() {
@@ -231,7 +263,6 @@ export class MaterialsListComponent implements OnInit {
   async refreshData() {
     this.isLoading = true;
     await this.materialsService.initialize();
-    this.applyFilters();
     this.isLoading = false;
     this.snackBar.open('Datos actualizados', 'Cerrar', { duration: 2000 });
   }

@@ -1,4 +1,4 @@
-// src/app/core/services/auth.service.ts - VERSIÓN CON ACTUALIZACIÓN DE LASTLOGIN
+// src/app/core/services/auth.service.ts - VERSIÓN OPTIMIZADA
 
 import { Injectable, signal } from '@angular/core';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, User } from 'firebase/auth';
@@ -8,6 +8,28 @@ import { Router } from '@angular/router';
 import { FirestoreUserService, FirestoreUser } from './firestore-user.service';
 import { AppConfigService } from './app-config.service';
 
+/**
+ * Servicio de autenticación con Firebase Auth
+ *
+ * Características:
+ * - Signal-based state management
+ * - Google OAuth provider
+ * - Verificación de autorización vía Firestore
+ * - Gestión de permisos y roles
+ * - Auth state listener reactivo
+ *
+ * @example
+ * ```typescript
+ * constructor(private authService: AuthService) {}
+ *
+ * async login() {
+ *   const result = await this.authService.loginWithGoogle();
+ *   if (result.success) {
+ *     // Usuario autenticado y autorizado
+ *   }
+ * }
+ * ```
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -43,8 +65,30 @@ export class AuthService {
     this.googleProvider.setCustomParameters({ prompt: 'select_account' });
   }
 
-  
-
+  /**
+   * Inicia sesión con Google OAuth
+   *
+   * Flujo:
+   * 1. Abre popup de autenticación de Google
+   * 2. Verifica que el usuario existe en Firestore (users collection)
+   * 3. Verifica que el usuario está activo (isActive: true)
+   * 4. Actualiza lastLogin en primer login o login exitoso
+   * 5. Configura signals de estado (isAuthenticated, isAuthorized)
+   *
+   * @returns Promise con resultado del login
+   * @returns result.success - true si login exitoso y usuario autorizado
+   * @returns result.message - Mensaje descriptivo del resultado
+   *
+   * @example
+   * ```typescript
+   * const result = await authService.loginWithGoogle();
+   * if (result.success) {
+   *   console.log('Usuario autenticado');
+   * } else {
+   *   console.error(result.message);
+   * }
+   * ```
+   */
   async loginWithGoogle(): Promise<{ success: boolean; message: string }> {
     try {
       this._loading.set(true);
@@ -174,6 +218,13 @@ export class AuthService {
     }
   }
 
+  /**
+   * Listener de estado de autenticación
+   * Se ejecuta cuando cambia el estado de auth (login, logout, refresh)
+   *
+   * NOTA: NO actualiza lastLogin aquí para evitar actualizaciones en cada
+   * refresh de página. Solo se actualiza en loginWithGoogle() exitoso.
+   */
   private initAuthStateListener(): void {
     onAuthStateChanged(this.auth, async (user) => {
       this._loading.set(true);
@@ -187,10 +238,6 @@ export class AuthService {
           if (userResult && userResult.data.isActive) {
             this._authorizedUser.set(userResult.data);
             this._isAuthorized.set(true);
-            
-            // ✅ ACTUALIZAR LASTLOGIN EN CADA CAMBIO DE ESTADO DE AUTENTICACIÓN
-            // Esto cubre casos de refresh de página o reautenticación automática
-            await this.updateUserLastLogin(user.email!);
           } else {
             await this.logout();
           }
@@ -213,11 +260,37 @@ export class AuthService {
     this._isAuthorized.set(false);
   }
 
+  /**
+   * Verifica si el usuario tiene un permiso específico
+   *
+   * @param permission - Nombre del permiso a verificar (ej: 'clients.create', 'workers.edit')
+   * @returns true si el usuario tiene el permiso O es admin
+   *
+   * @example
+   * ```typescript
+   * if (authService.hasPermission('clients.create')) {
+   *   // Mostrar botón de crear cliente
+   * }
+   * ```
+   */
   hasPermission(permission: string): boolean {
     const user = this._authorizedUser();
     return user?.permissions.includes(permission) || user?.role === 'admin';
   }
 
+  /**
+   * Verifica si el usuario tiene acceso a un módulo específico
+   *
+   * @param moduleId - ID del módulo (ej: 'clients', 'workers', 'materials')
+   * @returns true si el usuario tiene acceso al módulo O es admin
+   *
+   * @example
+   * ```typescript
+   * if (authService.hasModuleAccess('clients')) {
+   *   // Mostrar módulo de clientes en el menú
+   * }
+   * ```
+   */
   hasModuleAccess(moduleId: string): boolean {
     const user = this._authorizedUser();
     return user?.modules.includes(moduleId) || user?.role === 'admin';

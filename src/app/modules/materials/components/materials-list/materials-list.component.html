@@ -134,8 +134,8 @@
         <div class="empty-state">
           <mat-icon>inventory_2</mat-icon>
           <h3>No hay materiales</h3>
-          <p>{{ searchTerm ? 'No se encontraron materiales con esos criterios de búsqueda' : 'Comienza agregando tu primer material' }}</p>
-          @if (!searchTerm) {
+          <p>{{ searchTerm() ? 'No se encontraron materiales con esos criterios de búsqueda' : 'Comienza agregando tu primer material' }}</p>
+          @if (!searchTerm()) {
             <button
               mat-raised-button
               color="primary"

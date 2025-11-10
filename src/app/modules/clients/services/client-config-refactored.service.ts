@@ -43,70 +43,7 @@ export class ClientConfigServiceRefactored extends ModuleConfigBaseService<Clien
   // (no están en la clase base)
   // ========================================
 
-  /**
-   * Activar/desactivar un campo
-   */
-  async toggleFieldActive(fieldId: string, isActive: boolean): Promise<void> {
-    await this.updateField(fieldId, { isActive });
-  }
-
-  /**
-   * Reordenar campos en el formulario
-   */
-  async reorderFields(fieldIds: string[]): Promise<void> {
-    try {
-      let currentFields = this.fields();
-      if (!currentFields || !Array.isArray(currentFields)) {
-        currentFields = [];
-      }
-
-      const reorderedFields = currentFields.map(field => {
-        const newOrder = fieldIds.indexOf(field.id);
-        if (newOrder !== -1) {
-          return { ...field, formOrder: newOrder };
-        }
-        return field;
-      });
-
-      await this.updateConfig({ fields: reorderedFields });
-
-    } catch (error) {
-      console.error('❌ Error reordenando campos:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Reordenar columnas del grid
-   */
-  async reorderGridColumns(fieldIds: string[]): Promise<void> {
-    try {
-      let currentFields = this.fields();
-      if (!currentFields || !Array.isArray(currentFields)) {
-        currentFields = [];
-      }
-
-      const reorderedFields = currentFields.map(field => {
-        const newGridOrder = fieldIds.indexOf(field.id);
-        if (newGridOrder !== -1) {
-          return {
-            ...field,
-            gridConfig: {
-              ...field.gridConfig,
-              gridOrder: newGridOrder
-            }
-          };
-        }
-        return field;
-      });
-
-      await this.updateConfig({ fields: reorderedFields });
-
-    } catch (error) {
-      console.error('❌ Error reordenando columnas del grid:', error);
-      throw error;
-    }
-  }
+  // toggleFieldActive, reorderFields, reorderGridColumns ahora están en base class
 
   /**
    * Actualizar configuración del grid

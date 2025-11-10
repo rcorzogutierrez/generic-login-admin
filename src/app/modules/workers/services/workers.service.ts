@@ -13,14 +13,8 @@ import {
   updateDocWithLogging as updateDoc,
   deleteDocWithLogging as deleteDoc
 } from '../../../shared/utils/firebase-logger.utils';
+import { OperationResult } from '../../../shared/models';
 import { Worker } from '../models';
-
-export interface OperationResult {
-  success: boolean;
-  message: string;
-  data?: any;
-  errors?: string[];
-}
 
 @Injectable({
   providedIn: 'root'

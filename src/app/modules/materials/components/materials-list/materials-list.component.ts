@@ -38,7 +38,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class MaterialsListComponent implements OnInit {
   searchTerm = '';
-  selectedMaterials = new Set<string>();
+  selectedMaterials = signal<string[]>([]);
   isLoading = false;
 
   materials = this.materialsService.materials;
@@ -158,7 +158,8 @@ export class MaterialsListComponent implements OnInit {
   }
 
   async deleteSelectedMaterials() {
-    if (this.selectedMaterials.size === 0) {
+    const selectedIds = this.selectedMaterials();
+    if (selectedIds.length === 0) {
       this.snackBar.open('Selecciona al menos un material', 'Cerrar', { duration: 3000 });
       return;
     }
@@ -169,7 +170,7 @@ export class MaterialsListComponent implements OnInit {
       return;
     }
 
-    const selectedList = this.materials().filter(m => this.selectedMaterials.has(m.id));
+    const selectedList = this.materials().filter(m => selectedIds.includes(m.id));
 
     const dialogRef = this.dialog.open(GenericDeleteMultipleDialogComponent, {
       width: '700px',
@@ -182,13 +183,11 @@ export class MaterialsListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result?.confirmed) {
-        const deleteResult = await this.materialsService.deleteMultipleMaterials(
-          Array.from(this.selectedMaterials)
-        );
+        const deleteResult = await this.materialsService.deleteMultipleMaterials(selectedIds);
 
         if (deleteResult.success) {
           this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 3000 });
-          this.selectedMaterials.clear();
+          this.selectedMaterials.set([]);
           this.applyFilters();
         } else {
           this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 4000 });
@@ -198,29 +197,31 @@ export class MaterialsListComponent implements OnInit {
   }
 
   toggleSelection(materialId: string) {
-    if (this.selectedMaterials.has(materialId)) {
-      this.selectedMaterials.delete(materialId);
+    const selected = this.selectedMaterials();
+    if (selected.includes(materialId)) {
+      this.selectedMaterials.set(selected.filter(id => id !== materialId));
     } else {
-      this.selectedMaterials.add(materialId);
+      this.selectedMaterials.set([...selected, materialId]);
     }
   }
 
   isSelected(materialId: string): boolean {
-    return this.selectedMaterials.has(materialId);
+    return this.selectedMaterials().includes(materialId);
   }
 
   toggleSelectAll() {
-    if (this.selectedMaterials.size === this.displayedMaterials().length) {
+    const selected = this.selectedMaterials();
+    const displayed = this.displayedMaterials();
+
+    if (selected.length === displayed.length) {
       this.clearSelection();
     } else {
-      this.displayedMaterials().forEach(material => {
-        this.selectedMaterials.add(material.id);
-      });
+      this.selectedMaterials.set(displayed.map(material => material.id));
     }
   }
 
   clearSelection() {
-    this.selectedMaterials.clear();
+    this.selectedMaterials.set([]);
   }
 
   goToConfig() {

@@ -38,7 +38,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class WorkersListComponent implements OnInit {
   searchTerm = '';
-  selectedWorkers = new Set<string>();
+  selectedWorkers = signal<string[]>([]);
   isLoading = false;
 
   workers = this.workersService.workers;
@@ -148,7 +148,8 @@ export class WorkersListComponent implements OnInit {
   }
 
   async deleteSelectedWorkers() {
-    if (this.selectedWorkers.size === 0) {
+    const selectedIds = this.selectedWorkers();
+    if (selectedIds.length === 0) {
       this.snackBar.open('Selecciona al menos un trabajador', 'Cerrar', { duration: 3000 });
       return;
     }
@@ -159,7 +160,7 @@ export class WorkersListComponent implements OnInit {
       return;
     }
 
-    const selectedList = this.workers().filter(w => this.selectedWorkers.has(w.id));
+    const selectedList = this.workers().filter(w => selectedIds.includes(w.id));
 
     const dialogRef = this.dialog.open(GenericDeleteMultipleDialogComponent, {
       width: '700px',
@@ -172,13 +173,11 @@ export class WorkersListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result?.confirmed) {
-        const deleteResult = await this.workersService.deleteMultipleWorkers(
-          Array.from(this.selectedWorkers)
-        );
+        const deleteResult = await this.workersService.deleteMultipleWorkers(selectedIds);
 
         if (deleteResult.success) {
           this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 3000 });
-          this.selectedWorkers.clear();
+          this.selectedWorkers.set([]);
           this.applyFilters();
         } else {
           this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 4000 });
@@ -188,29 +187,31 @@ export class WorkersListComponent implements OnInit {
   }
 
   toggleSelection(workerId: string) {
-    if (this.selectedWorkers.has(workerId)) {
-      this.selectedWorkers.delete(workerId);
+    const selected = this.selectedWorkers();
+    if (selected.includes(workerId)) {
+      this.selectedWorkers.set(selected.filter(id => id !== workerId));
     } else {
-      this.selectedWorkers.add(workerId);
+      this.selectedWorkers.set([...selected, workerId]);
     }
   }
 
   isSelected(workerId: string): boolean {
-    return this.selectedWorkers.has(workerId);
+    return this.selectedWorkers().includes(workerId);
   }
 
   toggleSelectAll() {
-    if (this.selectedWorkers.size === this.displayedWorkers().length) {
+    const selected = this.selectedWorkers();
+    const displayed = this.displayedWorkers();
+
+    if (selected.length === displayed.length) {
       this.clearSelection();
     } else {
-      this.displayedWorkers().forEach(worker => {
-        this.selectedWorkers.add(worker.id);
-      });
+      this.selectedWorkers.set(displayed.map(worker => worker.id));
     }
   }
 
   clearSelection() {
-    this.selectedWorkers.clear();
+    this.selectedWorkers.set([]);
   }
 
   goToConfig() {

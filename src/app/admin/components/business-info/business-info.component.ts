@@ -1,5 +1,5 @@
 // src/app/admin/components/business-info/business-info.component.ts
-import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -57,6 +57,7 @@ import { BusinessInfo, BusinessInfoFormData } from '../../models/business-info.i
   ],
   templateUrl: './business-info.component.html',
   styleUrl: './business-info.component.css',
+  encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BusinessInfoComponent implements OnInit {

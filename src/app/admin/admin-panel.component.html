@@ -154,7 +154,16 @@
       </div>
       <span class="text-sm font-bold text-blue-700 text-center">Configuración</span>
     </button>
-        
+
+        <!-- Mi Empresa -->
+        <button class="flex flex-col items-center justify-center gap-3 p-5 bg-white border-2 border-cyan-200 rounded-xl hover:bg-cyan-50 hover:border-cyan-500 hover:-translate-y-1 transition-all duration-300 min-h-[120px]"
+                (click)="goToBusinessInfo()">
+          <div class="w-12 h-12 flex items-center justify-center">
+            <mat-icon class="!text-[32px] !w-[32px] !h-[32px] text-cyan-500">business</mat-icon>
+          </div>
+          <span class="text-sm font-bold text-cyan-700 text-center">Mi Empresa</span>
+        </button>
+
         <!-- Exportar Datos -->
         <button class="flex flex-col items-center justify-center gap-3 p-5 bg-white border-2 border-amber-200 rounded-xl hover:bg-amber-50 hover:border-amber-500 hover:-translate-y-1 transition-all duration-300 min-h-[120px]"
                 (click)="exportData()">

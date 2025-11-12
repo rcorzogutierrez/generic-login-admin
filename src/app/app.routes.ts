@@ -93,6 +93,14 @@ export const routes: Routes = [
             .then(m => m.ManageRolesComponent),
         title: 'Gestión de Roles',
       },
+      // ✅ NUEVA RUTA: Información de Empresa
+      {
+        path: 'business',
+        loadComponent: () =>
+          import('./business/business.component')
+            .then(m => m.BusinessComponent),
+        title: 'Mi Empresa',
+      },
     ],
   },
 

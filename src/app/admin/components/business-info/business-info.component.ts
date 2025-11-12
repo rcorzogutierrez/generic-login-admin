@@ -234,7 +234,7 @@ export class BusinessInfoComponent implements OnInit {
       }),
 
       // Branding
-      logoUrl: ['', [Validators.required]],
+      logoUrl: [''],
       primaryColor: ['#3b82f6'],
       secondaryColor: ['#8b5cf6'],
 
@@ -421,7 +421,9 @@ export class BusinessInfoComponent implements OnInit {
     try {
       // Subir logo si hay uno nuevo
       const logoUrl = await this.uploadLogo();
-      if (!logoUrl) {
+
+      // Si uploadLogo retorna null y había un archivo seleccionado, hubo un error
+      if (!logoUrl && this.selectedLogoFile()) {
         this.snackBar.open('Error al subir el logo', 'Cerrar', {
           duration: 3000
         });
@@ -434,7 +436,7 @@ export class BusinessInfoComponent implements OnInit {
       const formValue = this.businessForm.getRawValue();
       const formData: BusinessInfoFormData = {
         ...formValue,
-        logoUrl
+        logoUrl: logoUrl || formValue.logoUrl || ''
       };
 
       // Guardar en Firestore

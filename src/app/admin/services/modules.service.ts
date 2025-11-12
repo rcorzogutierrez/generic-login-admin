@@ -17,8 +17,8 @@ import {
   updateDocWithLogging as updateDoc,
   deleteDocWithLogging as deleteDoc
 } from '../../shared/utils/firebase-logger.utils';
-import { BehaviorSubject } from 'rxjs';
 import { SystemModule, ModuleFormData } from '../models/system-module.interface';
+import { logAuditAction } from '../../shared/utils/audit-logger.utils';
 
 export interface ModuleOperationResult {
   success: boolean;
@@ -27,6 +27,28 @@ export interface ModuleOperationResult {
   error?: any;
 }
 
+/**
+ * Servicio de Gestión de Módulos del Sistema - Optimizado con Angular 20 Signals
+ *
+ * Administra los módulos disponibles en el sistema (Clientes, Workers, Materials, etc.).
+ * Permite crear, actualizar, eliminar y reordenar módulos dinámicamente.
+ *
+ * @example
+ * ```typescript
+ * // Crear nuevo módulo
+ * const result = await modulesService.createModule({
+ *   value: 'products',
+ *   label: 'Productos',
+ *   description: 'Gestión de productos',
+ *   icon: 'inventory',
+ *   route: '/modules/products',
+ *   isActive: true
+ * }, currentUserUid);
+ *
+ * // Obtener módulos activos
+ * const activeModules = modulesService.getActiveModules();
+ * ```
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -35,13 +57,9 @@ export class ModulesService {
   private readonly MODULES_COLLECTION = 'system_modules';
   private isInitialized = false; // ✅ Control de inicialización
 
-  // Signal para módulos
+  // ✅ MODERNIZADO: Solo signal, eliminado BehaviorSubject redundante
   private _modules = signal<SystemModule[]>([]);
   readonly modules = this._modules.asReadonly();
-
-  // BehaviorSubject para compatibilidad con observables
-  private modulesSubject = new BehaviorSubject<SystemModule[]>([]);
-  public modules$ = this.modulesSubject.asObservable();
 
   constructor() {}
 
@@ -87,7 +105,6 @@ export class ModulesService {
       });
 
       this._modules.set(modules);
-      this.modulesSubject.next(modules);
 
       return modules;
     } catch (error) {
@@ -201,7 +218,6 @@ export class ModulesService {
       };
 
       this._modules.update(modules => [...modules, newModule].sort((a, b) => a.order - b.order));
-      this.modulesSubject.next(this._modules());
 
       // Log de auditoría
       await this.logModuleAction('create_module', docRef.id, {
@@ -291,7 +307,6 @@ export class ModulesService {
           return m;
         })
       );
-      this.modulesSubject.next(this._modules());
 
       // Log de auditoría
       await this.logModuleAction('update_module', moduleId, {
@@ -361,10 +376,9 @@ export class ModulesService {
           await batch.commit();
           
         }
-        
+
         // ✅ OPTIMIZADO: Actualizar signal localmente (eliminación permanente)
         this._modules.update(modules => modules.filter(m => m.id !== moduleId));
-        this.modulesSubject.next(this._modules());
 
         await this.logModuleAction('delete_module_permanent', moduleId, {
           moduleValue: moduleValue,
@@ -393,7 +407,6 @@ export class ModulesService {
             return m;
           })
         );
-        this.modulesSubject.next(this._modules());
 
         await this.logModuleAction('deactivate_module', moduleId, {
           moduleValue: moduleValue
@@ -446,7 +459,6 @@ export class ModulesService {
         });
         return reordered.sort((a, b) => a.order - b.order);
       });
-      this.modulesSubject.next(this._modules());
 
       await this.logModuleAction('reorder_modules', '', {
         newOrder: moduleIds
@@ -506,7 +518,6 @@ export class ModulesService {
           usersCount: moduleCounts[m.value] || 0
         }))
       );
-      this.modulesSubject.next(this._modules());
 
     } catch (error) {
       console.error('❌ Error actualizando usersCount:', error);
@@ -569,7 +580,8 @@ export class ModulesService {
   }
 
   /**
-   * Log de acciones para auditoría
+   * ✅ REFACTORIZADO: Log de acciones para auditoría
+   * Ahora usa utilidad centralizada de audit-logger.utils
    */
   private async logModuleAction(
     action: string,
@@ -577,21 +589,12 @@ export class ModulesService {
     details: any,
     currentUserUid: string
   ): Promise<void> {
-    try {
-      const logData = {
-        action,
-        targetUserId: moduleId,
-        performedBy: currentUserUid,
-        performedByEmail: 'system', // Obtener del authService si es necesario
-        timestamp: new Date(),
-        details: JSON.stringify(details),
-        ip: 'unknown'
-      };
-
-      await addDoc(collection(this.db, 'admin_logs'), logData);
-    } catch (error) {
-      console.warn('Error logging module action:', error);
-    }
+    await logAuditAction({
+      action,
+      targetId: moduleId,
+      details,
+      performedBy: currentUserUid
+    });
   }
 
   /**

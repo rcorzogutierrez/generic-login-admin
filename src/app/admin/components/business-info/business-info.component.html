@@ -227,7 +227,8 @@
              ========================================== -->
         <mat-tab label="Dirección">
           <div class="p-8">
-            <form [formGroup]="businessForm" formGroupName="address">
+            <form [formGroup]="businessForm">
+              <div formGroupName="address">
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
@@ -298,6 +299,7 @@
 
               </div>
 
+              </div>
             </form>
           </div>
         </mat-tab>
@@ -426,7 +428,8 @@
              ========================================== -->
         <mat-tab label="Redes Sociales">
           <div class="p-8">
-            <form [formGroup]="businessForm" formGroupName="socialMedia">
+            <form [formGroup]="businessForm">
+              <div formGroupName="socialMedia">
 
               <div class="grid grid-cols-1 gap-6">
 
@@ -484,6 +487,7 @@
 
               </div>
 
+              </div>
             </form>
           </div>
         </mat-tab>

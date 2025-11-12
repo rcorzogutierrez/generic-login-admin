@@ -1,5 +1,5 @@
-// src/app/admin/admin-panel.component.ts - VERSIÓN CON SIGNALS
-import { Component, OnInit, effect, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+// src/app/admin/admin-panel.component.ts - OPTIMIZADO CON ANGULAR 20
+import { Component, OnInit, effect, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -26,6 +26,14 @@ import { AssignModulesDialogComponent } from './components/assign-modules-dialog
 import { EditUserRoleDialogComponent } from './components/edit-user-role-dialog/edit-user-role-dialog.component';
 import { ADMIN_USERS_CONFIG, adaptUserToGenericEntity } from './config/admin-users.config';
 
+// ✅ Utilidades compartidas
+import {
+  getInitials,
+  getAvatarColor,
+  formatDate,
+  getRelativeTime
+} from '../shared/utils';
+
 @Component({
   selector: 'app-admin-panel',
   standalone: true,
@@ -49,8 +57,16 @@ import { ADMIN_USERS_CONFIG, adaptUserToGenericEntity } from './config/admin-use
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminPanelComponent implements OnInit {
+  // ✅ Inject pattern (Angular 20)
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private adminService = inject(AdminService);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+  private cdr = inject(ChangeDetectorRef);
+
   currentUser = this.authService.authorizedUser;
-  
+
   // Stats del dashboard
   totalUsers = 0;
   activeUsers = 0;
@@ -61,25 +77,24 @@ export class AdminPanelComponent implements OnInit {
   users: User[] = [];
   displayedUsers: User[] = [];
   filteredUsers: User[] = [];
-  
+
   // Control de filtros y búsqueda
   currentFilter: 'all' | 'admin' | 'modules' | 'active' = 'all';
   searchTerm = '';
-  
+
   // Control de carga
   isLoading = false;
 
   // Control de selección múltiple
   selectedUsers = new Set<string>();
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private adminService: AdminService,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
-  ) {
+  // ✅ Utilidades compartidas expuestas al template
+  readonly getInitials = getInitials;
+  readonly getAvatarColor = getAvatarColor;
+  readonly formatDate = formatDate;
+  readonly getRelativeTime = getRelativeTime;
+
+  constructor() {
     // ✅ Effect para reaccionar a cambios en users signal
     effect(() => {
       const users = this.adminService.users();
@@ -478,17 +493,10 @@ export class AdminPanelComponent implements OnInit {
   // ============================================
 
   /**
-   * Obtiene iniciales del usuario
+   * ✅ NOTA: getUserInitials, formatDate, getRelativeTime, getAvatarColor
+   * ahora son utilidades compartidas importadas desde shared/utils
+   * Se exponen al template como readonly properties (líneas 92-95)
    */
-  getUserInitials(): string {
-    const name = this.currentUser()?.displayName || '';
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  }
 
   /**
    * Navega a notificaciones
@@ -518,47 +526,6 @@ export class AdminPanelComponent implements OnInit {
 
   getRoleIcon(role: string): string {
     return this.getUserIcon(role);
-  }
-
-  /**
-   * Formatea fecha
-   */
-  formatDate(date: Date | null | undefined): string {
-    if (!date) return 'Nunca';
-
-    const now = new Date();
-    const diffMs = now.getTime() - new Date(date).getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-
-    if (diffHours < 1) {
-      return 'Hace pocos minutos';
-    } else if (diffHours < 24) {
-      return `Hace ${diffHours}h`;
-    } else {
-      const days = Math.floor(diffHours / 24);
-      if (days === 1) return 'Ayer';
-      if (days < 7) return `Hace ${days}d`;
-      return new Date(date).toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: 'short'
-      });
-    }
-  }
-
-  /**
-   * Tiempo relativo
-   */
-  getRelativeTime(date: Date | null | undefined): string {
-    if (!date) return '';
-
-    const now = new Date();
-    const diffMs = now.getTime() - new Date(date).getTime();
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-
-    if (diffMinutes < 5) return 'Ahora';
-    if (diffMinutes < 60) return `${diffMinutes}m`;
-    if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h`;
-    return `${Math.floor(diffMinutes / 1440)}d`;
   }
 
   /**
@@ -598,26 +565,12 @@ export class AdminPanelComponent implements OnInit {
   }
 
   /**
-   * Color del avatar
+   * ✅ NOTA: getUserAvatarColor eliminado - ahora usa getAvatarColor de shared/utils
+   * Template usa: getAvatarColor(user.email)
+   *
+   * Nota: getAvatarColor retorna color hexadecimal, no linear-gradient.
+   * Si necesitas gradientes, considera crear getUserAvatarGradient() específico.
    */
-  getUserAvatarColor(email: string): string {
-    const colors = [
-      'linear-gradient(135deg, #3b82f6, #2563eb)',
-      'linear-gradient(135deg, #10b981, #059669)',
-      'linear-gradient(135deg, #f59e0b, #d97706)',
-      'linear-gradient(135deg, #ef4444, #dc2626)',
-      'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-      'linear-gradient(135deg, #06b6d4, #0891b2)',
-      'linear-gradient(135deg, #ec4899, #db2777)'
-    ];
-
-    let hash = 0;
-    for (let i = 0; i < email.length; i++) {
-      hash = email.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    return colors[Math.abs(hash) % colors.length];
-  }
 
   // ============================================
   // ACCIONES DE USUARIO

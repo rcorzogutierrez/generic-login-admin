@@ -1,5 +1,5 @@
-// src/app/admin/components/admin-logs/admin-logs.component.ts - COMPLETO CON DELETE
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+// src/app/admin/components/admin-logs/admin-logs.component.ts - OPTIMIZADO CON ANGULAR 20
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,6 +13,7 @@ import { AdminLogsService, AdminLog, LogsFilter } from '../../services/admin-log
 import { Router } from '@angular/router';
 import { DeleteLogsDialogComponent } from '../delete-logs-dialog/delete-logs-dialog.component';
 import { LogDetailsDialogComponent } from '../log-details-dialog/log-details-dialog.component';
+import { formatDateTime, getRelativeTime } from '../../../shared/utils/date-time.utils';
 
 @Component({
   selector: 'app-admin-logs',
@@ -30,6 +31,13 @@ import { LogDetailsDialogComponent } from '../log-details-dialog/log-details-dia
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminLogsComponent implements OnInit {
+  // ✅ Inject pattern (Angular 20)
+  private logsService = inject(AdminLogsService);
+  private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
+  private dialog = inject(MatDialog);
+  private cdr = inject(ChangeDetectorRef);
+
   // Estado de logs
   logs: AdminLog[] = [];
   isLoading = false;
@@ -49,13 +57,11 @@ export class AdminLogsComponent implements OnInit {
   // Stats
   totalLogs = 0;
 
-  constructor(
-    private logsService: AdminLogsService,
-    private snackBar: MatSnackBar,
-    private router: Router,
-    private dialog: MatDialog,
-    private cdr: ChangeDetectorRef
-  ) {}
+  // ✅ Utilidades compartidas expuestas al template
+  readonly formatDateTime = formatDateTime;
+  readonly getRelativeTime = getRelativeTime;
+
+  constructor() {}
 
   async ngOnInit() {
     await this.loadInitialData();
@@ -314,31 +320,14 @@ export class AdminLogsComponent implements OnInit {
     return colors[Math.abs(hash) % colors.length];
   }
 
-  formatDateTime(date: Date): string {
-    if (!date) return 'Desconocida';
+  /**
+   * ✅ NOTA: formatDateTime y getRelativeTime eliminados
+   * Ahora usan utilidades compartidas de shared/utils
+   * Se exponen al template como readonly properties (líneas 61-62)
+   */
 
-    return new Intl.DateTimeFormat('es-ES', {
-      day: '2-digit',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
-  }
   goBack() {
     this.router.navigate(['/admin']);
-  }
-
-  getRelativeTime(date: Date): string {
-    if (!date) return '';
-
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-
-    if (diffMins < 1) return 'Ahora';
-    if (diffMins < 60) return `${diffMins}m`;
-    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h`;
-    return `${Math.floor(diffMins / 1440)}d`;
   }
 
   /**

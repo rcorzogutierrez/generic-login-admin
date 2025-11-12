@@ -127,7 +127,7 @@ input[type="file"] {
 
 /* Tab Labels Container */
 ::ng-deep .business-tabs .mat-mdc-tab-labels {
-  gap: 0.5rem;
+  gap: 1.5rem;
 }
 
 /* Individual Tab */

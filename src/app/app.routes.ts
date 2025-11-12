@@ -36,16 +36,6 @@ export const routes: Routes = [
     title: 'Mis Módulos'
   },
 
-  // PRUEBA TEMPORAL: Business fuera de admin
-  {
-    path: 'business',
-    loadComponent: () =>
-      import('./business/business.component')
-        .then(m => m.BusinessComponent),
-    canActivate: [roleGuard(['admin'])],
-    title: 'Mi Empresa',
-  },
-
   // RUTAS DE MÓDULOS DINÁMICOS
   {
     path: 'modules/clients',
@@ -102,6 +92,14 @@ export const routes: Routes = [
           import('./admin/components/manage-roles/manage-roles.component')
             .then(m => m.ManageRolesComponent),
         title: 'Gestión de Roles',
+      },
+      // ✅ NUEVA RUTA: Información de Empresa
+      {
+        path: 'business',
+        loadComponent: () =>
+          import('./business/business.component')
+            .then(m => m.BusinessComponent),
+        title: 'Mi Empresa',
       },
     ],
   },

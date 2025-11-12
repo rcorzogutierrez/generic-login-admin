@@ -160,15 +160,7 @@ export class BusinessComponent implements OnInit {
   // ============================================
 
   async ngOnInit() {
-    // Verificar permisos
-    if (!this.isAdmin()) {
-      this.snackBar.open('No tienes permisos para acceder a esta página', 'Cerrar', {
-        duration: 3000
-      });
-      this.router.navigate(['/dashboard']);
-      return;
-    }
-
+    // El roleGuard ya verifica permisos de admin en la ruta
     await this.loadBusinessInfo();
   }
 

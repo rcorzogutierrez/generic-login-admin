@@ -4,11 +4,11 @@
  * Dirección de la empresa
  */
 export interface BusinessAddress {
-  street: string;       // Calle y número
-  city: string;         // Ciudad
-  state: string;        // Estado/Provincia
-  zipCode: string;      // Código postal
-  country: string;      // País
+  street?: string;       // Calle y número
+  city?: string;         // Ciudad
+  state?: string;        // Estado/Provincia
+  zipCode?: string;      // Código postal
+  country?: string;      // País
 }
 
 /**
@@ -69,16 +69,16 @@ export interface BusinessInfo {
   businessName: string;
 
   /**
-   * Razón social / Nombre legal
+   * Razón social / Nombre legal (opcional)
    * @example "Corporación XYZ C.A."
    */
-  legalName: string;
+  legalName?: string;
 
   /**
-   * RIF / Tax ID / NIT / Número de identificación fiscal
+   * RIF / Tax ID / NIT / Número de identificación fiscal (opcional)
    * @example "J-12345678-9"
    */
-  taxId: string;
+  taxId?: string;
 
   // ============================================
   // CONTACTO
@@ -91,10 +91,10 @@ export interface BusinessInfo {
   email: string;
 
   /**
-   * Teléfono fijo principal
+   * Teléfono fijo principal (opcional)
    * @example "+58 212 1234567"
    */
-  phone: string;
+  phone?: string;
 
   /**
    * Teléfono móvil (opcional)
@@ -113,20 +113,20 @@ export interface BusinessInfo {
   // ============================================
 
   /**
-   * Dirección física completa de la empresa
+   * Dirección física completa de la empresa (opcional)
    */
-  address: BusinessAddress;
+  address?: BusinessAddress;
 
   // ============================================
   // BRANDING
   // ============================================
 
   /**
-   * URL del logo de la empresa
+   * URL del logo de la empresa (opcional)
    * Puede ser una URL de Firebase Storage o externa
    * @example "https://firebasestorage.googleapis.com/..."
    */
-  logoUrl: string;
+  logoUrl?: string;
 
   /**
    * Color corporativo principal (formato hex)
@@ -186,14 +186,14 @@ export interface BusinessInfo {
  */
 export interface BusinessInfoFormData {
   businessName: string;
-  legalName: string;
-  taxId: string;
+  legalName?: string;
+  taxId?: string;
   email: string;
-  phone: string;
+  phone?: string;
   mobilePhone?: string;
   website?: string;
-  address: BusinessAddress;
-  logoUrl: string;
+  address?: BusinessAddress;
+  logoUrl?: string;
   primaryColor?: string;
   secondaryColor?: string;
   description?: string;

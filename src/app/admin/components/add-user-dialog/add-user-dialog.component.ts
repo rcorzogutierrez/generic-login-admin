@@ -16,6 +16,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AdminService, CreateUserRequest } from '../../services/admin.service';
+import { getRoleIcon, getPermissionIcon, getModuleIcon } from '../../../shared/utils';
 
 
 @Component({
@@ -55,6 +56,25 @@ export class AddUserDialogComponent implements OnInit {
   roleOptions = this.adminService.getRoleOptions();
   permissionOptions = this.adminService.getPermissionOptions();
   moduleOptions = this.adminService.getModuleOptions();
+
+  // ============================================
+  // SHARED UTILITIES (Angular 20 pattern)
+  // ============================================
+
+  /**
+   * Utilidad compartida para obtener icono de rol
+   */
+  readonly getRoleIcon = getRoleIcon;
+
+  /**
+   * Utilidad compartida para obtener icono de permiso
+   */
+  readonly getPermissionIcon = getPermissionIcon;
+
+  /**
+   * Utilidad compartida para obtener icono de módulo
+   */
+  readonly getModuleIcon = getModuleIcon;
 
   ngOnInit() {
     this.initializeForm();
@@ -163,16 +183,6 @@ isTabValid(tabIndex: number): boolean {
     return option?.label || permission;
   }
 
-  getPermissionIcon(permission: string): string {
-    const icons: { [key: string]: string } = {
-      'read': 'visibility',
-      'write': 'edit',
-      'delete': 'delete',
-      'manage_users': 'group'
-    };
-    return icons[permission] || 'check_circle';
-  }
-
   // ===== MÉTODOS DE MÓDULOS =====
 
   isModuleSelected(module: string): boolean {
@@ -200,22 +210,6 @@ isTabValid(tabIndex: number): boolean {
   getModuleLabel(module: string): string {
     const option = this.moduleOptions.find(m => m.value === module);
     return option?.label || module;
-  }
-
-  getModuleIcon(module: string): string {
-    const option = this.moduleOptions.find(m => m.value === module);
-    return option?.icon || 'extension';
-  }
-
-  // ===== MÉTODOS DE ROLES =====
-
-  getRoleIcon(role: string): string {
-    const icons: { [key: string]: string } = {
-      'admin': 'shield',
-      'user': 'person',
-      'viewer': 'visibility'
-    };
-    return icons[role] || 'person';
   }
 
   private updatePermissionsForRole(role: string) {

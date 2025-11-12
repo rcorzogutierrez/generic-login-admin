@@ -35,8 +35,8 @@
       <div class="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-4 mb-6">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold"
-               [style.background]="getUserColor()">
-            {{ getInitials() }}
+               [style.background-color]="getAvatarColor(data.user.email)">
+            {{ getInitials(data.user.displayName) }}
           </div>
           <div class="flex-1">
             <div class="font-semibold text-slate-800 text-sm">{{ data.user.displayName }}</div>

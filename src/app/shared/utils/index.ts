@@ -36,3 +36,6 @@ export * from './firebase-logger.utils';
 
 // User display helpers
 export * from './user-display.utils';
+
+// Icon utilities
+export * from './icon.utils';

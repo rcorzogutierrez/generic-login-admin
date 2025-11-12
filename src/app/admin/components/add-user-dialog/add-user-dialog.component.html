@@ -277,10 +277,10 @@
               </span>
               <mat-chip-set class="modern-chip-set flex flex-wrap gap-2">
                 @for (mod of getSelectedModules(); track mod) {
-                  <mat-chip 
+                  <mat-chip
                     class="modern-chip module-chip"
                     (removed)="toggleModule(mod)">
-                    <mat-icon matChipAvatar class="!text-base">{{ getModuleIcon(mod) }}</mat-icon>
+                    <mat-icon matChipAvatar class="!text-base">{{ getModuleIcon(mod, moduleOptions) }}</mat-icon>
                     {{ getModuleLabel(mod) }}
                     <button matChipRemove>
                       <mat-icon>cancel</mat-icon>

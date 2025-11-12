@@ -1,10 +1,11 @@
 // src/app/admin/components/log-details-dialog/log-details-dialog.component.ts
-import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Inject, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AdminLog } from '../../services/admin-logs.service';
+import { formatActionName } from '../../../shared/utils';
 
 export interface LogDetailsDialogData {
   log: AdminLog;
@@ -24,19 +25,21 @@ export interface LogDetailsDialogData {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LogDetailsDialogComponent {
-  constructor(
-    public dialogRef: MatDialogRef<LogDetailsDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: LogDetailsDialogData
-  ) {}
+  // ============================================
+  // DEPENDENCY INJECTION (Angular 20 pattern)
+  // ============================================
+  public dialogRef = inject(MatDialogRef<LogDetailsDialogComponent>);
 
-  formatActionName(action: string): string {
-    if (!action) return '';
-    
-    return action
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  }
+  // ============================================
+  // SHARED UTILITIES (Angular 20 pattern)
+  // ============================================
+
+  /**
+   * Utilidad compartida para formatear nombres de acciones
+   */
+  readonly formatActionName = formatActionName;
+
+  constructor(@Inject(MAT_DIALOG_DATA) public data: LogDetailsDialogData) {}
 
   formatFullDateTime(date: Date): string {
     if (!date) return 'Fecha desconocida';

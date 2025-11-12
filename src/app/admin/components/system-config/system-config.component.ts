@@ -1,5 +1,5 @@
 // src/app/admin/components/system-config/system-config.component.ts
-import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -37,21 +37,35 @@ import { AuthService } from '../../../core/services/auth.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SystemConfigComponent implements OnInit {
+  // ============================================
+  // DEPENDENCY INJECTION (Angular 20 pattern)
+  // ============================================
+  private fb = inject(FormBuilder);
+  private configService = inject(SystemConfigService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
+
+  // ============================================
+  // STATE
+  // ============================================
   configForm!: FormGroup;
   isLoading = signal(true);
   isSaving = signal(false);
-  
+
   currentConfig = this.configService.config;
   currentUser = this.authService.authorizedUser;
-  
+
   // Logo preview
   logoPreviewUrl = signal<string>('');
   logoBackgroundColor = signal<string>('transparent');
   selectedLogoFile = signal<File | null>(null);
   isUploadingLogo = signal(false);
 
-   // Colores predefinidos
-   readonly presetColors = [
+  /**
+   * Colores predefinidos para el fondo del logo
+   */
+  readonly presetColors = [
     { name: 'Transparente', value: 'transparent' },
     { name: 'Blanco', value: '#ffffff' },
     { name: 'Gris claro', value: '#f8fafc' },
@@ -61,14 +75,6 @@ export class SystemConfigComponent implements OnInit {
     { name: 'Púrpura', value: '#8b5cf6' },
     { name: 'Negro', value: '#000000' },
   ];
-
-  constructor(
-    private fb: FormBuilder,
-    private configService: SystemConfigService,
-    private authService: AuthService,
-    private router: Router,
-    private snackBar: MatSnackBar
-  ) {}
 
   async ngOnInit() {
     await this.loadConfiguration();

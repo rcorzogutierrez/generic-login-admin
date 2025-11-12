@@ -1,5 +1,5 @@
 // src/app/admin/components/module-form-dialog/module-form-dialog.component.ts
-import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Inject, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -40,11 +40,24 @@ export interface ModuleFormDialogData {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ModuleFormDialogComponent implements OnInit {
+  // ============================================
+  // DEPENDENCY INJECTION (Angular 20 pattern)
+  // ============================================
+  private fb = inject(FormBuilder);
+  private modulesService = inject(ModulesService);
+  private authService = inject(AuthService);
+  public dialogRef = inject(MatDialogRef<ModuleFormDialogComponent>);
+
+  // ============================================
+  // STATE
+  // ============================================
   moduleForm!: FormGroup;
   isSaving = false;
   isEditMode = false;
 
-  // Iconos sugeridos de Material - Organizados por categoría
+  /**
+   * Iconos sugeridos de Material organizados por categoría
+   */
   suggestedIcons = [
     // Sistema y Admin
     'dashboard', 'settings', 'admin_panel_settings', 'security', 'vpn_key',
@@ -70,13 +83,7 @@ export class ModuleFormDialogComponent implements OnInit {
     'storage', 'cloud', 'cloud_upload', 'cloud_download', 'backup'
   ];
 
-  constructor(
-    private fb: FormBuilder,
-    private modulesService: ModulesService,
-    private authService: AuthService,
-    public dialogRef: MatDialogRef<ModuleFormDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ModuleFormDialogData
-  ) {}
+  constructor(@Inject(MAT_DIALOG_DATA) public data: ModuleFormDialogData) {}
 
   ngOnInit() {
     this.isEditMode = this.data.mode === 'edit';

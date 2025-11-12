@@ -1,5 +1,5 @@
 // src/app/admin/components/delete-module-dialog/delete-module-dialog.component.ts
-import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Inject, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -30,13 +30,18 @@ export interface DeleteModuleDialogData {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DeleteModuleDialogComponent {
+  // ============================================
+  // DEPENDENCY INJECTION (Angular 20 pattern)
+  // ============================================
+  public dialogRef = inject(MatDialogRef<DeleteModuleDialogComponent>);
+
+  // ============================================
+  // STATE
+  // ============================================
   deleteMethod: 'soft' | 'hard' = 'soft';
   isDeleting = false;
 
-  constructor(
-    public dialogRef: MatDialogRef<DeleteModuleDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DeleteModuleDialogData
-  ) {}
+  constructor(@Inject(MAT_DIALOG_DATA) public data: DeleteModuleDialogData) {}
 
   /**
    * ✅ NUEVO: Verifica si NO se puede eliminar permanentemente

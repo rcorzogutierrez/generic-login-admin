@@ -1,5 +1,5 @@
 // src/app/admin/components/delete-logs-dialog/delete-logs-dialog.component.ts
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -33,17 +33,21 @@ export type DeleteOption = 'all' | 'older_than' | 'by_days';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DeleteLogsDialogComponent implements OnInit {
+  // ============================================
+  // DEPENDENCY INJECTION (Angular 20 pattern)
+  // ============================================
+  public dialogRef = inject(MatDialogRef<DeleteLogsDialogComponent>);
+  private logsService = inject(AdminLogsService);
+
+  // ============================================
+  // STATE
+  // ============================================
   selectedOption: DeleteOption = 'older_than';
   daysInput: number = 30;
   confirmationText = '';
   isDeleting = false;
   totalLogs = 0;
   isLoadingCount = true;
-
-  constructor(
-    public dialogRef: MatDialogRef<DeleteLogsDialogComponent>,
-    private logsService: AdminLogsService
-  ) {}
 
   async ngOnInit() {
     await this.loadTotalCount();

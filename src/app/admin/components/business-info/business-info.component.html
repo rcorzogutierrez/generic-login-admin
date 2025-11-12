@@ -91,528 +91,557 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         <!-- ============================================
-             LEFT COLUMN - FORMULARIO (2/3 width)
+             LEFT COLUMN - FORMULARIO CON TABS (2/3 width)
              ============================================ -->
-        <section class="lg:col-span-2 space-y-6">
+        <section class="lg:col-span-2">
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-soft overflow-hidden">
 
-          <!-- CARD: INFORMACIÓN GENERAL -->
-          <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft">
-            <div class="flex items-center gap-3 mb-6">
-              <mat-icon class="text-blue-500 !text-2xl">info</mat-icon>
-              <h2 class="text-xl font-bold text-slate-800">Información General</h2>
-            </div>
+            <!-- Upload Progress Bar -->
+            @if (uploadProgress() > 0 && uploadProgress() < 100) {
+              <mat-progress-bar mode="determinate" [value]="uploadProgress()"></mat-progress-bar>
+            }
 
-            <form [formGroup]="businessForm">
-              <div class="space-y-6">
+            <!-- Tabs -->
+            <mat-tab-group class="business-tabs" animationDuration="300ms">
 
-                <!-- Nombre Comercial -->
-                <div class="space-y-2">
-                  <label class="input-label-modern">
-                    <mat-icon class="!text-lg text-blue-500">store</mat-icon>
-                    Nombre Comercial *
-                  </label>
-                  <mat-form-field appearance="outline" class="w-full">
-                    <input
-                      matInput
-                      formControlName="businessName"
-                      placeholder="Ej: Mi Empresa"
-                      maxlength="100">
-                    <mat-hint align="end">{{ businessForm.get('businessName')?.value?.length || 0 }}/100</mat-hint>
-                    @if (isFieldInvalid('businessName')) {
-                      <mat-error>{{ getErrorMessage('businessName') }}</mat-error>
-                    }
-                  </mat-form-field>
-                </div>
+              <!-- ==========================================
+                   TAB 1: INFORMACIÓN GENERAL
+                   ========================================== -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon class="tab-icon">info</mat-icon>
+                  <span class="tab-label">General</span>
+                </ng-template>
 
-                <!-- Razón Social -->
-                <div class="space-y-2">
-                  <label class="input-label-modern">
-                    <mat-icon class="!text-lg text-blue-500">gavel</mat-icon>
-                    Razón Social / Nombre Legal
-                  </label>
-                  <mat-form-field appearance="outline" class="w-full">
-                    <input
-                      matInput
-                      formControlName="legalName"
-                      placeholder="Ej: Mi Empresa S.A."
-                      maxlength="150">
-                    <mat-hint align="end">{{ businessForm.get('legalName')?.value?.length || 0 }}/150</mat-hint>
-                    @if (isFieldInvalid('legalName')) {
-                      <mat-error>{{ getErrorMessage('legalName') }}</mat-error>
-                    }
-                  </mat-form-field>
-                </div>
+                <div class="tab-content">
+                  <form [formGroup]="businessForm">
+                    <div class="space-y-6">
 
-                <!-- RIF / Tax ID -->
-                <div class="space-y-2">
-                  <label class="input-label-modern">
-                    <mat-icon class="!text-lg text-blue-500">badge</mat-icon>
-                    RIF / Tax ID / NIT
-                  </label>
-                  <mat-form-field appearance="outline" class="w-full">
-                    <input
-                      matInput
-                      formControlName="taxId"
-                      placeholder="Ej: J-12345678-9"
-                      maxlength="30">
-                    @if (isFieldInvalid('taxId')) {
-                      <mat-error>{{ getErrorMessage('taxId') }}</mat-error>
-                    }
-                  </mat-form-field>
-                </div>
-
-                <!-- Descripción -->
-                <div class="space-y-2">
-                  <label class="input-label-modern">
-                    <mat-icon class="!text-lg text-blue-500">description</mat-icon>
-                    Descripción de la Empresa
-                  </label>
-                  <mat-form-field appearance="outline" class="w-full">
-                    <textarea
-                      matInput
-                      formControlName="description"
-                      placeholder="Breve descripción de tu empresa..."
-                      rows="3"
-                      maxlength="500"></textarea>
-                    <mat-hint align="end">{{ businessForm.get('description')?.value?.length || 0 }}/500</mat-hint>
-                  </mat-form-field>
-                  <p class="text-xs text-slate-500 flex items-center gap-1.5">
-                    <mat-icon class="!text-sm">info_outline</mat-icon>
-                    Opcional: información adicional sobre tu empresa
-                  </p>
-                </div>
-
-              </div>
-            </form>
-          </div>
-
-          <!-- CARD: INFORMACIÓN DE CONTACTO -->
-          <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft">
-            <div class="flex items-center gap-3 mb-6">
-              <mat-icon class="text-green-500 !text-2xl">contact_phone</mat-icon>
-              <h2 class="text-xl font-bold text-slate-800">Información de Contacto</h2>
-            </div>
-
-            <form [formGroup]="businessForm">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                <!-- Email -->
-                <div class="space-y-2">
-                  <label class="input-label-modern">
-                    <mat-icon class="!text-lg text-green-500">email</mat-icon>
-                    Email Principal *
-                  </label>
-                  <mat-form-field appearance="outline" class="w-full">
-                    <input
-                      matInput
-                      type="email"
-                      formControlName="email"
-                      placeholder="contacto@empresa.com">
-                    @if (isFieldInvalid('email')) {
-                      <mat-error>{{ getErrorMessage('email') }}</mat-error>
-                    }
-                  </mat-form-field>
-                </div>
-
-                <!-- Teléfono Fijo -->
-                <div class="space-y-2">
-                  <label class="input-label-modern">
-                    <mat-icon class="!text-lg text-green-500">phone</mat-icon>
-                    Teléfono Fijo
-                  </label>
-                  <mat-form-field appearance="outline" class="w-full">
-                    <input
-                      matInput
-                      type="tel"
-                      formControlName="phone"
-                      placeholder="+58 212 1234567"
-                      maxlength="20">
-                    @if (isFieldInvalid('phone')) {
-                      <mat-error>{{ getErrorMessage('phone') }}</mat-error>
-                    }
-                  </mat-form-field>
-                </div>
-
-                <!-- Teléfono Móvil -->
-                <div class="space-y-2">
-                  <label class="input-label-modern">
-                    <mat-icon class="!text-lg text-green-500">smartphone</mat-icon>
-                    Teléfono Móvil
-                  </label>
-                  <mat-form-field appearance="outline" class="w-full">
-                    <input
-                      matInput
-                      type="tel"
-                      formControlName="mobilePhone"
-                      placeholder="+58 414 1234567"
-                      maxlength="20">
-                    @if (isFieldInvalid('mobilePhone')) {
-                      <mat-error>{{ getErrorMessage('mobilePhone') }}</mat-error>
-                    }
-                  </mat-form-field>
-                </div>
-
-                <!-- Website -->
-                <div class="space-y-2">
-                  <label class="input-label-modern">
-                    <mat-icon class="!text-lg text-green-500">language</mat-icon>
-                    Sitio Web
-                  </label>
-                  <mat-form-field appearance="outline" class="w-full">
-                    <input
-                      matInput
-                      type="url"
-                      formControlName="website"
-                      placeholder="https://www.empresa.com">
-                    @if (isFieldInvalid('website')) {
-                      <mat-error>{{ getErrorMessage('website') }}</mat-error>
-                    }
-                  </mat-form-field>
-                </div>
-
-              </div>
-            </form>
-          </div>
-
-          <!-- CARD: DIRECCIÓN -->
-          <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft">
-            <div class="flex items-center gap-3 mb-6">
-              <mat-icon class="text-purple-500 !text-2xl">location_on</mat-icon>
-              <h2 class="text-xl font-bold text-slate-800">Dirección Física</h2>
-            </div>
-
-            <form [formGroup]="businessForm">
-              <div formGroupName="address">
-                <div class="space-y-6">
-
-                  <!-- Calle -->
-                  <div class="space-y-2">
-                    <label class="input-label-modern">
-                      <mat-icon class="!text-lg text-purple-500">home</mat-icon>
-                      Calle y Número
-                    </label>
-                    <mat-form-field appearance="outline" class="w-full">
-                      <input
-                        matInput
-                        formControlName="street"
-                        placeholder="Ej: Av. Principal, Edif. Torre, Piso 5"
-                        maxlength="200">
-                      @if (isFieldInvalid('street', 'address')) {
-                        <mat-error>{{ getErrorMessage('street', 'address') }}</mat-error>
-                      }
-                    </mat-form-field>
-                  </div>
-
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Ciudad -->
-                    <div class="space-y-2">
-                      <label class="input-label-modern">
-                        <mat-icon class="!text-lg text-purple-500">location_city</mat-icon>
-                        Ciudad
-                      </label>
-                      <mat-form-field appearance="outline" class="w-full">
-                        <input
-                          matInput
-                          formControlName="city"
-                          placeholder="Ej: Caracas"
-                          maxlength="100">
-                        @if (isFieldInvalid('city', 'address')) {
-                          <mat-error>{{ getErrorMessage('city', 'address') }}</mat-error>
-                        }
-                      </mat-form-field>
-                    </div>
-
-                    <!-- Estado/Provincia -->
-                    <div class="space-y-2">
-                      <label class="input-label-modern">
-                        <mat-icon class="!text-lg text-purple-500">map</mat-icon>
-                        Estado / Provincia
-                      </label>
-                      <mat-form-field appearance="outline" class="w-full">
-                        <input
-                          matInput
-                          formControlName="state"
-                          placeholder="Ej: Distrito Capital"
-                          maxlength="100">
-                        @if (isFieldInvalid('state', 'address')) {
-                          <mat-error>{{ getErrorMessage('state', 'address') }}</mat-error>
-                        }
-                      </mat-form-field>
-                    </div>
-
-                    <!-- Código Postal -->
-                    <div class="space-y-2">
-                      <label class="input-label-modern">
-                        <mat-icon class="!text-lg text-purple-500">markunread_mailbox</mat-icon>
-                        Código Postal
-                      </label>
-                      <mat-form-field appearance="outline" class="w-full">
-                        <input
-                          matInput
-                          formControlName="zipCode"
-                          placeholder="Ej: 1050"
-                          maxlength="20">
-                        @if (isFieldInvalid('zipCode', 'address')) {
-                          <mat-error>{{ getErrorMessage('zipCode', 'address') }}</mat-error>
-                        }
-                      </mat-form-field>
-                    </div>
-
-                    <!-- País -->
-                    <div class="space-y-2">
-                      <label class="input-label-modern">
-                        <mat-icon class="!text-lg text-purple-500">public</mat-icon>
-                        País
-                      </label>
-                      <mat-form-field appearance="outline" class="w-full">
-                        <input
-                          matInput
-                          formControlName="country"
-                          placeholder="Ej: Venezuela"
-                          maxlength="100">
-                        @if (isFieldInvalid('country', 'address')) {
-                          <mat-error>{{ getErrorMessage('country', 'address') }}</mat-error>
-                        }
-                      </mat-form-field>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            </form>
-          </div>
-
-          <!-- CARD: BRANDING (Logo y Colores) -->
-          <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft">
-            <div class="flex items-center gap-3 mb-6">
-              <mat-icon class="text-amber-500 !text-2xl">palette</mat-icon>
-              <h2 class="text-xl font-bold text-slate-800">Branding y Logo</h2>
-            </div>
-
-            <form [formGroup]="businessForm">
-              <!-- Upload Progress Bar -->
-              @if (uploadProgress() > 0 && uploadProgress() < 100) {
-                <mat-progress-bar mode="determinate" [value]="uploadProgress()" class="mb-4"></mat-progress-bar>
-              }
-
-              <!-- Logo Section -->
-              <div class="mb-8">
-                <h3 class="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                  <mat-icon class="!text-lg text-amber-500">image</mat-icon>
-                  Logo de la Empresa
-                </h3>
-
-                <!-- Logo Preview -->
-                <div class="flex flex-col items-center gap-4 p-6 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 mb-4">
-                  @if (logoPreview()) {
-                    <div class="relative group">
-                      <div class="w-40 h-40 rounded-xl shadow-md flex items-center justify-center overflow-hidden bg-white">
-                        <img
-                          [src]="logoPreview()"
-                          alt="Logo preview"
-                          class="w-full h-full object-contain p-4">
+                      <!-- Nombre Comercial -->
+                      <div class="space-y-2">
+                        <label class="input-label-modern">
+                          <mat-icon class="!text-lg text-blue-500">store</mat-icon>
+                          Nombre Comercial *
+                        </label>
+                        <mat-form-field appearance="outline" class="w-full">
+                          <input
+                            matInput
+                            formControlName="businessName"
+                            placeholder="Ej: Mi Empresa"
+                            maxlength="100">
+                          <mat-hint align="end">{{ businessForm.get('businessName')?.value?.length || 0 }}/100</mat-hint>
+                          @if (isFieldInvalid('businessName')) {
+                            <mat-error>{{ getErrorMessage('businessName') }}</mat-error>
+                          }
+                        </mat-form-field>
                       </div>
+
+                      <!-- Razón Social -->
+                      <div class="space-y-2">
+                        <label class="input-label-modern">
+                          <mat-icon class="!text-lg text-blue-500">gavel</mat-icon>
+                          Razón Social / Nombre Legal
+                        </label>
+                        <mat-form-field appearance="outline" class="w-full">
+                          <input
+                            matInput
+                            formControlName="legalName"
+                            placeholder="Ej: Mi Empresa S.A."
+                            maxlength="150">
+                          <mat-hint align="end">{{ businessForm.get('legalName')?.value?.length || 0 }}/150</mat-hint>
+                          @if (isFieldInvalid('legalName')) {
+                            <mat-error>{{ getErrorMessage('legalName') }}</mat-error>
+                          }
+                        </mat-form-field>
+                      </div>
+
+                      <!-- RIF / Tax ID -->
+                      <div class="space-y-2">
+                        <label class="input-label-modern">
+                          <mat-icon class="!text-lg text-blue-500">badge</mat-icon>
+                          RIF / Tax ID / NIT
+                        </label>
+                        <mat-form-field appearance="outline" class="w-full">
+                          <input
+                            matInput
+                            formControlName="taxId"
+                            placeholder="Ej: J-12345678-9"
+                            maxlength="30">
+                          @if (isFieldInvalid('taxId')) {
+                            <mat-error>{{ getErrorMessage('taxId') }}</mat-error>
+                          }
+                        </mat-form-field>
+                      </div>
+
+                      <!-- Descripción -->
+                      <div class="space-y-2">
+                        <label class="input-label-modern">
+                          <mat-icon class="!text-lg text-blue-500">description</mat-icon>
+                          Descripción de la Empresa
+                        </label>
+                        <mat-form-field appearance="outline" class="w-full">
+                          <textarea
+                            matInput
+                            formControlName="description"
+                            placeholder="Breve descripción de tu empresa..."
+                            rows="4"
+                            maxlength="500"></textarea>
+                          <mat-hint align="end">{{ businessForm.get('description')?.value?.length || 0 }}/500</mat-hint>
+                        </mat-form-field>
+                        <p class="text-xs text-slate-500 flex items-center gap-1.5">
+                          <mat-icon class="!text-sm">info_outline</mat-icon>
+                          Opcional: información adicional sobre tu empresa
+                        </p>
+                      </div>
+
+                    </div>
+                  </form>
+                </div>
+              </mat-tab>
+
+              <!-- ==========================================
+                   TAB 2: CONTACTO
+                   ========================================== -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon class="tab-icon">contact_phone</mat-icon>
+                  <span class="tab-label">Contacto</span>
+                </ng-template>
+
+                <div class="tab-content">
+                  <form [formGroup]="businessForm">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                      <!-- Email -->
+                      <div class="space-y-2">
+                        <label class="input-label-modern">
+                          <mat-icon class="!text-lg text-green-500">email</mat-icon>
+                          Email Principal *
+                        </label>
+                        <mat-form-field appearance="outline" class="w-full">
+                          <input
+                            matInput
+                            type="email"
+                            formControlName="email"
+                            placeholder="contacto@empresa.com">
+                          @if (isFieldInvalid('email')) {
+                            <mat-error>{{ getErrorMessage('email') }}</mat-error>
+                          }
+                        </mat-form-field>
+                      </div>
+
+                      <!-- Teléfono Fijo -->
+                      <div class="space-y-2">
+                        <label class="input-label-modern">
+                          <mat-icon class="!text-lg text-green-500">phone</mat-icon>
+                          Teléfono Fijo
+                        </label>
+                        <mat-form-field appearance="outline" class="w-full">
+                          <input
+                            matInput
+                            type="tel"
+                            formControlName="phone"
+                            placeholder="+58 212 1234567"
+                            maxlength="20">
+                          @if (isFieldInvalid('phone')) {
+                            <mat-error>{{ getErrorMessage('phone') }}</mat-error>
+                          }
+                        </mat-form-field>
+                      </div>
+
+                      <!-- Teléfono Móvil -->
+                      <div class="space-y-2">
+                        <label class="input-label-modern">
+                          <mat-icon class="!text-lg text-green-500">smartphone</mat-icon>
+                          Teléfono Móvil
+                        </label>
+                        <mat-form-field appearance="outline" class="w-full">
+                          <input
+                            matInput
+                            type="tel"
+                            formControlName="mobilePhone"
+                            placeholder="+58 414 1234567"
+                            maxlength="20">
+                          @if (isFieldInvalid('mobilePhone')) {
+                            <mat-error>{{ getErrorMessage('mobilePhone') }}</mat-error>
+                          }
+                        </mat-form-field>
+                      </div>
+
+                      <!-- Website -->
+                      <div class="space-y-2">
+                        <label class="input-label-modern">
+                          <mat-icon class="!text-lg text-green-500">language</mat-icon>
+                          Sitio Web
+                        </label>
+                        <mat-form-field appearance="outline" class="w-full">
+                          <input
+                            matInput
+                            type="url"
+                            formControlName="website"
+                            placeholder="https://www.empresa.com">
+                          @if (isFieldInvalid('website')) {
+                            <mat-error>{{ getErrorMessage('website') }}</mat-error>
+                          }
+                        </mat-form-field>
+                      </div>
+
+                    </div>
+                  </form>
+                </div>
+              </mat-tab>
+
+              <!-- ==========================================
+                   TAB 3: DIRECCIÓN
+                   ========================================== -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon class="tab-icon">location_on</mat-icon>
+                  <span class="tab-label">Dirección</span>
+                </ng-template>
+
+                <div class="tab-content">
+                  <form [formGroup]="businessForm">
+                    <div formGroupName="address">
+                      <div class="space-y-6">
+
+                        <!-- Calle -->
+                        <div class="space-y-2">
+                          <label class="input-label-modern">
+                            <mat-icon class="!text-lg text-purple-500">home</mat-icon>
+                            Calle y Número
+                          </label>
+                          <mat-form-field appearance="outline" class="w-full">
+                            <input
+                              matInput
+                              formControlName="street"
+                              placeholder="Ej: Av. Principal, Edif. Torre, Piso 5"
+                              maxlength="200">
+                            @if (isFieldInvalid('street', 'address')) {
+                              <mat-error>{{ getErrorMessage('street', 'address') }}</mat-error>
+                            }
+                          </mat-form-field>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <!-- Ciudad -->
+                          <div class="space-y-2">
+                            <label class="input-label-modern">
+                              <mat-icon class="!text-lg text-purple-500">location_city</mat-icon>
+                              Ciudad
+                            </label>
+                            <mat-form-field appearance="outline" class="w-full">
+                              <input
+                                matInput
+                                formControlName="city"
+                                placeholder="Ej: Caracas"
+                                maxlength="100">
+                              @if (isFieldInvalid('city', 'address')) {
+                                <mat-error>{{ getErrorMessage('city', 'address') }}</mat-error>
+                              }
+                            </mat-form-field>
+                          </div>
+
+                          <!-- Estado/Provincia -->
+                          <div class="space-y-2">
+                            <label class="input-label-modern">
+                              <mat-icon class="!text-lg text-purple-500">map</mat-icon>
+                              Estado / Provincia
+                            </label>
+                            <mat-form-field appearance="outline" class="w-full">
+                              <input
+                                matInput
+                                formControlName="state"
+                                placeholder="Ej: Distrito Capital"
+                                maxlength="100">
+                              @if (isFieldInvalid('state', 'address')) {
+                                <mat-error>{{ getErrorMessage('state', 'address') }}</mat-error>
+                              }
+                            </mat-form-field>
+                          </div>
+
+                          <!-- Código Postal -->
+                          <div class="space-y-2">
+                            <label class="input-label-modern">
+                              <mat-icon class="!text-lg text-purple-500">markunread_mailbox</mat-icon>
+                              Código Postal
+                            </label>
+                            <mat-form-field appearance="outline" class="w-full">
+                              <input
+                                matInput
+                                formControlName="zipCode"
+                                placeholder="Ej: 1050"
+                                maxlength="20">
+                              @if (isFieldInvalid('zipCode', 'address')) {
+                                <mat-error>{{ getErrorMessage('zipCode', 'address') }}</mat-error>
+                              }
+                            </mat-form-field>
+                          </div>
+
+                          <!-- País -->
+                          <div class="space-y-2">
+                            <label class="input-label-modern">
+                              <mat-icon class="!text-lg text-purple-500">public</mat-icon>
+                              País
+                            </label>
+                            <mat-form-field appearance="outline" class="w-full">
+                              <input
+                                matInput
+                                formControlName="country"
+                                placeholder="Ej: Venezuela"
+                                maxlength="100">
+                              @if (isFieldInvalid('country', 'address')) {
+                                <mat-error>{{ getErrorMessage('country', 'address') }}</mat-error>
+                              }
+                            </mat-form-field>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </mat-tab>
+
+              <!-- ==========================================
+                   TAB 4: BRANDING
+                   ========================================== -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon class="tab-icon">palette</mat-icon>
+                  <span class="tab-label">Branding</span>
+                </ng-template>
+
+                <div class="tab-content">
+                  <form [formGroup]="businessForm">
+
+                    <!-- Logo Section -->
+                    <div class="mb-8">
+                      <h3 class="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <mat-icon class="!text-lg text-amber-500">image</mat-icon>
+                        Logo de la Empresa
+                      </h3>
+
+                      <!-- Logo Preview -->
+                      <div class="flex flex-col items-center gap-4 p-6 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 mb-4">
+                        @if (logoPreview()) {
+                          <div class="relative group">
+                            <div class="w-40 h-40 rounded-xl shadow-md flex items-center justify-center overflow-hidden bg-white">
+                              <img
+                                [src]="logoPreview()"
+                                alt="Logo preview"
+                                class="w-full h-full object-contain p-4">
+                            </div>
+                            @if (editMode()) {
+                              <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+                                <button
+                                  mat-icon-button
+                                  class="!text-white"
+                                  (click)="logoPreview.set(''); selectedLogoFile.set(null)"
+                                  matTooltip="Eliminar logo"
+                                  aria-label="Eliminar logo">
+                                  <mat-icon>delete</mat-icon>
+                                </button>
+                              </div>
+                            }
+                          </div>
+                        } @else {
+                          <div class="w-40 h-40 bg-slate-200 rounded-xl flex items-center justify-center">
+                            <mat-icon class="!text-6xl text-slate-400">image</mat-icon>
+                          </div>
+                        }
+
+                        <p class="text-sm text-slate-600 font-medium text-center">
+                          {{ logoPreview() ? 'Logo actual' : 'Sin logo' }}
+                        </p>
+                      </div>
+
+                      <!-- Upload Button -->
                       @if (editMode()) {
-                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+                        <div class="flex flex-col gap-3">
+                          <input
+                            type="file"
+                            #logoInput
+                            accept="image/*"
+                            (change)="onLogoSelected($event)"
+                            class="hidden">
                           <button
-                            mat-icon-button
-                            class="!text-white"
-                            (click)="logoPreview.set(''); selectedLogoFile.set(null)"
-                            matTooltip="Eliminar logo"
-                            aria-label="Eliminar logo">
-                            <mat-icon>delete</mat-icon>
+                            mat-raised-button
+                            color="accent"
+                            (click)="logoInput.click()"
+                            class="w-full">
+                            <mat-icon>cloud_upload</mat-icon>
+                            {{ logoPreview() ? 'Cambiar Logo' : 'Subir Logo' }}
                           </button>
+                          <p class="text-xs text-slate-500 text-center">
+                            Formatos: JPG, PNG, SVG • Máx. 5MB
+                          </p>
                         </div>
                       }
+
+                      <!-- Hidden field -->
+                      <input type="hidden" formControlName="logoUrl">
                     </div>
-                  } @else {
-                    <div class="w-40 h-40 bg-slate-200 rounded-xl flex items-center justify-center">
-                      <mat-icon class="!text-6xl text-slate-400">image</mat-icon>
-                    </div>
-                  }
 
-                  <p class="text-sm text-slate-600 font-medium text-center">
-                    {{ logoPreview() ? 'Logo actual' : 'Sin logo' }}
-                  </p>
-                </div>
+                    <mat-divider class="my-8"></mat-divider>
 
-                <!-- Upload Button -->
-                @if (editMode()) {
-                  <div class="flex flex-col gap-3">
-                    <input
-                      type="file"
-                      #logoInput
-                      accept="image/*"
-                      (change)="onLogoSelected($event)"
-                      class="hidden">
-                    <button
-                      mat-raised-button
-                      color="accent"
-                      (click)="logoInput.click()"
-                      class="w-full">
-                      <mat-icon>cloud_upload</mat-icon>
-                      {{ logoPreview() ? 'Cambiar Logo' : 'Subir Logo' }}
-                    </button>
-                    <p class="text-xs text-slate-500 text-center">
-                      Formatos: JPG, PNG, SVG • Máx. 5MB
-                    </p>
-                  </div>
-                }
+                    <!-- Colors Section -->
+                    <div>
+                      <h3 class="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <mat-icon class="!text-lg text-amber-500">color_lens</mat-icon>
+                        Colores Corporativos
+                      </h3>
 
-                <!-- Hidden field -->
-                <input type="hidden" formControlName="logoUrl">
-              </div>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Color Primario -->
+                        <div class="space-y-3">
+                          <label class="input-label-modern">
+                            Color Primario
+                          </label>
+                          <div class="flex items-center gap-3">
+                            <input
+                              type="color"
+                              formControlName="primaryColor"
+                              class="w-16 h-16 rounded-lg border-2 border-slate-300 cursor-pointer">
+                            <div class="flex-1">
+                              <input
+                                matInput
+                                formControlName="primaryColor"
+                                placeholder="#3b82f6"
+                                class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                            </div>
+                          </div>
+                          <p class="text-xs text-slate-500 flex items-center gap-1.5">
+                            <mat-icon class="!text-sm">info_outline</mat-icon>
+                            Color principal de tu marca
+                          </p>
+                        </div>
 
-              <mat-divider class="my-8"></mat-divider>
-
-              <!-- Colors Section -->
-              <div>
-                <h3 class="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                  <mat-icon class="!text-lg text-amber-500">color_lens</mat-icon>
-                  Colores Corporativos
-                </h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <!-- Color Primario -->
-                  <div class="space-y-3">
-                    <label class="input-label-modern">
-                      Color Primario
-                    </label>
-                    <div class="flex items-center gap-3">
-                      <input
-                        type="color"
-                        formControlName="primaryColor"
-                        class="w-16 h-16 rounded-lg border-2 border-slate-300 cursor-pointer">
-                      <div class="flex-1">
-                        <input
-                          matInput
-                          formControlName="primaryColor"
-                          placeholder="#3b82f6"
-                          class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                        <!-- Color Secundario -->
+                        <div class="space-y-3">
+                          <label class="input-label-modern">
+                            Color Secundario
+                          </label>
+                          <div class="flex items-center gap-3">
+                            <input
+                              type="color"
+                              formControlName="secondaryColor"
+                              class="w-16 h-16 rounded-lg border-2 border-slate-300 cursor-pointer">
+                            <div class="flex-1">
+                              <input
+                                matInput
+                                formControlName="secondaryColor"
+                                placeholder="#8b5cf6"
+                                class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                            </div>
+                          </div>
+                          <p class="text-xs text-slate-500 flex items-center gap-1.5">
+                            <mat-icon class="!text-sm">info_outline</mat-icon>
+                            Color complementario
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    <p class="text-xs text-slate-500 flex items-center gap-1.5">
-                      <mat-icon class="!text-sm">info_outline</mat-icon>
-                      Color principal de tu marca
-                    </p>
-                  </div>
 
-                  <!-- Color Secundario -->
-                  <div class="space-y-3">
-                    <label class="input-label-modern">
-                      Color Secundario
-                    </label>
-                    <div class="flex items-center gap-3">
-                      <input
-                        type="color"
-                        formControlName="secondaryColor"
-                        class="w-16 h-16 rounded-lg border-2 border-slate-300 cursor-pointer">
-                      <div class="flex-1">
-                        <input
-                          matInput
-                          formControlName="secondaryColor"
-                          placeholder="#8b5cf6"
-                          class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                  </form>
+                </div>
+              </mat-tab>
+
+              <!-- ==========================================
+                   TAB 5: REDES SOCIALES
+                   ========================================== -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon class="tab-icon">share</mat-icon>
+                  <span class="tab-label">Redes</span>
+                </ng-template>
+
+                <div class="tab-content">
+                  <form [formGroup]="businessForm">
+                    <div formGroupName="socialMedia">
+                      <div class="space-y-6">
+
+                        <!-- Facebook -->
+                        <div class="space-y-2">
+                          <label class="input-label-modern">
+                            <mat-icon class="!text-lg text-[#1877F2]">facebook</mat-icon>
+                            Facebook
+                          </label>
+                          <mat-form-field appearance="outline" class="w-full">
+                            <input
+                              matInput
+                              type="url"
+                              formControlName="facebook"
+                              placeholder="https://www.facebook.com/tuempresa">
+                            @if (isFieldInvalid('facebook', 'socialMedia')) {
+                              <mat-error>{{ getErrorMessage('facebook', 'socialMedia') }}</mat-error>
+                            }
+                          </mat-form-field>
+                        </div>
+
+                        <!-- Instagram -->
+                        <div class="space-y-2">
+                          <label class="input-label-modern">
+                            <mat-icon class="!text-lg text-[#E4405F]">camera_alt</mat-icon>
+                            Instagram
+                          </label>
+                          <mat-form-field appearance="outline" class="w-full">
+                            <input
+                              matInput
+                              type="url"
+                              formControlName="instagram"
+                              placeholder="https://www.instagram.com/tuempresa">
+                            @if (isFieldInvalid('instagram', 'socialMedia')) {
+                              <mat-error>{{ getErrorMessage('instagram', 'socialMedia') }}</mat-error>
+                            }
+                          </mat-form-field>
+                        </div>
+
+                        <!-- Twitter -->
+                        <div class="space-y-2">
+                          <label class="input-label-modern">
+                            <mat-icon class="!text-lg text-[#1DA1F2]">tag</mat-icon>
+                            Twitter / X
+                          </label>
+                          <mat-form-field appearance="outline" class="w-full">
+                            <input
+                              matInput
+                              type="url"
+                              formControlName="twitter"
+                              placeholder="https://www.twitter.com/tuempresa">
+                            @if (isFieldInvalid('twitter', 'socialMedia')) {
+                              <mat-error>{{ getErrorMessage('twitter', 'socialMedia') }}</mat-error>
+                            }
+                          </mat-form-field>
+                        </div>
+
+                        <!-- LinkedIn -->
+                        <div class="space-y-2">
+                          <label class="input-label-modern">
+                            <mat-icon class="!text-lg text-[#0A66C2]">work</mat-icon>
+                            LinkedIn
+                          </label>
+                          <mat-form-field appearance="outline" class="w-full">
+                            <input
+                              matInput
+                              type="url"
+                              formControlName="linkedin"
+                              placeholder="https://www.linkedin.com/company/tuempresa">
+                            @if (isFieldInvalid('linkedin', 'socialMedia')) {
+                              <mat-error>{{ getErrorMessage('linkedin', 'socialMedia') }}</mat-error>
+                            }
+                          </mat-form-field>
+                        </div>
+
                       </div>
                     </div>
-                    <p class="text-xs text-slate-500 flex items-center gap-1.5">
-                      <mat-icon class="!text-sm">info_outline</mat-icon>
-                      Color complementario
-                    </p>
-                  </div>
+                  </form>
                 </div>
-              </div>
-            </form>
+              </mat-tab>
+
+            </mat-tab-group>
+
           </div>
-
-          <!-- CARD: REDES SOCIALES -->
-          <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft">
-            <div class="flex items-center gap-3 mb-6">
-              <mat-icon class="text-pink-500 !text-2xl">share</mat-icon>
-              <h2 class="text-xl font-bold text-slate-800">Redes Sociales</h2>
-            </div>
-
-            <form [formGroup]="businessForm">
-              <div formGroupName="socialMedia">
-                <div class="space-y-6">
-
-                  <!-- Facebook -->
-                  <div class="space-y-2">
-                    <label class="input-label-modern">
-                      <mat-icon class="!text-lg text-[#1877F2]">facebook</mat-icon>
-                      Facebook
-                    </label>
-                    <mat-form-field appearance="outline" class="w-full">
-                      <input
-                        matInput
-                        type="url"
-                        formControlName="facebook"
-                        placeholder="https://www.facebook.com/tuempresa">
-                      @if (isFieldInvalid('facebook', 'socialMedia')) {
-                        <mat-error>{{ getErrorMessage('facebook', 'socialMedia') }}</mat-error>
-                      }
-                    </mat-form-field>
-                  </div>
-
-                  <!-- Instagram -->
-                  <div class="space-y-2">
-                    <label class="input-label-modern">
-                      <mat-icon class="!text-lg text-[#E4405F]">camera_alt</mat-icon>
-                      Instagram
-                    </label>
-                    <mat-form-field appearance="outline" class="w-full">
-                      <input
-                        matInput
-                        type="url"
-                        formControlName="instagram"
-                        placeholder="https://www.instagram.com/tuempresa">
-                      @if (isFieldInvalid('instagram', 'socialMedia')) {
-                        <mat-error>{{ getErrorMessage('instagram', 'socialMedia') }}</mat-error>
-                      }
-                    </mat-form-field>
-                  </div>
-
-                  <!-- Twitter -->
-                  <div class="space-y-2">
-                    <label class="input-label-modern">
-                      <mat-icon class="!text-lg text-[#1DA1F2]">tag</mat-icon>
-                      Twitter / X
-                    </label>
-                    <mat-form-field appearance="outline" class="w-full">
-                      <input
-                        matInput
-                        type="url"
-                        formControlName="twitter"
-                        placeholder="https://www.twitter.com/tuempresa">
-                      @if (isFieldInvalid('twitter', 'socialMedia')) {
-                        <mat-error>{{ getErrorMessage('twitter', 'socialMedia') }}</mat-error>
-                      }
-                    </mat-form-field>
-                  </div>
-
-                  <!-- LinkedIn -->
-                  <div class="space-y-2">
-                    <label class="input-label-modern">
-                      <mat-icon class="!text-lg text-[#0A66C2]">work</mat-icon>
-                      LinkedIn
-                    </label>
-                    <mat-form-field appearance="outline" class="w-full">
-                      <input
-                        matInput
-                        type="url"
-                        formControlName="linkedin"
-                        placeholder="https://www.linkedin.com/company/tuempresa">
-                      @if (isFieldInvalid('linkedin', 'socialMedia')) {
-                        <mat-error>{{ getErrorMessage('linkedin', 'socialMedia') }}</mat-error>
-                      }
-                    </mat-form-field>
-                  </div>
-
-                </div>
-              </div>
-            </form>
-          </div>
-
         </section>
 
         <!-- ============================================

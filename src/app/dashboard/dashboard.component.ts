@@ -1,5 +1,5 @@
-// src/app/dashboard/dashboard.component.ts - OPTIMIZADO PARA TAILWIND + MATERIAL
-import { Component, OnInit } from '@angular/core';
+// src/app/dashboard/dashboard.component.ts
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,9 +13,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
-import { UserDashboardService, UserDashboardData, DashboardAction } from './services/user-dashboard.service';
+import { UserDashboardService, UserDashboardData, DashboardAction, UserActivity } from './services/user-dashboard.service';
 import { AppConfigService } from '../core/services/app-config.service';
+import { getPermissionIcon, getActionIcon, getRelativeTime, fromFirestoreTimestamp } from '../shared/utils';
 
+/**
+ * Acción rápida del dashboard
+ */
 interface QuickAction {
   id: string;
   title: string;
@@ -26,6 +30,9 @@ interface QuickAction {
   color: string;
 }
 
+/**
+ * Métrica clave del dashboard
+ */
 interface KeyMetric {
   label: string;
   value: string;
@@ -33,6 +40,17 @@ interface KeyMetric {
   icon: string;
 }
 
+/**
+ * Dashboard principal del usuario
+ *
+ * Componente optimizado que muestra información personalizada del usuario,
+ * métricas clave, acciones rápidas y actividad reciente.
+ *
+ * @example
+ * ```html
+ * <app-dashboard></app-dashboard>
+ * ```
+ */
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -51,75 +69,194 @@ interface KeyMetric {
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardComponent implements OnInit {
+  // ============================================
+  // DEPENDENCY INJECTION (Angular 20 pattern)
+  // ============================================
+  private authService = inject(AuthService);
+  private appConfigService = inject(AppConfigService);
+  private router = inject(Router);
+  private userDashboardService = inject(UserDashboardService);
+  private cdr = inject(ChangeDetectorRef);
+
+  // ============================================
+  // STATE (Signals - Angular 20)
+  // ============================================
+
+  /**
+   * Usuario autenticado actual
+   */
   user = this.authService.authorizedUser;
-  userDashboard: UserDashboardData | null = null;
+
+  /**
+   * Datos del dashboard del usuario
+   */
+  userDashboard = signal<UserDashboardData | null>(null);
+
+  /**
+   * Nombre de la aplicación
+   */
   appName = this.appConfigService.appName;
+
+  /**
+   * URL del logo de la aplicación
+   */
   logoUrl = this.appConfigService.logoUrl;
+
+  /**
+   * Texto del footer
+   */
   footerText = this.appConfigService.footerText;
-  loading = true;
-  error: string | null = null;
 
-  // Propiedades optimizadas
-  quickActions: QuickAction[] = [];
-  keyMetrics: KeyMetric[] = [];
-  recentActivities: any[] = [];
+  /**
+   * Estado de carga
+   */
+  loading = signal(true);
 
-  constructor(
-    private authService: AuthService,
-    private appConfigService: AppConfigService, 
-    private router: Router,
-    private userDashboardService: UserDashboardService
-  ) {}
+  /**
+   * Mensaje de error si ocurre algún problema
+   */
+  error = signal<string | null>(null);
+
+  /**
+   * Acciones rápidas disponibles
+   */
+  quickActions = signal<QuickAction[]>([]);
+
+  /**
+   * Métricas clave del usuario
+   */
+  keyMetrics = signal<KeyMetric[]>([]);
+
+  /**
+   * Actividades recientes del usuario
+   */
+  recentActivities = signal<UserActivity[]>([]);
+
+  // ============================================
+  // COMPUTED SIGNALS (Angular 20)
+  // ============================================
+
+  /**
+   * Verifica si el usuario es administrador
+   */
+  readonly isAdminUser = computed(() => {
+    const dashboard = this.userDashboard();
+    return dashboard?.userInfo.role === 'admin' ||
+           dashboard?.userInfo.permissions.includes('manage_users') ||
+           false;
+  });
+
+  /**
+   * Contador de notificaciones (placeholder para futura implementación)
+   */
+  readonly notificationCount = computed(() => 0);
+
+  // ============================================
+  // SHARED UTILITIES (Angular 20 pattern)
+  // ============================================
+
+  /**
+   * Utilidad compartida para obtener iconos de permisos
+   */
+  readonly getPermissionIcon = getPermissionIcon;
+
+  /**
+   * Utilidad compartida para obtener iconos de acciones/actividades
+   */
+  readonly getActionIcon = getActionIcon;
+
+  /**
+   * Utilidad compartida para obtener tiempo relativo
+   */
+  readonly getRelativeTime = getRelativeTime;
+
+  // ============================================
+  // LIFECYCLE
+  // ============================================
 
   ngOnInit() {
     this.loadUserDashboard();
   }
 
+  // ============================================
+  // DATA LOADING
+  // ============================================
+
   /**
-   * Carga datos y construye información optimizada
+   * Carga los datos del dashboard del usuario
+   *
+   * Obtiene la información del usuario desde el servicio y construye
+   * los datos optimizados para la vista (acciones, métricas, actividades).
+   *
+   * @example
+   * ```typescript
+   * this.loadUserDashboard();
+   * ```
    */
   private async loadUserDashboard() {
     const currentUser = this.user();
-    
+
     if (!currentUser?.email) {
-      this.error = 'No se pudo identificar al usuario actual';
-      this.loading = false;
+      this.error.set('No se pudo identificar al usuario actual');
+      this.loading.set(false);
+      this.cdr.markForCheck();
       return;
     }
 
-    this.loading = true;
-    this.error = null;
+    this.loading.set(true);
+    this.error.set(null);
+    this.cdr.markForCheck();
 
     try {
       const data = await this.userDashboardService.getUserDashboardData(currentUser.email);
-      this.userDashboard = data;
+      this.userDashboard.set(data);
       this.buildOptimizedData(data);
-      this.loading = false;
+      this.loading.set(false);
+      this.cdr.markForCheck();
     } catch (error) {
       console.error('Error cargando dashboard:', error);
-      this.error = 'Error al cargar tu información personal';
-      this.loading = false;
+      this.error.set('Error al cargar tu información personal');
+      this.loading.set(false);
+      this.cdr.markForCheck();
     }
   }
 
   /**
    * Construye datos optimizados para la vista
+   *
+   * Procesa los datos del usuario y genera las estructuras necesarias
+   * para acciones rápidas, métricas clave y actividades recientes.
+   *
+   * @param data - Datos del dashboard del usuario
    */
   private buildOptimizedData(data: UserDashboardData) {
     // Quick Actions - Solo las relevantes
-    this.quickActions = this.buildQuickActions(data);
-    
+    this.quickActions.set(this.buildQuickActions(data));
+
     // Key Metrics - Solo 4 métricas esenciales
-    this.keyMetrics = this.buildKeyMetrics(data);
-    
+    this.keyMetrics.set(this.buildKeyMetrics(data));
+
     // Recent Activities - Limitado a 4 últimas
-    this.recentActivities = data.recentActivity.slice(0, 4);
+    this.recentActivities.set(data.recentActivity.slice(0, 4));
   }
 
   /**
-   * Construye quick actions basadas en permisos
+   * Construye las acciones rápidas basadas en permisos del usuario
+   *
+   * Genera un máximo de 4 acciones rápidas según el rol y permisos
+   * del usuario autenticado.
+   *
+   * @param data - Datos del dashboard del usuario
+   * @returns Array de acciones rápidas (máximo 4)
+   *
+   * @example
+   * ```typescript
+   * const actions = this.buildQuickActions(dashboardData);
+   * // Retorna: [{ id: 'admin', title: 'Panel Admin', ... }, ...]
+   * ```
    */
   private buildQuickActions(data: UserDashboardData): QuickAction[] {
     const actions: QuickAction[] = [];
@@ -133,8 +270,7 @@ export class DashboardComponent implements OnInit {
         icon: 'admin_panel_settings',
         route: '/admin',
         color: 'primary'
-      });     
-     
+      });
     }
 
     if (data.userInfo.modules.length > 0) {
@@ -162,7 +298,13 @@ export class DashboardComponent implements OnInit {
   }
 
   /**
-   * Construye métricas clave - Solo 4 esenciales
+   * Construye las 4 métricas clave del usuario
+   *
+   * Genera métricas esenciales basadas en los datos del usuario:
+   * permisos, módulos, antigüedad de la cuenta y estado.
+   *
+   * @param data - Datos del dashboard del usuario
+   * @returns Array de 4 métricas clave
    */
   private buildKeyMetrics(data: UserDashboardData): KeyMetric[] {
     return [
@@ -193,8 +335,26 @@ export class DashboardComponent implements OnInit {
     ];
   }
 
+  // ============================================
+  // FORMATTING METHODS
+  // ============================================
+
   /**
-   * Formatea días desde creación
+   * Formatea días desde la creación de la cuenta
+   *
+   * Convierte un número de días en una representación legible
+   * (días, meses o años).
+   *
+   * @param days - Número de días desde la creación
+   * @returns Texto formateado (ej: "Hoy", "5 días", "2 meses", "1 año")
+   *
+   * @example
+   * ```typescript
+   * formatDaysSince(0);   // "Hoy"
+   * formatDaysSince(15);  // "15 días"
+   * formatDaysSince(45);  // "1 meses"
+   * formatDaysSince(400); // "1 años"
+   * ```
    */
   private formatDaysSince(days: number): string {
     if (days === 0) return 'Hoy';
@@ -205,129 +365,129 @@ export class DashboardComponent implements OnInit {
   }
 
   /**
-   * Formatea fecha de creación
+   * Formatea fecha de creación de la cuenta
+   *
+   * Convierte un timestamp de Firestore a formato legible en español.
+   *
+   * @param timestamp - Timestamp de Firestore o Date
+   * @returns Fecha formateada (ej: "15 ene 2024")
+   *
+   * @example
+   * ```typescript
+   * formatCreationDate(firestoreTimestamp); // "15 ene 2024"
+   * ```
    */
   private formatCreationDate(timestamp: any): string {
     if (!timestamp) return 'Fecha desconocida';
     try {
-      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-      return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+      const date = fromFirestoreTimestamp(timestamp);
+      if (!date) return 'Fecha inválida';
+      return date.toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
     } catch {
       return 'Fecha inválida';
     }
   }
 
   /**
-   * Obtiene última sesión de forma simplificada
+   * Obtiene la última sesión del usuario
+   *
+   * Retorna el tiempo transcurrido desde el último login
+   * en formato legible (ej: "Hace 2 horas").
+   *
+   * @returns Texto con el tiempo transcurrido
+   *
+   * @example
+   * ```typescript
+   * getLastSession(); // "Hace 2 horas"
+   * ```
    */
   getLastSession(): string {
+    const dashboard = this.userDashboard();
+    if (!dashboard) return 'Sin información';
+
     const loginInfo = this.userDashboardService.getLastLoginInfo(
-      this.userDashboard?.userInfo.lastLogin
+      dashboard.userInfo.lastLogin
     );
     return loginInfo.timeAgo;
   }
 
   /**
    * Verifica si la sesión es reciente (menos de 1 hora)
+   *
+   * @returns true si el último login fue hace menos de 1 hora
    */
   isRecentSession(): boolean {
+    const dashboard = this.userDashboard();
+    if (!dashboard) return false;
+
     return this.userDashboardService.getLastLoginInfo(
-      this.userDashboard?.userInfo.lastLogin
+      dashboard.userInfo.lastLogin
     ).isRecent;
-  } 
+  }
 
   /**
    * Formatea fecha de actividad
+   *
+   * Convierte un timestamp en fecha legible para mostrar en actividades.
+   *
+   * @param timestamp - Timestamp de Firestore o Date
+   * @returns Fecha formateada
    */
   formatActivityDate(timestamp: any): string {
     return this.userDashboardService.formatDate(timestamp);
   }
 
   /**
-   * Obtiene tiempo relativo para actividad (ej: "Hace 5 minutos")
-   */
-  getRelativeTime(timestamp: any): string {
-    if (!timestamp) return 'Fecha desconocida';
-    
-    try {
-      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-      const now = new Date();
-      const diffMs = now.getTime() - date.getTime();
-      const diffMins = Math.floor(diffMs / (1000 * 60));
-      const diffHours = Math.floor(diffMins / 60);
-      const diffDays = Math.floor(diffHours / 24);
-
-      if (diffMins < 1) return 'Ahora mismo';
-      if (diffMins < 60) return `Hace ${diffMins} min`;
-      if (diffHours < 24) return `Hace ${diffHours}h`;
-      if (diffDays === 1) return 'Ayer';
-      if (diffDays < 7) return `Hace ${diffDays} días`;
-      
-      return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
-    } catch {
-      return 'Fecha inválida';
-    }
-  }
-
-  /**
-   * Obtiene icono para cada tipo de actividad
-   */
-  getActivityIcon(type: string): string {
-    const icons: Record<string, string> = {
-      login: 'login',
-      logout: 'logout',
-      permission_granted: 'security',
-      permission_revoked: 'block',
-      module_assigned: 'apps',
-      module_removed: 'remove_circle',
-      profile_updated: 'person',
-      status_changed: 'sync',
-      created: 'add_circle',
-      deleted: 'delete'
-    };
-    return icons[type] || 'info';
-  }
-
-  /**
-   * Obtiene color para el icono de actividad
-   * MODIFICADO: Retorna valores que coinciden con las clases CSS
-   * - '' (vacío) = azul (primary)
-   * - 'accent' = verde (success)
-   * - 'warn' = ámbar (warning)
+   * Obtiene el color del icono de actividad
+   *
+   * Determina el color que debe tener el icono según el tipo de actividad.
+   * Retorna valores compatibles con las clases CSS de Material.
+   *
+   * @param type - Tipo de actividad
+   * @returns Color del icono: '' (azul/primary), 'accent' (verde/success), 'warn' (ámbar/warning)
+   *
+   * @example
+   * ```typescript
+   * getActivityColor('login');              // 'accent' (verde)
+   * getActivityColor('logout');             // 'warn' (ámbar)
+   * getActivityColor('profile_updated');    // '' (azul)
+   * ```
    */
   getActivityColor(type: string): '' | 'accent' | 'warn' {
     // Tipos que usan verde (success)
     const successTypes = ['login', 'permission_granted', 'module_assigned', 'created'];
-    
+
     // Tipos que usan ámbar (warning)
     const warningTypes = ['logout', 'permission_revoked', 'module_removed', 'status_changed'];
-    
+
     if (successTypes.includes(type)) {
       return 'accent'; // Usará .activity-icon-success (verde)
     }
-    
+
     if (warningTypes.includes(type)) {
       return 'warn'; // Usará .activity-icon-warning (ámbar)
     }
-    
+
     return ''; // Usará .activity-icon-primary (azul) por defecto
   }
 
   /**
-   * Obtiene icono para cada permiso
-   */
-  getPermissionIcon(permission: string): string {
-    const icons: Record<string, string> = {
-      read: 'visibility',
-      write: 'edit',
-      delete: 'delete',
-      manage_users: 'group'
-    };
-    return icons[permission] || 'verified';
-  }
-
-  /**
    * Obtiene etiqueta amigable para permisos
+   *
+   * Convierte el valor técnico del permiso en un texto legible en español.
+   *
+   * @param permission - Valor técnico del permiso (ej: 'read', 'write')
+   * @returns Etiqueta en español
+   *
+   * @example
+   * ```typescript
+   * getPermissionLabel('read');         // 'Lectura'
+   * getPermissionLabel('manage_users'); // 'Gestión usuarios'
+   * ```
    */
   getPermissionLabel(permission: string): string {
     const labels: Record<string, string> = {
@@ -339,67 +499,109 @@ export class DashboardComponent implements OnInit {
     return labels[permission] || permission;
   }
 
- /**
-   * Ejecuta una quick action
+  // ============================================
+  // USER ACTIONS
+  // ============================================
+
+  /**
+   * Ejecuta una acción rápida
+   *
+   * Navega a la ruta especificada en la acción rápida seleccionada.
+   *
+   * @param action - Acción rápida a ejecutar
+   *
+   * @example
+   * ```typescript
+   * const action = { id: 'admin', route: '/admin', ... };
+   * executeQuickAction(action); // Navega a /admin
+   * ```
    */
- executeQuickAction(action: QuickAction) {
-  if (action.route) {
-    this.router.navigate([action.route]);
-  } else if (action.id === 'modules') {
-    // Navegación específica para módulos
-    this.router.navigate(['/modules']);
+  executeQuickAction(action: QuickAction) {
+    if (action.route) {
+      this.router.navigate([action.route]);
+    } else if (action.id === 'modules') {
+      // Navegación específica para módulos
+      this.router.navigate(['/modules']);
+    }
   }
-}
 
   /**
    * Genera mensaje de insight inteligente
+   *
+   * Crea un mensaje personalizado basado en el rol, permisos
+   * y antigüedad del usuario.
+   *
+   * @returns Mensaje de insight personalizado
+   *
+   * @example
+   * ```typescript
+   * getInsightMessage();
+   * // "Has iniciado sesión regularmente en los últimos 30 días.
+   * //  Tienes acceso completo al sistema con rol de administrador."
+   * ```
    */
   getInsightMessage(): string {
-    if (!this.userDashboard) return '';
-    
-    const days = this.userDashboard.userStats.daysSinceCreation;
-    const isAdmin = this.userDashboard.userInfo.role === 'admin';
-    const hasFullAccess = this.userDashboard.userStats.totalPermissions === 4;
+    const dashboard = this.userDashboard();
+    if (!dashboard) return '';
+
+    const days = dashboard.userStats.daysSinceCreation;
+    const isAdmin = dashboard.userInfo.role === 'admin';
+    const hasFullAccess = dashboard.userStats.totalPermissions === 4;
 
     let message = `Has iniciado sesión regularmente en los últimos ${days} días. `;
-    
+
     if (isAdmin && hasFullAccess) {
       message += 'Tienes acceso completo al sistema con rol de administrador.';
     } else if (hasFullAccess) {
       message += 'Tienes acceso completo al sistema.';
     } else {
-      message += `Tienes ${this.userDashboard.userStats.totalPermissions} permisos asignados.`;
+      message += `Tienes ${dashboard.userStats.totalPermissions} permisos asignados.`;
     }
 
     return message;
   }
 
   /**
-   * Verifica si es administrador
+   * Verifica si es administrador (método público para el template)
+   *
+   * @returns true si el usuario es administrador
    */
   isAdmin(): boolean {
-    return this.userDashboard?.userInfo.role === 'admin' || 
-           this.userDashboard?.userInfo.permissions.includes('manage_users') || false;
+    return this.isAdminUser();
   }
 
   /**
-   * Obtiene badge count para notificaciones
+   * Obtiene badge count para notificaciones (método público para el template)
+   *
+   * @returns Número de notificaciones
    */
   getNotificationCount(): number {
-    // TODO: Implementar lógica real de notificaciones
-    // Por ahora retorna 0, pero podrías conectarlo con un servicio
-    return 0;
+    return this.notificationCount();
   }
 
   /**
    * Refresca los datos del dashboard
+   *
+   * Recarga toda la información del usuario desde el servidor.
+   *
+   * @example
+   * ```typescript
+   * refreshData(); // Recarga el dashboard
+   * ```
    */
   refreshData() {
     this.loadUserDashboard();
   }
 
   /**
-   * Navega al panel de admin
+   * Navega al panel de administración
+   *
+   * Solo permite la navegación si el usuario es administrador.
+   *
+   * @example
+   * ```typescript
+   * goToAdmin(); // Navega a /admin si es admin
+   * ```
    */
   goToAdmin() {
     if (this.isAdmin()) {
@@ -408,11 +610,14 @@ export class DashboardComponent implements OnInit {
   }
 
   /**
-   * Navega a notificaciones
+   * Navega a la página de notificaciones
+   *
+   * @example
+   * ```typescript
+   * goToNotifications(); // Navega a /notifications
+   * ```
    */
   goToNotifications() {
     this.router.navigate(['/notifications']);
   }
-
-
 }

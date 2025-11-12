@@ -14,7 +14,7 @@
         </div>
         <div>
           <h1 class="text-2xl font-bold text-slate-800 mb-1">¡Bienvenido de nuevo! 👋</h1>
-          @if (!loading && userDashboard) {
+          @if (!loading() && userDashboard()) {
             <p class="text-sm text-slate-600 flex items-center gap-2 font-medium">
               <span class="status-dot" [class.recent]="isRecentSession()"></span>
               Última sesión: {{ getLastSession() }}
@@ -45,7 +45,7 @@
   <!-- ============================================
        LOADING STATE
        ============================================ -->
-  @if (loading) {
+  @if (loading()) {
     <div class="empty-state">
       <mat-spinner diameter="50"></mat-spinner>
       <p class="mt-4 text-slate-600 font-medium">Cargando tu dashboard...</p>
@@ -55,11 +55,11 @@
   <!-- ============================================
        ERROR STATE
        ============================================ -->
-  @if (error && !loading) {
+  @if (error() && !loading()) {
     <div class="empty-state">
       <mat-icon class="text-red-500 text-5xl mb-4">error_outline</mat-icon>
       <h3 class="text-lg font-semibold text-slate-800 mb-2">Error al cargar</h3>
-      <p class="text-slate-600 mb-6">{{ error }}</p>
+      <p class="text-slate-600 mb-6">{{ error() }}</p>
       <button mat-raised-button color="primary" (click)="refreshData()">
         <mat-icon>refresh</mat-icon>
         Reintentar
@@ -70,14 +70,14 @@
   <!-- ============================================
        DASHBOARD CONTENT
        ============================================ -->
-  @if (!loading && !error && userDashboard) {
+  @if (!loading() && !error() && userDashboard()) {
     <div>
 
     <!-- ============================================
          QUICK ACTIONS - CON TAILWIND
          ============================================ -->
     <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      @for (action of quickActions; track action.id) {
+      @for (action of quickActions(); track action.id) {
         <div class="card-corporate cursor-pointer group relative"
              (click)="executeQuickAction(action)">
 
@@ -117,7 +117,7 @@
         
         <!-- Key Metrics Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          @for (metric of keyMetrics; track metric.label) {
+          @for (metric of keyMetrics(); track metric.label) {
             <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 hover:bg-white hover:border-blue-500 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
               <div class="flex items-center gap-2 text-xs text-slate-600 uppercase font-semibold mb-2.5 tracking-wider">
                 <mat-icon class="!text-base text-blue-500">{{ metric.icon }}</mat-icon>
@@ -140,13 +140,13 @@
             Tus Permisos
           </h3>
           <div class="flex flex-wrap gap-2.5">
-            @for (permission of userDashboard.userInfo.permissions; track permission) {
+            @for (permission of userDashboard()!.userInfo.permissions; track permission) {
               <div class="bg-slate-50 px-4 py-2.5 rounded-lg text-sm text-slate-700 border border-slate-200 flex items-center gap-1.5 font-medium hover:bg-white hover:border-blue-500 hover:-translate-y-0.5 transition-all duration-200">
                 <mat-icon class="!text-lg text-blue-500">{{ getPermissionIcon(permission) }}</mat-icon>
                 {{ getPermissionLabel(permission) }}
               </div>
             }
-            @if (userDashboard.userInfo.permissions.length === 0) {
+            @if (userDashboard()!.userInfo.permissions.length === 0) {
               <div class="bg-amber-50 text-amber-700 px-4 py-2.5 rounded-lg text-sm font-medium border border-amber-200">
                 Sin permisos asignados
               </div>
@@ -161,13 +161,13 @@
             Módulos Activos
           </h3>
           <div class="flex flex-wrap gap-2.5">
-            @for (module of userDashboard.userInfo.modules; track module) {
+            @for (module of userDashboard()!.userInfo.modules; track module) {
               <div class="bg-slate-50 px-4 py-2.5 rounded-lg text-sm text-slate-700 border border-slate-200 flex items-center gap-1.5 font-medium hover:bg-white hover:border-blue-500 hover:-translate-y-0.5 transition-all duration-200">
                 <mat-icon class="!text-lg text-blue-500">dashboard</mat-icon>
                 {{ module }}
               </div>
             }
-            @if (userDashboard.userInfo.modules.length === 0) {
+            @if (userDashboard()!.userInfo.modules.length === 0) {
               <div class="bg-amber-50 text-amber-700 px-4 py-2.5 rounded-lg text-sm font-medium border border-amber-200">
                 Sin módulos asignados
               </div>
@@ -184,10 +184,10 @@
           <mat-icon class="text-blue-500">history</mat-icon>
           Actividad Reciente
         </h2>
-        
-        @if (recentActivities.length > 0) {
+
+        @if (recentActivities().length > 0) {
           <div class="space-y-5">
-            @for (activity of recentActivities; track activity.id; let last = $last) {
+            @for (activity of recentActivities(); track activity.id; let last = $last) {
               <div class="relative">
 
                 <!-- Timeline line -->
@@ -201,7 +201,7 @@
                   <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white flex-shrink-0 activity-icon-primary"
                        [class.activity-icon-success]="getActivityColor(activity.type) === 'accent'"
                        [class.activity-icon-warning]="getActivityColor(activity.type) === 'warn'">
-                    <mat-icon class="!text-xl">{{ getActivityIcon(activity.type) }}</mat-icon>
+                    <mat-icon class="!text-xl">{{ getActionIcon(activity.type) }}</mat-icon>
                   </div>
 
                   <!-- Content -->
@@ -219,7 +219,7 @@
           </div>
         }
 
-        @if (recentActivities.length === 0) {
+        @if (recentActivities().length === 0) {
           <div class="text-center py-12">
             <mat-icon class="!text-5xl text-slate-300 mb-3">inbox</mat-icon>
             <p class="text-sm text-slate-500">No hay actividad reciente</p>
@@ -239,7 +239,7 @@
           Contacto
         </h4>
         <p class="text-sm text-slate-700 mb-2">
-          <strong class="font-semibold text-slate-800">Email:</strong> {{ userDashboard.userInfo.email }}
+          <strong class="font-semibold text-slate-800">Email:</strong> {{ userDashboard()!.userInfo.email }}
         </p>
         <p class="text-xs text-slate-500 leading-relaxed mt-4 pt-4 border-t border-slate-200">
           ¿Necesitas ayuda? Contacta al administrador del sistema o revisa la documentación en el panel de configuración.

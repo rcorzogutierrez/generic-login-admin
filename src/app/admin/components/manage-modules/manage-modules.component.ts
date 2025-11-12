@@ -1,5 +1,5 @@
 // src/app/admin/components/manage-modules/manage-modules.component.ts
-import { Component, OnInit, effect, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, effect, inject, computed, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -36,40 +36,55 @@ import { DeleteModuleDialogComponent } from '../delete-module-dialog/delete-modu
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ManageModulesComponent implements OnInit {
+  // ============================================
+  // DEPENDENCY INJECTION (Angular 20 pattern)
+  // ============================================
+  private modulesService = inject(ModulesService);
+  private authService = inject(AuthService);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+
+  // ============================================
+  // STATE
+  // ============================================
   currentUser = this.authService.authorizedUser;
   modules: SystemModule[] = [];
   isLoading = false;
 
-  constructor(
-    private modulesService: ModulesService,
-    private authService: AuthService,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private router: Router,
-    private cdr: ChangeDetectorRef
-  ) {
+  // ============================================
+  // COMPUTED SIGNALS (Angular 20)
+  // ============================================
+
+  /**
+   * Cuenta de módulos activos en el sistema
+   */
+  readonly activeModulesCount = computed(() =>
+    this.modules.filter(m => m.isActive).length
+  );
+
+  /**
+   * Cuenta de módulos inactivos en el sistema
+   */
+  readonly inactiveModulesCount = computed(() =>
+    this.modules.filter(m => !m.isActive).length
+  );
+
+  /**
+   * Total de asignaciones de módulos a usuarios
+   */
+  readonly totalAssignments = computed(() =>
+    this.modules.reduce((sum, m) => sum + (m.usersCount || 0), 0)
+  );
+
+  constructor() {
     // Effect para reaccionar a cambios en módulos
     effect(() => {
       const modules = this.modulesService.modules();
       this.modules = modules;
       this.cdr.markForCheck();
     });
-  }
-
-  // ============================================
-  // GETTERS PARA EL TEMPLATE
-  // ============================================
-
-  get activeModulesCount(): number {
-    return this.modules.filter(m => m.isActive).length;
-  }
-
-  get inactiveModulesCount(): number {
-    return this.modules.filter(m => !m.isActive).length;
-  }
-
-  get totalAssignments(): number {
-    return this.modules.reduce((sum, m) => sum + (m.usersCount || 0), 0);
   }
 
   // ============================================
@@ -99,7 +114,16 @@ export class ManageModulesComponent implements OnInit {
   }
 
   /**
-   * Abre el dialog para crear módulo
+   * Abre el dialog para crear un nuevo módulo
+   *
+   * Muestra el formulario modal de creación de módulo. Al cerrarse con éxito,
+   * muestra un mensaje de confirmación.
+   *
+   * @example
+   * ```typescript
+   * this.addModule();
+   * // Abre el dialog de creación
+   * ```
    */
   addModule() {
     const dialogRef = this.dialog.open(ModuleFormDialogComponent, {

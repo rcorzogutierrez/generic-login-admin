@@ -17,6 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { User, AdminService, RoleOption, PermissionOption, ModuleOption } from '../../services/admin.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { getInitials, getAvatarColor, getRoleIcon, getPermissionIcon, getModuleIcon } from '../../../shared/utils';
 
 export interface EditUserRoleDialogData {
   user: User;
@@ -63,6 +64,35 @@ export class EditUserRoleDialogComponent implements OnInit {
 
   // Estado original para detectar cambios
   originalData: any = {};
+
+  // ============================================
+  // SHARED UTILITIES (Angular 20 pattern)
+  // ============================================
+
+  /**
+   * Utilidad compartida para obtener iniciales
+   */
+  readonly getInitials = getInitials;
+
+  /**
+   * Utilidad compartida para obtener color de avatar
+   */
+  readonly getAvatarColor = getAvatarColor;
+
+  /**
+   * Utilidad compartida para obtener icono de rol
+   */
+  readonly getRoleIcon = getRoleIcon;
+
+  /**
+   * Utilidad compartida para obtener icono de permiso
+   */
+  readonly getPermissionIcon = getPermissionIcon;
+
+  /**
+   * Utilidad compartida para obtener icono de módulo
+   */
+  readonly getModuleIcon = getModuleIcon;
 
   constructor(
     public dialogRef: MatDialogRef<EditUserRoleDialogComponent>,
@@ -221,16 +251,6 @@ export class EditUserRoleDialogComponent implements OnInit {
     return perm?.label || permission;
   }
 
-  getPermissionIcon(permission: string): string {
-    const icons: Record<string, string> = {
-      read: 'visibility',
-      write: 'edit',
-      delete: 'delete',
-      manage_users: 'people'
-    };
-    return icons[permission] || 'check_circle';
-  }
-
   // ============================================
   // GESTIÓN DE MÓDULOS
   // ============================================
@@ -260,24 +280,6 @@ export class EditUserRoleDialogComponent implements OnInit {
   getModuleLabel(moduleValue: string): string {
     const module = this.moduleOptions.find(m => m.value === moduleValue);
     return module?.label || moduleValue;
-  }
-
-  getModuleIcon(moduleValue: string): string {
-    const module = this.moduleOptions.find(m => m.value === moduleValue);
-    return module?.icon || 'extension';
-  }
-
-  // ============================================
-  // GESTIÓN DE ROLES
-  // ============================================
-
-  getRoleIcon(roleValue: string): string {
-    const icons: Record<string, string> = {
-      admin: 'shield',
-      user: 'person',
-      viewer: 'visibility'
-    };
-    return icons[roleValue] || 'person';
   }
 
   // ============================================
@@ -386,23 +388,6 @@ export class EditUserRoleDialogComponent implements OnInit {
   isCurrentUser(): boolean {
     const currentUser = this.authService.authorizedUser();
     return currentUser?.uid === this.data.user.uid;
-  }
-
-  getUserColor(): string {
-    const colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4'];
-    const index = this.data.user.email.charCodeAt(0) % colors.length;
-    return colors[index];
-  }
-
-  getInitials(): string {
-    if (this.data.user.displayName) {
-      const names = this.data.user.displayName.split(' ');
-      if (names.length >= 2) {
-        return (names[0][0] + names[1][0]).toUpperCase();
-      }
-      return names[0].substring(0, 2).toUpperCase();
-    }
-    return this.data.user.email.substring(0, 2).toUpperCase();
   }
 
   // ============================================

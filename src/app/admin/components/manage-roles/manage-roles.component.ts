@@ -19,6 +19,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { RolesService } from '../../services/roles.service';
 import { AdminService, User } from '../../services/admin.service';
 import { Role } from '../../models/role.interface';
+import { getRoleIcon, getRoleColor, getPermissionIcon } from '../../../shared/utils';
 
 @Component({
   selector: 'app-manage-roles',
@@ -64,6 +65,25 @@ export class ManageRolesComponent implements OnInit {
 
   // Opciones de permisos
   permissionOptions = this.adminService.getPermissionOptions();
+
+  // ============================================
+  // SHARED UTILITIES (Angular 20 pattern)
+  // ============================================
+
+  /**
+   * Utilidad compartida para obtener iconos de roles
+   */
+  readonly getRoleIcon = getRoleIcon;
+
+  /**
+   * Utilidad compartida para obtener colores de roles
+   */
+  readonly getRoleColor = getRoleColor;
+
+  /**
+   * Utilidad compartida para obtener iconos de permisos
+   */
+  readonly getPermissionIcon = getPermissionIcon;
 
   ngOnInit() {
     this.loadData();
@@ -272,48 +292,11 @@ export class ManageRolesComponent implements OnInit {
   }
 
   /**
-   * Obtiene el icono de un permiso
-   */
-  getPermissionIcon(permission: string): string {
-    const icons: Record<string, string> = {
-      read: 'visibility',
-      write: 'edit',
-      delete: 'delete',
-      manage_users: 'people'
-    };
-    return icons[permission] || 'check_circle';
-  }
-
-  /**
    * Obtiene el label de un permiso
    */
   getPermissionLabel(permission: string): string {
     const perm = this.permissionOptions.find(p => p.value === permission);
     return perm?.label || permission;
-  }
-
-  /**
-   * Obtiene el icono de un rol
-   */
-  getRoleIcon(roleValue: string): string {
-    const icons: Record<string, string> = {
-      admin: 'shield',
-      user: 'person',
-      viewer: 'visibility'
-    };
-    return icons[roleValue] || 'label';
-  }
-
-  /**
-   * Obtiene el color de un rol
-   */
-  getRoleColor(roleValue: string): string {
-    const colors: Record<string, string> = {
-      admin: 'red',
-      user: 'blue',
-      viewer: 'green'
-    };
-    return colors[roleValue] || 'purple';
   }
 
   /**

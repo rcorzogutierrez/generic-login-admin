@@ -53,8 +53,8 @@
 
           <!-- User Avatar -->
           <div class="flex justify-center mb-6">
-            <div class="user-avatar-large" [style.background]="getUserColor()">
-              {{ getInitials() }}
+            <div class="user-avatar-large" [style.background-color]="getAvatarColor(data.user.email)">
+              {{ getInitials(data.user.displayName) }}
             </div>
           </div>
 
@@ -319,7 +319,7 @@
                   <mat-chip
                     class="modern-chip module-chip"
                     (removed)="toggleModule(mod)">
-                    <mat-icon matChipAvatar class="!text-base">{{ getModuleIcon(mod) }}</mat-icon>
+                    <mat-icon matChipAvatar class="!text-base">{{ getModuleIcon(mod, moduleOptions) }}</mat-icon>
                     {{ getModuleLabel(mod) }}
                     <button matChipRemove>
                       <mat-icon>cancel</mat-icon>

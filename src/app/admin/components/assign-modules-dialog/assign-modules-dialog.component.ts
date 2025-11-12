@@ -1,5 +1,5 @@
 // src/app/admin/components/assign-modules-dialog/assign-modules-dialog.component.ts
-import { Component, Inject, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, Inject, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,6 +12,7 @@ import { User, AdminService } from '../../services/admin.service';
 import { ModulesService } from '../../services/modules.service';
 import { SystemModule } from '../../models/system-module.interface';
 import { AuthService } from '../../../core/services/auth.service';
+import { getInitials, getAvatarColor, getRoleIcon } from '../../../shared/utils';
 
 export interface AssignModulesDialogData {
   user: User;
@@ -33,21 +34,45 @@ export interface AssignModulesDialogData {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AssignModulesDialogComponent implements OnInit {
+  // ============================================
+  // DEPENDENCY INJECTION (Angular 20 pattern)
+  // ============================================
+  public dialogRef = inject(MatDialogRef<AssignModulesDialogComponent>);
+  private modulesService = inject(ModulesService);
+  private adminService = inject(AdminService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+
+  // ============================================
+  // STATE
+  // ============================================
   availableModules: SystemModule[] = [];
   selectedModules = new Set<string>();
   originalModules = new Set<string>();
   isLoading = false;
   isSaving = false;
 
-  constructor(
-    public dialogRef: MatDialogRef<AssignModulesDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: AssignModulesDialogData,
-    private modulesService: ModulesService,
-    private adminService: AdminService,
-    private authService: AuthService,
-    private router: Router,
-    private cdr: ChangeDetectorRef
-  ) {}
+  // ============================================
+  // SHARED UTILITIES (Angular 20 pattern)
+  // ============================================
+
+  /**
+   * Utilidad compartida para obtener iniciales de usuario
+   */
+  readonly getInitials = getInitials;
+
+  /**
+   * Utilidad compartida para obtener color de avatar
+   */
+  readonly getAvatarColor = getAvatarColor;
+
+  /**
+   * Utilidad compartida para obtener icono de rol
+   */
+  readonly getRoleIcon = getRoleIcon;
+
+  constructor(@Inject(MAT_DIALOG_DATA) public data: AssignModulesDialogData) {}
 
   async ngOnInit() {
     await this.loadModules();
@@ -264,43 +289,4 @@ export class AssignModulesDialogComponent implements OnInit {
     this.dialogRef.close({ success: false });
   }
 
-  // ============================================
-  // MÉTODOS DE UTILIDAD
-  // ============================================
-
-  getInitials(): string {
-    const name = this.data.user.displayName || this.data.user.email;
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  }
-
-  getUserColor(): string {
-    const colors = [
-      'linear-gradient(135deg, #3b82f6, #2563eb)',
-      'linear-gradient(135deg, #10b981, #059669)',
-      'linear-gradient(135deg, #f59e0b, #d97706)',
-      'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-      'linear-gradient(135deg, #ef4444, #dc2626)'
-    ];
-
-    let hash = 0;
-    for (let i = 0; i < this.data.user.email.length; i++) {
-      hash = this.data.user.email.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    return colors[Math.abs(hash) % colors.length];
-  }
-
-  getRoleIcon(): string {
-    const icons: Record<string, string> = {
-      admin: 'shield',
-      user: 'person',
-      viewer: 'visibility'
-    };
-    return icons[this.data.user.role] || 'person';
-  }
 }

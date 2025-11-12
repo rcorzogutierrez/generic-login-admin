@@ -851,6 +851,13 @@ export class AdminPanelComponent implements OnInit {
   }
 
   /**
+   * Información de la empresa
+   */
+  goToBusinessInfo() {
+    this.router.navigate(['/admin/business']);
+  }
+
+  /**
    * ACTUALIZADO: Método existente con nueva navegación
    */
   systemSettings() {

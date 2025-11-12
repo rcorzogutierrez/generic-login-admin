@@ -215,22 +215,22 @@ export class BusinessInfoComponent implements OnInit {
     return this.fb.group({
       // Identificación
       businessName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      legalName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150)]],
-      taxId: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(30)]],
+      legalName: ['', [Validators.minLength(3), Validators.maxLength(150)]],
+      taxId: ['', [Validators.minLength(5), Validators.maxLength(30)]],
 
       // Contacto
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(20)]],
+      phone: ['', [Validators.minLength(7), Validators.maxLength(20)]],
       mobilePhone: ['', [Validators.minLength(7), Validators.maxLength(20)]],
       website: ['', [Validators.pattern(/^https?:\/\/.+/)]],
 
       // Dirección
       address: this.fb.group({
-        street: ['', [Validators.required, Validators.maxLength(200)]],
-        city: ['', [Validators.required, Validators.maxLength(100)]],
-        state: ['', [Validators.required, Validators.maxLength(100)]],
-        zipCode: ['', [Validators.required, Validators.maxLength(20)]],
-        country: ['', [Validators.required, Validators.maxLength(100)]]
+        street: ['', [Validators.maxLength(200)]],
+        city: ['', [Validators.maxLength(100)]],
+        state: ['', [Validators.maxLength(100)]],
+        zipCode: ['', [Validators.maxLength(20)]],
+        country: ['', [Validators.maxLength(100)]]
       }),
 
       // Branding

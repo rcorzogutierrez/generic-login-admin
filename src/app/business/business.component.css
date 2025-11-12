@@ -1,0 +1,49 @@
+/* src/app/business/business.component.css */
+
+/* Custom tab styling */
+::ng-deep .custom-tabs .mat-mdc-tab-labels {
+  border-bottom: 2px solid #e2e8f0;
+}
+
+::ng-deep .custom-tabs .mat-mdc-tab {
+  min-width: 140px;
+}
+
+::ng-deep .custom-tabs .mat-mdc-tab-body-wrapper {
+  padding: 0;
+}
+
+/* Logo preview container */
+.logo-preview-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Color picker styling */
+input[type="color"] {
+  cursor: pointer;
+  border: 2px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+input[type="color"]:hover {
+  border-color: #cbd5e1;
+  transform: scale(1.05);
+}
+
+input[type="color"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Form section spacing */
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.form-section:last-child {
+  margin-bottom: 0;
+}

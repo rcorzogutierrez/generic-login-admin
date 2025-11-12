@@ -1,4 +1,4 @@
-// src/app/business/services/business-info.service.ts
+// src/app/admin/services/business-info.service.ts
 import { Injectable, inject, signal } from '@angular/core';
 import {
   getFirestore,

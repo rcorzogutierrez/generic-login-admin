@@ -97,8 +97,8 @@ export const routes: Routes = [
       {
         path: 'business',
         loadComponent: () =>
-          import('./business/business.component')
-            .then(m => m.BusinessComponent),
+          import('./admin/components/business-info/business-info.component')
+            .then(m => m.BusinessInfoComponent),
         title: 'Mi Empresa',
       },
     ],

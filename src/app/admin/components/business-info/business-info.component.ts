@@ -1,4 +1,4 @@
-// src/app/business/business.component.ts
+// src/app/admin/components/business-info/business-info.component.ts
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -15,9 +15,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 
-import { BusinessInfoService } from './services/business-info.service';
-import { AuthService } from '../core/services/auth.service';
-import { BusinessInfo, BusinessInfoFormData } from './models/business-info.interface';
+import { BusinessInfoService } from '../../services/business-info.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { BusinessInfo, BusinessInfoFormData } from '../../models/business-info.interface';
 
 /**
  * Componente de gestión de información de empresa
@@ -34,11 +34,11 @@ import { BusinessInfo, BusinessInfoFormData } from './models/business-info.inter
  *
  * @example
  * ```html
- * <app-business></app-business>
+ * <app-business-info></app-business-info>
  * ```
  */
 @Component({
-  selector: 'app-business',
+  selector: 'app-business-info',
   standalone: true,
   imports: [
     CommonModule,
@@ -55,11 +55,11 @@ import { BusinessInfo, BusinessInfoFormData } from './models/business-info.inter
     MatSnackBarModule,
     MatDividerModule
   ],
-  templateUrl: './business.component.html',
-  styleUrl: './business.component.css',
+  templateUrl: './business-info.component.html',
+  styleUrl: './business-info.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BusinessComponent implements OnInit {
+export class BusinessInfoComponent implements OnInit {
   // ============================================
   // DEPENDENCY INJECTION (Angular 20 pattern)
   // ============================================

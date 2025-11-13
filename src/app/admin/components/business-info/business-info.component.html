@@ -230,15 +230,23 @@
                         </div>
 
                         <div formArrayName="emails" class="space-y-3">
-                          @for (emailControl of emails.controls; track $index) {
-                            <div class="flex gap-2 items-start">
+                          @for (emailGroup of emails.controls; track $index) {
+                            <div [formGroupName]="$index" class="flex gap-2 items-start">
+                              <mat-form-field appearance="outline" class="w-32">
+                                <mat-label>Etiqueta</mat-label>
+                                <input
+                                  matInput
+                                  formControlName="label"
+                                  placeholder="Principal">
+                              </mat-form-field>
                               <mat-form-field appearance="outline" class="flex-1">
+                                <mat-label>Email</mat-label>
                                 <input
                                   matInput
                                   type="email"
-                                  [formControlName]="$index"
+                                  formControlName="value"
                                   placeholder="email@empresa.com">
-                                @if (emailControl.invalid && emailControl.touched) {
+                                @if (emailGroup.get('value')?.invalid && emailGroup.get('value')?.touched) {
                                   <mat-error>Email inválido</mat-error>
                                 }
                               </mat-form-field>
@@ -278,16 +286,24 @@
                         </div>
 
                         <div formArrayName="phones" class="space-y-3">
-                          @for (phoneControl of phones.controls; track $index) {
-                            <div class="flex gap-2 items-start">
+                          @for (phoneGroup of phones.controls; track $index) {
+                            <div [formGroupName]="$index" class="flex gap-2 items-start">
+                              <mat-form-field appearance="outline" class="w-32">
+                                <mat-label>Etiqueta</mat-label>
+                                <input
+                                  matInput
+                                  formControlName="label"
+                                  placeholder="Oficina">
+                              </mat-form-field>
                               <mat-form-field appearance="outline" class="flex-1">
+                                <mat-label>Teléfono</mat-label>
                                 <input
                                   matInput
                                   type="tel"
-                                  [formControlName]="$index"
+                                  formControlName="value"
                                   placeholder="+58 212 1234567"
                                   maxlength="20">
-                                @if (phoneControl.invalid && phoneControl.touched) {
+                                @if (phoneGroup.get('value')?.invalid && phoneGroup.get('value')?.touched) {
                                   <mat-error>Teléfono inválido (mín. 7 caracteres)</mat-error>
                                 }
                               </mat-form-field>
@@ -735,23 +751,33 @@
               <div class="space-y-2">
                 <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Contacto</p>
                 <div class="bg-blue-50 rounded-xl p-4 border border-blue-200 space-y-2">
-                  @for (emailControl of emails.controls; track $index) {
-                    @if (emailControl.value) {
-                      <div class="flex items-center gap-2">
-                        <mat-icon class="!text-base text-blue-600">email</mat-icon>
-                        <p class="text-xs font-medium text-blue-900">
-                          {{ emailControl.value }}
-                        </p>
+                  @for (emailGroup of emails.controls; track $index) {
+                    @if (emailGroup.get('value')?.value) {
+                      <div class="flex items-start gap-2">
+                        <mat-icon class="!text-base text-blue-600 mt-0.5">email</mat-icon>
+                        <div class="flex-1">
+                          <p class="text-xs font-semibold text-blue-700">
+                            {{ emailGroup.get('label')?.value || 'Email' }}
+                          </p>
+                          <p class="text-xs font-medium text-blue-900">
+                            {{ emailGroup.get('value')?.value }}
+                          </p>
+                        </div>
                       </div>
                     }
                   }
-                  @for (phoneControl of phones.controls; track $index) {
-                    @if (phoneControl.value) {
-                      <div class="flex items-center gap-2">
-                        <mat-icon class="!text-base text-blue-600">phone</mat-icon>
-                        <p class="text-xs font-medium text-blue-900">
-                          {{ phoneControl.value }}
-                        </p>
+                  @for (phoneGroup of phones.controls; track $index) {
+                    @if (phoneGroup.get('value')?.value) {
+                      <div class="flex items-start gap-2">
+                        <mat-icon class="!text-base text-blue-600 mt-0.5">phone</mat-icon>
+                        <div class="flex-1">
+                          <p class="text-xs font-semibold text-blue-700">
+                            {{ phoneGroup.get('label')?.value || 'Teléfono' }}
+                          </p>
+                          <p class="text-xs font-medium text-blue-900">
+                            {{ phoneGroup.get('value')?.value }}
+                          </p>
+                        </div>
                       </div>
                     }
                   }

@@ -221,10 +221,16 @@ export class BusinessInfoComponent implements OnInit {
 
       // Contacto (campos dinámicos)
       emails: this.fb.array([
-        this.fb.control('', [Validators.required, Validators.email])
+        this.fb.group({
+          label: ['Principal', [Validators.required]],
+          value: ['', [Validators.required, Validators.email]]
+        })
       ]),
       phones: this.fb.array([
-        this.fb.control('', [Validators.minLength(7), Validators.maxLength(20)])
+        this.fb.group({
+          label: ['Oficina', []],
+          value: ['', [Validators.minLength(7), Validators.maxLength(20)]]
+        })
       ]),
       website: ['', [Validators.pattern(/^https?:\/\/.+/)]],
 
@@ -277,7 +283,10 @@ export class BusinessInfoComponent implements OnInit {
    * Agrega un nuevo campo de email
    */
   addEmail() {
-    this.emails.push(this.fb.control('', [Validators.required, Validators.email]));
+    this.emails.push(this.fb.group({
+      label: ['', [Validators.required]],
+      value: ['', [Validators.required, Validators.email]]
+    }));
   }
 
   /**
@@ -293,7 +302,10 @@ export class BusinessInfoComponent implements OnInit {
    * Agrega un nuevo campo de teléfono
    */
   addPhone() {
-    this.phones.push(this.fb.control('', [Validators.minLength(7), Validators.maxLength(20)]));
+    this.phones.push(this.fb.group({
+      label: ['', []],
+      value: ['', [Validators.minLength(7), Validators.maxLength(20)]]
+    }));
   }
 
   /**
@@ -316,15 +328,25 @@ export class BusinessInfoComponent implements OnInit {
     this.phones.clear();
 
     // Agregar emails (al menos uno)
-    const emailsArray = business.emails && business.emails.length > 0 ? business.emails : [''];
+    const emailsArray = business.emails && business.emails.length > 0
+      ? business.emails
+      : [{ label: 'Principal', value: '' }];
     emailsArray.forEach(email => {
-      this.emails.push(this.fb.control(email, [Validators.required, Validators.email]));
+      this.emails.push(this.fb.group({
+        label: [email.label || '', [Validators.required]],
+        value: [email.value || '', [Validators.required, Validators.email]]
+      }));
     });
 
     // Agregar teléfonos (al menos uno)
-    const phonesArray = business.phones && business.phones.length > 0 ? business.phones : [''];
+    const phonesArray = business.phones && business.phones.length > 0
+      ? business.phones
+      : [{ label: 'Oficina', value: '' }];
     phonesArray.forEach(phone => {
-      this.phones.push(this.fb.control(phone, [Validators.minLength(7), Validators.maxLength(20)]));
+      this.phones.push(this.fb.group({
+        label: [phone.label || '', []],
+        value: [phone.value || '', [Validators.minLength(7), Validators.maxLength(20)]]
+      }));
     });
 
     // Poblar resto de campos

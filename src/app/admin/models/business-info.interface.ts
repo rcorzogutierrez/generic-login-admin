@@ -85,16 +85,22 @@ export interface BusinessInfo {
   // ============================================
 
   /**
-   * Lista de emails de contacto (al menos uno requerido)
-   * @example ["contacto@empresa.com", "ventas@empresa.com"]
+   * Lista de emails de contacto con etiquetas (al menos uno requerido)
+   * @example [
+   *   { label: "Principal", value: "contacto@empresa.com" },
+   *   { label: "Ventas", value: "ventas@empresa.com" }
+   * ]
    */
-  emails: string[];
+  emails: Array<{ label: string; value: string }>;
 
   /**
-   * Lista de teléfonos de contacto (opcional)
-   * @example ["+58 212 1234567", "+58 414 1234567"]
+   * Lista de teléfonos de contacto con etiquetas (opcional)
+   * @example [
+   *   { label: "Oficina", value: "+58 212 1234567" },
+   *   { label: "Móvil", value: "+58 414 1234567" }
+   * ]
    */
-  phones?: string[];
+  phones?: Array<{ label: string; value: string }>;
 
   /**
    * Sitio web de la empresa (opcional)
@@ -182,8 +188,8 @@ export interface BusinessInfoFormData {
   businessName: string;
   legalName?: string;
   taxId?: string;
-  emails: string[];
-  phones?: string[];
+  emails: Array<{ label: string; value: string }>;
+  phones?: Array<{ label: string; value: string }>;
   website?: string;
   address?: BusinessAddress;
   logoUrl?: string;

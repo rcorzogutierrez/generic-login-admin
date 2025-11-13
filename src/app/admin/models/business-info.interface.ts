@@ -85,22 +85,16 @@ export interface BusinessInfo {
   // ============================================
 
   /**
-   * Email principal de contacto
-   * @example "contacto@empresa.com"
+   * Lista de emails de contacto (al menos uno requerido)
+   * @example ["contacto@empresa.com", "ventas@empresa.com"]
    */
-  email: string;
+  emails: string[];
 
   /**
-   * Teléfono fijo principal (opcional)
-   * @example "+58 212 1234567"
+   * Lista de teléfonos de contacto (opcional)
+   * @example ["+58 212 1234567", "+58 414 1234567"]
    */
-  phone?: string;
-
-  /**
-   * Teléfono móvil (opcional)
-   * @example "+58 414 1234567"
-   */
-  mobilePhone?: string;
+  phones?: string[];
 
   /**
    * Sitio web de la empresa (opcional)
@@ -188,9 +182,8 @@ export interface BusinessInfoFormData {
   businessName: string;
   legalName?: string;
   taxId?: string;
-  email: string;
-  phone?: string;
-  mobilePhone?: string;
+  emails: string[];
+  phones?: string[];
   website?: string;
   address?: BusinessAddress;
   logoUrl?: string;

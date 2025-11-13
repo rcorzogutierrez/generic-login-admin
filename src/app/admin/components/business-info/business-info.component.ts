@@ -1,7 +1,7 @@
 // src/app/admin/components/business-info/business-info.component.ts
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
@@ -219,10 +219,13 @@ export class BusinessInfoComponent implements OnInit {
       legalName: ['', [Validators.minLength(3), Validators.maxLength(150)]],
       taxId: ['', [Validators.minLength(5), Validators.maxLength(30)]],
 
-      // Contacto
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.minLength(7), Validators.maxLength(20)]],
-      mobilePhone: ['', [Validators.minLength(7), Validators.maxLength(20)]],
+      // Contacto (campos dinámicos)
+      emails: this.fb.array([
+        this.fb.control('', [Validators.required, Validators.email])
+      ]),
+      phones: this.fb.array([
+        this.fb.control('', [Validators.minLength(7), Validators.maxLength(20)])
+      ]),
       website: ['', [Validators.pattern(/^https?:\/\/.+/)]],
 
       // Dirección
@@ -252,19 +255,83 @@ export class BusinessInfoComponent implements OnInit {
     });
   }
 
+  // ============================================
+  // DYNAMIC FIELDS (FormArray)
+  // ============================================
+
+  /**
+   * Obtiene el FormArray de emails
+   */
+  get emails(): FormArray {
+    return this.businessForm.get('emails') as FormArray;
+  }
+
+  /**
+   * Obtiene el FormArray de teléfonos
+   */
+  get phones(): FormArray {
+    return this.businessForm.get('phones') as FormArray;
+  }
+
+  /**
+   * Agrega un nuevo campo de email
+   */
+  addEmail() {
+    this.emails.push(this.fb.control('', [Validators.required, Validators.email]));
+  }
+
+  /**
+   * Elimina un campo de email
+   */
+  removeEmail(index: number) {
+    if (this.emails.length > 1) {
+      this.emails.removeAt(index);
+    }
+  }
+
+  /**
+   * Agrega un nuevo campo de teléfono
+   */
+  addPhone() {
+    this.phones.push(this.fb.control('', [Validators.minLength(7), Validators.maxLength(20)]));
+  }
+
+  /**
+   * Elimina un campo de teléfono
+   */
+  removePhone(index: number) {
+    if (this.phones.length > 1) {
+      this.phones.removeAt(index);
+    }
+  }
+
   /**
    * Puebla el formulario con datos existentes
    *
    * @param business - Información de empresa a cargar en el formulario
    */
   private populateForm(business: BusinessInfo) {
+    // Limpiar arrays existentes
+    this.emails.clear();
+    this.phones.clear();
+
+    // Agregar emails (al menos uno)
+    const emailsArray = business.emails && business.emails.length > 0 ? business.emails : [''];
+    emailsArray.forEach(email => {
+      this.emails.push(this.fb.control(email, [Validators.required, Validators.email]));
+    });
+
+    // Agregar teléfonos (al menos uno)
+    const phonesArray = business.phones && business.phones.length > 0 ? business.phones : [''];
+    phonesArray.forEach(phone => {
+      this.phones.push(this.fb.control(phone, [Validators.minLength(7), Validators.maxLength(20)]));
+    });
+
+    // Poblar resto de campos
     this.businessForm.patchValue({
       businessName: business.businessName,
       legalName: business.legalName,
       taxId: business.taxId,
-      email: business.email,
-      phone: business.phone,
-      mobilePhone: business.mobilePhone || '',
       website: business.website || '',
       address: business.address,
       logoUrl: business.logoUrl,

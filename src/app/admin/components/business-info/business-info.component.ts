@@ -287,6 +287,7 @@ export class BusinessInfoComponent implements OnInit {
       label: ['', [Validators.required]],
       value: ['', [Validators.required, Validators.email]]
     }));
+    this.cdr.markForCheck();
   }
 
   /**
@@ -295,6 +296,7 @@ export class BusinessInfoComponent implements OnInit {
   removeEmail(index: number) {
     if (this.emails.length > 1) {
       this.emails.removeAt(index);
+      this.cdr.markForCheck();
     }
   }
 
@@ -306,6 +308,7 @@ export class BusinessInfoComponent implements OnInit {
       label: ['', []],
       value: ['', [Validators.minLength(7), Validators.maxLength(20)]]
     }));
+    this.cdr.markForCheck();
   }
 
   /**
@@ -314,6 +317,7 @@ export class BusinessInfoComponent implements OnInit {
   removePhone(index: number) {
     if (this.phones.length > 1) {
       this.phones.removeAt(index);
+      this.cdr.markForCheck();
     }
   }
 
@@ -328,23 +332,75 @@ export class BusinessInfoComponent implements OnInit {
     this.phones.clear();
 
     // Agregar emails (al menos uno)
-    const emailsArray = business.emails && business.emails.length > 0
-      ? business.emails
-      : [{ label: 'Principal', value: '' }];
+    // Manejar tanto datos nuevos (array de objetos) como datos antiguos (string simple o array de strings)
+    let emailsArray: Array<{ label: string; value: string }> = [];
+
+    if (business.emails && Array.isArray(business.emails)) {
+      if (business.emails.length > 0) {
+        // Si el primer elemento es un objeto, usar la estructura nueva
+        if (typeof business.emails[0] === 'object' && business.emails[0].hasOwnProperty('value')) {
+          emailsArray = business.emails as Array<{ label: string; value: string }>;
+        } else {
+          // Convertir array de strings a la nueva estructura
+          emailsArray = (business.emails as any[]).map((email: any) => ({
+            label: 'Principal',
+            value: typeof email === 'string' ? email : email.value || ''
+          }));
+        }
+      }
+    } else if ((business as any).email) {
+      // Migrar desde el campo antiguo 'email'
+      emailsArray = [{ label: 'Principal', value: (business as any).email }];
+    }
+
+    if (emailsArray.length === 0) {
+      emailsArray = [{ label: 'Principal', value: '' }];
+    }
+
     emailsArray.forEach(email => {
       this.emails.push(this.fb.group({
-        label: [email.label || '', [Validators.required]],
+        label: [email.label || 'Principal', [Validators.required]],
         value: [email.value || '', [Validators.required, Validators.email]]
       }));
     });
 
     // Agregar teléfonos (al menos uno)
-    const phonesArray = business.phones && business.phones.length > 0
-      ? business.phones
-      : [{ label: 'Oficina', value: '' }];
+    // Manejar tanto datos nuevos como datos antiguos
+    let phonesArray: Array<{ label: string; value: string }> = [];
+
+    if (business.phones && Array.isArray(business.phones)) {
+      if (business.phones.length > 0) {
+        // Si el primer elemento es un objeto, usar la estructura nueva
+        if (typeof business.phones[0] === 'object' && business.phones[0].hasOwnProperty('value')) {
+          phonesArray = business.phones as Array<{ label: string; value: string }>;
+        } else {
+          // Convertir array de strings a la nueva estructura
+          phonesArray = (business.phones as any[]).map((phone: any, index: number) => ({
+            label: index === 0 ? 'Oficina' : index === 1 ? 'Móvil' : 'Teléfono',
+            value: typeof phone === 'string' ? phone : phone.value || ''
+          }));
+        }
+      }
+    } else {
+      // Migrar desde los campos antiguos 'phone' y 'mobilePhone'
+      const oldPhone = (business as any).phone;
+      const oldMobile = (business as any).mobilePhone;
+
+      if (oldPhone) {
+        phonesArray.push({ label: 'Oficina', value: oldPhone });
+      }
+      if (oldMobile) {
+        phonesArray.push({ label: 'Móvil', value: oldMobile });
+      }
+    }
+
+    if (phonesArray.length === 0) {
+      phonesArray = [{ label: 'Oficina', value: '' }];
+    }
+
     phonesArray.forEach(phone => {
       this.phones.push(this.fb.group({
-        label: [phone.label || '', []],
+        label: [phone.label || 'Oficina', []],
         value: [phone.value || '', [Validators.minLength(7), Validators.maxLength(20)]]
       }));
     });

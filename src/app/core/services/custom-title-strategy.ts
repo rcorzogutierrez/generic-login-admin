@@ -1,7 +1,7 @@
 // src/app/core/services/custom-title-strategy.ts
 import { Injectable, inject, effect } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { Router, RouterStateSnapshot, TitleStrategy } from '@angular/router';
+import { RouterStateSnapshot, TitleStrategy } from '@angular/router';
 import { BusinessInfoService } from '../../admin/services/business-info.service';
 import { AppConfigService } from './app-config.service';
 
@@ -29,7 +29,6 @@ export class CustomTitleStrategy extends TitleStrategy {
   private readonly title = inject(Title);
   private readonly businessInfoService = inject(BusinessInfoService);
   private readonly appConfigService = inject(AppConfigService);
-  private readonly router = inject(Router);
   private readonly fallbackName = 'MiApp';
   private currentRouteTitle: string | undefined;
 

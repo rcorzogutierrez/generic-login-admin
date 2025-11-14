@@ -43,6 +43,7 @@ export class UserModulesComponent implements OnInit {
     'clients': '/modules/clients',
     'materials': '/modules/materials',
     'workers': '/modules/workers',
+    'projects': '/modules/projects',
     'analytics': '/analytics',
     'settings': '/admin/config',
     'notifications': '/notifications',

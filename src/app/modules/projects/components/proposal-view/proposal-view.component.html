@@ -1,0 +1,286 @@
+<!-- proposal-view.component.html -->
+
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
+  <div class="max-w-[1200px] mx-auto p-5">
+
+    @if (isLoading()) {
+      <!-- Loading State -->
+      <div class="flex flex-col items-center justify-center py-16">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p class="text-sm text-slate-500 mt-4">Cargando estimado...</p>
+      </div>
+    } @else if (proposal()) {
+
+      <!-- ========== HEADER ========== -->
+      <header class="page-header print:hidden">
+        <div class="flex items-center justify-between gap-5">
+          <div class="flex items-center gap-4">
+            <button
+              mat-icon-button
+              (click)="back()"
+              class="icon-btn">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+            <div>
+              <h1 class="text-2xl font-bold text-slate-800">
+                Estimado {{ proposal()!.proposalNumber }}
+              </h1>
+              <p class="text-sm text-slate-500">Vista detallada del estimado</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button
+              mat-icon-button
+              (click)="print()"
+              matTooltip="Imprimir">
+              <mat-icon>print</mat-icon>
+            </button>
+
+            @if (proposal()!.status === 'draft') {
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="editProposal()">
+                <mat-icon>edit</mat-icon>
+                Editar
+              </button>
+            }
+
+            <button
+              mat-icon-button
+              [matMenuTriggerFor]="menu"
+              matTooltip="Más opciones">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+
+            <mat-menu #menu="matMenu">
+              @if (proposal()!.status === 'draft') {
+                <button mat-menu-item (click)="changeStatus('sent')">
+                  <mat-icon>send</mat-icon>
+                  <span>Marcar como enviado</span>
+                </button>
+              }
+
+              @if (proposal()!.status === 'sent') {
+                <button mat-menu-item (click)="changeStatus('approved')">
+                  <mat-icon class="text-green-600">check_circle</mat-icon>
+                  <span>Marcar como aprobado</span>
+                </button>
+                <button mat-menu-item (click)="changeStatus('rejected')">
+                  <mat-icon class="text-red-600">cancel</mat-icon>
+                  <span>Marcar como rechazado</span>
+                </button>
+              }
+
+              @if (proposal()!.status === 'approved') {
+                <button mat-menu-item (click)="convertToInvoice()">
+                  <mat-icon class="text-blue-600">receipt</mat-icon>
+                  <span>Convertir a factura</span>
+                </button>
+              }
+
+              <mat-divider></mat-divider>
+
+              <button mat-menu-item (click)="deleteProposal()" class="text-red-600">
+                <mat-icon class="text-red-600">delete</mat-icon>
+                <span>Eliminar</span>
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+      </header>
+
+      <!-- ========== DOCUMENTO DEL ESTIMADO ========== -->
+      <div class="card-modern mt-6 print:shadow-none print:border-0">
+
+        <!-- Encabezado del documento -->
+        <div class="border-b-2 border-blue-600 pb-6 mb-6">
+          <div class="flex justify-between items-start">
+            <div>
+              <h2 class="text-3xl font-bold text-slate-800 mb-2">ESTIMADO</h2>
+              <p class="text-lg font-semibold text-blue-600">{{ proposal()!.proposalNumber }}</p>
+            </div>
+            <div class="text-right">
+              <span [class]="getStatusClass(proposal()!.status)" class="text-base">
+                {{ getStatusLabel(proposal()!.status) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-6 mt-6">
+            <!-- Cliente -->
+            <div>
+              <h3 class="text-sm font-semibold text-slate-500 uppercase mb-2">Cliente</h3>
+              <p class="text-lg font-bold text-slate-800">{{ proposal()!.ownerName }}</p>
+              @if (proposal()!.ownerEmail) {
+                <p class="text-sm text-slate-600 flex items-center gap-1 mt-1">
+                  <mat-icon class="!text-sm">email</mat-icon>
+                  {{ proposal()!.ownerEmail }}
+                </p>
+              }
+              @if (proposal()!.ownerPhone) {
+                <p class="text-sm text-slate-600 flex items-center gap-1 mt-1">
+                  <mat-icon class="!text-sm">phone</mat-icon>
+                  {{ proposal()!.ownerPhone }}
+                </p>
+              }
+            </div>
+
+            <!-- Fechas -->
+            <div class="text-right">
+              <h3 class="text-sm font-semibold text-slate-500 uppercase mb-2">Información</h3>
+              <p class="text-sm text-slate-700">
+                <span class="font-semibold">Fecha:</span> {{ formatDate(proposal()!.date) }}
+              </p>
+              @if (proposal()!.validUntil) {
+                <p class="text-sm text-slate-700 mt-1">
+                  <span class="font-semibold">Válido hasta:</span> {{ formatDate(proposal()!.validUntil) }}
+                </p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Ubicación del trabajo -->
+        <div class="bg-slate-50 p-4 rounded-lg mb-6">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase mb-2 flex items-center gap-2">
+            <mat-icon class="!text-base">place</mat-icon>
+            Ubicación del Trabajo
+          </h3>
+          <p class="text-base text-slate-800">{{ proposal()!.address }}</p>
+          <p class="text-base text-slate-800">
+            {{ proposal()!.city }}
+            @if (proposal()!.state) {
+              , {{ proposal()!.state }}
+            }
+            @if (proposal()!.zipCode) {
+              {{ proposal()!.zipCode }}
+            }
+          </p>
+        </div>
+
+        <!-- Items Incluidos -->
+        @if (proposal()!.includes && proposal()!.includes.length > 0) {
+          <div class="mb-6">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+              <mat-icon class="text-blue-600">checklist</mat-icon>
+              INCLUYE
+            </h3>
+
+            <div class="space-y-2">
+              @for (item of proposal()!.includes; track item.id; let i = $index) {
+                <div class="flex items-start gap-3 py-2 border-b border-slate-200">
+                  <span class="text-sm font-bold text-slate-600 min-w-[30px]">{{ i + 1 }}.</span>
+                  <div class="flex-1">
+                    <p class="text-base text-slate-800">{{ item.description }}</p>
+                    @if (item.notes) {
+                      <p class="text-sm text-slate-500 mt-1">{{ item.notes }}</p>
+                    }
+                  </div>
+                  @if (item.totalPrice && item.totalPrice > 0) {
+                    <div class="text-right min-w-[120px]">
+                      <p class="text-base font-semibold text-slate-800">
+                        {{ formatCurrency(item.totalPrice) }}
+                      </p>
+                      @if (item.quantity && item.unitPrice) {
+                        <p class="text-xs text-slate-500">
+                          {{ item.quantity }} x {{ formatCurrency(item.unitPrice) }}
+                        </p>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Extras No Incluidos -->
+        @if (proposal()!.extras && proposal()!.extras.length > 0) {
+          <div class="mb-6 bg-amber-50 p-4 rounded-lg border-2 border-amber-200">
+            <h3 class="text-lg font-bold text-amber-900 mb-4 flex items-center gap-2">
+              <mat-icon class="text-amber-600">do_not_disturb_on</mat-icon>
+              EXTRAS NO INCLUIDOS EN ESTA PROPUESTA
+            </h3>
+
+            <div class="space-y-2">
+              @for (item of proposal()!.extras; track item.id; let i = $index) {
+                <div class="flex items-start gap-3 py-2">
+                  <span class="text-sm font-bold text-amber-700 min-w-[30px]">{{ i + 1 }}.</span>
+                  <p class="text-base text-amber-900">{{ item.description }}</p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Totales -->
+        <div class="border-t-2 border-slate-200 pt-6 mt-6">
+          <div class="max-w-md ml-auto space-y-3">
+            <div class="flex justify-between text-base">
+              <span class="text-slate-600">Subtotal:</span>
+              <span class="font-semibold text-slate-800">
+                {{ formatCurrency(proposal()!.subtotal || 0) }}
+              </span>
+            </div>
+
+            @if (proposal()!.tax && proposal()!.tax > 0) {
+              <div class="flex justify-between text-base">
+                <span class="text-slate-600">
+                  Impuesto
+                  @if (proposal()!.taxPercentage) {
+                    ({{ proposal()!.taxPercentage }}%)
+                  }:
+                </span>
+                <span class="font-semibold text-green-600">
+                  + {{ formatCurrency(proposal()!.tax) }}
+                </span>
+              </div>
+            }
+
+            @if (proposal()!.discount && proposal()!.discount > 0) {
+              <div class="flex justify-between text-base">
+                <span class="text-slate-600">
+                  Descuento
+                  @if (proposal()!.discountPercentage) {
+                    ({{ proposal()!.discountPercentage }}%)
+                  }:
+                </span>
+                <span class="font-semibold text-red-600">
+                  - {{ formatCurrency(proposal()!.discount) }}
+                </span>
+              </div>
+            }
+
+            <mat-divider></mat-divider>
+
+            <div class="flex justify-between text-2xl font-bold bg-blue-50 p-4 rounded-lg">
+              <span class="text-blue-900">TOTAL:</span>
+              <span class="text-blue-600">{{ formatCurrency(proposal()!.total) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notas -->
+        @if (proposal()!.notes) {
+          <div class="mt-6 p-4 bg-slate-50 rounded-lg">
+            <h3 class="text-sm font-semibold text-slate-700 uppercase mb-2">Notas</h3>
+            <p class="text-base text-slate-700 whitespace-pre-line">{{ proposal()!.notes }}</p>
+          </div>
+        }
+
+        <!-- Términos y Condiciones -->
+        @if (proposal()!.terms) {
+          <div class="mt-6 p-4 bg-slate-50 rounded-lg border-l-4 border-blue-600">
+            <h3 class="text-sm font-semibold text-slate-700 uppercase mb-2">Términos y Condiciones</h3>
+            <p class="text-sm text-slate-600 whitespace-pre-line">{{ proposal()!.terms }}</p>
+          </div>
+        }
+
+      </div>
+
+    }
+
+  </div>
+</div>

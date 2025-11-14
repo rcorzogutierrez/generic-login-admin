@@ -1,0 +1,389 @@
+<!-- proposal-form.component.html -->
+
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
+  <div class="max-w-[1400px] mx-auto p-5">
+
+    <!-- ========== HEADER ========== -->
+    <header class="page-header">
+      <div class="flex items-center justify-between gap-5">
+        <div class="flex items-center gap-4">
+          <button
+            mat-icon-button
+            (click)="cancel()"
+            class="icon-btn">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <div>
+            <h1 class="text-2xl font-bold text-slate-800">
+              {{ isEditMode() ? 'Editar Estimado' : 'Nuevo Estimado' }}
+            </h1>
+            <p class="text-sm text-slate-500">Complete la información del estimado</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button
+            mat-stroked-button
+            (click)="cancel()"
+            [disabled]="isLoading()">
+            Cancelar
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="save()"
+            [disabled]="isLoading() || proposalForm.invalid">
+            <mat-icon>save</mat-icon>
+            {{ isEditMode() ? 'Actualizar' : 'Guardar' }}
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <form [formGroup]="proposalForm" class="space-y-6">
+
+      <!-- ========== INFORMACIÓN DEL CLIENTE ========== -->
+      <div class="card-modern">
+        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+          <mat-icon class="text-blue-600">person</mat-icon>
+          Información del Cliente
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Cliente</mat-label>
+            <mat-select formControlName="ownerId" required>
+              @for (client of clients(); track client.id) {
+                <mat-option [value]="client.id">{{ client.name }}</mat-option>
+              }
+            </mat-select>
+            <mat-error>El cliente es requerido</mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Nombre del Cliente</mat-label>
+            <input matInput formControlName="ownerName" required>
+            <mat-error>El nombre es requerido</mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="ownerEmail">
+            <mat-icon matPrefix>email</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Teléfono</mat-label>
+            <input matInput formControlName="ownerPhone">
+            <mat-icon matPrefix>phone</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- ========== UBICACIÓN DEL TRABAJO ========== -->
+      <div class="card-modern">
+        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+          <mat-icon class="text-green-600">place</mat-icon>
+          Ubicación del Trabajo
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <mat-form-field class="w-full md:col-span-2" appearance="outline">
+            <mat-label>Dirección</mat-label>
+            <input matInput formControlName="address" required>
+            <mat-error>La dirección es requerida</mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Ciudad</mat-label>
+            <input matInput formControlName="city" required>
+            <mat-error>La ciudad es requerida</mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Estado</mat-label>
+            <input matInput formControlName="state">
+          </mat-form-field>
+
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Código Postal</mat-label>
+            <input matInput formControlName="zipCode">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- ========== FECHAS ========== -->
+      <div class="card-modern">
+        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+          <mat-icon class="text-purple-600">event</mat-icon>
+          Fechas
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Fecha del Estimado</mat-label>
+            <input matInput [matDatepicker]="datePicker" formControlName="date" required>
+            <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+            <mat-datepicker #datePicker></mat-datepicker>
+            <mat-error>La fecha es requerida</mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Válido Hasta</mat-label>
+            <input matInput [matDatepicker]="validUntilPicker" formControlName="validUntil">
+            <mat-datepicker-toggle matSuffix [for]="validUntilPicker"></mat-datepicker-toggle>
+            <mat-datepicker #validUntilPicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- ========== ITEMS INCLUIDOS ========== -->
+      <div class="card-modern">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <mat-icon class="text-blue-600">checklist</mat-icon>
+            Items Incluidos
+          </h2>
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            (click)="addIncludeItem()">
+            <mat-icon>add</mat-icon>
+            Agregar Item
+          </button>
+        </div>
+
+        @if (includeItems().length === 0) {
+          <div class="text-center py-8 text-slate-500">
+            <mat-icon class="!text-5xl mb-2">inventory_2</mat-icon>
+            <p>No hay items incluidos. Haz clic en "Agregar Item" para comenzar.</p>
+          </div>
+        } @else {
+          <div class="space-y-3">
+            @for (item of includeItems(); track item.id; let i = $index) {
+              <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <div class="flex items-start gap-3">
+                  <span class="text-sm font-bold text-slate-600 mt-3">{{ i + 1 }}.</span>
+
+                  <div class="flex-1 grid grid-cols-1 md:grid-cols-6 gap-3">
+                    <!-- Descripción -->
+                    <div class="md:col-span-3">
+                      <mat-form-field class="w-full" appearance="outline">
+                        <mat-label>Descripción</mat-label>
+                        <input
+                          matInput
+                          [value]="item.description"
+                          (input)="updateIncludeItem(item.id, 'description', $any($event.target).value)">
+                      </mat-form-field>
+                    </div>
+
+                    <!-- Cantidad -->
+                    <div>
+                      <mat-form-field class="w-full" appearance="outline">
+                        <mat-label>Cantidad</mat-label>
+                        <input
+                          matInput
+                          type="number"
+                          [value]="item.quantity || 0"
+                          (input)="updateIncludeItem(item.id, 'quantity', +$any($event.target).value)">
+                      </mat-form-field>
+                    </div>
+
+                    <!-- Precio Unitario -->
+                    <div>
+                      <mat-form-field class="w-full" appearance="outline">
+                        <mat-label>Precio Unit.</mat-label>
+                        <input
+                          matInput
+                          type="number"
+                          [value]="item.unitPrice || 0"
+                          (input)="updateIncludeItem(item.id, 'unitPrice', +$any($event.target).value)">
+                        <span matPrefix>$&nbsp;</span>
+                      </mat-form-field>
+                    </div>
+
+                    <!-- Total -->
+                    <div>
+                      <mat-form-field class="w-full" appearance="outline">
+                        <mat-label>Total</mat-label>
+                        <input
+                          matInput
+                          [value]="formatCurrency(item.totalPrice || 0)"
+                          readonly>
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    type="button"
+                    (click)="removeIncludeItem(item.id)"
+                    matTooltip="Eliminar item">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- ========== EXTRAS NO INCLUIDOS ========== -->
+      <div class="card-modern">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <mat-icon class="text-amber-600">do_not_disturb_on</mat-icon>
+            Extras No Incluidos
+          </h2>
+          <button
+            mat-raised-button
+            color="accent"
+            type="button"
+            (click)="addExtraItem()">
+            <mat-icon>add</mat-icon>
+            Agregar Extra
+          </button>
+        </div>
+
+        @if (extraItems().length === 0) {
+          <div class="text-center py-8 text-slate-500">
+            <mat-icon class="!text-5xl mb-2">block</mat-icon>
+            <p>No hay extras definidos. Haz clic en "Agregar Extra" para comenzar.</p>
+          </div>
+        } @else {
+          <div class="space-y-3">
+            @for (item of extraItems(); track item.id; let i = $index) {
+              <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                <div class="flex items-start gap-3">
+                  <span class="text-sm font-bold text-amber-700 mt-3">{{ i + 1 }}.</span>
+
+                  <div class="flex-1">
+                    <mat-form-field class="w-full" appearance="outline">
+                      <mat-label>Descripción del Extra</mat-label>
+                      <input
+                        matInput
+                        [value]="item.description"
+                        (input)="updateExtraItem(item.id, 'description', $any($event.target).value)">
+                    </mat-form-field>
+                  </div>
+
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    type="button"
+                    (click)="removeExtraItem(item.id)"
+                    matTooltip="Eliminar extra">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- ========== TOTALES ========== -->
+      <div class="card-modern bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-200">
+        <h2 class="text-lg font-bold text-blue-900 mb-4">Resumen de Totales</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Impuesto (%)</mat-label>
+            <input matInput type="number" formControlName="taxPercentage">
+            <span matSuffix>%</span>
+          </mat-form-field>
+
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Descuento (%)</mat-label>
+            <input matInput type="number" formControlName="discountPercentage">
+            <span matSuffix>%</span>
+          </mat-form-field>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg space-y-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-slate-600">Subtotal:</span>
+            <span class="font-semibold">{{ formatCurrency(calculateSubtotal()) }}</span>
+          </div>
+
+          @if (proposalForm.get('taxPercentage')?.value > 0) {
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-600">Impuesto ({{ proposalForm.get('taxPercentage')?.value }}%):</span>
+              <span class="font-semibold text-green-600">
+                + {{ formatCurrency((calculateSubtotal() * (proposalForm.get('taxPercentage')?.value || 0)) / 100) }}
+              </span>
+            </div>
+          }
+
+          @if (proposalForm.get('discountPercentage')?.value > 0) {
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-600">Descuento ({{ proposalForm.get('discountPercentage')?.value }}%):</span>
+              <span class="font-semibold text-red-600">
+                - {{ formatCurrency((calculateSubtotal() * (proposalForm.get('discountPercentage')?.value || 0)) / 100) }}
+              </span>
+            </div>
+          }
+
+          <mat-divider class="my-2"></mat-divider>
+
+          <div class="flex justify-between text-lg font-bold">
+            <span class="text-blue-900">TOTAL:</span>
+            <span class="text-blue-600">{{ formatCurrency(calculateTotal()) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== NOTAS Y TÉRMINOS ========== -->
+      <div class="card-modern">
+        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+          <mat-icon class="text-slate-600">notes</mat-icon>
+          Notas y Términos
+        </h2>
+
+        <div class="space-y-4">
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Notas (visibles para el cliente)</mat-label>
+            <textarea matInput formControlName="notes" rows="3"></textarea>
+          </mat-form-field>
+
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Notas Internas (solo uso interno)</mat-label>
+            <textarea matInput formControlName="internalNotes" rows="2"></textarea>
+          </mat-form-field>
+
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Términos y Condiciones</mat-label>
+            <textarea matInput formControlName="terms" rows="4"></textarea>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- ========== BOTONES FINALES ========== -->
+      <div class="flex justify-end gap-3 pb-6">
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="cancel()"
+          [disabled]="isLoading()">
+          Cancelar
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          type="button"
+          (click)="save()"
+          [disabled]="isLoading() || proposalForm.invalid">
+          @if (isLoading()) {
+            <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
+          }
+          <mat-icon>save</mat-icon>
+          {{ isEditMode() ? 'Actualizar Estimado' : 'Guardar Estimado' }}
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>

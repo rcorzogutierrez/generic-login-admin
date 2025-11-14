@@ -3,27 +3,32 @@ import { Injectable, inject, effect } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router, RouterStateSnapshot, TitleStrategy } from '@angular/router';
 import { BusinessInfoService } from '../../admin/services/business-info.service';
+import { AppConfigService } from './app-config.service';
 
 /**
  * Estrategia personalizada para títulos de página
  *
- * Obtiene el nombre de la aplicación dinámicamente desde Firebase
- * y lo agrega antes de cada título de ruta
- * Formato: "[Nombre de Empresa] | [Título de la Ruta]"
+ * Obtiene el nombre dinámicamente desde Firebase con fallback en cascada:
+ * 1. businessInfo.businessName (nombre de la empresa)
+ * 2. appConfig.appName (nombre de la aplicación)
+ * 3. "MiApp" (fallback final)
+ *
+ * Formato: "[Nombre] | [Título de la Ruta]"
  *
  * @example
- * Si businessName = "Mi Empresa"
- * Ruta con title: 'Dashboard' → Se muestra: "Mi Empresa | Dashboard"
- * Ruta con title: 'Mi Empresa' → Se muestra: "Mi Empresa | Mi Empresa"
+ * Si businessName = "Acme Corp"
+ * Ruta con title: 'Dashboard' → Se muestra: "Acme Corp | Dashboard"
  *
- * Si no hay nombre en Firebase, usa el fallback "MiApp"
+ * Si no hay businessName pero appName = "Generic Admin Login"
+ * Ruta con title: 'Dashboard' → Se muestra: "Generic Admin Login | Dashboard"
  *
- * El título se actualiza automáticamente cuando cambia el businessInfo
+ * El título se actualiza automáticamente cuando cambian los datos
  */
 @Injectable({ providedIn: 'root' })
 export class CustomTitleStrategy extends TitleStrategy {
   private readonly title = inject(Title);
   private readonly businessInfoService = inject(BusinessInfoService);
+  private readonly appConfigService = inject(AppConfigService);
   private readonly router = inject(Router);
   private readonly fallbackName = 'MiApp';
   private currentRouteTitle: string | undefined;
@@ -31,12 +36,15 @@ export class CustomTitleStrategy extends TitleStrategy {
   constructor() {
     super();
 
-    // Efecto reactivo: actualiza el título cuando cambia businessInfo
+    // Efecto reactivo: actualiza el título cuando cambia businessInfo o appConfig
     effect(() => {
       const businessInfo = this.businessInfoService.businessInfo();
-      const appName = businessInfo?.businessName || this.fallbackName;
+      const appConfig = this.appConfigService.appName();
 
-      // Actualizar título con el nuevo nombre de empresa
+      // Cascada de fallbacks: businessName → appName → fallback
+      const appName = businessInfo?.businessName || appConfig || this.fallbackName;
+
+      // Actualizar título con el nombre dinámico
       if (this.currentRouteTitle) {
         this.title.setTitle(`${appName} | ${this.currentRouteTitle}`);
       } else {
@@ -52,9 +60,10 @@ export class CustomTitleStrategy extends TitleStrategy {
     const routeTitle = this.buildTitle(snapshot);
     this.currentRouteTitle = routeTitle;
 
-    // Obtener el nombre de la empresa desde el signal
+    // Obtener el nombre con cascada de fallbacks
     const businessInfo = this.businessInfoService.businessInfo();
-    const appName = businessInfo?.businessName || this.fallbackName;
+    const appConfig = this.appConfigService.appName();
+    const appName = businessInfo?.businessName || appConfig || this.fallbackName;
 
     if (routeTitle) {
       this.title.setTitle(`${appName} | ${routeTitle}`);

@@ -234,7 +234,7 @@
                   }:
                 </span>
                 <span class="font-semibold text-green-600">
-                  + {{ formatCurrency(proposal()!.tax) }}
+                  + {{ formatCurrency(proposal()!.tax ?? 0) }}
                 </span>
               </div>
             }
@@ -248,7 +248,7 @@
                   }:
                 </span>
                 <span class="font-semibold text-red-600">
-                  - {{ formatCurrency(proposal()!.discount) }}
+                  - {{ formatCurrency(proposal()!.discount ?? 0) }}
                 </span>
               </div>
             }

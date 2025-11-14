@@ -153,8 +153,13 @@
           <mat-icon class="text-slate-400 !text-base">filter_list</mat-icon>
           <span class="text-sm text-slate-600">Filtrado por:</span>
           <mat-chip-set>
-            <mat-chip (removed)="filterByStatus('all')">
-              {{ getStatusLabel(statusFilter() as any) }}
+            <mat-chip [removable]="true" (removed)="filterByStatus('all')">
+              @if (statusFilter() === 'draft') { Borrador }
+              @else if (statusFilter() === 'sent') { Enviado }
+              @else if (statusFilter() === 'approved') { Aprobado }
+              @else if (statusFilter() === 'rejected') { Rechazado }
+              @else if (statusFilter() === 'converted_to_invoice') { Facturado }
+              @else if (statusFilter() === 'cancelled') { Cancelado }
               <button matChipRemove>
                 <mat-icon>cancel</mat-icon>
               </button>
@@ -178,8 +183,10 @@
         <div class="empty-state">
           <mat-icon>description</mat-icon>
           <h3>No hay estimados</h3>
-          <p>{{ searchTerm() ? 'No se encontraron estimados con esos criterios de búsqueda' : 'Comienza creando tu primer estimado' }}</p>
-          @if (!searchTerm()) {
+          @if (searchTerm()) {
+            <p>No se encontraron estimados con esos criterios de búsqueda</p>
+          } @else {
+            <p>Comienza creando tu primer estimado</p>
             <button
               mat-raised-button
               color="primary"
@@ -206,9 +213,11 @@
                   <div class="flex items-center gap-2">
                     <span>Número</span>
                     @if (currentSort().field === 'proposalNumber') {
-                      <mat-icon class="!text-base">
-                        {{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
-                      </mat-icon>
+                      @if (currentSort().direction === 'asc') {
+                        <mat-icon class="!text-base">arrow_upward</mat-icon>
+                      } @else {
+                        <mat-icon class="!text-base">arrow_downward</mat-icon>
+                      }
                     }
                   </div>
                 </th>
@@ -220,9 +229,11 @@
                   <div class="flex items-center gap-2">
                     <span>Cliente</span>
                     @if (currentSort().field === 'ownerName') {
-                      <mat-icon class="!text-base">
-                        {{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
-                      </mat-icon>
+                      @if (currentSort().direction === 'asc') {
+                        <mat-icon class="!text-base">arrow_upward</mat-icon>
+                      } @else {
+                        <mat-icon class="!text-base">arrow_downward</mat-icon>
+                      }
                     }
                   </div>
                 </th>
@@ -239,9 +250,11 @@
                   <div class="flex items-center gap-2">
                     <span>Fecha</span>
                     @if (currentSort().field === 'date') {
-                      <mat-icon class="!text-base">
-                        {{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
-                      </mat-icon>
+                      @if (currentSort().direction === 'asc') {
+                        <mat-icon class="!text-base">arrow_upward</mat-icon>
+                      } @else {
+                        <mat-icon class="!text-base">arrow_downward</mat-icon>
+                      }
                     }
                   </div>
                 </th>
@@ -253,9 +266,11 @@
                   <div class="flex items-center justify-end gap-2">
                     <span>Total</span>
                     @if (currentSort().field === 'total') {
-                      <mat-icon class="!text-base">
-                        {{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
-                      </mat-icon>
+                      @if (currentSort().direction === 'asc') {
+                        <mat-icon class="!text-base">arrow_upward</mat-icon>
+                      } @else {
+                        <mat-icon class="!text-base">arrow_downward</mat-icon>
+                      }
                     }
                   </div>
                 </th>

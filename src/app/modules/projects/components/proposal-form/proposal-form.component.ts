@@ -17,6 +17,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
 import { Timestamp } from 'firebase/firestore';
 
 // Services
@@ -43,7 +44,8 @@ import { Client } from '../../../clients/models';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatAutocompleteModule,
-    MatChipsModule
+    MatChipsModule,
+    MatDividerModule
   ],
   templateUrl: './proposal-form.component.html',
   styleUrl: './proposal-form.component.css',

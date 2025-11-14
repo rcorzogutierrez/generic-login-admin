@@ -68,6 +68,15 @@
             <span>Trabajadores</span>
           </a>
         }
+        @if (hasModule('projects')) {
+          <a
+            class="nav-link"
+            routerLink="/modules/projects"
+            routerLinkActive="active">
+            <mat-icon>description</mat-icon>
+            <span>Proyectos</span>
+          </a>
+        }
         @if (isAdmin()) {
           <a
             class="nav-link"

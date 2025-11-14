@@ -1,0 +1,120 @@
+/* proposals-list.component.css */
+
+/* ============================================
+   ESTILOS ESPECÍFICOS DE LISTA DE PROPOSALS
+   Usa clases globales de styles.css
+   ============================================ */
+
+/* Animación de entrada para filas */
+tr {
+  animation: fadeInRow 0.3s ease-out backwards;
+}
+
+tr:nth-child(1) { animation-delay: 0.05s; }
+tr:nth-child(2) { animation-delay: 0.1s; }
+tr:nth-child(3) { animation-delay: 0.15s; }
+tr:nth-child(4) { animation-delay: 0.2s; }
+tr:nth-child(5) { animation-delay: 0.25s; }
+
+/* Filas de la tabla */
+tbody tr:hover {
+  background: #f8fafc;
+  transform: scale(1.001);
+}
+
+/* Botón del empty state - estilos específicos */
+::ng-deep .empty-state-button {
+  margin-top: 16px;
+  min-height: 44px;
+  padding: 0 24px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+::ng-deep .empty-state-button mat-icon {
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+  line-height: 20px !important;
+  margin: 0 !important;
+}
+
+/* Animación para la barra de acciones masivas */
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Estilos específicos para badges de status de proposals */
+.badge-status-draft {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.badge-status-sent {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.badge-status-approved {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #d1fae5;
+  color: #059669;
+}
+
+.badge-status-rejected {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.badge-status-converted {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.badge-status-cancelled {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #f3f4f6;
+  color: #6b7280;
+}

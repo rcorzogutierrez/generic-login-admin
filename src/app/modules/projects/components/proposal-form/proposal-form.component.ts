@@ -64,7 +64,8 @@ export class ProposalFormComponent implements OnInit {
 
   // Computed - Clientes filtrados por búsqueda
   filteredClients = computed(() => {
-    const term = this.clientSearchTerm().toLowerCase().trim();
+    const searchTerm = this.clientSearchTerm();
+    const term = (searchTerm || '').toLowerCase().trim();
     const allClients = this.clients();
 
     if (!term) {

@@ -1,6 +1,6 @@
 // src/app/modules/projects/components/proposal-form/proposal-form.component.ts
 
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -13,6 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { Timestamp } from 'firebase/firestore';
 
 // Services
@@ -38,7 +39,8 @@ import { AddClientDialogComponent } from '../add-client-dialog/add-client-dialog
     MatSnackBarModule,
     MatDividerModule,
     MatTooltipModule,
-    MatDialogModule
+    MatDialogModule,
+    MatAutocompleteModule
   ],
   templateUrl: './proposal-form.component.html',
   styleUrl: './proposal-form.component.css',
@@ -58,6 +60,23 @@ export class ProposalFormComponent implements OnInit {
   isEditMode = signal<boolean>(false);
   proposalId = signal<string | null>(null);
   clients = this.clientsService.clients;
+  clientSearchTerm = signal<string>('');
+
+  // Computed - Clientes filtrados por búsqueda
+  filteredClients = computed(() => {
+    const term = this.clientSearchTerm().toLowerCase().trim();
+    const allClients = this.clients();
+
+    if (!term) {
+      return allClients;
+    }
+
+    return allClients.filter(client =>
+      client.name.toLowerCase().includes(term) ||
+      client.email?.toLowerCase().includes(term) ||
+      client.phone?.includes(term)
+    );
+  });
 
   includeItems = signal<ProposalItem[]>([]);
   extraItems = signal<ProposalItem[]>([]);
@@ -358,7 +377,38 @@ export class ProposalFormComponent implements OnInit {
         this.proposalForm.patchValue({
           ownerId: newClient.id
         });
+        // Limpiar búsqueda y establecer el nombre
+        this.clientSearchTerm.set(newClient.name);
       }
     });
+  }
+
+  /**
+   * Manejar cambio en el campo de búsqueda de cliente
+   */
+  onClientSearchChange(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.clientSearchTerm.set(value);
+  }
+
+  /**
+   * Seleccionar cliente del autocomplete
+   */
+  selectClient(client: Client) {
+    this.proposalForm.patchValue({
+      ownerId: client.id
+    });
+    this.clientSearchTerm.set(client.name);
+  }
+
+  /**
+   * Obtener nombre del cliente seleccionado
+   */
+  getSelectedClientName(): string {
+    const ownerId = this.proposalForm.get('ownerId')?.value;
+    if (!ownerId) return '';
+
+    const client = this.clients().find(c => c.id === ownerId);
+    return client?.name || '';
   }
 }

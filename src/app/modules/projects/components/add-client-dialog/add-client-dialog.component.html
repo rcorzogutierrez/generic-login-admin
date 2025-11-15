@@ -10,7 +10,7 @@
         </div>
         <div>
           <h2 class="text-2xl font-bold">Agregar Nuevo Cliente</h2>
-          <p class="text-sm text-blue-100 mt-1">Completa los datos principales del cliente</p>
+          <p class="text-sm text-blue-100 mt-1">Completa los campos configurados del cliente</p>
         </div>
       </div>
       <button mat-icon-button (click)="cancel()" class="!text-white hover:bg-white/10">
@@ -19,157 +19,187 @@
     </div>
   </div>
 
-  <!-- Form -->
-  <form [formGroup]="clientForm" (ngSubmit)="save()" class="space-y-5">
-
-    <!-- Nombre (Requerido) -->
-    <div>
-      <label class="block text-sm font-semibold text-slate-700 mb-2">
-        Nombre Completo <span class="text-red-500">*</span>
-      </label>
-      <div class="relative">
-        <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">badge</mat-icon>
-        <input
-          type="text"
-          formControlName="name"
-          required
-          class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                 transition-all bg-white text-slate-800 hover:border-slate-300"
-          placeholder="Juan Pérez"
-          autofocus>
-      </div>
-      @if (clientForm.get('name')?.invalid && clientForm.get('name')?.touched) {
-        <p class="text-xs text-red-500 mt-1.5">El nombre es requerido</p>
-      }
+  <!-- Loading State -->
+  @if (isLoading() && fields().length === 0) {
+    <div class="flex items-center justify-center py-12">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p class="ml-4 text-slate-600">Cargando formulario...</p>
     </div>
+  } @else {
+    <!-- Dynamic Form -->
+    <form [formGroup]="clientForm" (ngSubmit)="save()" class="space-y-5">
 
-    <!-- Email y Teléfono en Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-      <!-- Email -->
-      <div>
-        <label class="block text-sm font-semibold text-slate-700 mb-2">Email</label>
-        <div class="relative">
-          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">email</mat-icon>
-          <input
-            type="email"
-            formControlName="email"
-            class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                   transition-all bg-white text-slate-800 hover:border-slate-300"
-            placeholder="cliente@ejemplo.com">
-        </div>
-        @if (clientForm.get('email')?.invalid && clientForm.get('email')?.touched) {
-          <p class="text-xs text-red-500 mt-1.5">Email inválido</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        @for (field of fields(); track field.id) {
+          <div [ngClass]="getFieldWidth(field)">
+
+            <!-- TEXT / EMAIL / URL / PHONE -->
+            @if (field.type === FieldType.TEXT || field.type === FieldType.EMAIL || field.type === FieldType.URL || field.type === FieldType.PHONE) {
+              <mat-form-field class="w-full" appearance="outline">
+                <mat-label>{{ field.label }}</mat-label>
+                <input
+                  matInput
+                  [formControlName]="field.name"
+                  [type]="field.type === FieldType.EMAIL ? 'email' : 'text'"
+                  [placeholder]="field.placeholder || ''"
+                  [required]="field.validation.required || false">
+                @if (field.validation.required) {
+                  <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                }
+              </mat-form-field>
+            }
+
+            <!-- TEXTAREA -->
+            @if (field.type === FieldType.TEXTAREA) {
+              <mat-form-field class="w-full" appearance="outline">
+                <mat-label>{{ field.label }}</mat-label>
+                <textarea
+                  matInput
+                  [formControlName]="field.name"
+                  [placeholder]="field.placeholder || ''"
+                  [required]="field.validation.required || false"
+                  rows="3"></textarea>
+                @if (field.validation.required) {
+                  <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                }
+              </mat-form-field>
+            }
+
+            <!-- NUMBER / CURRENCY -->
+            @if (field.type === FieldType.NUMBER || field.type === FieldType.CURRENCY) {
+              <mat-form-field class="w-full" appearance="outline">
+                <mat-label>{{ field.label }}</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  [formControlName]="field.name"
+                  [placeholder]="field.placeholder || ''"
+                  [required]="field.validation.required || false">
+                @if (field.type === FieldType.CURRENCY) {
+                  <span matPrefix>$&nbsp;</span>
+                }
+                @if (field.validation.required) {
+                  <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                }
+              </mat-form-field>
+            }
+
+            <!-- DATE -->
+            @if (field.type === FieldType.DATE) {
+              <mat-form-field class="w-full" appearance="outline">
+                <mat-label>{{ field.label }}</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="picker"
+                  [formControlName]="field.name"
+                  [required]="field.validation.required || false">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+                @if (field.validation.required) {
+                  <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                }
+              </mat-form-field>
+            }
+
+            <!-- SELECT -->
+            @if (field.type === FieldType.SELECT) {
+              <mat-form-field class="w-full" appearance="outline">
+                <mat-label>{{ field.label }}</mat-label>
+                <mat-select
+                  [formControlName]="field.name"
+                  [required]="field.validation.required || false">
+                  @for (option of field.options; track option.value) {
+                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                  }
+                </mat-select>
+                @if (field.validation.required) {
+                  <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                }
+              </mat-form-field>
+            }
+
+            <!-- CHECKBOX -->
+            @if (field.type === FieldType.CHECKBOX) {
+              <div class="flex items-center py-2">
+                <mat-checkbox [formControlName]="field.name">
+                  {{ field.label }}
+                </mat-checkbox>
+              </div>
+            }
+
+            <!-- MULTISELECT -->
+            @if (field.type === FieldType.MULTISELECT) {
+              <mat-form-field class="w-full" appearance="outline">
+                <mat-label>{{ field.label }}</mat-label>
+                <mat-select
+                  [formControlName]="field.name"
+                  [required]="field.validation.required || false"
+                  multiple>
+                  @for (option of field.options; track option.value) {
+                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                  }
+                </mat-select>
+                @if (field.validation.required) {
+                  <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                }
+              </mat-form-field>
+            }
+
+            <!-- DICTIONARY -->
+            @if (field.type === FieldType.DICTIONARY && field.options && field.options.length > 0) {
+              <div class="col-span-2">
+                <div class="mb-2">
+                  <label class="block text-sm font-semibold text-slate-700">{{ field.label }}</label>
+                  @if (field.helpText) {
+                    <p class="text-xs text-slate-500 mt-1">{{ field.helpText }}</p>
+                  }
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg border-2 border-slate-200">
+                  @for (option of field.options; track option.value) {
+                    <mat-form-field class="w-full" appearance="outline">
+                      <mat-label>{{ option.label }}</mat-label>
+                      <input
+                        matInput
+                        [formControlName]="field.name + '_' + option.value"
+                        [placeholder]="option.label">
+                    </mat-form-field>
+                  }
+                </div>
+              </div>
+            }
+
+          </div>
         }
       </div>
 
-      <!-- Teléfono -->
-      <div>
-        <label class="block text-sm font-semibold text-slate-700 mb-2">Teléfono</label>
-        <div class="relative">
-          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">phone</mat-icon>
-          <input
-            type="tel"
-            formControlName="phone"
-            class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                   transition-all bg-white text-slate-800 hover:border-slate-300"
-            placeholder="+1 (555) 123-4567">
-        </div>
-      </div>
+    </form>
+
+    <!-- Footer con botones -->
+    <div class="flex justify-end gap-3 mt-8 pt-6 border-t-2 border-slate-100">
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="cancel()"
+        [disabled]="isLoading()"
+        class="!px-6 !py-2.5">
+        <mat-icon>close</mat-icon>
+        Cancelar
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        (click)="save()"
+        [disabled]="isLoading() || clientForm.invalid"
+        class="!px-8 !py-2.5">
+        @if (isLoading()) {
+          <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
+        } @else {
+          <mat-icon>save</mat-icon>
+        }
+        Guardar Cliente
+      </button>
     </div>
-
-    <!-- Dirección -->
-    <div>
-      <label class="block text-sm font-semibold text-slate-700 mb-2">Dirección</label>
-      <div class="relative">
-        <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">location_on</mat-icon>
-        <input
-          type="text"
-          formControlName="address"
-          class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                 transition-all bg-white text-slate-800 hover:border-slate-300"
-          placeholder="123 Main Street">
-      </div>
-    </div>
-
-    <!-- Ciudad, Estado, Código Postal -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <!-- Ciudad -->
-      <div>
-        <label class="block text-sm font-semibold text-slate-700 mb-2">Ciudad</label>
-        <div class="relative">
-          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">location_city</mat-icon>
-          <input
-            type="text"
-            formControlName="city"
-            class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                   transition-all bg-white text-slate-800 hover:border-slate-300"
-            placeholder="Miami">
-        </div>
-      </div>
-
-      <!-- Estado -->
-      <div>
-        <label class="block text-sm font-semibold text-slate-700 mb-2">Estado</label>
-        <div class="relative">
-          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">map</mat-icon>
-          <input
-            type="text"
-            formControlName="state"
-            class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                   transition-all bg-white text-slate-800 hover:border-slate-300"
-            placeholder="FL">
-        </div>
-      </div>
-
-      <!-- Código Postal -->
-      <div>
-        <label class="block text-sm font-semibold text-slate-700 mb-2">Código Postal</label>
-        <div class="relative">
-          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">markunread_mailbox</mat-icon>
-          <input
-            type="text"
-            formControlName="zipCode"
-            class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                   transition-all bg-white text-slate-800 hover:border-slate-300"
-            placeholder="33101">
-        </div>
-      </div>
-    </div>
-
-  </form>
-
-  <!-- Footer con botones -->
-  <div class="flex justify-end gap-3 mt-8 pt-6 border-t-2 border-slate-100">
-    <button
-      mat-stroked-button
-      type="button"
-      (click)="cancel()"
-      [disabled]="isLoading()"
-      class="!px-6 !py-2.5">
-      <mat-icon>close</mat-icon>
-      Cancelar
-    </button>
-    <button
-      mat-raised-button
-      color="primary"
-      type="button"
-      (click)="save()"
-      [disabled]="isLoading() || clientForm.invalid"
-      class="!px-8 !py-2.5">
-      @if (isLoading()) {
-        <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
-      } @else {
-        <mat-icon>save</mat-icon>
-      }
-      Guardar Cliente
-    </button>
-  </div>
+  }
 
 </div>

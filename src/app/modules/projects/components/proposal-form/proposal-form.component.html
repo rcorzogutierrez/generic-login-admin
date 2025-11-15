@@ -55,27 +55,59 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <!-- Cliente Select -->
+          <!-- Cliente Autocomplete -->
           <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2">
               Cliente <span class="text-red-500">*</span>
             </label>
             <div class="flex gap-2">
               <div class="relative flex-1">
-                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">search</mat-icon>
-                <select
-                  formControlName="ownerId"
-                  required
-                  class="w-full pl-11 pr-10 py-3 text-sm border-2 border-slate-200 rounded-lg
+                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg z-10">search</mat-icon>
+                <input
+                  type="text"
+                  [value]="clientSearchTerm()"
+                  (input)="onClientSearchChange($event)"
+                  [matAutocomplete]="autoClients"
+                  placeholder="Buscar cliente..."
+                  class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
                          focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                         transition-all bg-white text-slate-800 appearance-none cursor-pointer
-                         hover:border-slate-300">
-                  <option value="">Selecciona un cliente...</option>
-                  @for (client of clients(); track client.id) {
-                    <option [value]="client.id">{{ client.name }}</option>
+                         transition-all bg-white text-slate-800 hover:border-slate-300">
+
+                <mat-autocomplete #autoClients="matAutocomplete" (optionSelected)="selectClient($event.option.value)">
+                  @if (filteredClients().length === 0) {
+                    <mat-option disabled>
+                      <div class="text-slate-400 text-sm py-2">
+                        No se encontraron clientes
+                      </div>
+                    </mat-option>
                   }
-                </select>
-                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">arrow_drop_down</mat-icon>
+                  @for (client of filteredClients(); track client.id) {
+                    <mat-option [value]="client">
+                      <div class="flex flex-col py-1">
+                        <span class="font-semibold text-slate-800">{{ client.name }}</span>
+                        @if (client.email || client.phone) {
+                          <span class="text-xs text-slate-500">
+                            @if (client.email) {
+                              <span>{{ client.email }}</span>
+                            }
+                            @if (client.email && client.phone) {
+                              <span class="mx-1">•</span>
+                            }
+                            @if (client.phone) {
+                              <span>{{ client.phone }}</span>
+                            }
+                          </span>
+                        }
+                      </div>
+                    </mat-option>
+                  }
+                </mat-autocomplete>
+
+                @if (clients().length === 0) {
+                  <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                    <span class="text-xs text-amber-600">Sin clientes</span>
+                  </div>
+                }
               </div>
               <button
                 type="button"

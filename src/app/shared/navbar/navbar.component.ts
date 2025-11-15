@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../core/services/auth.service';
 import { AppConfigService } from '../../core/services/app-config.service';
+import { BusinessInfoService } from '../../admin/services/business-info.service';
 import { AdminService } from '../../admin/services/admin.service';
 import { ModulesService } from '../../admin/services/modules.service';
 
@@ -31,7 +32,11 @@ import { ModulesService } from '../../admin/services/modules.service';
 export class NavbarComponent implements OnInit {
   user = this.authService.authorizedUser;
   appInfo = this.authService.getAppInfo();
-  appName: Signal<string | null> = this.appConfigService.appName; // Tipo explícito
+
+  // Información de la empresa (nombre comercial)
+  businessInfo = this.businessInfoService.businessInfo;
+
+  // Logo de la aplicación
   logoUrl = this.appConfigService.logoUrl;
   logoBackgroundColor = this.appConfigService.logoBackgroundColor;
 
@@ -41,17 +46,21 @@ export class NavbarComponent implements OnInit {
   constructor(
     public authService: AuthService,
     private appConfigService: AppConfigService,
+    private businessInfoService: BusinessInfoService,
     private adminService: AdminService,
     private modulesService: ModulesService,
     private router: Router
   ) {}
 
   async ngOnInit() {
-    // ✅ OPTIMIZADO: Inicializar configuración al cargar navbar
-    await this.appConfigService.initialize();
+    // ✅ Inicializar configuración de la app y de la empresa en paralelo
+    await Promise.all([
+      this.appConfigService.initialize(),
+      this.businessInfoService.getBusinessInfo()
+    ]);
 
     console.log('🔍 NavbarComponent - Valores actuales:', {
-      appName: this.appName(),
+      businessName: this.businessInfo()?.businessName,
       logoUrl: this.logoUrl()
     });
     console.log('🧭 Navbar cargado para:', this.user()?.email);
@@ -176,6 +185,14 @@ export class NavbarComponent implements OnInit {
     this.router.navigate(['/settings']);
     // Ejemplo: Simular configuración del nombre
     // this.appConfigService.setAppName('Nombre Personalizado');
+  }
+
+  /**
+   * Obtiene el nombre a mostrar en el navbar
+   * Prioridad: Nombre de la empresa > Nombre por defecto
+   */
+  getDisplayName(): string {
+    return this.businessInfo()?.businessName || 'Mi Empresa';
   }
 
   async logout() {

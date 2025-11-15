@@ -71,11 +71,13 @@ export class ProposalFormComponent implements OnInit {
       return allClients;
     }
 
-    return allClients.filter(client =>
-      client.name.toLowerCase().includes(term) ||
-      client.email?.toLowerCase().includes(term) ||
-      client.phone?.includes(term)
-    );
+    return allClients.filter(client => {
+      const nameMatch = (client.name || '').toLowerCase().includes(term);
+      const emailMatch = (client.email || '').toLowerCase().includes(term);
+      const phoneMatch = (client.phone || '').includes(term);
+
+      return nameMatch || emailMatch || phoneMatch;
+    });
   });
 
   includeItems = signal<ProposalItem[]>([]);

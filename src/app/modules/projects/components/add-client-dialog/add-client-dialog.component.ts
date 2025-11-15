@@ -61,6 +61,12 @@ export class AddClientDialogComponent implements OnInit {
       // Obtener campos activos ordenados
       const activeFields = this.configService.getActiveFields();
 
+      console.log('📝 ADD CLIENT DIALOG: Campos activos cargados:', activeFields.length);
+      console.log('   Lista de campos:');
+      activeFields.forEach((f, i) => {
+        console.log(`   ${i + 1}. ${f.label} (${f.name}) - isActive: ${f.isActive} - Tipo: ${f.type} - formOrder: ${f.formOrder}`);
+      });
+
       if (activeFields.length === 0) {
         this.snackBar.open('No hay campos configurados. Contacta al administrador.', 'Cerrar', { duration: 5000 });
         this.dialogRef.close();

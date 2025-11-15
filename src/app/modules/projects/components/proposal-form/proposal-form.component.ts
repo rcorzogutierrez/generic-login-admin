@@ -432,9 +432,9 @@ export class ProposalFormComponent implements OnInit {
 
     // Buscar en customFields
     if (client.customFields) {
-      if (client.customFields.nombre_del_cliente) return client.customFields.nombre_del_cliente;
-      if (client.customFields.nombre) return client.customFields.nombre;
-      if (client.customFields.name) return client.customFields.name;
+      if (client.customFields['nombre_del_cliente']) return client.customFields['nombre_del_cliente'];
+      if (client.customFields['nombre']) return client.customFields['nombre'];
+      if (client.customFields['name']) return client.customFields['name'];
     }
 
     return 'Sin nombre';
@@ -456,8 +456,8 @@ export class ProposalFormComponent implements OnInit {
 
     // Buscar en customFields
     if (client.customFields) {
-      if (client.customFields.email) return client.customFields.email;
-      if (client.customFields.correo) return client.customFields.correo;
+      if (client.customFields['email']) return client.customFields['email'];
+      if (client.customFields['correo']) return client.customFields['correo'];
     }
 
     return '';
@@ -480,9 +480,9 @@ export class ProposalFormComponent implements OnInit {
 
     // Buscar en customFields
     if (client.customFields) {
-      if (client.customFields.telefono) return client.customFields.telefono;
-      if (client.customFields.phone) return client.customFields.phone;
-      if (client.customFields.tel) return client.customFields.tel;
+      if (client.customFields['telefono']) return client.customFields['telefono'];
+      if (client.customFields['phone']) return client.customFields['phone'];
+      if (client.customFields['tel']) return client.customFields['tel'];
     }
 
     return '';

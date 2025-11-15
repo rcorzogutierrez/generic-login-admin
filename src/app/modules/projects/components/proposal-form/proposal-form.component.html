@@ -40,16 +40,21 @@
       </div>
     </header>
 
-    <form [formGroup]="proposalForm" class="space-y-6">
+    <form [formGroup]="proposalForm" class="space-y-7">
 
       <!-- ========== INFORMACIÓN DEL CLIENTE ========== -->
-      <div class="card-modern">
-        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <mat-icon class="text-blue-600">person</mat-icon>
-          Información del Cliente
-        </h2>
+      <div class="card-modern p-6">
+        <div class="mb-6 pb-4 border-b-2 border-slate-100">
+          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <mat-icon class="text-blue-600 !text-xl">person</mat-icon>
+            </div>
+            Información del Cliente
+          </h2>
+          <p class="text-sm text-slate-500 mt-2 ml-13">Selecciona el cliente y verifica sus datos</p>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <mat-form-field class="w-full" appearance="outline">
             <mat-label>Cliente</mat-label>
             <mat-select formControlName="ownerId" required>
@@ -57,80 +62,98 @@
                 <mat-option [value]="client.id">{{ client.name }}</mat-option>
               }
             </mat-select>
+            <mat-icon matPrefix>search</mat-icon>
             <mat-error>El cliente es requerido</mat-error>
           </mat-form-field>
 
           <mat-form-field class="w-full" appearance="outline">
             <mat-label>Nombre del Cliente</mat-label>
             <input matInput formControlName="ownerName" required>
+            <mat-icon matPrefix>badge</mat-icon>
             <mat-error>El nombre es requerido</mat-error>
           </mat-form-field>
 
           <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Email</mat-label>
-            <input matInput type="email" formControlName="ownerEmail">
+            <mat-label>Email del Cliente</mat-label>
+            <input matInput type="email" formControlName="ownerEmail" placeholder="cliente@ejemplo.com">
             <mat-icon matPrefix>email</mat-icon>
           </mat-form-field>
 
           <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Teléfono</mat-label>
-            <input matInput formControlName="ownerPhone">
+            <mat-label>Teléfono del Cliente</mat-label>
+            <input matInput formControlName="ownerPhone" placeholder="+1 (555) 123-4567">
             <mat-icon matPrefix>phone</mat-icon>
           </mat-form-field>
         </div>
       </div>
 
       <!-- ========== UBICACIÓN DEL TRABAJO ========== -->
-      <div class="card-modern">
-        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <mat-icon class="text-green-600">place</mat-icon>
-          Ubicación del Trabajo
-        </h2>
+      <div class="card-modern p-6">
+        <div class="mb-6 pb-4 border-b-2 border-slate-100">
+          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <mat-icon class="text-green-600 !text-xl">place</mat-icon>
+            </div>
+            Ubicación del Trabajo
+          </h2>
+          <p class="text-sm text-slate-500 mt-2 ml-13">Indica dónde se realizará el trabajo (puede ser diferente a la dirección del cliente)</p>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <mat-form-field class="w-full md:col-span-2" appearance="outline">
-            <mat-label>Dirección</mat-label>
-            <input matInput formControlName="address" required>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <mat-form-field class="w-full md:col-span-2 lg:col-span-3" appearance="outline">
+            <mat-label>Dirección del Trabajo</mat-label>
+            <input matInput formControlName="address" required placeholder="123 Main Street">
+            <mat-icon matPrefix>location_on</mat-icon>
             <mat-error>La dirección es requerida</mat-error>
           </mat-form-field>
 
           <mat-form-field class="w-full" appearance="outline">
             <mat-label>Ciudad</mat-label>
-            <input matInput formControlName="city" required>
+            <input matInput formControlName="city" required placeholder="Miami">
+            <mat-icon matPrefix>location_city</mat-icon>
             <mat-error>La ciudad es requerida</mat-error>
           </mat-form-field>
 
           <mat-form-field class="w-full" appearance="outline">
             <mat-label>Estado</mat-label>
-            <input matInput formControlName="state">
+            <input matInput formControlName="state" placeholder="FL">
+            <mat-icon matPrefix>map</mat-icon>
           </mat-form-field>
 
           <mat-form-field class="w-full" appearance="outline">
             <mat-label>Código Postal</mat-label>
-            <input matInput formControlName="zipCode">
+            <input matInput formControlName="zipCode" placeholder="33101">
+            <mat-icon matPrefix>markunread_mailbox</mat-icon>
           </mat-form-field>
         </div>
       </div>
 
       <!-- ========== FECHAS ========== -->
-      <div class="card-modern">
-        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <mat-icon class="text-purple-600">event</mat-icon>
-          Fechas
-        </h2>
+      <div class="card-modern p-6">
+        <div class="mb-6 pb-4 border-b-2 border-slate-100">
+          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+              <mat-icon class="text-purple-600 !text-xl">event</mat-icon>
+            </div>
+            Fechas del Estimado
+          </h2>
+          <p class="text-sm text-slate-500 mt-2 ml-13">Define la fecha del estimado y su validez</p>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <mat-form-field class="w-full" appearance="outline">
             <mat-label>Fecha del Estimado</mat-label>
             <input matInput [matDatepicker]="datePicker" formControlName="date" required>
+            <mat-icon matPrefix>calendar_today</mat-icon>
             <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
             <mat-datepicker #datePicker></mat-datepicker>
             <mat-error>La fecha es requerida</mat-error>
           </mat-form-field>
 
           <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Válido Hasta</mat-label>
+            <mat-label>Válido Hasta (Opcional)</mat-label>
             <input matInput [matDatepicker]="validUntilPicker" formControlName="validUntil">
+            <mat-icon matPrefix>event_available</mat-icon>
             <mat-datepicker-toggle matSuffix [for]="validUntilPicker"></mat-datepicker-toggle>
             <mat-datepicker #validUntilPicker></mat-datepicker>
           </mat-form-field>
@@ -138,35 +161,44 @@
       </div>
 
       <!-- ========== ITEMS INCLUIDOS ========== -->
-      <div class="card-modern">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <mat-icon class="text-blue-600">checklist</mat-icon>
-            Items Incluidos
-          </h2>
+      <div class="card-modern p-6">
+        <div class="mb-6 pb-4 border-b-2 border-slate-100 flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+              <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <mat-icon class="text-blue-600 !text-xl">checklist</mat-icon>
+              </div>
+              Items Incluidos en el Estimado
+            </h2>
+            <p class="text-sm text-slate-500 mt-2 ml-13">Trabajos y materiales que están incluidos en el precio</p>
+          </div>
           <button
             mat-raised-button
             color="primary"
             type="button"
-            (click)="addIncludeItem()">
-            <mat-icon>add</mat-icon>
+            (click)="addIncludeItem()"
+            class="!px-6 !py-2.5">
+            <mat-icon>add_circle</mat-icon>
             Agregar Item
           </button>
         </div>
 
         @if (includeItems().length === 0) {
-          <div class="text-center py-8 text-slate-500">
-            <mat-icon class="!text-5xl mb-2">inventory_2</mat-icon>
-            <p>No hay items incluidos. Haz clic en "Agregar Item" para comenzar.</p>
+          <div class="text-center py-12 text-slate-400 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+            <mat-icon class="!text-6xl mb-3 text-slate-300">inventory_2</mat-icon>
+            <p class="text-base font-medium">No hay items incluidos</p>
+            <p class="text-sm mt-1">Haz clic en "Agregar Item" para comenzar a construir el estimado</p>
           </div>
         } @else {
-          <div class="space-y-3">
+          <div class="items-container">
             @for (item of includeItems(); track item.id; let i = $index) {
-              <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                <div class="flex items-start gap-3">
-                  <span class="text-sm font-bold text-slate-600 mt-3">{{ i + 1 }}.</span>
+              <div class="item-card shadow-sm">
+                <div class="flex items-start gap-4">
+                  <div class="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-lg font-bold text-sm mt-2">
+                    {{ i + 1 }}
+                  </div>
 
-                  <div class="flex-1 grid grid-cols-1 md:grid-cols-6 gap-3">
+                  <div class="flex-1 grid grid-cols-1 md:grid-cols-6 gap-4">
                     <!-- Descripción -->
                     <div class="md:col-span-3">
                       <mat-form-field class="w-full" appearance="outline">
@@ -231,33 +263,42 @@
       </div>
 
       <!-- ========== EXTRAS NO INCLUIDOS ========== -->
-      <div class="card-modern">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <mat-icon class="text-amber-600">do_not_disturb_on</mat-icon>
-            Extras No Incluidos
-          </h2>
+      <div class="card-modern p-6 border-2 border-amber-100">
+        <div class="mb-6 pb-4 border-b-2 border-amber-100 flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+              <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                <mat-icon class="text-amber-700 !text-xl">do_not_disturb_on</mat-icon>
+              </div>
+              Extras NO Incluidos en el Precio
+            </h2>
+            <p class="text-sm text-slate-500 mt-2 ml-13">Trabajos o costos adicionales que NO están cubiertos en este estimado</p>
+          </div>
           <button
             mat-raised-button
             color="accent"
             type="button"
-            (click)="addExtraItem()">
-            <mat-icon>add</mat-icon>
+            (click)="addExtraItem()"
+            class="!px-6 !py-2.5 !bg-amber-500 hover:!bg-amber-600">
+            <mat-icon>add_circle_outline</mat-icon>
             Agregar Extra
           </button>
         </div>
 
         @if (extraItems().length === 0) {
-          <div class="text-center py-8 text-slate-500">
-            <mat-icon class="!text-5xl mb-2">block</mat-icon>
-            <p>No hay extras definidos. Haz clic en "Agregar Extra" para comenzar.</p>
+          <div class="text-center py-12 text-amber-600 bg-amber-50/50 rounded-xl border-2 border-dashed border-amber-200">
+            <mat-icon class="!text-6xl mb-3 text-amber-300">block</mat-icon>
+            <p class="text-base font-medium">No hay extras definidos</p>
+            <p class="text-sm mt-1">Los extras son items que el cliente debe cubrir por separado</p>
           </div>
         } @else {
-          <div class="space-y-3">
+          <div class="items-container">
             @for (item of extraItems(); track item.id; let i = $index) {
-              <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                <div class="flex items-start gap-3">
-                  <span class="text-sm font-bold text-amber-700 mt-3">{{ i + 1 }}.</span>
+              <div class="extra-item-card shadow-sm">
+                <div class="flex items-start gap-4">
+                  <div class="flex items-center justify-center w-8 h-8 bg-amber-600 text-white rounded-lg font-bold text-sm mt-2">
+                    {{ i + 1 }}
+                  </div>
 
                   <div class="flex-1">
                     <mat-form-field class="w-full" appearance="outline">
@@ -265,7 +306,9 @@
                       <input
                         matInput
                         [value]="item.description"
-                        (input)="updateExtraItem(item.id, 'description', $any($event.target).value)">
+                        (input)="updateExtraItem(item.id, 'description', $any($event.target).value)"
+                        placeholder="Ej: Permisos y certificaciones (a cargo del cliente)">
+                      <mat-icon matPrefix>info</mat-icon>
                     </mat-form-field>
                   </div>
 
@@ -274,6 +317,7 @@
                     color="warn"
                     type="button"
                     (click)="removeExtraItem(item.id)"
+                    class="item-delete-btn mt-2"
                     matTooltip="Eliminar extra">
                     <mat-icon>delete</mat-icon>
                   </button>
@@ -285,19 +329,29 @@
       </div>
 
       <!-- ========== TOTALES ========== -->
-      <div class="card-modern bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-200">
-        <h2 class="text-lg font-bold text-blue-900 mb-4">Resumen de Totales</h2>
+      <div class="card-modern p-6 bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100 border-2 border-blue-300 shadow-lg">
+        <div class="mb-6 pb-4 border-b-2 border-blue-200">
+          <h2 class="text-xl font-bold text-blue-900 flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+              <mat-icon class="text-white !text-xl">calculate</mat-icon>
+            </div>
+            Resumen de Totales
+          </h2>
+          <p class="text-sm text-blue-700 mt-2 ml-13">Configura impuestos y descuentos</p>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           <mat-form-field class="w-full" appearance="outline">
             <mat-label>Impuesto (%)</mat-label>
-            <input matInput type="number" formControlName="taxPercentage">
+            <input matInput type="number" formControlName="taxPercentage" min="0" max="100" placeholder="0">
+            <mat-icon matPrefix>percent</mat-icon>
             <span matSuffix>%</span>
           </mat-form-field>
 
           <mat-form-field class="w-full" appearance="outline">
             <mat-label>Descuento (%)</mat-label>
-            <input matInput type="number" formControlName="discountPercentage">
+            <input matInput type="number" formControlName="discountPercentage" min="0" max="100" placeholder="0">
+            <mat-icon matPrefix>local_offer</mat-icon>
             <span matSuffix>%</span>
           </mat-form-field>
         </div>
@@ -336,51 +390,97 @@
       </div>
 
       <!-- ========== NOTAS Y TÉRMINOS ========== -->
-      <div class="card-modern">
-        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <mat-icon class="text-slate-600">notes</mat-icon>
-          Notas y Términos
-        </h2>
+      <div class="card-modern p-6">
+        <div class="mb-6 pb-4 border-b-2 border-slate-100">
+          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+            <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+              <mat-icon class="text-slate-600 !text-xl">notes</mat-icon>
+            </div>
+            Notas y Términos
+          </h2>
+          <p class="text-sm text-slate-500 mt-2 ml-13">Información adicional y condiciones del servicio</p>
+        </div>
 
-        <div class="space-y-4">
-          <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Notas (visibles para el cliente)</mat-label>
-            <textarea matInput formControlName="notes" rows="3"></textarea>
-          </mat-form-field>
+        <div class="space-y-5">
+          <div>
+            <mat-form-field class="w-full" appearance="outline">
+              <mat-label>Notas (visibles para el cliente)</mat-label>
+              <textarea
+                matInput
+                formControlName="notes"
+                rows="4"
+                placeholder="Información adicional que verá el cliente en el estimado..."></textarea>
+              <mat-icon matPrefix>visibility</mat-icon>
+            </mat-form-field>
+          </div>
 
-          <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Notas Internas (solo uso interno)</mat-label>
-            <textarea matInput formControlName="internalNotes" rows="2"></textarea>
-          </mat-form-field>
+          <div>
+            <mat-form-field class="w-full" appearance="outline">
+              <mat-label>Notas Internas (solo uso interno)</mat-label>
+              <textarea
+                matInput
+                formControlName="internalNotes"
+                rows="3"
+                placeholder="Notas privadas que solo tú y tu equipo pueden ver..."></textarea>
+              <mat-icon matPrefix>visibility_off</mat-icon>
+            </mat-form-field>
+          </div>
 
-          <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Términos y Condiciones</mat-label>
-            <textarea matInput formControlName="terms" rows="4"></textarea>
-          </mat-form-field>
+          <div>
+            <mat-form-field class="w-full" appearance="outline">
+              <mat-label>Términos y Condiciones</mat-label>
+              <textarea
+                matInput
+                formControlName="terms"
+                rows="5"
+                placeholder="Condiciones de pago, garantías, plazos de entrega, etc..."></textarea>
+              <mat-icon matPrefix>gavel</mat-icon>
+            </mat-form-field>
+          </div>
         </div>
       </div>
 
       <!-- ========== BOTONES FINALES ========== -->
-      <div class="flex justify-end gap-3 pb-6">
-        <button
-          mat-stroked-button
-          type="button"
-          (click)="cancel()"
-          [disabled]="isLoading()">
-          Cancelar
-        </button>
-        <button
-          mat-raised-button
-          color="primary"
-          type="button"
-          (click)="save()"
-          [disabled]="isLoading() || proposalForm.invalid">
-          @if (isLoading()) {
-            <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
+      <div class="sticky bottom-0 bg-gradient-to-r from-slate-100 to-slate-200 p-6 rounded-xl shadow-lg border-2 border-slate-300 flex justify-between items-center gap-4">
+        <div class="text-sm text-slate-600">
+          @if (proposalForm.invalid) {
+            <div class="flex items-center gap-2 text-amber-600">
+              <mat-icon class="!text-base">warning</mat-icon>
+              <span class="font-medium">Completa todos los campos requeridos para guardar</span>
+            </div>
+          } @else {
+            <div class="flex items-center gap-2 text-green-600">
+              <mat-icon class="!text-base">check_circle</mat-icon>
+              <span class="font-medium">Formulario completo - Listo para guardar</span>
+            </div>
           }
-          <mat-icon>save</mat-icon>
-          {{ isEditMode() ? 'Actualizar Estimado' : 'Guardar Estimado' }}
-        </button>
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="cancel()"
+            [disabled]="isLoading()"
+            class="!px-6 !py-3 !border-2">
+            <mat-icon>close</mat-icon>
+            Cancelar
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            (click)="save()"
+            [disabled]="isLoading() || proposalForm.invalid"
+            class="!px-8 !py-3 !text-base">
+            @if (isLoading()) {
+              <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
+            } @else {
+              <mat-icon>save</mat-icon>
+            }
+            {{ isEditMode() ? 'Actualizar Estimado' : 'Guardar Estimado' }}
+          </button>
+        </div>
       </div>
 
     </form>

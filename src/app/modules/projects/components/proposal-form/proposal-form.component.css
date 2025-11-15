@@ -1,13 +1,126 @@
 /* proposal-form.component.css */
 
-/* Estilos específicos para el formulario de proposals */
+/* ===================================
+   ESTILOS PERSONALIZADOS CON TAILWIND
+   =================================== */
 
+/* Estilos para mat-form-field */
 ::ng-deep .mat-mdc-form-field {
   width: 100%;
+  font-size: 14px;
 }
 
+/* Mejora del wrapper del texto */
 ::ng-deep .mat-mdc-text-field-wrapper {
   background: white;
+  padding: 0;
+}
+
+/* Mejora del input */
+::ng-deep .mat-mdc-input-element {
+  padding: 12px 14px !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  color: #1e293b !important;
+}
+
+/* Mejora del label */
+::ng-deep .mat-mdc-form-field-label {
+  font-size: 14px !important;
+  color: #64748b !important;
+  font-weight: 500 !important;
+}
+
+/* Mejora del outline */
+::ng-deep .mat-mdc-notch-piece {
+  border-color: #cbd5e1 !important;
+  border-width: 1.5px !important;
+}
+
+/* Estado focus */
+::ng-deep .mat-mdc-form-field-focus-overlay {
+  background-color: transparent !important;
+}
+
+::ng-deep .mat-focused .mat-mdc-notch-piece {
+  border-color: #3b82f6 !important;
+  border-width: 2px !important;
+}
+
+::ng-deep .mat-focused .mat-mdc-form-field-label {
+  color: #3b82f6 !important;
+}
+
+/* Estado hover */
+::ng-deep .mat-mdc-form-field:hover .mat-mdc-notch-piece {
+  border-color: #94a3b8 !important;
+}
+
+/* Estado error */
+::ng-deep .mat-form-field-invalid .mat-mdc-notch-piece {
+  border-color: #ef4444 !important;
+}
+
+::ng-deep .mat-form-field-invalid .mat-mdc-form-field-label {
+  color: #ef4444 !important;
+}
+
+/* Mensajes de error */
+::ng-deep .mat-mdc-form-field-error {
+  font-size: 12px !important;
+  color: #ef4444 !important;
+  margin-top: 4px !important;
+}
+
+/* Iconos prefix */
+::ng-deep .mat-mdc-form-field-icon-prefix {
+  color: #64748b !important;
+  margin-right: 8px !important;
+}
+
+::ng-deep .mat-focused .mat-mdc-form-field-icon-prefix {
+  color: #3b82f6 !important;
+}
+
+/* Select personalizado */
+::ng-deep .mat-mdc-select-trigger {
+  padding: 12px 14px !important;
+  font-size: 14px !important;
+}
+
+::ng-deep .mat-mdc-select-value {
+  color: #1e293b !important;
+}
+
+::ng-deep .mat-mdc-select-arrow {
+  color: #64748b !important;
+}
+
+::ng-deep .mat-focused .mat-mdc-select-arrow {
+  color: #3b82f6 !important;
+}
+
+/* Datepicker trigger */
+::ng-deep .mat-datepicker-toggle {
+  color: #64748b !important;
+}
+
+::ng-deep .mat-focused .mat-datepicker-toggle {
+  color: #3b82f6 !important;
+}
+
+/* Textarea */
+::ng-deep textarea.mat-mdc-input-element {
+  padding: 12px 14px !important;
+  min-height: 80px !important;
+  resize: vertical !important;
+  font-family: inherit !important;
+  line-height: 1.6 !important;
+}
+
+/* Spacing entre form fields */
+.mat-mdc-form-field + .mat-mdc-form-field {
+  margin-top: 0 !important;
 }
 
 /* Estilos para los items de includes y extras */
@@ -34,3 +147,72 @@
 .item-row {
   animation: fadeInUp 0.3s ease-out;
 }
+
+/* Cards mejoradas */
+.card-modern {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.card-modern:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* Botones de item */
+::ng-deep .item-delete-btn {
+  transition: all 0.2s ease;
+}
+
+::ng-deep .item-delete-btn:hover {
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+/* Inputs en items (sin material) */
+.custom-input {
+  @apply w-full px-3 py-2.5 text-sm border-2 border-slate-200 rounded-lg
+         focus:border-blue-500 focus:ring-2 focus:ring-blue-100
+         outline-none transition-all bg-white text-slate-800
+         placeholder:text-slate-400;
+}
+
+.custom-input:hover {
+  @apply border-slate-300;
+}
+
+.custom-input:disabled {
+  @apply bg-slate-50 text-slate-500 cursor-not-allowed;
+}
+
+/* Labels personalizados */
+.custom-label {
+  @apply block text-sm font-medium text-slate-700 mb-1.5;
+}
+
+/* Container de items */
+.items-container {
+  @apply space-y-3;
+}
+
+.item-card {
+  @apply bg-slate-50 p-4 rounded-lg border-2 border-slate-200
+         hover:border-slate-300 transition-all;
+}
+
+.extra-item-card {
+  @apply bg-amber-50 p-4 rounded-lg border-2 border-amber-200
+         hover:border-amber-300 transition-all;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  ::ng-deep .mat-mdc-input-element {
+    padding: 10px 12px !important;
+    font-size: 16px !important; /* Prevent zoom on mobile */
+  }
+
+  ::ng-deep .mat-mdc-form-field-label {
+    font-size: 14px !important;
+  }
+}
+

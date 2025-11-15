@@ -58,22 +58,22 @@ export class AddClientDialogComponent implements OnInit {
       // Cargar configuración de campos
       await this.configService.initialize();
 
-      // Obtener campos activos ordenados
-      const activeFields = this.configService.getActiveFields();
+      // Obtener campos en uso (respeta layout personalizado si existe)
+      const fieldsInUse = this.configService.getFieldsInUse();
 
-      console.log('📝 ADD CLIENT DIALOG: Campos activos cargados:', activeFields.length);
+      console.log('📝 ADD CLIENT DIALOG: Campos en uso cargados:', fieldsInUse.length);
       console.log('   Lista de campos:');
-      activeFields.forEach((f, i) => {
-        console.log(`   ${i + 1}. ${f.label} (${f.name}) - isActive: ${f.isActive} - Tipo: ${f.type} - formOrder: ${f.formOrder}`);
+      fieldsInUse.forEach((f, i) => {
+        console.log(`   ${i + 1}. ${f.label} (${f.name}) - Tipo: ${f.type} - formOrder: ${f.formOrder}`);
       });
 
-      if (activeFields.length === 0) {
+      if (fieldsInUse.length === 0) {
         this.snackBar.open('No hay campos configurados. Contacta al administrador.', 'Cerrar', { duration: 5000 });
         this.dialogRef.close();
         return;
       }
 
-      this.fields.set(activeFields);
+      this.fields.set(fieldsInUse);
 
       // Construir formulario dinámico
       this.buildForm();

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, Signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -31,7 +31,11 @@ import { ModulesService } from '../../admin/services/modules.service';
 export class NavbarComponent implements OnInit {
   user = this.authService.authorizedUser;
   appInfo = this.authService.getAppInfo();
-  appName: Signal<string | null> = this.appConfigService.appName; // Tipo explícito
+
+  // Nombre de la aplicación (configuración del sistema)
+  appName = this.appConfigService.appName;
+
+  // Logo de la aplicación
   logoUrl = this.appConfigService.logoUrl;
   logoBackgroundColor = this.appConfigService.logoBackgroundColor;
 
@@ -47,7 +51,7 @@ export class NavbarComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    // ✅ OPTIMIZADO: Inicializar configuración al cargar navbar
+    // ✅ Inicializar configuración de la aplicación
     await this.appConfigService.initialize();
 
     console.log('🔍 NavbarComponent - Valores actuales:', {
@@ -174,8 +178,6 @@ export class NavbarComponent implements OnInit {
 
   goToSettings() {
     this.router.navigate(['/settings']);
-    // Ejemplo: Simular configuración del nombre
-    // this.appConfigService.setAppName('Nombre Personalizado');
   }
 
   async logout() {

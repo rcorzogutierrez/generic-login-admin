@@ -1,5 +1,5 @@
 // src/app/admin/services/system-config.service.ts
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import {
   getFirestore,
   doc,
@@ -18,6 +18,7 @@ import {
   deleteObject
 } from 'firebase/storage';
 import { SystemConfig, LogoUploadResult } from '../models/system-config.interface';
+import { AppConfigService } from '../../core/services/app-config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +29,9 @@ export class SystemConfigService {
   private readonly CONFIG_DOC_ID = 'system_config';
   private readonly CONFIG_COLLECTION = 'config';
   private readonly STORAGE_PATH = 'system/branding/';
+
+  // ✅ Inyectar AppConfigService para notificar cambios
+  private appConfigService = inject(AppConfigService);
 
   // Signal para la configuración actual
   private _config = signal<SystemConfig | null>(null);
@@ -116,6 +120,13 @@ async updateConfig(
     await updateDoc(configRef, updateData);
 
     console.log('✅ Configuración guardada en Firestore');
+
+    // ✅ Recargar configuración local
+    await this.loadConfig();
+
+    // ✅ IMPORTANTE: Notificar a AppConfigService para actualizar navbar y títulos
+    await this.appConfigService.forceReload();
+    console.log('🔄 AppConfigService recargado - UI actualizada');
 
     return {
       success: true,

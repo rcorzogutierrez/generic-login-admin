@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, Signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -9,7 +9,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../core/services/auth.service';
 import { AppConfigService } from '../../core/services/app-config.service';
-import { BusinessInfoService } from '../../admin/services/business-info.service';
 import { AdminService } from '../../admin/services/admin.service';
 import { ModulesService } from '../../admin/services/modules.service';
 
@@ -33,8 +32,8 @@ export class NavbarComponent implements OnInit {
   user = this.authService.authorizedUser;
   appInfo = this.authService.getAppInfo();
 
-  // Información de la empresa (nombre comercial)
-  businessInfo = this.businessInfoService.businessInfo;
+  // Nombre de la aplicación (configuración del sistema)
+  appName = this.appConfigService.appName;
 
   // Logo de la aplicación
   logoUrl = this.appConfigService.logoUrl;
@@ -46,21 +45,17 @@ export class NavbarComponent implements OnInit {
   constructor(
     public authService: AuthService,
     private appConfigService: AppConfigService,
-    private businessInfoService: BusinessInfoService,
     private adminService: AdminService,
     private modulesService: ModulesService,
     private router: Router
   ) {}
 
   async ngOnInit() {
-    // ✅ Inicializar configuración de la app y de la empresa en paralelo
-    await Promise.all([
-      this.appConfigService.initialize(),
-      this.businessInfoService.getBusinessInfo()
-    ]);
+    // ✅ Inicializar configuración de la aplicación
+    await this.appConfigService.initialize();
 
     console.log('🔍 NavbarComponent - Valores actuales:', {
-      businessName: this.businessInfo()?.businessName,
+      appName: this.appName(),
       logoUrl: this.logoUrl()
     });
     console.log('🧭 Navbar cargado para:', this.user()?.email);
@@ -183,16 +178,6 @@ export class NavbarComponent implements OnInit {
 
   goToSettings() {
     this.router.navigate(['/settings']);
-    // Ejemplo: Simular configuración del nombre
-    // this.appConfigService.setAppName('Nombre Personalizado');
-  }
-
-  /**
-   * Obtiene el nombre a mostrar en el navbar
-   * Prioridad: Nombre de la empresa > Nombre por defecto
-   */
-  getDisplayName(): string {
-    return this.businessInfo()?.businessName || 'Mi Empresa';
   }
 
   async logout() {

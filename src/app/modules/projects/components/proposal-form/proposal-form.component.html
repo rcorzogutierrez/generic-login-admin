@@ -55,35 +55,82 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Cliente</mat-label>
-            <mat-select formControlName="ownerId" required>
-              @for (client of clients(); track client.id) {
-                <mat-option [value]="client.id">{{ client.name }}</mat-option>
-              }
-            </mat-select>
-            <mat-icon matPrefix>search</mat-icon>
-            <mat-error>El cliente es requerido</mat-error>
-          </mat-form-field>
+          <!-- Cliente Select -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+              Cliente <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">search</mat-icon>
+              <select
+                formControlName="ownerId"
+                required
+                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                       transition-all bg-white text-slate-800 appearance-none cursor-pointer
+                       hover:border-slate-300">
+                <option value="">Selecciona un cliente...</option>
+                @for (client of clients(); track client.id) {
+                  <option [value]="client.id">{{ client.name }}</option>
+                }
+              </select>
+              <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">arrow_drop_down</mat-icon>
+            </div>
+            @if (proposalForm.get('ownerId')?.invalid && proposalForm.get('ownerId')?.touched) {
+              <p class="text-xs text-red-500 mt-1.5">El cliente es requerido</p>
+            }
+          </div>
 
-          <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Nombre del Cliente</mat-label>
-            <input matInput formControlName="ownerName" required>
-            <mat-icon matPrefix>badge</mat-icon>
-            <mat-error>El nombre es requerido</mat-error>
-          </mat-form-field>
+          <!-- Nombre del Cliente -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+              Nombre del Cliente <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">badge</mat-icon>
+              <input
+                type="text"
+                formControlName="ownerName"
+                required
+                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                       transition-all bg-white text-slate-800 hover:border-slate-300"
+                placeholder="Nombre completo del cliente">
+            </div>
+            @if (proposalForm.get('ownerName')?.invalid && proposalForm.get('ownerName')?.touched) {
+              <p class="text-xs text-red-500 mt-1.5">El nombre es requerido</p>
+            }
+          </div>
 
-          <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Email del Cliente</mat-label>
-            <input matInput type="email" formControlName="ownerEmail" placeholder="cliente@ejemplo.com">
-            <mat-icon matPrefix>email</mat-icon>
-          </mat-form-field>
+          <!-- Email -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Email</label>
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">email</mat-icon>
+              <input
+                type="email"
+                formControlName="ownerEmail"
+                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                       transition-all bg-white text-slate-800 hover:border-slate-300"
+                placeholder="cliente@ejemplo.com">
+            </div>
+          </div>
 
-          <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Teléfono del Cliente</mat-label>
-            <input matInput formControlName="ownerPhone" placeholder="+1 (555) 123-4567">
-            <mat-icon matPrefix>phone</mat-icon>
-          </mat-form-field>
+          <!-- Teléfono -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Teléfono</label>
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">phone</mat-icon>
+              <input
+                type="tel"
+                formControlName="ownerPhone"
+                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                       transition-all bg-white text-slate-800 hover:border-slate-300"
+                placeholder="+1 (555) 123-4567">
+            </div>
+          </div>
         </div>
       </div>
 
@@ -100,31 +147,77 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          <mat-form-field class="w-full md:col-span-2 lg:col-span-3" appearance="outline">
-            <mat-label>Dirección del Trabajo</mat-label>
-            <input matInput formControlName="address" required placeholder="123 Main Street">
-            <mat-icon matPrefix>location_on</mat-icon>
-            <mat-error>La dirección es requerida</mat-error>
-          </mat-form-field>
+          <!-- Dirección del Trabajo -->
+          <div class="md:col-span-2 lg:col-span-3">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+              Dirección del Trabajo <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">location_on</mat-icon>
+              <input
+                type="text"
+                formControlName="address"
+                required
+                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                       transition-all bg-white text-slate-800 hover:border-slate-300"
+                placeholder="123 Main Street">
+            </div>
+            @if (proposalForm.get('address')?.invalid && proposalForm.get('address')?.touched) {
+              <p class="text-xs text-red-500 mt-1.5">La dirección es requerida</p>
+            }
+          </div>
 
-          <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Ciudad</mat-label>
-            <input matInput formControlName="city" required placeholder="Miami">
-            <mat-icon matPrefix>location_city</mat-icon>
-            <mat-error>La ciudad es requerida</mat-error>
-          </mat-form-field>
+          <!-- Ciudad -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+              Ciudad <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">location_city</mat-icon>
+              <input
+                type="text"
+                formControlName="city"
+                required
+                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                       transition-all bg-white text-slate-800 hover:border-slate-300"
+                placeholder="Miami">
+            </div>
+            @if (proposalForm.get('city')?.invalid && proposalForm.get('city')?.touched) {
+              <p class="text-xs text-red-500 mt-1.5">La ciudad es requerida</p>
+            }
+          </div>
 
-          <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Estado</mat-label>
-            <input matInput formControlName="state" placeholder="FL">
-            <mat-icon matPrefix>map</mat-icon>
-          </mat-form-field>
+          <!-- Estado -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Estado</label>
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">map</mat-icon>
+              <input
+                type="text"
+                formControlName="state"
+                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                       transition-all bg-white text-slate-800 hover:border-slate-300"
+                placeholder="FL">
+            </div>
+          </div>
 
-          <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Código Postal</mat-label>
-            <input matInput formControlName="zipCode" placeholder="33101">
-            <mat-icon matPrefix>markunread_mailbox</mat-icon>
-          </mat-form-field>
+          <!-- Código Postal -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Código Postal</label>
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">markunread_mailbox</mat-icon>
+              <input
+                type="text"
+                formControlName="zipCode"
+                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                       transition-all bg-white text-slate-800 hover:border-slate-300"
+                placeholder="33101">
+            </div>
+          </div>
         </div>
       </div>
 
@@ -141,22 +234,39 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Fecha del Estimado</mat-label>
-            <input matInput [matDatepicker]="datePicker" formControlName="date" required>
-            <mat-icon matPrefix>calendar_today</mat-icon>
-            <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
-            <mat-datepicker #datePicker></mat-datepicker>
-            <mat-error>La fecha es requerida</mat-error>
-          </mat-form-field>
+          <!-- Fecha del Estimado -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+              Fecha del Estimado <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">calendar_today</mat-icon>
+              <input
+                type="date"
+                formControlName="date"
+                required
+                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                       transition-all bg-white text-slate-800 hover:border-slate-300 cursor-pointer">
+            </div>
+            @if (proposalForm.get('date')?.invalid && proposalForm.get('date')?.touched) {
+              <p class="text-xs text-red-500 mt-1.5">La fecha es requerida</p>
+            }
+          </div>
 
-          <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Válido Hasta (Opcional)</mat-label>
-            <input matInput [matDatepicker]="validUntilPicker" formControlName="validUntil">
-            <mat-icon matPrefix>event_available</mat-icon>
-            <mat-datepicker-toggle matSuffix [for]="validUntilPicker"></mat-datepicker-toggle>
-            <mat-datepicker #validUntilPicker></mat-datepicker>
-          </mat-form-field>
+          <!-- Válido Hasta -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Válido Hasta (Opcional)</label>
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">event_available</mat-icon>
+              <input
+                type="date"
+                formControlName="validUntil"
+                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                       transition-all bg-white text-slate-800 hover:border-slate-300 cursor-pointer">
+            </div>
+          </div>
         </div>
       </div>
 
@@ -194,56 +304,66 @@
             @for (item of includeItems(); track item.id; let i = $index) {
               <div class="item-card shadow-sm">
                 <div class="flex items-start gap-4">
-                  <div class="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-lg font-bold text-sm mt-2">
+                  <div class="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-lg font-bold text-sm flex-shrink-0">
                     {{ i + 1 }}
                   </div>
 
                   <div class="flex-1 grid grid-cols-1 md:grid-cols-6 gap-4">
                     <!-- Descripción -->
                     <div class="md:col-span-3">
-                      <mat-form-field class="w-full" appearance="outline">
-                        <mat-label>Descripción</mat-label>
-                        <input
-                          matInput
-                          [value]="item.description"
-                          (input)="updateIncludeItem(item.id, 'description', $any($event.target).value)">
-                      </mat-form-field>
+                      <label class="block text-xs font-semibold text-slate-600 mb-1.5">Descripción</label>
+                      <input
+                        type="text"
+                        [value]="item.description"
+                        (input)="updateIncludeItem(item.id, 'description', $any($event.target).value)"
+                        class="w-full px-3 py-2.5 text-sm border-2 border-slate-200 rounded-lg
+                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                               transition-all bg-white text-slate-800 hover:border-slate-300"
+                        placeholder="Descripción del item...">
                     </div>
 
                     <!-- Cantidad -->
                     <div>
-                      <mat-form-field class="w-full" appearance="outline">
-                        <mat-label>Cantidad</mat-label>
-                        <input
-                          matInput
-                          type="number"
-                          [value]="item.quantity || 0"
-                          (input)="updateIncludeItem(item.id, 'quantity', +$any($event.target).value)">
-                      </mat-form-field>
+                      <label class="block text-xs font-semibold text-slate-600 mb-1.5">Cantidad</label>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        [value]="item.quantity || 0"
+                        (input)="updateIncludeItem(item.id, 'quantity', +$any($event.target).value)"
+                        class="w-full px-3 py-2.5 text-sm border-2 border-slate-200 rounded-lg
+                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                               transition-all bg-white text-slate-800 hover:border-slate-300"
+                        placeholder="0">
                     </div>
 
                     <!-- Precio Unitario -->
                     <div>
-                      <mat-form-field class="w-full" appearance="outline">
-                        <mat-label>Precio Unit.</mat-label>
+                      <label class="block text-xs font-semibold text-slate-600 mb-1.5">Precio Unit.</label>
+                      <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-medium">$</span>
                         <input
-                          matInput
                           type="number"
+                          min="0"
+                          step="0.01"
                           [value]="item.unitPrice || 0"
-                          (input)="updateIncludeItem(item.id, 'unitPrice', +$any($event.target).value)">
-                        <span matPrefix>$&nbsp;</span>
-                      </mat-form-field>
+                          (input)="updateIncludeItem(item.id, 'unitPrice', +$any($event.target).value)"
+                          class="w-full pl-7 pr-3 py-2.5 text-sm border-2 border-slate-200 rounded-lg
+                                 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                                 transition-all bg-white text-slate-800 hover:border-slate-300"
+                          placeholder="0.00">
+                      </div>
                     </div>
 
                     <!-- Total -->
                     <div>
-                      <mat-form-field class="w-full" appearance="outline">
-                        <mat-label>Total</mat-label>
-                        <input
-                          matInput
-                          [value]="formatCurrency(item.totalPrice || 0)"
-                          readonly>
-                      </mat-form-field>
+                      <label class="block text-xs font-semibold text-slate-600 mb-1.5">Total</label>
+                      <input
+                        type="text"
+                        [value]="formatCurrency(item.totalPrice || 0)"
+                        readonly
+                        class="w-full px-3 py-2.5 text-sm border-2 border-green-200 rounded-lg
+                               bg-green-50 text-green-800 font-semibold cursor-not-allowed">
                     </div>
                   </div>
 
@@ -252,7 +372,8 @@
                     color="warn"
                     type="button"
                     (click)="removeIncludeItem(item.id)"
-                    matTooltip="Eliminar item">
+                    matTooltip="Eliminar item"
+                    class="flex-shrink-0">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
@@ -296,20 +417,23 @@
             @for (item of extraItems(); track item.id; let i = $index) {
               <div class="extra-item-card shadow-sm">
                 <div class="flex items-start gap-4">
-                  <div class="flex items-center justify-center w-8 h-8 bg-amber-600 text-white rounded-lg font-bold text-sm mt-2">
+                  <div class="flex items-center justify-center w-8 h-8 bg-amber-600 text-white rounded-lg font-bold text-sm flex-shrink-0">
                     {{ i + 1 }}
                   </div>
 
                   <div class="flex-1">
-                    <mat-form-field class="w-full" appearance="outline">
-                      <mat-label>Descripción del Extra</mat-label>
+                    <label class="block text-xs font-semibold text-amber-800 mb-1.5">Descripción del Extra</label>
+                    <div class="relative">
+                      <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500 !text-lg">info</mat-icon>
                       <input
-                        matInput
+                        type="text"
                         [value]="item.description"
                         (input)="updateExtraItem(item.id, 'description', $any($event.target).value)"
+                        class="w-full pl-11 pr-4 py-2.5 text-sm border-2 border-amber-300 rounded-lg
+                               focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none
+                               transition-all bg-white text-amber-900 hover:border-amber-400"
                         placeholder="Ej: Permisos y certificaciones (a cargo del cliente)">
-                      <mat-icon matPrefix>info</mat-icon>
-                    </mat-form-field>
+                    </div>
                   </div>
 
                   <button
@@ -317,7 +441,7 @@
                     color="warn"
                     type="button"
                     (click)="removeExtraItem(item.id)"
-                    class="item-delete-btn mt-2"
+                    class="item-delete-btn flex-shrink-0"
                     matTooltip="Eliminar extra">
                     <mat-icon>delete</mat-icon>
                   </button>
@@ -341,19 +465,43 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-          <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Impuesto (%)</mat-label>
-            <input matInput type="number" formControlName="taxPercentage" min="0" max="100" placeholder="0">
-            <mat-icon matPrefix>percent</mat-icon>
-            <span matSuffix>%</span>
-          </mat-form-field>
+          <!-- Impuesto -->
+          <div>
+            <label class="block text-sm font-semibold text-blue-900 mb-2">Impuesto (%)</label>
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg">percent</mat-icon>
+              <input
+                type="number"
+                formControlName="taxPercentage"
+                min="0"
+                max="100"
+                step="0.01"
+                class="w-full pl-11 pr-12 py-3 text-sm border-2 border-blue-300 rounded-lg
+                       focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none
+                       transition-all bg-white text-blue-900 hover:border-blue-400 font-semibold"
+                placeholder="0">
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600 font-bold">%</span>
+            </div>
+          </div>
 
-          <mat-form-field class="w-full" appearance="outline">
-            <mat-label>Descuento (%)</mat-label>
-            <input matInput type="number" formControlName="discountPercentage" min="0" max="100" placeholder="0">
-            <mat-icon matPrefix>local_offer</mat-icon>
-            <span matSuffix>%</span>
-          </mat-form-field>
+          <!-- Descuento -->
+          <div>
+            <label class="block text-sm font-semibold text-blue-900 mb-2">Descuento (%)</label>
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg">local_offer</mat-icon>
+              <input
+                type="number"
+                formControlName="discountPercentage"
+                min="0"
+                max="100"
+                step="0.01"
+                class="w-full pl-11 pr-12 py-3 text-sm border-2 border-blue-300 rounded-lg
+                       focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none
+                       transition-all bg-white text-blue-900 hover:border-blue-400 font-semibold"
+                placeholder="0">
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600 font-bold">%</span>
+            </div>
+          </div>
         </div>
 
         <div class="bg-white p-4 rounded-lg space-y-2">
@@ -402,40 +550,52 @@
         </div>
 
         <div class="space-y-5">
+          <!-- Notas Visibles -->
           <div>
-            <mat-form-field class="w-full" appearance="outline">
-              <mat-label>Notas (visibles para el cliente)</mat-label>
-              <textarea
-                matInput
-                formControlName="notes"
-                rows="4"
-                placeholder="Información adicional que verá el cliente en el estimado..."></textarea>
-              <mat-icon matPrefix>visibility</mat-icon>
-            </mat-form-field>
+            <label class="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+              <mat-icon class="!text-lg text-slate-600">visibility</mat-icon>
+              Notas (visibles para el cliente)
+            </label>
+            <textarea
+              formControlName="notes"
+              rows="4"
+              class="w-full px-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                     focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                     transition-all bg-white text-slate-800 hover:border-slate-300
+                     resize-vertical min-h-[100px]"
+              placeholder="Información adicional que verá el cliente en el estimado..."></textarea>
           </div>
 
+          <!-- Notas Internas -->
           <div>
-            <mat-form-field class="w-full" appearance="outline">
-              <mat-label>Notas Internas (solo uso interno)</mat-label>
-              <textarea
-                matInput
-                formControlName="internalNotes"
-                rows="3"
-                placeholder="Notas privadas que solo tú y tu equipo pueden ver..."></textarea>
-              <mat-icon matPrefix>visibility_off</mat-icon>
-            </mat-form-field>
+            <label class="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+              <mat-icon class="!text-lg text-slate-600">visibility_off</mat-icon>
+              Notas Internas (solo uso interno)
+            </label>
+            <textarea
+              formControlName="internalNotes"
+              rows="3"
+              class="w-full px-4 py-3 text-sm border-2 border-purple-200 rounded-lg
+                     focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none
+                     transition-all bg-purple-50/30 text-slate-800 hover:border-purple-300
+                     resize-vertical min-h-[80px]"
+              placeholder="Notas privadas que solo tú y tu equipo pueden ver..."></textarea>
           </div>
 
+          <!-- Términos y Condiciones -->
           <div>
-            <mat-form-field class="w-full" appearance="outline">
-              <mat-label>Términos y Condiciones</mat-label>
-              <textarea
-                matInput
-                formControlName="terms"
-                rows="5"
-                placeholder="Condiciones de pago, garantías, plazos de entrega, etc..."></textarea>
-              <mat-icon matPrefix>gavel</mat-icon>
-            </mat-form-field>
+            <label class="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+              <mat-icon class="!text-lg text-slate-600">gavel</mat-icon>
+              Términos y Condiciones
+            </label>
+            <textarea
+              formControlName="terms"
+              rows="5"
+              class="w-full px-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                     focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                     transition-all bg-white text-slate-800 hover:border-slate-300
+                     resize-vertical min-h-[120px]"
+              placeholder="Condiciones de pago, garantías, plazos de entrega, etc..."></textarea>
           </div>
         </div>
       </div>

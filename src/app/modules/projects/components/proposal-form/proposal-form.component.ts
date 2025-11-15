@@ -73,11 +73,11 @@ export class ProposalFormComponent implements OnInit {
     }
 
     return allClients.filter(client => {
-      const nameMatch = (client.name || '').toLowerCase().includes(term);
-      const emailMatch = (client.email || '').toLowerCase().includes(term);
-      const phoneMatch = (client.phone || '').includes(term);
+      const name = this.getClientName(client).toLowerCase();
+      const email = this.getClientEmail(client).toLowerCase();
+      const phone = this.getClientPhone(client).toLowerCase();
 
-      return nameMatch || emailMatch || phoneMatch;
+      return name.includes(term) || email.includes(term) || phone.includes(term);
     });
   });
 
@@ -141,9 +141,9 @@ export class ProposalFormComponent implements OnInit {
     const client = this.clients().find(c => c.id === ownerId);
     if (client) {
       this.proposalForm.patchValue({
-        ownerName: client.name,
-        ownerEmail: client.email || '',
-        ownerPhone: client.phone || '',
+        ownerName: this.getClientName(client),
+        ownerEmail: this.getClientEmail(client),
+        ownerPhone: this.getClientPhone(client),
         address: client.address || '',
         city: client.city || ''
       });
@@ -381,7 +381,7 @@ export class ProposalFormComponent implements OnInit {
           ownerId: newClient.id
         });
         // Limpiar búsqueda y establecer el nombre
-        this.clientSearchTerm.set(newClient.name);
+        this.clientSearchTerm.set(this.getClientName(newClient));
       }
     });
   }
@@ -401,7 +401,7 @@ export class ProposalFormComponent implements OnInit {
     this.proposalForm.patchValue({
       ownerId: client.id
     });
-    this.clientSearchTerm.set(client.name);
+    this.clientSearchTerm.set(this.getClientName(client));
   }
 
   /**
@@ -412,6 +412,79 @@ export class ProposalFormComponent implements OnInit {
     if (!ownerId) return '';
 
     const client = this.clients().find(c => c.id === ownerId);
-    return client?.name || '';
+    return this.getClientName(client);
+  }
+
+  /**
+   * Obtener nombre del cliente desde sus campos dinámicos
+   */
+  getClientName(client: Client | undefined): string {
+    if (!client) return '';
+
+    // Buscar en campos estándar
+    if (client.name) return client.name;
+
+    // Buscar en propiedades directas (campos con isDefault: true)
+    const clientAny = client as any;
+    if (clientAny.nombre_del_cliente) return clientAny.nombre_del_cliente;
+    if (clientAny.nombre) return clientAny.nombre;
+    if (clientAny.name) return clientAny.name;
+
+    // Buscar en customFields
+    if (client.customFields) {
+      if (client.customFields.nombre_del_cliente) return client.customFields.nombre_del_cliente;
+      if (client.customFields.nombre) return client.customFields.nombre;
+      if (client.customFields.name) return client.customFields.name;
+    }
+
+    return 'Sin nombre';
+  }
+
+  /**
+   * Obtener email del cliente desde sus campos dinámicos
+   */
+  getClientEmail(client: Client | undefined): string {
+    if (!client) return '';
+
+    // Buscar en campos estándar
+    if (client.email) return client.email;
+
+    // Buscar en propiedades directas
+    const clientAny = client as any;
+    if (clientAny.email) return clientAny.email;
+    if (clientAny.correo) return clientAny.correo;
+
+    // Buscar en customFields
+    if (client.customFields) {
+      if (client.customFields.email) return client.customFields.email;
+      if (client.customFields.correo) return client.customFields.correo;
+    }
+
+    return '';
+  }
+
+  /**
+   * Obtener teléfono del cliente desde sus campos dinámicos
+   */
+  getClientPhone(client: Client | undefined): string {
+    if (!client) return '';
+
+    // Buscar en campos estándar
+    if (client.phone) return client.phone;
+
+    // Buscar en propiedades directas
+    const clientAny = client as any;
+    if (clientAny.telefono) return clientAny.telefono;
+    if (clientAny.phone) return clientAny.phone;
+    if (clientAny.tel) return clientAny.tel;
+
+    // Buscar en customFields
+    if (client.customFields) {
+      if (client.customFields.telefono) return client.customFields.telefono;
+      if (client.customFields.phone) return client.customFields.phone;
+      if (client.customFields.tel) return client.customFields.tel;
+    }
+
+    return '';
   }
 }

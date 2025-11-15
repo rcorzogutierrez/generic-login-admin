@@ -1,0 +1,175 @@
+<!-- add-client-dialog.component.html -->
+
+<div class="dialog-container">
+  <!-- Header -->
+  <div class="dialog-header bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 -m-6 mb-6 rounded-t-lg">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+          <mat-icon class="!text-2xl">person_add</mat-icon>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold">Agregar Nuevo Cliente</h2>
+          <p class="text-sm text-blue-100 mt-1">Completa los datos principales del cliente</p>
+        </div>
+      </div>
+      <button mat-icon-button (click)="cancel()" class="!text-white hover:bg-white/10">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <form [formGroup]="clientForm" (ngSubmit)="save()" class="space-y-5">
+
+    <!-- Nombre (Requerido) -->
+    <div>
+      <label class="block text-sm font-semibold text-slate-700 mb-2">
+        Nombre Completo <span class="text-red-500">*</span>
+      </label>
+      <div class="relative">
+        <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">badge</mat-icon>
+        <input
+          type="text"
+          formControlName="name"
+          required
+          class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                 transition-all bg-white text-slate-800 hover:border-slate-300"
+          placeholder="Juan Pérez"
+          autofocus>
+      </div>
+      @if (clientForm.get('name')?.invalid && clientForm.get('name')?.touched) {
+        <p class="text-xs text-red-500 mt-1.5">El nombre es requerido</p>
+      }
+    </div>
+
+    <!-- Email y Teléfono en Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <!-- Email -->
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-2">Email</label>
+        <div class="relative">
+          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">email</mat-icon>
+          <input
+            type="email"
+            formControlName="email"
+            class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                   transition-all bg-white text-slate-800 hover:border-slate-300"
+            placeholder="cliente@ejemplo.com">
+        </div>
+        @if (clientForm.get('email')?.invalid && clientForm.get('email')?.touched) {
+          <p class="text-xs text-red-500 mt-1.5">Email inválido</p>
+        }
+      </div>
+
+      <!-- Teléfono -->
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-2">Teléfono</label>
+        <div class="relative">
+          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">phone</mat-icon>
+          <input
+            type="tel"
+            formControlName="phone"
+            class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                   transition-all bg-white text-slate-800 hover:border-slate-300"
+            placeholder="+1 (555) 123-4567">
+        </div>
+      </div>
+    </div>
+
+    <!-- Dirección -->
+    <div>
+      <label class="block text-sm font-semibold text-slate-700 mb-2">Dirección</label>
+      <div class="relative">
+        <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">location_on</mat-icon>
+        <input
+          type="text"
+          formControlName="address"
+          class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                 transition-all bg-white text-slate-800 hover:border-slate-300"
+          placeholder="123 Main Street">
+      </div>
+    </div>
+
+    <!-- Ciudad, Estado, Código Postal -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Ciudad -->
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-2">Ciudad</label>
+        <div class="relative">
+          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">location_city</mat-icon>
+          <input
+            type="text"
+            formControlName="city"
+            class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                   transition-all bg-white text-slate-800 hover:border-slate-300"
+            placeholder="Miami">
+        </div>
+      </div>
+
+      <!-- Estado -->
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-2">Estado</label>
+        <div class="relative">
+          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">map</mat-icon>
+          <input
+            type="text"
+            formControlName="state"
+            class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                   transition-all bg-white text-slate-800 hover:border-slate-300"
+            placeholder="FL">
+        </div>
+      </div>
+
+      <!-- Código Postal -->
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-2">Código Postal</label>
+        <div class="relative">
+          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">markunread_mailbox</mat-icon>
+          <input
+            type="text"
+            formControlName="zipCode"
+            class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                   transition-all bg-white text-slate-800 hover:border-slate-300"
+            placeholder="33101">
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+  <!-- Footer con botones -->
+  <div class="flex justify-end gap-3 mt-8 pt-6 border-t-2 border-slate-100">
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="cancel()"
+      [disabled]="isLoading()"
+      class="!px-6 !py-2.5">
+      <mat-icon>close</mat-icon>
+      Cancelar
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      type="button"
+      (click)="save()"
+      [disabled]="isLoading() || clientForm.invalid"
+      class="!px-8 !py-2.5">
+      @if (isLoading()) {
+        <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
+      } @else {
+        <mat-icon>save</mat-icon>
+      }
+      Guardar Cliente
+    </button>
+  </div>
+
+</div>

@@ -60,21 +60,32 @@
             <label class="block text-sm font-semibold text-slate-700 mb-2">
               Cliente <span class="text-red-500">*</span>
             </label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">search</mat-icon>
-              <select
-                formControlName="ownerId"
-                required
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                       transition-all bg-white text-slate-800 appearance-none cursor-pointer
-                       hover:border-slate-300">
-                <option value="">Selecciona un cliente...</option>
-                @for (client of clients(); track client.id) {
-                  <option [value]="client.id">{{ client.name }}</option>
-                }
-              </select>
-              <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">arrow_drop_down</mat-icon>
+            <div class="flex gap-2">
+              <div class="relative flex-1">
+                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">search</mat-icon>
+                <select
+                  formControlName="ownerId"
+                  required
+                  class="w-full pl-11 pr-10 py-3 text-sm border-2 border-slate-200 rounded-lg
+                         focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                         transition-all bg-white text-slate-800 appearance-none cursor-pointer
+                         hover:border-slate-300">
+                  <option value="">Selecciona un cliente...</option>
+                  @for (client of clients(); track client.id) {
+                    <option [value]="client.id">{{ client.name }}</option>
+                  }
+                </select>
+                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">arrow_drop_down</mat-icon>
+              </div>
+              <button
+                type="button"
+                mat-mini-fab
+                color="primary"
+                (click)="openAddClientDialog()"
+                matTooltip="Agregar nuevo cliente"
+                class="!flex-shrink-0">
+                <mat-icon>add</mat-icon>
+              </button>
             </div>
             @if (proposalForm.get('ownerId')?.invalid && proposalForm.get('ownerId')?.touched) {
               <p class="text-xs text-red-500 mt-1.5">El cliente es requerido</p>

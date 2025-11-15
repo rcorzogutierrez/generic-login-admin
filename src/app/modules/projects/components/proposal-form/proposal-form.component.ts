@@ -12,6 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Timestamp } from 'firebase/firestore';
 
 // Services
@@ -21,6 +22,9 @@ import { ClientsService } from '../../../clients/services/clients.service';
 // Models
 import { Proposal, CreateProposalData, ProposalItem } from '../../models';
 import { Client } from '../../../clients/models';
+
+// Components
+import { AddClientDialogComponent } from '../add-client-dialog/add-client-dialog.component';
 
 @Component({
   selector: 'app-proposal-form',
@@ -33,7 +37,8 @@ import { Client } from '../../../clients/models';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatDividerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatDialogModule
   ],
   templateUrl: './proposal-form.component.html',
   styleUrl: './proposal-form.component.css',
@@ -46,6 +51,7 @@ export class ProposalFormComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
 
   // Signals
   isLoading = signal<boolean>(false);
@@ -332,5 +338,27 @@ export class ProposalFormComponent implements OnInit {
       style: 'currency',
       currency: 'USD'
     }).format(amount);
+  }
+
+  /**
+   * Abrir dialog para agregar nuevo cliente
+   */
+  openAddClientDialog() {
+    const dialogRef = this.dialog.open(AddClientDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      disableClose: false,
+      autoFocus: true
+    });
+
+    dialogRef.afterClosed().subscribe((newClient: Client | undefined) => {
+      if (newClient) {
+        // El servicio ya actualiza su lista automáticamente cuando se crea un cliente
+        // Solo necesitamos seleccionar el nuevo cliente
+        this.proposalForm.patchValue({
+          ownerId: newClient.id
+        });
+      }
+    });
   }
 }

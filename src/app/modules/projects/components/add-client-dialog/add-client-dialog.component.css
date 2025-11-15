@@ -1,0 +1,14 @@
+/* add-client-dialog.component.css */
+
+.dialog-container {
+  @apply p-6;
+  min-width: 500px;
+  max-width: 600px;
+}
+
+@media (max-width: 640px) {
+  .dialog-container {
+    min-width: auto;
+    max-width: 100%;
+  }
+}

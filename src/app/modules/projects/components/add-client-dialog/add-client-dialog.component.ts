@@ -8,12 +8,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ClientConfigServiceRefactored } from '../../../clients/services/client-config-refactored.service';
@@ -30,13 +24,7 @@ import { FieldConfig, FieldType } from '../../../clients/models/field-config.int
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatDatepickerModule,
-    MatNativeDateModule
+    MatSnackBarModule
   ],
   templateUrl: './add-client-dialog.component.html',
   styleUrls: ['./add-client-dialog.component.css'],

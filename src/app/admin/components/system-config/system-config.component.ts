@@ -223,7 +223,7 @@ export class SystemConfigComponent implements OnInit {
 
     try {
       const formValue = this.configForm.value;
-      
+
       const result = await this.configService.updateConfig({
         appName: formValue.appName.trim(),
         appDescription: formValue.appDescription?.trim() || '',
@@ -234,6 +234,8 @@ export class SystemConfigComponent implements OnInit {
 
       if (result.success) {
         this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+        // ✅ Recargar configuración para reflejar cambios en el formulario
+        await this.loadConfiguration();
       } else {
         this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
       }

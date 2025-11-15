@@ -35,120 +35,198 @@
 
             <!-- TEXT / EMAIL / URL / PHONE -->
             @if (field.type === FieldType.TEXT || field.type === FieldType.EMAIL || field.type === FieldType.URL || field.type === FieldType.PHONE) {
-              <mat-form-field class="w-full" appearance="outline">
-                <mat-label>{{ field.label }}</mat-label>
-                <input
-                  matInput
-                  [formControlName]="field.name"
-                  [type]="field.type === FieldType.EMAIL ? 'email' : 'text'"
-                  [placeholder]="field.placeholder || ''"
-                  [required]="field.validation.required || false">
-                @if (field.validation.required) {
-                  <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                  {{ field.label }}
+                  @if (field.validation.required) {
+                    <span class="text-red-500">*</span>
+                  }
+                </label>
+                <div class="relative">
+                  @if (field.icon) {
+                    <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">{{ field.icon }}</mat-icon>
+                  }
+                  <input
+                    [type]="field.type === FieldType.EMAIL ? 'email' : field.type === FieldType.URL ? 'url' : 'text'"
+                    [formControlName]="field.name"
+                    [placeholder]="field.placeholder || ''"
+                    [class]="field.icon ? 'pl-11' : 'pl-4'"
+                    class="w-full pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                           focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                           transition-all bg-white text-slate-800 hover:border-slate-300">
+                </div>
+                @if (hasError(field.name)) {
+                  <p class="text-xs text-red-500 mt-1.5">{{ getErrorMessage(field.name) }}</p>
                 }
-              </mat-form-field>
+                @if (field.helpText && !hasError(field.name)) {
+                  <p class="text-xs text-slate-500 mt-1.5">{{ field.helpText }}</p>
+                }
+              </div>
             }
 
             <!-- TEXTAREA -->
             @if (field.type === FieldType.TEXTAREA) {
-              <mat-form-field class="w-full" appearance="outline">
-                <mat-label>{{ field.label }}</mat-label>
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                  {{ field.label }}
+                  @if (field.validation.required) {
+                    <span class="text-red-500">*</span>
+                  }
+                </label>
                 <textarea
-                  matInput
                   [formControlName]="field.name"
                   [placeholder]="field.placeholder || ''"
-                  [required]="field.validation.required || false"
-                  rows="3"></textarea>
-                @if (field.validation.required) {
-                  <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                  rows="3"
+                  class="w-full px-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                         focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                         transition-all bg-white text-slate-800 hover:border-slate-300
+                         resize-vertical min-h-[80px]"></textarea>
+                @if (hasError(field.name)) {
+                  <p class="text-xs text-red-500 mt-1.5">{{ getErrorMessage(field.name) }}</p>
                 }
-              </mat-form-field>
+                @if (field.helpText && !hasError(field.name)) {
+                  <p class="text-xs text-slate-500 mt-1.5">{{ field.helpText }}</p>
+                }
+              </div>
             }
 
             <!-- NUMBER / CURRENCY -->
             @if (field.type === FieldType.NUMBER || field.type === FieldType.CURRENCY) {
-              <mat-form-field class="w-full" appearance="outline">
-                <mat-label>{{ field.label }}</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  [formControlName]="field.name"
-                  [placeholder]="field.placeholder || ''"
-                  [required]="field.validation.required || false">
-                @if (field.type === FieldType.CURRENCY) {
-                  <span matPrefix>$&nbsp;</span>
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                  {{ field.label }}
+                  @if (field.validation.required) {
+                    <span class="text-red-500">*</span>
+                  }
+                </label>
+                <div class="relative">
+                  @if (field.type === FieldType.CURRENCY) {
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-medium">$</span>
+                  }
+                  <input
+                    type="number"
+                    [formControlName]="field.name"
+                    [placeholder]="field.placeholder || ''"
+                    [min]="field.validation.min ?? 0"
+                    [max]="field.validation.max ?? null"
+                    step="0.01"
+                    [class]="field.type === FieldType.CURRENCY ? 'pl-7' : 'pl-4'"
+                    class="w-full pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                           focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                           transition-all bg-white text-slate-800 hover:border-slate-300">
+                </div>
+                @if (hasError(field.name)) {
+                  <p class="text-xs text-red-500 mt-1.5">{{ getErrorMessage(field.name) }}</p>
                 }
-                @if (field.validation.required) {
-                  <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
-                }
-              </mat-form-field>
+              </div>
             }
 
             <!-- DATE -->
             @if (field.type === FieldType.DATE) {
-              <mat-form-field class="w-full" appearance="outline">
-                <mat-label>{{ field.label }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  [formControlName]="field.name"
-                  [required]="field.validation.required || false">
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-                @if (field.validation.required) {
-                  <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                  {{ field.label }}
+                  @if (field.validation.required) {
+                    <span class="text-red-500">*</span>
+                  }
+                </label>
+                <div class="relative">
+                  <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">event</mat-icon>
+                  <input
+                    type="date"
+                    [formControlName]="field.name"
+                    class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                           focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                           transition-all bg-white text-slate-800 hover:border-slate-300 cursor-pointer">
+                </div>
+                @if (hasError(field.name)) {
+                  <p class="text-xs text-red-500 mt-1.5">{{ getErrorMessage(field.name) }}</p>
                 }
-              </mat-form-field>
+              </div>
             }
 
             <!-- SELECT -->
             @if (field.type === FieldType.SELECT) {
-              <mat-form-field class="w-full" appearance="outline">
-                <mat-label>{{ field.label }}</mat-label>
-                <mat-select
-                  [formControlName]="field.name"
-                  [required]="field.validation.required || false">
-                  @for (option of field.options; track option.value) {
-                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                  {{ field.label }}
+                  @if (field.validation.required) {
+                    <span class="text-red-500">*</span>
                   }
-                </mat-select>
-                @if (field.validation.required) {
-                  <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                </label>
+                <div class="relative">
+                  @if (field.icon) {
+                    <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">{{ field.icon }}</mat-icon>
+                  }
+                  <select
+                    [formControlName]="field.name"
+                    [class]="field.icon ? 'pl-11' : 'pl-4'"
+                    class="w-full pr-10 py-3 text-sm border-2 border-slate-200 rounded-lg
+                           focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                           transition-all bg-white text-slate-800 appearance-none cursor-pointer
+                           hover:border-slate-300">
+                    <option value="">Selecciona una opción...</option>
+                    @for (option of field.options; track option.value) {
+                      <option [value]="option.value">{{ option.label }}</option>
+                    }
+                  </select>
+                  <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">arrow_drop_down</mat-icon>
+                </div>
+                @if (hasError(field.name)) {
+                  <p class="text-xs text-red-500 mt-1.5">{{ getErrorMessage(field.name) }}</p>
                 }
-              </mat-form-field>
+              </div>
             }
 
             <!-- CHECKBOX -->
             @if (field.type === FieldType.CHECKBOX) {
               <div class="flex items-center py-2">
-                <mat-checkbox [formControlName]="field.name">
+                <input
+                  type="checkbox"
+                  [id]="field.name"
+                  [formControlName]="field.name"
+                  class="w-4 h-4 text-blue-600 bg-white border-2 border-slate-300 rounded
+                         focus:ring-2 focus:ring-blue-100 cursor-pointer">
+                <label [for]="field.name" class="ml-2 text-sm font-medium text-slate-700 cursor-pointer">
                   {{ field.label }}
-                </mat-checkbox>
+                </label>
               </div>
             }
 
             <!-- MULTISELECT -->
             @if (field.type === FieldType.MULTISELECT) {
-              <mat-form-field class="w-full" appearance="outline">
-                <mat-label>{{ field.label }}</mat-label>
-                <mat-select
-                  [formControlName]="field.name"
-                  [required]="field.validation.required || false"
-                  multiple>
-                  @for (option of field.options; track option.value) {
-                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                  {{ field.label }}
+                  @if (field.validation.required) {
+                    <span class="text-red-500">*</span>
                   }
-                </mat-select>
-                @if (field.validation.required) {
-                  <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                </label>
+                <div class="space-y-2 p-3 border-2 border-slate-200 rounded-lg bg-slate-50">
+                  @for (option of field.options; track option.value) {
+                    <div class="flex items-center">
+                      <input
+                        type="checkbox"
+                        [id]="field.name + '_' + option.value"
+                        [value]="option.value"
+                        class="w-4 h-4 text-blue-600 bg-white border-2 border-slate-300 rounded
+                               focus:ring-2 focus:ring-blue-100 cursor-pointer">
+                      <label [for]="field.name + '_' + option.value" class="ml-2 text-sm text-slate-700 cursor-pointer">
+                        {{ option.label }}
+                      </label>
+                    </div>
+                  }
+                </div>
+                @if (hasError(field.name)) {
+                  <p class="text-xs text-red-500 mt-1.5">{{ getErrorMessage(field.name) }}</p>
                 }
-              </mat-form-field>
+              </div>
             }
 
             <!-- DICTIONARY -->
             @if (field.type === FieldType.DICTIONARY && field.options && field.options.length > 0) {
               <div class="col-span-2">
-                <div class="mb-2">
+                <div class="mb-3">
                   <label class="block text-sm font-semibold text-slate-700">{{ field.label }}</label>
                   @if (field.helpText) {
                     <p class="text-xs text-slate-500 mt-1">{{ field.helpText }}</p>
@@ -156,13 +234,16 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg border-2 border-slate-200">
                   @for (option of field.options; track option.value) {
-                    <mat-form-field class="w-full" appearance="outline">
-                      <mat-label>{{ option.label }}</mat-label>
+                    <div>
+                      <label class="block text-xs font-semibold text-slate-600 mb-1.5">{{ option.label }}</label>
                       <input
-                        matInput
+                        type="text"
                         [formControlName]="field.name + '_' + option.value"
-                        [placeholder]="option.label">
-                    </mat-form-field>
+                        [placeholder]="option.label"
+                        class="w-full px-3 py-2.5 text-sm border-2 border-slate-200 rounded-lg
+                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                               transition-all bg-white text-slate-800 hover:border-slate-300">
+                    </div>
                   }
                 </div>
               </div>

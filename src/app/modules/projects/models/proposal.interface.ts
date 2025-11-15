@@ -19,6 +19,11 @@ export interface ProposalItem {
 }
 
 /**
+ * Tipo de trabajo
+ */
+export type WorkType = 'residential' | 'commercial';
+
+/**
  * Estado del proposal
  */
 export type ProposalStatus =
@@ -53,6 +58,7 @@ export interface Proposal {
   city: string;                    // Ciudad
   state?: string;                  // Estado
   zipCode?: string;                // Código postal
+  workType: WorkType;              // Tipo de trabajo: Residencial o Comercial
 
   // Fechas importantes
   date: Timestamp;                 // Fecha del estimado
@@ -100,6 +106,7 @@ export interface CreateProposalData {
   city: string;
   state?: string;
   zipCode?: string;
+  workType: WorkType;
   date: Timestamp;
   validUntil?: Timestamp;
   includes?: ProposalItem[];

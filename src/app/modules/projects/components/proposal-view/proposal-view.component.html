@@ -225,7 +225,7 @@
               </span>
             </div>
 
-            @if (proposal()!.tax && proposal()!.tax > 0) {
+            @if ((proposal()!.tax ?? 0) > 0) {
               <div class="flex justify-between text-base">
                 <span class="text-slate-600">
                   Impuesto
@@ -239,7 +239,7 @@
               </div>
             }
 
-            @if (proposal()!.discount && proposal()!.discount > 0) {
+            @if ((proposal()!.discount ?? 0) > 0) {
               <div class="flex justify-between text-base">
                 <span class="text-slate-600">
                   Descuento

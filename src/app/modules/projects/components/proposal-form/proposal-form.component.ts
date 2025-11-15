@@ -67,6 +67,7 @@ export class ProposalFormComponent implements OnInit {
   proposalId = signal<string | null>(null);
   clients = this.clientsService.clients;
   clientSearchTerm = signal<string>('');
+  useSameAddress = signal<boolean>(false);
 
   // Computed - Clientes filtrados por búsqueda
   filteredClients = computed(() => {
@@ -153,9 +154,102 @@ export class ProposalFormComponent implements OnInit {
       this.proposalForm.patchValue({
         ownerName: this.getClientName(client),
         ownerEmail: this.getClientEmail(client),
-        ownerPhone: this.getClientPhone(client),
-        address: client.address || '',
-        city: client.city || ''
+        ownerPhone: this.getClientPhone(client)
+      });
+
+      // Si el checkbox está marcado, copiar también la dirección
+      if (this.useSameAddress()) {
+        this.copyClientAddress();
+      }
+    }
+  }
+
+  /**
+   * Copiar dirección del cliente a ubicación del trabajo
+   */
+  copyClientAddress() {
+    const ownerId = this.proposalForm.get('ownerId')?.value;
+    if (!ownerId) return;
+
+    const client = this.clients().find(c => c.id === ownerId);
+    if (client) {
+      this.proposalForm.patchValue({
+        address: this.getClientAddress(client),
+        city: this.getClientCity(client),
+        state: this.getClientState(client),
+        zipCode: this.getClientZipCode(client)
+      });
+    }
+  }
+
+  /**
+   * Obtener dirección del cliente desde sus campos dinámicos
+   */
+  getClientAddress(client: Client | undefined): string {
+    if (!client) return '';
+
+    // Buscar en campos estándar
+    if (client.address) return client.address;
+
+    // Buscar en campos dinámicos
+    const value = getFieldValue(client, 'address') || getFieldValue(client, 'direccion');
+    return value ? String(value) : '';
+  }
+
+  /**
+   * Obtener ciudad del cliente desde sus campos dinámicos
+   */
+  getClientCity(client: Client | undefined): string {
+    if (!client) return '';
+
+    // Buscar en campos estándar
+    if (client.city) return client.city;
+
+    // Buscar en campos dinámicos
+    const value = getFieldValue(client, 'city') || getFieldValue(client, 'ciudad');
+    return value ? String(value) : '';
+  }
+
+  /**
+   * Obtener estado del cliente desde sus campos dinámicos
+   */
+  getClientState(client: Client | undefined): string {
+    if (!client) return '';
+
+    // Buscar en campos dinámicos
+    const value = getFieldValue(client, 'state') || getFieldValue(client, 'estado');
+    return value ? String(value) : '';
+  }
+
+  /**
+   * Obtener código postal del cliente desde sus campos dinámicos
+   */
+  getClientZipCode(client: Client | undefined): string {
+    if (!client) return '';
+
+    // Buscar en campos dinámicos
+    const value = getFieldValue(client, 'zipCode') ||
+                  getFieldValue(client, 'zip_code') ||
+                  getFieldValue(client, 'codigo_postal');
+    return value ? String(value) : '';
+  }
+
+  /**
+   * Manejar cambio en el checkbox "Usar misma dirección"
+   */
+  onUseSameAddressChange(checked: boolean) {
+    this.useSameAddress.set(checked);
+
+    if (checked) {
+      // Copiar dirección del cliente
+      this.copyClientAddress();
+    } else {
+      // Limpiar campos de dirección
+      this.proposalForm.patchValue({
+        address: '',
+        city: '',
+        state: '',
+        zipCode: ''
       });
     }
   }

@@ -19,13 +19,18 @@ import { Timestamp } from 'firebase/firestore';
 // Services
 import { ProposalsService } from '../../services/proposals.service';
 import { ClientsService } from '../../../clients/services/clients.service';
+import { ClientConfigServiceRefactored } from '../../../clients/services/client-config-refactored.service';
 
 // Models
 import { Proposal, CreateProposalData, ProposalItem } from '../../models';
 import { Client } from '../../../clients/models';
+import { FieldType } from '../../../clients/models/field-config.interface';
 
 // Components
 import { AddClientDialogComponent } from '../add-client-dialog/add-client-dialog.component';
+
+// Shared utilities
+import { getFieldValue } from '../../../../shared/modules/dynamic-form-builder/utils';
 
 @Component({
   selector: 'app-proposal-form',
@@ -50,6 +55,7 @@ export class ProposalFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private proposalsService = inject(ProposalsService);
   private clientsService = inject(ClientsService);
+  private clientConfigService = inject(ClientConfigServiceRefactored);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);
@@ -92,8 +98,11 @@ export class ProposalFormComponent implements OnInit {
   }
 
   async ngOnInit() {
-    // Cargar clientes
-    await this.clientsService.initialize();
+    // Cargar configuración de clientes y clientes en paralelo
+    await Promise.all([
+      this.clientConfigService.initialize(),
+      this.clientsService.initialize()
+    ]);
 
     // Verificar si es edición
     const id = this.route.snapshot.paramMap.get('id');
@@ -417,73 +426,83 @@ export class ProposalFormComponent implements OnInit {
 
   /**
    * Obtener nombre del cliente desde sus campos dinámicos
+   * Usa la configuración de campos para identificar el campo de nombre
    */
   getClientName(client: Client | undefined): string {
     if (!client) return '';
 
-    // Buscar en campos estándar
-    if (client.name) return client.name;
+    const fields = this.clientConfigService.getFieldsInUse();
 
-    // Buscar en propiedades directas (campos con isDefault: true)
-    const clientAny = client as any;
-    if (clientAny.nombre_del_cliente) return clientAny.nombre_del_cliente;
-    if (clientAny.nombre) return clientAny.nombre;
-    if (clientAny.name) return clientAny.name;
+    // Buscar el primer campo de tipo TEXT que probablemente sea el nombre
+    const nameField = fields.find(f =>
+      f.type === FieldType.TEXT ||
+      f.name === 'name' ||
+      f.name === 'nombre' ||
+      f.name === 'nombre_del_cliente'
+    );
 
-    // Buscar en customFields
-    if (client.customFields) {
-      if (client.customFields['nombre_del_cliente']) return client.customFields['nombre_del_cliente'];
-      if (client.customFields['nombre']) return client.customFields['nombre'];
-      if (client.customFields['name']) return client.customFields['name'];
+    if (nameField) {
+      const value = getFieldValue(client, nameField.name);
+      if (value) return String(value);
     }
+
+    // Fallback a campos estándar
+    if (client.name) return client.name;
 
     return 'Sin nombre';
   }
 
   /**
    * Obtener email del cliente desde sus campos dinámicos
+   * Usa la configuración de campos para identificar el campo de email
    */
   getClientEmail(client: Client | undefined): string {
     if (!client) return '';
 
-    // Buscar en campos estándar
-    if (client.email) return client.email;
+    const fields = this.clientConfigService.getFieldsInUse();
 
-    // Buscar en propiedades directas
-    const clientAny = client as any;
-    if (clientAny.email) return clientAny.email;
-    if (clientAny.correo) return clientAny.correo;
+    // Buscar el primer campo de tipo EMAIL
+    const emailField = fields.find(f =>
+      f.type === FieldType.EMAIL ||
+      f.name === 'email' ||
+      f.name === 'correo'
+    );
 
-    // Buscar en customFields
-    if (client.customFields) {
-      if (client.customFields['email']) return client.customFields['email'];
-      if (client.customFields['correo']) return client.customFields['correo'];
+    if (emailField) {
+      const value = getFieldValue(client, emailField.name);
+      if (value) return String(value);
     }
+
+    // Fallback a campos estándar
+    if (client.email) return client.email;
 
     return '';
   }
 
   /**
    * Obtener teléfono del cliente desde sus campos dinámicos
+   * Usa la configuración de campos para identificar el campo de teléfono
    */
   getClientPhone(client: Client | undefined): string {
     if (!client) return '';
 
-    // Buscar en campos estándar
-    if (client.phone) return client.phone;
+    const fields = this.clientConfigService.getFieldsInUse();
 
-    // Buscar en propiedades directas
-    const clientAny = client as any;
-    if (clientAny.telefono) return clientAny.telefono;
-    if (clientAny.phone) return clientAny.phone;
-    if (clientAny.tel) return clientAny.tel;
+    // Buscar el primer campo de tipo PHONE
+    const phoneField = fields.find(f =>
+      f.type === FieldType.PHONE ||
+      f.name === 'phone' ||
+      f.name === 'telefono' ||
+      f.name === 'tel'
+    );
 
-    // Buscar en customFields
-    if (client.customFields) {
-      if (client.customFields['telefono']) return client.customFields['telefono'];
-      if (client.customFields['phone']) return client.customFields['phone'];
-      if (client.customFields['tel']) return client.customFields['tel'];
+    if (phoneField) {
+      const value = getFieldValue(client, phoneField.name);
+      if (value) return String(value);
     }
+
+    // Fallback a campos estándar
+    if (client.phone) return client.phone;
 
     return '';
   }

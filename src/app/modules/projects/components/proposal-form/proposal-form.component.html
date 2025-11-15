@@ -84,17 +84,17 @@
                   @for (client of filteredClients(); track client.id) {
                     <mat-option [value]="client">
                       <div class="flex flex-col py-1">
-                        <span class="font-semibold text-slate-800">{{ client.name }}</span>
-                        @if (client.email || client.phone) {
+                        <span class="font-semibold text-slate-800">{{ getClientName(client) }}</span>
+                        @if (getClientEmail(client) || getClientPhone(client)) {
                           <span class="text-xs text-slate-500">
-                            @if (client.email) {
-                              <span>{{ client.email }}</span>
+                            @if (getClientEmail(client)) {
+                              <span>{{ getClientEmail(client) }}</span>
                             }
-                            @if (client.email && client.phone) {
+                            @if (getClientEmail(client) && getClientPhone(client)) {
                               <span class="mx-1">•</span>
                             }
-                            @if (client.phone) {
-                              <span>{{ client.phone }}</span>
+                            @if (getClientPhone(client)) {
+                              <span>{{ getClientPhone(client) }}</span>
                             }
                           </span>
                         }

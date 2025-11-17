@@ -18,11 +18,12 @@ import { Timestamp } from 'firebase/firestore';
 
 // Services
 import { ProposalsService } from '../../services/proposals.service';
+import { CatalogItemsService } from '../../services/catalog-items.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ClientConfigServiceRefactored } from '../../../clients/services/client-config-refactored.service';
 
 // Models
-import { Proposal, CreateProposalData, ProposalItem } from '../../models';
+import { Proposal, CreateProposalData, ProposalItem, CatalogItem } from '../../models';
 import { Client } from '../../../clients/models';
 import { FieldType } from '../../../clients/models/field-config.interface';
 
@@ -54,6 +55,7 @@ import { getFieldValue } from '../../../../shared/modules/dynamic-form-builder/u
 export class ProposalFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private proposalsService = inject(ProposalsService);
+  private catalogItemsService = inject(CatalogItemsService);
   private clientsService = inject(ClientsService);
   private clientConfigService = inject(ClientConfigServiceRefactored);
   private router = inject(Router);
@@ -88,6 +90,45 @@ export class ProposalFormComponent implements OnInit {
     });
   });
 
+  // Items del catálogo disponibles
+  availableCatalogItems = this.catalogItemsService.catalogItems;
+
+  // Items seleccionados para este proposal (solo IDs para referencia)
+  selectedItemIds = signal<Set<string>>(new Set());
+
+  // Computed: items seleccionados del catálogo
+  selectedCatalogItems = computed(() => {
+    const ids = this.selectedItemIds();
+    return this.availableCatalogItems().filter(item => ids.has(item.id));
+  });
+
+  // Computed: items disponibles (no seleccionados)
+  unselectedCatalogItems = computed(() => {
+    const ids = this.selectedItemIds();
+    return this.availableCatalogItems().filter(item => !ids.has(item.id));
+  });
+
+  // Search term para filtrar items disponibles
+  catalogSearchTerm = signal<string>('');
+
+  // Computed: items filtrados por búsqueda
+  filteredCatalogItems = computed(() => {
+    const searchTerm = this.catalogSearchTerm().toLowerCase().trim();
+    const unselected = this.unselectedCatalogItems();
+
+    if (!searchTerm) {
+      return unselected;
+    }
+
+    return unselected.filter(item => {
+      const nameMatch = item.name.toLowerCase().includes(searchTerm);
+      const descMatch = item.description.toLowerCase().includes(searchTerm);
+      const categoryMatch = item.category?.toLowerCase().includes(searchTerm);
+      return nameMatch || descMatch || categoryMatch;
+    });
+  });
+
+  // Items incluidos (legacy - ahora se construyen desde catalogItems seleccionados)
   includeItems = signal<ProposalItem[]>([]);
 
   // Lista fija de extras (siempre visible)
@@ -114,10 +155,11 @@ export class ProposalFormComponent implements OnInit {
   }
 
   async ngOnInit() {
-    // Cargar configuración de clientes y clientes en paralelo
+    // Cargar configuración de clientes, clientes y catálogo de items en paralelo
     await Promise.all([
       this.clientConfigService.initialize(),
-      this.clientsService.initialize()
+      this.clientsService.initialize(),
+      this.catalogItemsService.initialize()
     ]);
 
     // Verificar si es edición
@@ -301,7 +343,18 @@ export class ProposalFormComponent implements OnInit {
           discountPercentage: proposal.discountPercentage || 0
         });
 
-        this.includeItems.set(proposal.includes || []);
+        // Cargar items incluidos - convertir de ProposalItem[] a IDs del catálogo
+        const savedIncludeIds = new Set<string>();
+        if (proposal.includes && proposal.includes.length > 0) {
+          proposal.includes.forEach(item => {
+            // Intentar encontrar el item en el catálogo por ID
+            const catalogItem = this.availableCatalogItems().find(ci => ci.id === item.id);
+            if (catalogItem) {
+              savedIncludeIds.add(catalogItem.id);
+            }
+          });
+        }
+        this.selectedItemIds.set(savedIncludeIds);
 
         // Habilitar checkbox si hay extras guardados
         if (proposal.extras && proposal.extras.length > 0) {
@@ -317,16 +370,51 @@ export class ProposalFormComponent implements OnInit {
   }
 
   /**
-   * Agregar item a includes
+   * Agregar item del catálogo al proposal
    */
-  addIncludeItem() {
-    const newItem: ProposalItem = {
-      id: `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      description: '',
-      type: 'both',
-      order: this.includeItems().length + 1
-    };
-    this.includeItems.update(items => [...items, newItem]);
+  addCatalogItemToProposal(catalogItem: CatalogItem) {
+    this.selectedItemIds.update(ids => {
+      const newIds = new Set(ids);
+      newIds.add(catalogItem.id);
+      return newIds;
+    });
+  }
+
+  /**
+   * Remover item del catálogo del proposal
+   */
+  removeCatalogItemFromProposal(catalogItemId: string) {
+    this.selectedItemIds.update(ids => {
+      const newIds = new Set(ids);
+      newIds.delete(catalogItemId);
+      return newIds;
+    });
+  }
+
+  /**
+   * Agregar todos los items filtrados
+   */
+  addAllFilteredItems() {
+    this.selectedItemIds.update(ids => {
+      const newIds = new Set(ids);
+      this.filteredCatalogItems().forEach(item => newIds.add(item.id));
+      return newIds;
+    });
+  }
+
+  /**
+   * Remover todos los items seleccionados
+   */
+  removeAllSelectedItems() {
+    this.selectedItemIds.set(new Set());
+  }
+
+  /**
+   * Manejar cambio en el campo de búsqueda de items del catálogo
+   */
+  onCatalogSearchChange(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.catalogSearchTerm.set(value);
   }
 
   /**
@@ -410,6 +498,14 @@ export class ProposalFormComponent implements OnInit {
       const discount = this.calculateDiscount();
       const total = this.calculateTotal();
 
+      // Convertir items seleccionados del catálogo a ProposalItem[]
+      const includesToSave: ProposalItem[] = this.selectedCatalogItems().map((catalogItem, index) => ({
+        id: catalogItem.id,
+        description: `${catalogItem.name} - ${catalogItem.description}`,
+        type: 'both' as const,
+        order: index + 1
+      }));
+
       // Convertir lista fija de extras a ProposalItem[] solo si el checkbox está habilitado
       const extrasToSave: ProposalItem[] = this.includeExtrasSection()
         ? this.FIXED_EXTRAS.map((description, index) => ({
@@ -433,7 +529,7 @@ export class ProposalFormComponent implements OnInit {
         jobCategory: formValue.jobCategory || undefined,
         date: Timestamp.fromDate(new Date(formValue.date)),
         validUntil: formValue.validUntil ? Timestamp.fromDate(new Date(formValue.validUntil)) : undefined,
-        includes: this.includeItems(),
+        includes: includesToSave,
         extras: extrasToSave,
         subtotal,
         tax,

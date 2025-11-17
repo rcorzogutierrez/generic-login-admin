@@ -100,11 +100,16 @@ export class CatalogItemsManagerComponent implements OnInit {
     try {
       const formValue = this.itemForm.value;
 
+      // Construir itemData solo con campos que tienen valor
       const itemData: CreateCatalogItemData = {
         name: formValue.name,
-        description: formValue.description || undefined,
         order: this.catalogItems().length + 1
       };
+
+      // Solo agregar description si tiene valor
+      if (formValue.description && formValue.description.trim()) {
+        itemData.description = formValue.description.trim();
+      }
 
       if (this.isEditMode() && this.editingItemId()) {
         // Actualizar item existente

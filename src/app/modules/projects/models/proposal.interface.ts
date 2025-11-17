@@ -24,6 +24,16 @@ export interface ProposalItem {
 export type WorkType = 'residential' | 'commercial';
 
 /**
+ * Clasificación del servicio/trabajo a realizar
+ */
+export type JobCategory =
+  | 'remodeling'         // Remodelación
+  | 'plumbing'           // Plomería
+  | 'services'           // Servicios
+  | 'equipment'          // Instalación de equipos
+  | 'new_construction';  // Nueva Construcción
+
+/**
  * Estado del proposal
  */
 export type ProposalStatus =
@@ -59,6 +69,7 @@ export interface Proposal {
   state?: string;                  // Estado
   zipCode?: string;                // Código postal
   workType: WorkType;              // Tipo de trabajo: Residencial o Comercial
+  jobCategory?: JobCategory;       // Clasificación del servicio a realizar
 
   // Fechas importantes
   date: Timestamp;                 // Fecha del estimado
@@ -107,6 +118,7 @@ export interface CreateProposalData {
   state?: string;
   zipCode?: string;
   workType: WorkType;
+  jobCategory?: JobCategory;
   date: Timestamp;
   validUntil?: Timestamp;
   includes?: ProposalItem[];

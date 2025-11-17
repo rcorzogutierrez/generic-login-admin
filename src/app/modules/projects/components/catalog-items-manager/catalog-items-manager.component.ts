@@ -13,7 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { CatalogItemsService } from '../../services/catalog-items.service';
-import { CatalogItem, CreateCatalogItemData, ITEM_CATEGORIES } from '../../models';
+import { CatalogItem, CreateCatalogItemData } from '../../models';
 
 @Component({
   selector: 'app-catalog-items-manager',
@@ -47,9 +47,6 @@ export class CatalogItemsManagerComponent implements OnInit {
   editingItemId = signal<string | null>(null);
   searchTerm = signal<string>('');
 
-  // Categorías disponibles
-  categories = ITEM_CATEGORIES;
-
   // Form
   itemForm!: FormGroup;
 
@@ -63,9 +60,7 @@ export class CatalogItemsManagerComponent implements OnInit {
   initForm() {
     this.itemForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
-      description: ['', [Validators.required, Validators.minLength(5)]],
-      category: [''],
-      tags: ['']
+      description: ['']
     });
   }
 
@@ -80,9 +75,8 @@ export class CatalogItemsManagerComponent implements OnInit {
 
     return this.catalogItems().filter(item => {
       const nameMatch = item.name.toLowerCase().includes(term);
-      const descMatch = item.description.toLowerCase().includes(term);
-      const catMatch = item.category?.toLowerCase().includes(term);
-      return nameMatch || descMatch || catMatch;
+      const descMatch = item.description?.toLowerCase().includes(term) || false;
+      return nameMatch || descMatch;
     });
   }
 
@@ -99,23 +93,16 @@ export class CatalogItemsManagerComponent implements OnInit {
    */
   async saveItem() {
     if (this.itemForm.invalid) {
-      this.snackBar.open('Por favor completa todos los campos requeridos', 'Cerrar', { duration: 3000 });
+      this.snackBar.open('Por favor completa el nombre del item', 'Cerrar', { duration: 3000 });
       return;
     }
 
     try {
       const formValue = this.itemForm.value;
 
-      // Procesar tags (convertir string separado por comas a array)
-      const tags = formValue.tags
-        ? formValue.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag.length > 0)
-        : [];
-
       const itemData: CreateCatalogItemData = {
         name: formValue.name,
-        description: formValue.description,
-        category: formValue.category || undefined,
-        tags: tags.length > 0 ? tags : undefined,
+        description: formValue.description || undefined,
         order: this.catalogItems().length + 1
       };
 
@@ -143,14 +130,9 @@ export class CatalogItemsManagerComponent implements OnInit {
     this.isEditMode.set(true);
     this.editingItemId.set(item.id);
 
-    // Convertir tags array a string
-    const tagsString = item.tags ? item.tags.join(', ') : '';
-
     this.itemForm.patchValue({
       name: item.name,
-      description: item.description,
-      category: item.category || '',
-      tags: tagsString
+      description: item.description || ''
     });
 
     // Scroll to form

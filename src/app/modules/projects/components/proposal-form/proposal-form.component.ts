@@ -123,9 +123,8 @@ export class ProposalFormComponent implements OnInit {
 
     return unselected.filter(item => {
       const nameMatch = item.name.toLowerCase().includes(searchTerm);
-      const descMatch = item.description.toLowerCase().includes(searchTerm);
-      const categoryMatch = item.category?.toLowerCase().includes(searchTerm);
-      return nameMatch || descMatch || categoryMatch;
+      const descMatch = item.description?.toLowerCase().includes(searchTerm) || false;
+      return nameMatch || descMatch;
     });
   });
 

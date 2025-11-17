@@ -15,10 +15,8 @@ export interface CatalogItem {
   isActive: boolean;               // Estado activo/inactivo
 
   // ========== Información del Item ==========
-  name: string;                    // Nombre/título del item
-  description: string;             // Descripción detallada
-  category?: string;               // Categoría (ej: "Plomería", "Electricidad", "Construcción")
-  tags?: string[];                 // Tags para búsqueda
+  name: string;                    // Nombre/título del item (OBLIGATORIO)
+  description?: string;            // Descripción detallada (OPCIONAL)
 
   // ========== Metadata ==========
   order?: number;                  // Orden para mostrar en listas
@@ -29,9 +27,7 @@ export interface CatalogItem {
  */
 export interface CreateCatalogItemData {
   name: string;
-  description: string;
-  category?: string;
-  tags?: string[];
+  description?: string;
   order?: number;
 }
 
@@ -41,20 +37,3 @@ export interface CreateCatalogItemData {
 export interface UpdateCatalogItemData extends Partial<CreateCatalogItemData> {
   isActive?: boolean;
 }
-
-/**
- * Categorías predefinidas para items
- */
-export const ITEM_CATEGORIES = [
-  'Plomería',
-  'Electricidad',
-  'Construcción',
-  'Piscinas',
-  'Remodelación',
-  'HVAC',
-  'Pintura',
-  'Acabados',
-  'Otros'
-] as const;
-
-export type ItemCategory = typeof ITEM_CATEGORIES[number];

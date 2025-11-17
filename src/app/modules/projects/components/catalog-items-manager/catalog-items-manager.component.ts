@@ -1,0 +1,199 @@
+// src/app/modules/projects/components/catalog-items-manager/catalog-items-manager.component.ts
+
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { CatalogItemsService } from '../../services/catalog-items.service';
+import { CatalogItem, CreateCatalogItemData, ITEM_CATEGORIES } from '../../models';
+
+@Component({
+  selector: 'app-catalog-items-manager',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSnackBarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatProgressSpinnerModule
+  ],
+  templateUrl: './catalog-items-manager.component.html',
+  styleUrl: './catalog-items-manager.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class CatalogItemsManagerComponent implements OnInit {
+  private dialogRef = inject(MatDialogRef<CatalogItemsManagerComponent>);
+  private fb = inject(FormBuilder);
+  private catalogItemsService = inject(CatalogItemsService);
+  private snackBar = inject(MatSnackBar);
+
+  // Signals
+  catalogItems = this.catalogItemsService.catalogItems;
+  isLoading = this.catalogItemsService.isLoading;
+  isEditMode = signal<boolean>(false);
+  editingItemId = signal<string | null>(null);
+  searchTerm = signal<string>('');
+
+  // Categorías disponibles
+  categories = ITEM_CATEGORIES;
+
+  // Form
+  itemForm!: FormGroup;
+
+  ngOnInit() {
+    this.initForm();
+  }
+
+  /**
+   * Inicializar formulario
+   */
+  initForm() {
+    this.itemForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      description: ['', [Validators.required, Validators.minLength(5)]],
+      category: [''],
+      tags: ['']
+    });
+  }
+
+  /**
+   * Buscar items
+   */
+  get filteredItems(): CatalogItem[] {
+    const term = this.searchTerm().toLowerCase().trim();
+    if (!term) {
+      return this.catalogItems();
+    }
+
+    return this.catalogItems().filter(item => {
+      const nameMatch = item.name.toLowerCase().includes(term);
+      const descMatch = item.description.toLowerCase().includes(term);
+      const catMatch = item.category?.toLowerCase().includes(term);
+      return nameMatch || descMatch || catMatch;
+    });
+  }
+
+  /**
+   * Manejar cambio en búsqueda
+   */
+  onSearchChange(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchTerm.set(value);
+  }
+
+  /**
+   * Crear o actualizar item
+   */
+  async saveItem() {
+    if (this.itemForm.invalid) {
+      this.snackBar.open('Por favor completa todos los campos requeridos', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    try {
+      const formValue = this.itemForm.value;
+
+      // Procesar tags (convertir string separado por comas a array)
+      const tags = formValue.tags
+        ? formValue.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag.length > 0)
+        : [];
+
+      const itemData: CreateCatalogItemData = {
+        name: formValue.name,
+        description: formValue.description,
+        category: formValue.category || undefined,
+        tags: tags.length > 0 ? tags : undefined,
+        order: this.catalogItems().length + 1
+      };
+
+      if (this.isEditMode() && this.editingItemId()) {
+        // Actualizar item existente
+        await this.catalogItemsService.updateItem(this.editingItemId()!, itemData);
+        this.snackBar.open('Item actualizado exitosamente', 'Cerrar', { duration: 3000 });
+      } else {
+        // Crear nuevo item
+        await this.catalogItemsService.createItem(itemData);
+        this.snackBar.open('Item creado exitosamente', 'Cerrar', { duration: 3000 });
+      }
+
+      this.resetForm();
+    } catch (error) {
+      console.error('Error guardando item:', error);
+      this.snackBar.open('Error al guardar el item', 'Cerrar', { duration: 3000 });
+    }
+  }
+
+  /**
+   * Editar item
+   */
+  editItem(item: CatalogItem) {
+    this.isEditMode.set(true);
+    this.editingItemId.set(item.id);
+
+    // Convertir tags array a string
+    const tagsString = item.tags ? item.tags.join(', ') : '';
+
+    this.itemForm.patchValue({
+      name: item.name,
+      description: item.description,
+      category: item.category || '',
+      tags: tagsString
+    });
+
+    // Scroll to form
+    setTimeout(() => {
+      document.querySelector('.item-form')?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  }
+
+  /**
+   * Eliminar item
+   */
+  async deleteItem(item: CatalogItem) {
+    if (!confirm(`¿Estás seguro de eliminar "${item.name}"?`)) {
+      return;
+    }
+
+    try {
+      await this.catalogItemsService.deleteItem(item.id);
+      this.snackBar.open('Item eliminado exitosamente', 'Cerrar', { duration: 3000 });
+
+      // Si estábamos editando este item, resetear form
+      if (this.editingItemId() === item.id) {
+        this.resetForm();
+      }
+    } catch (error) {
+      console.error('Error eliminando item:', error);
+      this.snackBar.open('Error al eliminar el item', 'Cerrar', { duration: 3000 });
+    }
+  }
+
+  /**
+   * Resetear formulario
+   */
+  resetForm() {
+    this.itemForm.reset();
+    this.isEditMode.set(false);
+    this.editingItemId.set(null);
+  }
+
+  /**
+   * Cerrar dialog
+   */
+  close() {
+    this.dialogRef.close();
+  }
+}

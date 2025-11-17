@@ -29,6 +29,7 @@ import { FieldType } from '../../../clients/models/field-config.interface';
 
 // Components
 import { AddClientDialogComponent } from '../add-client-dialog/add-client-dialog.component';
+import { CatalogItemsManagerComponent } from '../catalog-items-manager/catalog-items-manager.component';
 
 // Shared utilities
 import { getFieldValue } from '../../../../shared/modules/dynamic-form-builder/utils';
@@ -600,6 +601,26 @@ export class ProposalFormComponent implements OnInit {
         // Limpiar búsqueda y establecer el nombre
         this.clientSearchTerm.set(this.getClientName(newClient));
       }
+    });
+  }
+
+  /**
+   * Abrir dialog para administrar catálogo de items
+   */
+  openCatalogManager() {
+    const dialogRef = this.dialog.open(CatalogItemsManagerComponent, {
+      width: '95vw',
+      maxWidth: '1200px',
+      height: '90vh',
+      maxHeight: '90vh',
+      disableClose: false,
+      autoFocus: false,
+      panelClass: 'catalog-manager-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      // El servicio ya mantiene el estado actualizado mediante signals
+      // No necesitamos hacer nada adicional
     });
   }
 

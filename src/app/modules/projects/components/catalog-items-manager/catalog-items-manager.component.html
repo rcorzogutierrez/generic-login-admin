@@ -1,0 +1,233 @@
+<!-- catalog-items-manager.component.html -->
+
+<div class="flex flex-col h-full max-h-[90vh]">
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+        <mat-icon class="!text-3xl">settings</mat-icon>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold">Administrar Catálogo de Items</h2>
+        <p class="text-sm text-blue-100 mt-1">Gestiona los items reutilizables para tus estimados</p>
+      </div>
+    </div>
+    <button mat-icon-button (click)="close()" class="text-white">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="flex-1 overflow-y-auto p-6 bg-slate-50">
+    <div class="max-w-6xl mx-auto space-y-6">
+
+      <!-- Formulario Crear/Editar -->
+      <div class="item-form card-modern p-6 bg-white">
+        <div class="mb-4 pb-3 border-b-2 border-slate-100">
+          <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <mat-icon class="text-blue-600">{{ isEditMode() ? 'edit' : 'add_circle' }}</mat-icon>
+            {{ isEditMode() ? 'Editar Item' : 'Agregar Nuevo Item' }}
+          </h3>
+        </div>
+
+        <form [formGroup]="itemForm" (ngSubmit)="saveItem()" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Nombre -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Nombre del Item <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">label</mat-icon>
+                <input
+                  type="text"
+                  formControlName="name"
+                  placeholder="Ej: Instalación de piscina"
+                  class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                         focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                         transition-all bg-white text-slate-800 hover:border-slate-300">
+              </div>
+              @if (itemForm.get('name')?.invalid && itemForm.get('name')?.touched) {
+                <p class="text-xs text-red-500 mt-1.5">El nombre es requerido (mínimo 3 caracteres)</p>
+              }
+            </div>
+
+            <!-- Descripción -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Descripción <span class="text-red-500">*</span>
+              </label>
+              <textarea
+                formControlName="description"
+                rows="3"
+                placeholder="Descripción detallada del item..."
+                class="w-full px-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                       transition-all bg-white text-slate-800 hover:border-slate-300
+                       resize-vertical min-h-[80px]"></textarea>
+              @if (itemForm.get('description')?.invalid && itemForm.get('description')?.touched) {
+                <p class="text-xs text-red-500 mt-1.5">La descripción es requerida (mínimo 5 caracteres)</p>
+              }
+            </div>
+
+            <!-- Categoría -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-2">Categoría</label>
+              <div class="relative">
+                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg z-10">category</mat-icon>
+                <select
+                  formControlName="category"
+                  class="w-full pl-11 pr-10 py-3 text-sm border-2 border-slate-200 rounded-lg
+                         focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                         transition-all bg-white text-slate-800 hover:border-slate-300 cursor-pointer
+                         appearance-none">
+                  <option value="">Sin categoría</option>
+                  @for (cat of categories; track cat) {
+                    <option [value]="cat">{{ cat }}</option>
+                  }
+                </select>
+                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">expand_more</mat-icon>
+              </div>
+            </div>
+
+            <!-- Tags -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-2">Tags (separados por coma)</label>
+              <div class="relative">
+                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">local_offer</mat-icon>
+                <input
+                  type="text"
+                  formControlName="tags"
+                  placeholder="piscina, construcción, concreto"
+                  class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
+                         focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                         transition-all bg-white text-slate-800 hover:border-slate-300">
+              </div>
+              <p class="text-xs text-slate-500 mt-1.5">Separa los tags con comas para mejor búsqueda</p>
+            </div>
+          </div>
+
+          <!-- Botones -->
+          <div class="flex items-center gap-3 pt-4 border-t border-slate-200">
+            @if (isEditMode()) {
+              <button
+                type="button"
+                mat-stroked-button
+                (click)="resetForm()"
+                class="!border-2">
+                <mat-icon>cancel</mat-icon>
+                Cancelar Edición
+              </button>
+            }
+            <button
+              type="submit"
+              mat-raised-button
+              color="primary"
+              [disabled]="itemForm.invalid || isLoading()"
+              class="!px-6">
+              <mat-icon>{{ isEditMode() ? 'save' : 'add_circle' }}</mat-icon>
+              {{ isEditMode() ? 'Actualizar Item' : 'Agregar Item' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Lista de Items -->
+      <div class="card-modern p-6 bg-white">
+        <div class="mb-4 pb-3 border-b-2 border-slate-100 flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <mat-icon class="text-blue-600">inventory</mat-icon>
+              Items del Catálogo ({{ filteredItems.length }})
+            </h3>
+            <p class="text-xs text-slate-500 mt-1">Todos los items disponibles para usar en estimados</p>
+          </div>
+
+          <!-- Búsqueda -->
+          <div class="relative w-64">
+            <mat-icon class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 !text-base">search</mat-icon>
+            <input
+              type="text"
+              [value]="searchTerm()"
+              (input)="onSearchChange($event)"
+              placeholder="Buscar items..."
+              class="w-full pl-8 pr-3 py-2 text-xs border border-slate-300 rounded-lg
+                     focus:border-blue-500 focus:ring-1 focus:ring-blue-100 outline-none
+                     transition-all bg-white text-slate-800">
+          </div>
+        </div>
+
+        <!-- Items Grid -->
+        @if (isLoading()) {
+          <div class="text-center py-12">
+            <mat-spinner diameter="40" class="mx-auto"></mat-spinner>
+            <p class="text-sm text-slate-500 mt-4">Cargando items...</p>
+          </div>
+        } @else if (filteredItems.length === 0) {
+          <div class="text-center py-12 text-slate-400">
+            <mat-icon class="!text-6xl mb-3 text-slate-300">inventory_2</mat-icon>
+            <p class="text-base font-medium">No hay items en el catálogo</p>
+            <p class="text-sm mt-1">Agrega items usando el formulario de arriba</p>
+          </div>
+        } @else {
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @for (item of filteredItems; track item.id) {
+              <div class="group relative p-4 border-2 border-slate-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all bg-white">
+                <!-- Acciones -->
+                <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    mat-icon-button
+                    (click)="editItem(item)"
+                    matTooltip="Editar"
+                    class="!w-8 !h-8 !bg-blue-100 hover:!bg-blue-200">
+                    <mat-icon class="!text-base text-blue-700">edit</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    (click)="deleteItem(item)"
+                    matTooltip="Eliminar"
+                    class="!w-8 !h-8 !bg-red-100 hover:!bg-red-200">
+                    <mat-icon class="!text-base text-red-700">delete</mat-icon>
+                  </button>
+                </div>
+
+                <!-- Contenido -->
+                <div class="pr-16">
+                  <h4 class="font-bold text-sm text-slate-800 mb-1 line-clamp-1">{{ item.name }}</h4>
+                  <p class="text-xs text-slate-600 mb-2 line-clamp-2">{{ item.description }}</p>
+
+                  @if (item.category) {
+                    <span class="inline-block px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded font-medium">
+                      {{ item.category }}
+                    </span>
+                  }
+
+                  @if (item.tags && item.tags.length > 0) {
+                    <div class="flex flex-wrap gap-1 mt-2">
+                      @for (tag of item.tags.slice(0, 3); track tag) {
+                        <span class="inline-block px-1.5 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">
+                          #{{ tag }}
+                        </span>
+                      }
+                      @if (item.tags.length > 3) {
+                        <span class="text-xs text-slate-400">+{{ item.tags.length - 3 }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="bg-white border-t border-slate-200 p-4 flex justify-end">
+    <button mat-raised-button (click)="close()" class="!px-6">
+      <mat-icon>close</mat-icon>
+      Cerrar
+    </button>
+  </div>
+</div>

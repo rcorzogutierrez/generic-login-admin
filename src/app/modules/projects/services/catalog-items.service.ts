@@ -108,7 +108,7 @@ export class CatalogItemsService {
       this.isLoading.set(true);
       this.error.set(null);
 
-      const user = this.authService.currentUser();
+      const user = this.authService.user();
       if (!user) {
         throw new Error('Usuario no autenticado');
       }

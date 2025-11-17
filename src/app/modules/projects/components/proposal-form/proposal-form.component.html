@@ -499,7 +499,7 @@
 
       <!-- ========== EXTRAS NO INCLUIDOS ========== -->
       <div class="card-modern p-6 border-2 border-amber-100">
-        <div class="mb-6 pb-4 border-b-2 border-amber-100 flex items-center justify-between">
+        <div class="mb-6 pb-4 border-b-2 border-amber-100">
           <div>
             <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
               <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
@@ -507,63 +507,65 @@
               </div>
               Extras NO Incluidos en el Precio
             </h2>
-            <p class="text-sm text-slate-500 mt-2 ml-13">Trabajos o costos adicionales que NO están cubiertos en este estimado</p>
+            <p class="text-sm text-slate-500 mt-2 ml-13">Selecciona los trabajos o costos adicionales que NO están cubiertos en este estimado</p>
           </div>
-          <button
-            mat-raised-button
-            color="accent"
-            type="button"
-            (click)="addExtraItem()"
-            class="!px-6 !py-2.5 !bg-amber-500 hover:!bg-amber-600">
-            <mat-icon>add_circle_outline</mat-icon>
-            Agregar Extra
-          </button>
         </div>
 
-        @if (extraItems().length === 0) {
-          <div class="text-center py-12 text-amber-600 bg-amber-50/50 rounded-xl border-2 border-dashed border-amber-200">
-            <mat-icon class="!text-6xl mb-3 text-amber-300">block</mat-icon>
-            <p class="text-base font-medium">No hay extras definidos</p>
-            <p class="text-sm mt-1">Los extras son items que el cliente debe cubrir por separado</p>
-          </div>
-        } @else {
-          <div class="items-container">
-            @for (item of extraItems(); track item.id; let i = $index) {
-              <div class="extra-item-card shadow-sm">
-                <div class="flex items-start gap-4">
-                  <div class="flex items-center justify-center w-8 h-8 bg-amber-600 text-white rounded-lg font-bold text-sm flex-shrink-0">
-                    {{ i + 1 }}
-                  </div>
+        <div class="space-y-3">
+          @for (extra of fixedExtras(); track extra.id; let i = $index) {
+            <div
+              class="group relative flex items-start gap-4 p-4 rounded-lg border-2 transition-all duration-200
+                     {{extra.enabled ? 'bg-amber-50 border-amber-300 shadow-md' : 'bg-white border-amber-100 hover:border-amber-200 hover:shadow-sm'}}">
 
-                  <div class="flex-1">
-                    <label class="block text-xs font-semibold text-amber-800 mb-1.5">Descripción del Extra</label>
-                    <div class="relative">
-                      <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500 !text-lg">info</mat-icon>
-                      <input
-                        type="text"
-                        [value]="item.description"
-                        (input)="updateExtraItem(item.id, 'description', $any($event.target).value)"
-                        class="w-full pl-11 pr-4 py-2.5 text-sm border-2 border-amber-300 rounded-lg
-                               focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none
-                               transition-all bg-white text-amber-900 hover:border-amber-400"
-                        placeholder="Ej: Permisos y certificaciones (a cargo del cliente)">
-                    </div>
-                  </div>
-
-                  <button
-                    mat-icon-button
-                    color="warn"
-                    type="button"
-                    (click)="removeExtraItem(item.id)"
-                    class="item-delete-btn flex-shrink-0"
-                    matTooltip="Eliminar extra">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
+              <!-- Número -->
+              <div class="flex items-center justify-center w-8 h-8 rounded-lg font-bold text-sm flex-shrink-0 transition-colors
+                          {{extra.enabled ? 'bg-amber-600 text-white' : 'bg-amber-100 text-amber-700'}}">
+                {{ i + 1 }}
               </div>
-            }
+
+              <!-- Checkbox y Descripción -->
+              <label class="flex items-start gap-3 flex-1 cursor-pointer">
+                <input
+                  type="checkbox"
+                  [checked]="extra.enabled"
+                  (change)="toggleFixedExtra(extra.id)"
+                  class="mt-1 w-5 h-5 text-amber-600 border-2 border-amber-300 rounded
+                         focus:ring-2 focus:ring-amber-400 focus:ring-offset-2
+                         cursor-pointer transition-all
+                         {{extra.enabled ? 'bg-amber-600 border-amber-600' : 'bg-white'}}">
+
+                <div class="flex-1">
+                  <span class="text-sm font-medium transition-colors
+                               {{extra.enabled ? 'text-amber-900' : 'text-slate-700 group-hover:text-slate-900'}}">
+                    {{ extra.description }}
+                  </span>
+                </div>
+              </label>
+
+              <!-- Indicador de estado -->
+              @if (extra.enabled) {
+                <div class="flex items-center gap-2 px-3 py-1 bg-amber-600 text-white rounded-full text-xs font-semibold flex-shrink-0">
+                  <mat-icon class="!text-sm">check_circle</mat-icon>
+                  Incluido
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Info adicional -->
+        <div class="mt-6 p-4 bg-amber-50/50 rounded-lg border border-amber-200">
+          <div class="flex items-start gap-3">
+            <mat-icon class="text-amber-600 !text-xl">info</mat-icon>
+            <div class="flex-1 text-sm text-amber-800">
+              <p class="font-semibold mb-1">Acerca de los extras</p>
+              <p class="text-amber-700">
+                Selecciona los items que <strong>NO están incluidos</strong> en el precio del estimado.
+                Estos serán responsabilidad del cliente o tendrán un costo adicional.
+              </p>
+            </div>
           </div>
-        }
+        </div>
       </div>
 
       <!-- ========== TOTALES ========== -->

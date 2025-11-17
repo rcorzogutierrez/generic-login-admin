@@ -408,16 +408,27 @@
                   <mat-icon class="!text-lg text-slate-600">inventory</mat-icon>
                   Catálogo de Items ({{ filteredCatalogItems().length }})
                 </h3>
-                @if (filteredCatalogItems().length > 0) {
+                <div class="flex items-center gap-2">
+                  <!-- Botón Administrar Catálogo -->
                   <button
-                    mat-button
+                    mat-icon-button
                     type="button"
-                    (click)="addAllFilteredItems()"
-                    class="!text-xs !py-1 !px-3">
-                    <mat-icon class="!text-sm">add_circle</mat-icon>
-                    Agregar Todos
+                    (click)="openCatalogManager()"
+                    matTooltip="Administrar catálogo"
+                    class="!w-8 !h-8 !bg-blue-600 hover:!bg-blue-700 transition-colors">
+                    <mat-icon class="!text-lg text-white">settings</mat-icon>
                   </button>
-                }
+                  @if (filteredCatalogItems().length > 0) {
+                    <button
+                      mat-button
+                      type="button"
+                      (click)="addAllFilteredItems()"
+                      class="!text-xs !py-1 !px-3">
+                      <mat-icon class="!text-sm">add_circle</mat-icon>
+                      Agregar Todos
+                    </button>
+                  }
+                </div>
               </div>
 
               <!-- Búsqueda -->

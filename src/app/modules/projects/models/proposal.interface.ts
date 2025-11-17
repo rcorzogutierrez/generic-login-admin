@@ -196,3 +196,12 @@ export interface CreateProposalItemData {
   totalPrice?: number;
   notes?: string;
 }
+
+/**
+ * Interface para extras fijos con checkbox
+ */
+export interface FixedExtraItem {
+  id: string;
+  description: string;
+  enabled: boolean;
+}

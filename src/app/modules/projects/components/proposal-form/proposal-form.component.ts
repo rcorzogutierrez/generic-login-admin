@@ -22,7 +22,7 @@ import { ClientsService } from '../../../clients/services/clients.service';
 import { ClientConfigServiceRefactored } from '../../../clients/services/client-config-refactored.service';
 
 // Models
-import { Proposal, CreateProposalData, ProposalItem, FixedExtraItem } from '../../models';
+import { Proposal, CreateProposalData, ProposalItem } from '../../models';
 import { Client } from '../../../clients/models';
 import { FieldType } from '../../../clients/models/field-config.interface';
 
@@ -90,54 +90,21 @@ export class ProposalFormComponent implements OnInit {
 
   includeItems = signal<ProposalItem[]>([]);
 
-  // Lista fija de extras con checkboxes
-  fixedExtras = signal<FixedExtraItem[]>([
-    {
-      id: 'extra-1',
-      description: 'New Survey and Elevation Certificate (to be Provided by Owner)',
-      enabled: false
-    },
-    {
-      id: 'extra-2',
-      description: 'Cost of Permits and Notice of Commencement are not included.',
-      enabled: false
-    },
-    {
-      id: 'extra-3',
-      description: 'Demock if necessary or Pool Piling if required.',
-      enabled: false
-    },
-    {
-      id: 'extra-4',
-      description: 'Septic Tank Certification. If require by the County (to be Provided by Owner)',
-      enabled: false
-    },
-    {
-      id: 'extra-5',
-      description: 'Soil Sample (Nelco Testing 305-259-9779) if required by the County.',
-      enabled: false
-    },
-    {
-      id: 'extra-6',
-      description: 'Electric Sub Panel (If needed). Removal and relocation of A/C (If needed)',
-      enabled: false
-    },
-    {
-      id: 'extra-7',
-      description: 'Heater',
-      enabled: false
-    },
-    {
-      id: 'extra-8',
-      description: 'Extra Deck',
-      enabled: false
-    },
-    {
-      id: 'extra-9',
-      description: 'Removal and relocation of A/C (If need)',
-      enabled: false
-    }
-  ]);
+  // Lista fija de extras (siempre visible)
+  readonly FIXED_EXTRAS: string[] = [
+    'New Survey and Elevation Certificate (to be Provided by Owner)',
+    'Cost of Permits and Notice of Commencement are not included.',
+    'Demock if necessary or Pool Piling if required.',
+    'Septic Tank Certification. If require by the County (to be Provided by Owner)',
+    'Soil Sample (Nelco Testing 305-259-9779) if required by the County.',
+    'Electric Sub Panel (If needed). Removal and relocation of A/C (If needed)',
+    'Heater',
+    'Extra Deck',
+    'Removal and relocation of A/C (If need)'
+  ];
+
+  // Checkbox principal para incluir/excluir toda la sección de extras
+  includeExtrasSection = signal<boolean>(false);
 
   // Form
   proposalForm!: FormGroup;
@@ -334,16 +301,9 @@ export class ProposalFormComponent implements OnInit {
 
         this.includeItems.set(proposal.includes || []);
 
-        // Mapear los extras guardados a la lista fija de extras
+        // Habilitar checkbox si hay extras guardados
         if (proposal.extras && proposal.extras.length > 0) {
-          this.fixedExtras.update(extras =>
-            extras.map(extra => ({
-              ...extra,
-              enabled: proposal.extras.some(savedExtra =>
-                savedExtra.description === extra.description
-              )
-            }))
-          );
+          this.includeExtrasSection.set(true);
         }
       }
     } catch (error) {
@@ -368,14 +328,10 @@ export class ProposalFormComponent implements OnInit {
   }
 
   /**
-   * Alternar estado de un extra fijo
+   * Alternar inclusión de toda la sección de extras
    */
-  toggleFixedExtra(extraId: string) {
-    this.fixedExtras.update(extras =>
-      extras.map(extra =>
-        extra.id === extraId ? { ...extra, enabled: !extra.enabled } : extra
-      )
-    );
+  toggleExtrasSection(checked: boolean) {
+    this.includeExtrasSection.set(checked);
   }
 
   /**
@@ -447,15 +403,15 @@ export class ProposalFormComponent implements OnInit {
       const discount = (subtotal * discountPercentage) / 100;
       const total = this.calculateTotal();
 
-      // Convertir extras fijos habilitados a ProposalItem[]
-      const enabledExtras: ProposalItem[] = this.fixedExtras()
-        .filter(extra => extra.enabled)
-        .map((extra, index) => ({
-          id: extra.id,
-          description: extra.description,
-          type: 'both' as const,
-          order: index + 1
-        }));
+      // Convertir lista fija de extras a ProposalItem[] solo si el checkbox está habilitado
+      const extrasToSave: ProposalItem[] = this.includeExtrasSection()
+        ? this.FIXED_EXTRAS.map((description, index) => ({
+            id: `extra-${index + 1}`,
+            description,
+            type: 'both' as const,
+            order: index + 1
+          }))
+        : [];
 
       const proposalData: CreateProposalData = {
         ownerId: formValue.ownerId,
@@ -471,7 +427,7 @@ export class ProposalFormComponent implements OnInit {
         date: Timestamp.fromDate(new Date(formValue.date)),
         validUntil: formValue.validUntil ? Timestamp.fromDate(new Date(formValue.validUntil)) : undefined,
         includes: this.includeItems(),
-        extras: enabledExtras,
+        extras: extrasToSave,
         subtotal,
         tax,
         taxPercentage,

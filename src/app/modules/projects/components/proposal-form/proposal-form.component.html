@@ -415,8 +415,8 @@
                     type="button"
                     (click)="openCatalogManager()"
                     matTooltip="Administrar catálogo"
-                    class="!w-8 !h-8 !bg-blue-600 hover:!bg-blue-700 transition-colors">
-                    <mat-icon class="!text-lg text-white">settings</mat-icon>
+                    class="!w-8 !h-8 !min-w-0 !p-0 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-700 transition-colors">
+                    <mat-icon class="!text-lg !w-5 !h-5 !leading-5 text-white">settings</mat-icon>
                   </button>
                   @if (filteredCatalogItems().length > 0) {
                     <button
@@ -470,8 +470,8 @@
                     <button
                       mat-icon-button
                       type="button"
-                      class="!w-7 !h-7 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <mat-icon class="!text-base text-blue-600">add_circle</mat-icon>
+                      class="!w-7 !h-7 !min-w-0 !p-0 !flex !items-center !justify-center flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <mat-icon class="!text-lg !w-4 !h-4 !leading-4 text-blue-600">add_circle</mat-icon>
                     </button>
                   </div>
                 }
@@ -533,8 +533,8 @@
                       mat-icon-button
                       type="button"
                       (click)="removeCatalogItemFromProposal(item.id)"
-                      class="!w-7 !h-7 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <mat-icon class="!text-base text-red-600">remove_circle</mat-icon>
+                      class="!w-7 !h-7 !min-w-0 !p-0 !flex !items-center !justify-center flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <mat-icon class="!text-lg !w-4 !h-4 !leading-4 text-red-600">remove_circle</mat-icon>
                     </button>
                   </div>
                 }

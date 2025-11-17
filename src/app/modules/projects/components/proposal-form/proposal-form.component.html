@@ -214,7 +214,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <!-- Tipo de Trabajo -->
-          <div class="md:col-span-2 lg:col-span-3">
+          <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2">
               Tipo de Trabajo <span class="text-red-500">*</span>
             </label>
@@ -235,6 +235,30 @@
             @if (proposalForm.get('workType')?.invalid && proposalForm.get('workType')?.touched) {
               <p class="text-xs text-red-500 mt-1.5">El tipo de trabajo es requerido</p>
             }
+          </div>
+
+          <!-- Clasificación del Servicio -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+              Clasificación del Servicio
+            </label>
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">construction</mat-icon>
+              <select
+                formControlName="jobCategory"
+                class="w-full pl-11 pr-10 py-3 text-sm border-2 border-slate-200 rounded-lg
+                       focus:border-green-500 focus:ring-2 focus:ring-green-100 outline-none
+                       transition-all bg-white text-slate-800 hover:border-slate-300 cursor-pointer
+                       appearance-none">
+                <option value="">Seleccione una opción</option>
+                <option value="remodeling">Remodelación</option>
+                <option value="plumbing">Plomería</option>
+                <option value="services">Servicios</option>
+                <option value="equipment">Instalación de equipos</option>
+                <option value="new_construction">Nueva Construcción</option>
+              </select>
+              <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">expand_more</mat-icon>
+            </div>
           </div>
 
           <!-- Dirección del Trabajo -->

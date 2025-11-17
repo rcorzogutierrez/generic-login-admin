@@ -149,6 +149,7 @@ export class ProposalFormComponent implements OnInit {
       notes: [''],
       internalNotes: [''],
       terms: [''],
+      subtotal: [0, [Validators.min(0)]],
       taxPercentage: [0],
       discountPercentage: [0]
     });
@@ -295,6 +296,7 @@ export class ProposalFormComponent implements OnInit {
           notes: proposal.notes || '',
           internalNotes: proposal.internalNotes || '',
           terms: proposal.terms || '',
+          subtotal: proposal.subtotal || 0,
           taxPercentage: proposal.taxPercentage || 0,
           discountPercentage: proposal.discountPercentage || 0
         });
@@ -337,21 +339,11 @@ export class ProposalFormComponent implements OnInit {
   /**
    * Actualizar item de includes
    */
-  updateIncludeItem(itemId: string, field: keyof ProposalItem, value: any) {
+  updateIncludeItem(itemId: string, description: string) {
     this.includeItems.update(items =>
-      items.map(item => {
-        if (item.id === itemId) {
-          const updatedItem = { ...item, [field]: value };
-
-          // Recalcular total si cambia quantity o unitPrice
-          if (field === 'quantity' || field === 'unitPrice') {
-            updatedItem.totalPrice = (updatedItem.quantity || 0) * (updatedItem.unitPrice || 0);
-          }
-
-          return updatedItem;
-        }
-        return item;
-      })
+      items.map(item =>
+        item.id === itemId ? { ...item, description } : item
+      )
     );
   }
 
@@ -363,22 +355,37 @@ export class ProposalFormComponent implements OnInit {
   }
 
   /**
-   * Calcular subtotal
+   * Obtener subtotal del formulario
    */
-  calculateSubtotal(): number {
-    return this.includeItems().reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+  getSubtotal(): number {
+    return this.proposalForm.get('subtotal')?.value || 0;
+  }
+
+  /**
+   * Calcular impuesto
+   */
+  calculateTax(): number {
+    const subtotal = this.getSubtotal();
+    const taxPercentage = this.proposalForm.get('taxPercentage')?.value || 0;
+    return (subtotal * taxPercentage) / 100;
+  }
+
+  /**
+   * Calcular descuento
+   */
+  calculateDiscount(): number {
+    const subtotal = this.getSubtotal();
+    const discountPercentage = this.proposalForm.get('discountPercentage')?.value || 0;
+    return (subtotal * discountPercentage) / 100;
   }
 
   /**
    * Calcular total
    */
   calculateTotal(): number {
-    const subtotal = this.calculateSubtotal();
-    const taxPercentage = this.proposalForm.get('taxPercentage')?.value || 0;
-    const discountPercentage = this.proposalForm.get('discountPercentage')?.value || 0;
-
-    const tax = (subtotal * taxPercentage) / 100;
-    const discount = (subtotal * discountPercentage) / 100;
+    const subtotal = this.getSubtotal();
+    const tax = this.calculateTax();
+    const discount = this.calculateDiscount();
 
     return subtotal + tax - discount;
   }
@@ -396,11 +403,11 @@ export class ProposalFormComponent implements OnInit {
       this.isLoading.set(true);
       const formValue = this.proposalForm.value;
 
-      const subtotal = this.calculateSubtotal();
+      const subtotal = formValue.subtotal || 0;
       const taxPercentage = formValue.taxPercentage || 0;
       const discountPercentage = formValue.discountPercentage || 0;
-      const tax = (subtotal * taxPercentage) / 100;
-      const discount = (subtotal * discountPercentage) / 100;
+      const tax = this.calculateTax();
+      const discount = this.calculateDiscount();
       const total = this.calculateTotal();
 
       // Convertir lista fija de extras a ProposalItem[] solo si el checkbox está habilitado

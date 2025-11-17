@@ -414,83 +414,40 @@
             <p class="text-sm mt-1">Haz clic en "Agregar Item" para comenzar a construir el estimado</p>
           </div>
         } @else {
-          <div class="items-container">
+          <div class="space-y-3">
             @for (item of includeItems(); track item.id; let i = $index) {
-              <div class="item-card shadow-sm">
-                <div class="flex items-start gap-4">
-                  <div class="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-lg font-bold text-sm flex-shrink-0">
-                    {{ i + 1 }}
-                  </div>
-
-                  <div class="flex-1 grid grid-cols-1 md:grid-cols-6 gap-4">
-                    <!-- Descripción -->
-                    <div class="md:col-span-3">
-                      <label class="block text-xs font-semibold text-slate-600 mb-1.5">Descripción</label>
-                      <input
-                        type="text"
-                        [value]="item.description"
-                        (input)="updateIncludeItem(item.id, 'description', $any($event.target).value)"
-                        class="w-full px-3 py-2.5 text-sm border-2 border-slate-200 rounded-lg
-                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                               transition-all bg-white text-slate-800 hover:border-slate-300"
-                        placeholder="Descripción del item...">
-                    </div>
-
-                    <!-- Cantidad -->
-                    <div>
-                      <label class="block text-xs font-semibold text-slate-600 mb-1.5">Cantidad</label>
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        [value]="item.quantity || 0"
-                        (input)="updateIncludeItem(item.id, 'quantity', +$any($event.target).value)"
-                        class="w-full px-3 py-2.5 text-sm border-2 border-slate-200 rounded-lg
-                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                               transition-all bg-white text-slate-800 hover:border-slate-300"
-                        placeholder="0">
-                    </div>
-
-                    <!-- Precio Unitario -->
-                    <div>
-                      <label class="block text-xs font-semibold text-slate-600 mb-1.5">Precio Unit.</label>
-                      <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-medium">$</span>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          [value]="item.unitPrice || 0"
-                          (input)="updateIncludeItem(item.id, 'unitPrice', +$any($event.target).value)"
-                          class="w-full pl-7 pr-3 py-2.5 text-sm border-2 border-slate-200 rounded-lg
-                                 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                                 transition-all bg-white text-slate-800 hover:border-slate-300"
-                          placeholder="0.00">
-                      </div>
-                    </div>
-
-                    <!-- Total -->
-                    <div>
-                      <label class="block text-xs font-semibold text-slate-600 mb-1.5">Total</label>
-                      <input
-                        type="text"
-                        [value]="formatCurrency(item.totalPrice || 0)"
-                        readonly
-                        class="w-full px-3 py-2.5 text-sm border-2 border-green-200 rounded-lg
-                               bg-green-50 text-green-800 font-semibold cursor-not-allowed">
-                    </div>
-                  </div>
-
-                  <button
-                    mat-icon-button
-                    color="warn"
-                    type="button"
-                    (click)="removeIncludeItem(item.id)"
-                    matTooltip="Eliminar item"
-                    class="flex-shrink-0">
-                    <mat-icon>delete</mat-icon>
-                  </button>
+              <div class="flex items-start gap-4 p-4 bg-white rounded-lg border-2 border-blue-100 hover:border-blue-200 transition-all shadow-sm">
+                <!-- Número -->
+                <div class="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-lg font-bold text-sm flex-shrink-0">
+                  {{ i + 1 }}
                 </div>
+
+                <!-- Descripción -->
+                <div class="flex-1">
+                  <label class="block text-xs font-semibold text-slate-600 mb-1.5">Descripción del Item</label>
+                  <div class="relative">
+                    <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-400 !text-lg">description</mat-icon>
+                    <input
+                      type="text"
+                      [value]="item.description"
+                      (input)="updateIncludeItem(item.id, $any($event.target).value)"
+                      class="w-full pl-11 pr-4 py-2.5 text-sm border-2 border-slate-200 rounded-lg
+                             focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                             transition-all bg-white text-slate-800 hover:border-slate-300"
+                      placeholder="Ej: Instalación de piscina, Remodelación de baño, etc.">
+                  </div>
+                </div>
+
+                <!-- Botón Eliminar -->
+                <button
+                  mat-icon-button
+                  color="warn"
+                  type="button"
+                  (click)="removeIncludeItem(item.id)"
+                  matTooltip="Eliminar item"
+                  class="flex-shrink-0 mt-6">
+                  <mat-icon>delete</mat-icon>
+                </button>
               </div>
             }
           </div>
@@ -617,10 +574,30 @@
             </div>
             Resumen de Totales
           </h2>
-          <p class="text-sm text-blue-700 mt-2 ml-13">Configura impuestos y descuentos</p>
+          <p class="text-sm text-blue-700 mt-2 ml-13">Ingresa el subtotal y configura impuestos y descuentos</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+          <!-- Subtotal -->
+          <div>
+            <label class="block text-sm font-semibold text-blue-900 mb-2">
+              Subtotal <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg">payments</mat-icon>
+              <span class="absolute left-11 top-1/2 -translate-y-1/2 text-blue-800 text-sm font-bold">$</span>
+              <input
+                type="number"
+                formControlName="subtotal"
+                min="0"
+                step="0.01"
+                class="w-full pl-16 pr-4 py-3 text-sm border-2 border-blue-300 rounded-lg
+                       focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none
+                       transition-all bg-white text-blue-900 hover:border-blue-400 font-semibold"
+                placeholder="0.00">
+            </div>
+          </div>
+
           <!-- Impuesto -->
           <div>
             <label class="block text-sm font-semibold text-blue-900 mb-2">Impuesto (%)</label>
@@ -660,17 +637,18 @@
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-lg space-y-2">
+        <!-- Cálculos -->
+        <div class="bg-white p-5 rounded-lg space-y-3 shadow-sm">
           <div class="flex justify-between text-sm">
-            <span class="text-slate-600">Subtotal:</span>
-            <span class="font-semibold">{{ formatCurrency(calculateSubtotal()) }}</span>
+            <span class="text-slate-600 font-medium">Subtotal:</span>
+            <span class="font-bold text-slate-800">{{ formatCurrency(getSubtotal()) }}</span>
           </div>
 
           @if (proposalForm.get('taxPercentage')?.value > 0) {
             <div class="flex justify-between text-sm">
               <span class="text-slate-600">Impuesto ({{ proposalForm.get('taxPercentage')?.value }}%):</span>
               <span class="font-semibold text-green-600">
-                + {{ formatCurrency((calculateSubtotal() * (proposalForm.get('taxPercentage')?.value || 0)) / 100) }}
+                + {{ formatCurrency(calculateTax()) }}
               </span>
             </div>
           }
@@ -679,16 +657,16 @@
             <div class="flex justify-between text-sm">
               <span class="text-slate-600">Descuento ({{ proposalForm.get('discountPercentage')?.value }}%):</span>
               <span class="font-semibold text-red-600">
-                - {{ formatCurrency((calculateSubtotal() * (proposalForm.get('discountPercentage')?.value || 0)) / 100) }}
+                - {{ formatCurrency(calculateDiscount()) }}
               </span>
             </div>
           }
 
-          <mat-divider class="my-2"></mat-divider>
+          <mat-divider class="my-3"></mat-divider>
 
-          <div class="flex justify-between text-lg font-bold">
-            <span class="text-blue-900">TOTAL:</span>
-            <span class="text-blue-600">{{ formatCurrency(calculateTotal()) }}</span>
+          <div class="flex justify-between items-center pt-2">
+            <span class="text-lg font-bold text-blue-900">TOTAL:</span>
+            <span class="text-2xl font-bold text-blue-600">{{ formatCurrency(calculateTotal()) }}</span>
           </div>
         </div>
       </div>

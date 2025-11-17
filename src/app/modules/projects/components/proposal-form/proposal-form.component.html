@@ -498,55 +498,82 @@
       </div>
 
       <!-- ========== EXTRAS NO INCLUIDOS ========== -->
-      <div class="card-modern p-6 border-2 border-amber-100">
-        <div class="mb-6 pb-4 border-b-2 border-amber-100">
-          <div>
-            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
-              <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                <mat-icon class="text-amber-700 !text-xl">do_not_disturb_on</mat-icon>
+      <div class="card-modern p-6 border-2 transition-all duration-300"
+           [ngClass]="includeExtrasSection() ? 'border-amber-300 bg-amber-50/30' : 'border-amber-100 bg-white'">
+
+        <!-- Header con checkbox principal -->
+        <div class="mb-6 pb-4 border-b-2 transition-colors duration-300"
+             [ngClass]="includeExtrasSection() ? 'border-amber-300' : 'border-amber-100'">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1">
+              <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center transition-colors duration-300"
+                     [ngClass]="includeExtrasSection() ? 'bg-amber-500' : 'bg-amber-100'">
+                  <mat-icon [ngClass]="includeExtrasSection() ? 'text-white' : 'text-amber-700'" class="!text-xl">do_not_disturb_on</mat-icon>
+                </div>
+                Extras NO Incluidos en el Precio
+              </h2>
+              <p class="text-sm text-slate-500 mt-2 ml-13">
+                Activa esta sección para incluir la lista de exclusiones en el estimado
+              </p>
+            </div>
+
+            <!-- Checkbox Principal -->
+            <label class="flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 hover:shadow-md"
+                   [ngClass]="includeExtrasSection()
+                     ? 'bg-amber-500 border-amber-600'
+                     : 'bg-white border-amber-200 hover:border-amber-300'">
+              <input
+                type="checkbox"
+                [checked]="includeExtrasSection()"
+                (change)="toggleExtrasSection($any($event.target).checked)"
+                class="w-6 h-6 text-amber-600 border-2 border-amber-400 rounded
+                       focus:ring-2 focus:ring-amber-500 focus:ring-offset-2
+                       cursor-pointer transition-all">
+              <div class="flex flex-col">
+                <span class="text-sm font-bold transition-colors"
+                      [ngClass]="includeExtrasSection() ? 'text-white' : 'text-slate-800'">
+                  {{ includeExtrasSection() ? 'Sección Activada' : 'Activar Sección' }}
+                </span>
+                <span class="text-xs transition-colors"
+                      [ngClass]="includeExtrasSection() ? 'text-amber-100' : 'text-slate-500'">
+                  {{ includeExtrasSection() ? 'Se incluirá en el estimado' : 'No se incluirá en el estimado' }}
+                </span>
               </div>
-              Extras NO Incluidos en el Precio
-            </h2>
-            <p class="text-sm text-slate-500 mt-2 ml-13">Selecciona los trabajos o costos adicionales que NO están cubiertos en este estimado</p>
+            </label>
           </div>
         </div>
 
-        <div class="space-y-3">
-          @for (extra of fixedExtras(); track extra.id; let i = $index) {
-            <div
-              class="group relative flex items-start gap-4 p-4 rounded-lg border-2 transition-all duration-200
-                     {{extra.enabled ? 'bg-amber-50 border-amber-300 shadow-md' : 'bg-white border-amber-100 hover:border-amber-200 hover:shadow-sm'}}">
+        <!-- Lista fija de extras (siempre visible) -->
+        <div class="space-y-2">
+          @for (extra of FIXED_EXTRAS; track $index; let i = $index) {
+            <div class="flex items-start gap-4 p-3 rounded-lg border transition-all duration-200"
+                 [ngClass]="includeExtrasSection()
+                   ? 'bg-amber-100/50 border-amber-200'
+                   : 'bg-slate-50 border-slate-200'">
 
               <!-- Número -->
-              <div class="flex items-center justify-center w-8 h-8 rounded-lg font-bold text-sm flex-shrink-0 transition-colors
-                          {{extra.enabled ? 'bg-amber-600 text-white' : 'bg-amber-100 text-amber-700'}}">
+              <div class="flex items-center justify-center w-7 h-7 rounded-lg font-bold text-sm flex-shrink-0 transition-colors duration-200"
+                   [ngClass]="includeExtrasSection()
+                     ? 'bg-amber-600 text-white'
+                     : 'bg-slate-300 text-slate-600'">
                 {{ i + 1 }}
               </div>
 
-              <!-- Checkbox y Descripción -->
-              <label class="flex items-start gap-3 flex-1 cursor-pointer">
-                <input
-                  type="checkbox"
-                  [checked]="extra.enabled"
-                  (change)="toggleFixedExtra(extra.id)"
-                  class="mt-1 w-5 h-5 text-amber-600 border-2 border-amber-300 rounded
-                         focus:ring-2 focus:ring-amber-400 focus:ring-offset-2
-                         cursor-pointer transition-all
-                         {{extra.enabled ? 'bg-amber-600 border-amber-600' : 'bg-white'}}">
+              <!-- Descripción -->
+              <div class="flex-1 py-0.5">
+                <p class="text-sm font-medium transition-colors duration-200"
+                   [ngClass]="includeExtrasSection()
+                     ? 'text-amber-900'
+                     : 'text-slate-600'">
+                  {{ extra }}
+                </p>
+              </div>
 
-                <div class="flex-1">
-                  <span class="text-sm font-medium transition-colors
-                               {{extra.enabled ? 'text-amber-900' : 'text-slate-700 group-hover:text-slate-900'}}">
-                    {{ extra.description }}
-                  </span>
-                </div>
-              </label>
-
-              <!-- Indicador de estado -->
-              @if (extra.enabled) {
-                <div class="flex items-center gap-2 px-3 py-1 bg-amber-600 text-white rounded-full text-xs font-semibold flex-shrink-0">
-                  <mat-icon class="!text-sm">check_circle</mat-icon>
-                  Incluido
+              <!-- Indicador visual -->
+              @if (includeExtrasSection()) {
+                <div class="flex items-center justify-center w-7 h-7 bg-amber-600 rounded-full flex-shrink-0 animate-fade-in">
+                  <mat-icon class="!text-base text-white">check</mat-icon>
                 </div>
               }
             </div>
@@ -554,14 +581,27 @@
         </div>
 
         <!-- Info adicional -->
-        <div class="mt-6 p-4 bg-amber-50/50 rounded-lg border border-amber-200">
+        <div class="mt-6 p-4 rounded-lg border transition-all duration-300"
+             [ngClass]="includeExtrasSection()
+               ? 'bg-amber-100 border-amber-300'
+               : 'bg-slate-50 border-slate-200'">
           <div class="flex items-start gap-3">
-            <mat-icon class="text-amber-600 !text-xl">info</mat-icon>
-            <div class="flex-1 text-sm text-amber-800">
-              <p class="font-semibold mb-1">Acerca de los extras</p>
-              <p class="text-amber-700">
-                Selecciona los items que <strong>NO están incluidos</strong> en el precio del estimado.
-                Estos serán responsabilidad del cliente o tendrán un costo adicional.
+            <mat-icon class="!text-xl transition-colors duration-300"
+                      [ngClass]="includeExtrasSection() ? 'text-amber-700' : 'text-slate-500'">info</mat-icon>
+            <div class="flex-1 text-sm">
+              <p class="font-semibold mb-1 transition-colors duration-300"
+                 [ngClass]="includeExtrasSection() ? 'text-amber-900' : 'text-slate-700'">
+                Acerca de esta sección
+              </p>
+              <p class="transition-colors duration-300"
+                 [ngClass]="includeExtrasSection() ? 'text-amber-800' : 'text-slate-600'">
+                @if (includeExtrasSection()) {
+                  Esta lista de <strong>exclusiones</strong> se incluirá en el estimado para el cliente.
+                  Todos los items listados arriba <strong>NO están incluidos</strong> en el precio y son responsabilidad del cliente.
+                } @else {
+                  Activa el checkbox superior para incluir esta lista de exclusiones en el estimado.
+                  Los items listados <strong>NO están incluidos</strong> en el precio del servicio.
+                }
               </p>
             </div>
           </div>

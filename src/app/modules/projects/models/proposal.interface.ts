@@ -197,11 +197,3 @@ export interface CreateProposalItemData {
   notes?: string;
 }
 
-/**
- * Interface para extras fijos con checkbox
- */
-export interface FixedExtraItem {
-  id: string;
-  description: string;
-  enabled: boolean;
-}

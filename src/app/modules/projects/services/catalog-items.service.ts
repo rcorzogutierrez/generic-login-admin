@@ -192,13 +192,6 @@ export class CatalogItemsService {
   }
 
   /**
-   * Buscar items por categoría
-   */
-  getItemsByCategory(category: string): CatalogItem[] {
-    return this.catalogItems().filter(item => item.category === category);
-  }
-
-  /**
    * Buscar items por texto
    */
   searchItems(searchTerm: string): CatalogItem[] {
@@ -209,11 +202,8 @@ export class CatalogItemsService {
 
     return this.catalogItems().filter(item => {
       const nameMatch = item.name.toLowerCase().includes(term);
-      const descMatch = item.description.toLowerCase().includes(term);
-      const categoryMatch = item.category?.toLowerCase().includes(term);
-      const tagsMatch = item.tags?.some(tag => tag.toLowerCase().includes(term));
-
-      return nameMatch || descMatch || categoryMatch || tagsMatch;
+      const descMatch = item.description?.toLowerCase().includes(term) || false;
+      return nameMatch || descMatch;
     });
   }
 

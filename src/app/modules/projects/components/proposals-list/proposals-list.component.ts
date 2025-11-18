@@ -125,9 +125,9 @@ export class ProposalsListComponent implements OnInit {
 
   // Configuración para el diálogo de eliminación
   private deleteDialogConfig: GenericModuleConfig = {
-    moduleName: 'proposals',
-    singularName: 'Estimado',
-    pluralName: 'Estimados',
+    collection: 'proposals',
+    entityName: 'Estimado',
+    entityNamePlural: 'Estimados',
     fields: [
       {
         name: 'proposalNumber',

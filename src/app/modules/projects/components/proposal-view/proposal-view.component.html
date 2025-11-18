@@ -96,19 +96,53 @@
 
         <!-- Encabezado del documento -->
         <div class="border-b-2 border-blue-600 pb-6 mb-6">
-          <div class="flex justify-between items-start">
-            <div>
+          <div class="flex justify-between items-start gap-6">
+            <!-- Lado izquierdo: Título -->
+            <div class="flex-1">
               <h2 class="text-3xl font-bold text-slate-800 mb-2">ESTIMADO</h2>
               <p class="text-lg font-semibold text-blue-600">{{ proposal()!.proposalNumber }}</p>
             </div>
+
+            <!-- Lado derecho: Logo e info de empresa -->
             <div class="text-right">
               @if (businessInfo()?.logoUrl) {
                 <img
                   [src]="businessInfo()!.logoUrl"
                   [alt]="businessInfo()!.businessName || 'Logo de la empresa'"
-                  class="max-h-20 w-auto object-contain mb-3">
+                  class="max-h-16 w-auto object-contain mb-2 ml-auto">
               }
-              <span [class]="getStatusClass(proposal()!.status)" class="text-base print:hidden">
+              @if (businessInfo()) {
+                <div class="text-xs text-slate-600 space-y-0.5">
+                  @if (businessInfo()!.businessName) {
+                    <p class="font-bold text-sm text-slate-800">{{ businessInfo()!.businessName }}</p>
+                  }
+                  @if (businessInfo()!.emails && businessInfo()!.emails.length > 0) {
+                    <p>{{ businessInfo()!.emails[0].value }}</p>
+                  }
+                  @if (businessInfo()!.phones && businessInfo()!.phones.length > 0) {
+                    <p>{{ businessInfo()!.phones[0].value }}</p>
+                  }
+                  @if (businessInfo()!.address) {
+                    @if (businessInfo()!.address.street) {
+                      <p>{{ businessInfo()!.address.street }}</p>
+                    }
+                    @if (businessInfo()!.address.city || businessInfo()!.address.state) {
+                      <p>
+                        @if (businessInfo()!.address.city) {
+                          {{ businessInfo()!.address.city }}
+                        }
+                        @if (businessInfo()!.address.state) {
+                          , {{ businessInfo()!.address.state }}
+                        }
+                        @if (businessInfo()!.address.zipCode) {
+                          {{ businessInfo()!.address.zipCode }}
+                        }
+                      </p>
+                    }
+                  }
+                </div>
+              }
+              <span [class]="getStatusClass(proposal()!.status)" class="text-base print:hidden mt-2 inline-block">
                 {{ getStatusLabel(proposal()!.status) }}
               </span>
             </div>
@@ -148,22 +182,15 @@
           </div>
         </div>
 
-        <!-- Ubicación del trabajo -->
-        <div class="bg-slate-50 p-4 rounded-lg mb-6">
-          <h3 class="text-sm font-semibold text-slate-500 uppercase mb-2 flex items-center gap-2">
-            <mat-icon class="!text-base">place</mat-icon>
-            Ubicación del Trabajo
-          </h3>
-          <p class="text-base text-slate-800">{{ proposal()!.address }}</p>
-          <p class="text-base text-slate-800">
-            {{ proposal()!.city }}
-            @if (proposal()!.state) {
-              , {{ proposal()!.state }}
-            }
-            @if (proposal()!.zipCode) {
-              {{ proposal()!.zipCode }}
-            }
-          </p>
+        <!-- Ubicación del trabajo - Compacta -->
+        <div class="flex items-start gap-2 mb-4 pb-3 border-b border-slate-200">
+          <mat-icon class="!text-base text-blue-600 mt-0.5">place</mat-icon>
+          <div class="flex-1">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Ubicación del Trabajo:</span>
+            <span class="text-sm text-slate-800 ml-2">
+              {{ proposal()!.address }}, {{ proposal()!.city }}@if (proposal()!.state) {, {{ proposal()!.state }}}@if (proposal()!.zipCode) { {{ proposal()!.zipCode }}}
+            </span>
+          </div>
         </div>
 
         <!-- Items Incluidos -->

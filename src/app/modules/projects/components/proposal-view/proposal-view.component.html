@@ -148,36 +148,30 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-6 mt-6">
+          <div class="grid grid-cols-2 gap-6 mt-4">
             <!-- Cliente -->
             <div>
-              <h3 class="text-sm font-semibold text-slate-500 uppercase mb-2">Cliente</h3>
-              <p class="text-lg font-bold text-slate-800">{{ proposal()!.ownerName }}</p>
-              @if (proposal()!.ownerEmail) {
-                <p class="text-sm text-slate-600 flex items-center gap-1 mt-1">
-                  <mat-icon class="!text-sm">email</mat-icon>
-                  {{ proposal()!.ownerEmail }}
-                </p>
-              }
-              @if (proposal()!.ownerPhone) {
-                <p class="text-sm text-slate-600 flex items-center gap-1 mt-1">
-                  <mat-icon class="!text-sm">phone</mat-icon>
-                  {{ proposal()!.ownerPhone }}
-                </p>
-              }
+              <h3 class="text-xs font-semibold text-slate-500 uppercase mb-1.5">Para</h3>
+              <div class="text-xs text-slate-700 space-y-0.5">
+                <p class="font-bold text-sm text-slate-800">{{ proposal()!.ownerName }}</p>
+                @if (proposal()!.ownerEmail) {
+                  <p>{{ proposal()!.ownerEmail }}</p>
+                }
+                @if (proposal()!.ownerPhone) {
+                  <p>{{ proposal()!.ownerPhone }}</p>
+                }
+              </div>
             </div>
 
             <!-- Fechas -->
             <div class="text-right">
-              <h3 class="text-sm font-semibold text-slate-500 uppercase mb-2">Información</h3>
-              <p class="text-sm text-slate-700">
-                <span class="font-semibold">Fecha:</span> {{ formatDate(proposal()!.date) }}
-              </p>
-              @if (proposal()!.validUntil) {
-                <p class="text-sm text-slate-700 mt-1">
-                  <span class="font-semibold">Válido hasta:</span> {{ formatDate(proposal()!.validUntil) }}
-                </p>
-              }
+              <h3 class="text-xs font-semibold text-slate-500 uppercase mb-1.5">Fecha del Estimado</h3>
+              <div class="text-xs text-slate-700 space-y-0.5">
+                <p><span class="font-semibold">Emitido:</span> {{ formatDate(proposal()!.date) }}</p>
+                @if (proposal()!.validUntil) {
+                  <p><span class="font-semibold">Válido hasta:</span> {{ formatDate(proposal()!.validUntil) }}</p>
+                }
+              </div>
             </div>
           </div>
         </div>

@@ -108,25 +108,23 @@
 
               <!-- Cliente -->
               <div>
-                <h3 class="text-xs font-semibold text-slate-500 uppercase mb-1">Para</h3>
                 <div class="text-xs text-slate-700 space-y-0.5">
-                  <p class="font-bold text-sm text-slate-800">{{ proposal()!.ownerName }}</p>
+                  <p><span class="font-semibold text-slate-500 uppercase">Para:</span> <span class="font-bold text-sm text-slate-800">{{ proposal()!.ownerName }}</span></p>
                   @if (proposal()!.ownerEmail) {
-                    <p>{{ proposal()!.ownerEmail }}</p>
+                    <p class="pl-8">{{ proposal()!.ownerEmail }}</p>
                   }
                   @if (proposal()!.ownerPhone) {
-                    <p>{{ proposal()!.ownerPhone }}</p>
+                    <p class="pl-8">{{ proposal()!.ownerPhone }}</p>
                   }
                 </div>
               </div>
 
               <!-- Fechas -->
               <div>
-                <h3 class="text-xs font-semibold text-slate-500 uppercase mb-1">Fecha</h3>
                 <div class="text-xs text-slate-700 space-y-0.5">
-                  <p><span class="font-semibold">Emitido:</span> {{ formatDate(proposal()!.date) }}</p>
+                  <p><span class="font-semibold text-slate-500 uppercase">Fecha:</span> <span class="font-semibold">Emitido:</span> {{ formatDate(proposal()!.date) }}</p>
                   @if (proposal()!.validUntil) {
-                    <p><span class="font-semibold">Válido hasta:</span> {{ formatDate(proposal()!.validUntil) }}</p>
+                    <p class="pl-10"><span class="font-semibold">Válido hasta:</span> {{ formatDate(proposal()!.validUntil) }}</p>
                   }
                 </div>
               </div>

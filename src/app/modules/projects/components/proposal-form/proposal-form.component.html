@@ -32,7 +32,7 @@
             mat-raised-button
             color="primary"
             (click)="save()"
-            [disabled]="isLoading() || proposalForm.invalid">
+            [disabled]="isLoading()">
             <mat-icon>save</mat-icon>
             {{ isEditMode() ? 'Actualizar' : 'Guardar' }}
           </button>
@@ -119,8 +119,8 @@
                 <mat-icon>add</mat-icon>
               </button>
             </div>
-            @if (proposalForm.get('ownerId')?.invalid && proposalForm.get('ownerId')?.touched) {
-              <p class="text-xs text-red-500 mt-1.5">El cliente es requerido</p>
+            @if (shouldShowError('ownerId')) {
+              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ El cliente es requerido</p>
             }
           </div>
 
@@ -130,18 +130,20 @@
               Nombre del Cliente <span class="text-red-500">*</span>
             </label>
             <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">badge</mat-icon>
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
+                        [ngClass]="shouldShowError('ownerName') ? 'text-red-500' : 'text-slate-400'">badge</mat-icon>
               <input
                 type="text"
                 formControlName="ownerName"
                 required
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                       transition-all bg-white text-slate-800 hover:border-slate-300"
+                [ngClass]="shouldShowError('ownerName')
+                  ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
+                  : 'border-slate-200 bg-white focus:border-blue-500 focus:ring-blue-100 hover:border-slate-300'"
+                class="w-full pl-11 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800"
                 placeholder="Nombre completo del cliente">
             </div>
-            @if (proposalForm.get('ownerName')?.invalid && proposalForm.get('ownerName')?.touched) {
-              <p class="text-xs text-red-500 mt-1.5">El nombre es requerido</p>
+            @if (shouldShowError('ownerName')) {
+              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ El nombre del cliente es requerido</p>
             }
           </div>
 
@@ -219,21 +221,22 @@
               Tipo de Trabajo <span class="text-red-500">*</span>
             </label>
             <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">business</mat-icon>
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
+                        [ngClass]="shouldShowError('workType') ? 'text-red-500' : 'text-slate-400'">business</mat-icon>
               <select
                 formControlName="workType"
                 required
-                class="w-full pl-11 pr-10 py-3 text-sm border-2 border-slate-200 rounded-lg
-                       focus:border-green-500 focus:ring-2 focus:ring-green-100 outline-none
-                       transition-all bg-white text-slate-800 hover:border-slate-300 cursor-pointer
-                       appearance-none">
+                [ngClass]="shouldShowError('workType')
+                  ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
+                  : 'border-slate-200 bg-white focus:border-green-500 focus:ring-green-100 hover:border-slate-300'"
+                class="w-full pl-11 pr-10 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800 cursor-pointer appearance-none">
                 <option value="residential">Residencial</option>
                 <option value="commercial">Comercial</option>
               </select>
               <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">expand_more</mat-icon>
             </div>
-            @if (proposalForm.get('workType')?.invalid && proposalForm.get('workType')?.touched) {
-              <p class="text-xs text-red-500 mt-1.5">El tipo de trabajo es requerido</p>
+            @if (shouldShowError('workType')) {
+              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ El tipo de trabajo es requerido</p>
             }
           </div>
 
@@ -267,18 +270,20 @@
               Dirección del Trabajo <span class="text-red-500">*</span>
             </label>
             <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">location_on</mat-icon>
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
+                        [ngClass]="shouldShowError('address') ? 'text-red-500' : 'text-slate-400'">location_on</mat-icon>
               <input
                 type="text"
                 formControlName="address"
                 required
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                       transition-all bg-white text-slate-800 hover:border-slate-300"
+                [ngClass]="shouldShowError('address')
+                  ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
+                  : 'border-slate-200 bg-white focus:border-blue-500 focus:ring-blue-100 hover:border-slate-300'"
+                class="w-full pl-11 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800"
                 placeholder="123 Main Street">
             </div>
-            @if (proposalForm.get('address')?.invalid && proposalForm.get('address')?.touched) {
-              <p class="text-xs text-red-500 mt-1.5">La dirección es requerida</p>
+            @if (shouldShowError('address')) {
+              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ La dirección del trabajo es requerida</p>
             }
           </div>
 
@@ -288,18 +293,20 @@
               Ciudad <span class="text-red-500">*</span>
             </label>
             <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">location_city</mat-icon>
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
+                        [ngClass]="shouldShowError('city') ? 'text-red-500' : 'text-slate-400'">location_city</mat-icon>
               <input
                 type="text"
                 formControlName="city"
                 required
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                       transition-all bg-white text-slate-800 hover:border-slate-300"
+                [ngClass]="shouldShowError('city')
+                  ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
+                  : 'border-slate-200 bg-white focus:border-blue-500 focus:ring-blue-100 hover:border-slate-300'"
+                class="w-full pl-11 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800"
                 placeholder="Miami">
             </div>
-            @if (proposalForm.get('city')?.invalid && proposalForm.get('city')?.touched) {
-              <p class="text-xs text-red-500 mt-1.5">La ciudad es requerida</p>
+            @if (shouldShowError('city')) {
+              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ La ciudad es requerida</p>
             }
           </div>
 
@@ -395,6 +402,17 @@
           </h2>
           <p class="text-sm text-slate-500 mt-2 ml-13">Selecciona items del catálogo y agrégalos al estimado</p>
         </div>
+
+        <!-- Alerta de validación -->
+        @if (formSubmitted() && selectedCatalogItems().length === 0) {
+          <div class="mb-4 p-4 bg-red-50 border-2 border-red-300 rounded-lg flex items-start gap-3">
+            <mat-icon class="text-red-600 !text-2xl">error</mat-icon>
+            <div class="flex-1">
+              <p class="text-sm font-bold text-red-800">¡Atención! Falta seleccionar items</p>
+              <p class="text-xs text-red-700 mt-1">Debes seleccionar al menos un item del catálogo para incluir en el estimado.</p>
+            </div>
+          </div>
+        }
 
         <!-- Dos Paneles -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">

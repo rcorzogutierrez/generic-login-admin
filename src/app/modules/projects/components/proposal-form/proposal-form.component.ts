@@ -71,6 +71,7 @@ export class ProposalFormComponent implements OnInit {
   clients = this.clientsService.clients;
   clientSearchTerm = signal<string>('');
   useSameAddress = signal<boolean>(false);
+  formSubmitted = signal<boolean>(false);
 
   // Computed - Clientes filtrados por búsqueda
   filteredClients = computed(() => {
@@ -482,8 +483,11 @@ export class ProposalFormComponent implements OnInit {
    * Guardar proposal
    */
   async save() {
+    // Marcar formulario como enviado para mostrar validaciones
+    this.formSubmitted.set(true);
+
     if (this.proposalForm.invalid) {
-      this.snackBar.open('Por favor completa todos los campos requeridos', 'Cerrar', { duration: 3000 });
+      this.validateAndShowErrors();
       return;
     }
 
@@ -560,6 +564,82 @@ export class ProposalFormComponent implements OnInit {
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  /**
+   * Validar formulario y mostrar errores detallados
+   */
+  validateAndShowErrors() {
+    // Marcar todos los campos como touched para mostrar errores
+    Object.keys(this.proposalForm.controls).forEach(key => {
+      this.proposalForm.get(key)?.markAsTouched();
+    });
+
+    // Construir lista de campos faltantes
+    const missingFields: string[] = [];
+    const fieldLabels: { [key: string]: string } = {
+      ownerId: 'Cliente',
+      ownerName: 'Nombre del Cliente',
+      address: 'Dirección del Trabajo',
+      city: 'Ciudad',
+      workType: 'Tipo de Trabajo',
+      date: 'Fecha',
+      subtotal: 'Subtotal'
+    };
+
+    Object.keys(this.proposalForm.controls).forEach(key => {
+      const control = this.proposalForm.get(key);
+      if (control?.invalid && control?.errors?.['required']) {
+        const label = fieldLabels[key] || key;
+        missingFields.push(label);
+      }
+    });
+
+    // Validación adicional: al menos un item debe estar seleccionado
+    if (this.selectedCatalogItems().length === 0) {
+      missingFields.push('Al menos un Item Incluido');
+    }
+
+    // Mostrar mensaje con campos faltantes
+    if (missingFields.length > 0) {
+      const message = `Faltan los siguientes campos: ${missingFields.join(', ')}`;
+      this.snackBar.open(message, 'Cerrar', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+
+      // Scroll al primer campo inválido
+      this.scrollToFirstInvalidField();
+    }
+  }
+
+  /**
+   * Hacer scroll al primer campo inválido
+   */
+  scrollToFirstInvalidField() {
+    const firstInvalidControl = Object.keys(this.proposalForm.controls).find(key => {
+      return this.proposalForm.get(key)?.invalid;
+    });
+
+    if (firstInvalidControl) {
+      // Intentar encontrar el elemento en el DOM
+      const invalidElement = document.querySelector(`[formControlName="${firstInvalidControl}"]`);
+      if (invalidElement) {
+        invalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Dar foco al elemento después de un pequeño delay para que termine el scroll
+        setTimeout(() => {
+          (invalidElement as HTMLElement).focus();
+        }, 500);
+      }
+    }
+  }
+
+  /**
+   * Verificar si un campo debe mostrar error
+   */
+  shouldShowError(fieldName: string): boolean {
+    const field = this.proposalForm.get(fieldName);
+    return !!(field && field.invalid && (field.touched || this.formSubmitted()));
   }
 
   /**

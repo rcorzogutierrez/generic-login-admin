@@ -10,9 +10,6 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
-  query,
-  where,
-  orderBy,
   Timestamp
 } from 'firebase/firestore';
 import {
@@ -53,17 +50,15 @@ export class CatalogItemsService {
       this.isLoading.set(true);
       this.error.set(null);
 
-      // Consulta simplificada para evitar requerir índice compuesto
-      const q = query(
-        this.catalogItemsCollection,
-        where('isActive', '==', true)
-      );
+      // Consulta más simple posible - sin filtros
+      const snapshot = await getDocs(this.catalogItemsCollection);
 
-      const snapshot = await getDocs(q);
-      let items: CatalogItem[] = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as CatalogItem));
+      let items: CatalogItem[] = snapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as CatalogItem))
+        .filter(item => item.isActive === true); // Filtrar en memoria
 
       // Ordenar en memoria: primero por order, luego por name
       items = items.sort((a, b) => {

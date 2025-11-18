@@ -53,18 +53,29 @@ export class CatalogItemsService {
       this.isLoading.set(true);
       this.error.set(null);
 
+      // Consulta simplificada para evitar requerir índice compuesto
       const q = query(
         this.catalogItemsCollection,
-        where('isActive', '==', true),
-        orderBy('order', 'asc'),
-        orderBy('name', 'asc')
+        where('isActive', '==', true)
       );
 
       const snapshot = await getDocs(q);
-      const items: CatalogItem[] = snapshot.docs.map(doc => ({
+      let items: CatalogItem[] = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       } as CatalogItem));
+
+      // Ordenar en memoria: primero por order, luego por name
+      items = items.sort((a, b) => {
+        // Ordenar por order (si existe)
+        const orderA = a.order ?? 999999;
+        const orderB = b.order ?? 999999;
+        if (orderA !== orderB) {
+          return orderA - orderB;
+        }
+        // Si order es igual, ordenar por name
+        return a.name.localeCompare(b.name);
+      });
 
       this.catalogItems.set(items);
       this.isInitialized = true;

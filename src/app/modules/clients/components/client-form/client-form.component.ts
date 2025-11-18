@@ -210,11 +210,18 @@ export class ClientFormComponent implements OnInit {
     const fields = this.fields();
 
     console.log('🔨 buildForm(): Construyendo formulario con', fields.length, 'campos');
+    console.log('   Modo:', this.mode());
 
     fields.forEach(field => {
+      // Verificar que el campo esté activo (no debería haber inactivos aquí)
+      if (!field.isActive) {
+        console.error(`   ❌ ERROR: Campo INACTIVO "${field.label}" apareció en this.fields() - ESTO ES UN BUG`);
+        return; // Skip este campo
+      }
+
       // Para campos tipo DICTIONARY, crear un control por cada opción
       if (field.type === FieldType.DICTIONARY && field.options && field.options.length > 0) {
-        console.log(`   📖 Campo DICTIONARY: ${field.label} tiene ${field.options.length} opciones`);
+        console.log(`   📖 Campo DICTIONARY: ${field.label} (${field.name}) - ${field.options.length} opciones - Required: ${field.validation.required}`);
         field.options.forEach(option => {
           const controlName = `${field.name}_${option.value}`;
           const initialValue = this.getDictionaryOptionValue(field, option.value, client);
@@ -232,6 +239,8 @@ export class ClientFormComponent implements OnInit {
         let initialValue = this.getInitialValue(field, client);
         const validators = this.createValidators(field);
 
+        console.log(`   ✅ Campo: ${field.label} (${field.name}) - Tipo: ${field.type} - Required: ${field.validation.required} - Validators: ${validators.length}`);
+
         formControls[field.name] = [
           { value: initialValue, disabled: this.mode() === 'view' },
           validators
@@ -239,7 +248,13 @@ export class ClientFormComponent implements OnInit {
       }
     });
 
+    console.log('   📋 Total de controles creados en FormGroup:', Object.keys(formControls).length);
+    console.log('   📋 Lista de controles:', Object.keys(formControls).join(', '));
+
     this.clientForm = this.fb.group(formControls);
+
+    // Log del estado del formulario después de construcción
+    console.log('   ✅ FormGroup construido. Estado: valid =', this.clientForm.valid, ', invalid =', this.clientForm.invalid);
   }
 
   /**
@@ -567,20 +582,29 @@ export class ClientFormComponent implements OnInit {
 
   /**
    * Obtener lista de campos inválidos
+   * IMPORTANTE: Solo retorna campos que están ACTIVOS y presentes en el FormGroup
    */
   getInvalidFields(): FieldConfig[] {
     if (!this.clientForm) return [];
 
     return this.fields().filter(field => {
+      // Verificar que el campo esté activo (doble verificación de seguridad)
+      if (!field.isActive) {
+        console.warn(`⚠️ Campo ${field.label} está inactivo pero apareció en this.fields(). Esto no debería pasar.`);
+        return false;
+      }
+
       // Para campos DICTIONARY, verificar cada opción
       if (field.type === FieldType.DICTIONARY && field.options && field.options.length > 0) {
         return field.options.some(option => {
           const controlName = `${field.name}_${option.value}`;
           const control = this.clientForm.get(controlName);
+          // Solo contar como inválido si el control existe Y es inválido
           return control && control.invalid;
         });
       } else {
         const control = this.clientForm.get(field.name);
+        // Solo contar como inválido si el control existe Y es inválido
         return control && control.invalid;
       }
     });
@@ -588,9 +612,26 @@ export class ClientFormComponent implements OnInit {
 
   /**
    * Obtener número de campos requeridos completados
+   * IMPORTANTE: Solo cuenta campos que están ACTIVOS y presentes en el FormGroup
    */
   getRequiredFieldsStatus(): { completed: number, total: number } {
-    const requiredFields = this.fields().filter(f => f.validation.required);
+    // Solo filtrar campos requeridos que están activos y presentes en el FormGroup
+    const requiredFields = this.fields().filter(f => {
+      if (!f.validation.required) return false;
+      if (!f.isActive) return false; // Doble verificación de seguridad
+
+      // Verificar que el campo exista en el FormGroup
+      if (f.type === FieldType.DICTIONARY && f.options && f.options.length > 0) {
+        // Para DICTIONARY, verificar que al menos un control exista
+        return f.options.some(option => {
+          const controlName = `${f.name}_${option.value}`;
+          return this.clientForm.get(controlName) !== null;
+        });
+      } else {
+        return this.clientForm.get(f.name) !== null;
+      }
+    });
+
     let completed = 0;
 
     requiredFields.forEach(field => {
@@ -647,6 +688,62 @@ export class ClientFormComponent implements OnInit {
   showAllValidationErrors() {
     this.clientForm.markAllAsTouched();
     this.cdr.markForCheck();
+  }
+
+  /**
+   * MÉTODO DE DEBUG - Imprimir estado del formulario en consola
+   * Puedes llamar esto desde la consola del navegador para debuggear
+   */
+  debugFormState() {
+    console.group('🐛 DEBUG: Estado del Formulario de Cliente');
+
+    console.log('📋 Modo:', this.mode());
+    console.log('📋 FormGroup válido:', this.clientForm.valid);
+    console.log('📋 FormGroup inválido:', this.clientForm.invalid);
+    console.log('📋 FormGroup touched:', this.clientForm.touched);
+    console.log('📋 FormGroup dirty:', this.clientForm.dirty);
+
+    console.group('📝 Campos en this.fields() (deberían ser solo ACTIVOS):');
+    this.fields().forEach((field, index) => {
+      console.log(`  ${index + 1}. ${field.label} (${field.name})`);
+      console.log(`     - Tipo: ${field.type}`);
+      console.log(`     - Activo: ${field.isActive}`);
+      console.log(`     - Requerido: ${field.validation.required}`);
+    });
+    console.groupEnd();
+
+    console.group('🎮 Controles en FormGroup:');
+    Object.keys(this.clientForm.controls).forEach((controlName, index) => {
+      const control = this.clientForm.get(controlName);
+      console.log(`  ${index + 1}. ${controlName}`);
+      console.log(`     - Valor: ${control?.value}`);
+      console.log(`     - Válido: ${control?.valid}`);
+      console.log(`     - Inválido: ${control?.invalid}`);
+      console.log(`     - Touched: ${control?.touched}`);
+      console.log(`     - Errores:`, control?.errors);
+    });
+    console.groupEnd();
+
+    console.group('❌ Campos Inválidos (según getInvalidFields()):');
+    const invalidFields = this.getInvalidFields();
+    if (invalidFields.length === 0) {
+      console.log('  ✅ No hay campos inválidos');
+    } else {
+      invalidFields.forEach((field, index) => {
+        const control = this.clientForm.get(field.name);
+        console.log(`  ${index + 1}. ${field.label} (${field.name})`);
+        console.log(`     - Activo: ${field.isActive}`);
+        console.log(`     - Errores del control:`, control?.errors);
+      });
+    }
+    console.groupEnd();
+
+    console.group('📊 Estado de Campos Requeridos:');
+    const status = this.getRequiredFieldsStatus();
+    console.log(`  Completados: ${status.completed} / ${status.total}`);
+    console.groupEnd();
+
+    console.groupEnd();
   }
 
   // ========== MÉTODOS PARA LAYOUT PERSONALIZADO ==========

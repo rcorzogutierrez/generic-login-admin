@@ -102,7 +102,13 @@
               <p class="text-lg font-semibold text-blue-600">{{ proposal()!.proposalNumber }}</p>
             </div>
             <div class="text-right">
-              <span [class]="getStatusClass(proposal()!.status)" class="text-base">
+              @if (businessInfo()?.logoUrl) {
+                <img
+                  [src]="businessInfo()!.logoUrl"
+                  [alt]="businessInfo()!.businessName || 'Logo de la empresa'"
+                  class="max-h-20 w-auto object-contain mb-3">
+              }
+              <span [class]="getStatusClass(proposal()!.status)" class="text-base print:hidden">
                 {{ getStatusLabel(proposal()!.status) }}
               </span>
             </div>
@@ -168,19 +174,19 @@
               INCLUYE
             </h3>
 
-            <div class="space-y-2">
+            <div class="space-y-0">
               @for (item of proposal()!.includes; track item.id; let i = $index) {
-                <div class="flex items-start gap-3 py-2 border-b border-slate-200">
+                <div class="flex items-start gap-3 py-1 border-b border-slate-200">
                   <span class="text-sm font-bold text-slate-600 min-w-[30px]">{{ i + 1 }}.</span>
                   <div class="flex-1">
-                    <p class="text-base text-slate-800">{{ item.description }}</p>
+                    <p class="text-sm text-slate-800 leading-tight">{{ item.description }}</p>
                     @if (item.notes) {
-                      <p class="text-sm text-slate-500 mt-1">{{ item.notes }}</p>
+                      <p class="text-xs text-slate-500 mt-0.5">{{ item.notes }}</p>
                     }
                   </div>
                   @if (item.totalPrice && item.totalPrice > 0) {
                     <div class="text-right min-w-[120px]">
-                      <p class="text-base font-semibold text-slate-800">
+                      <p class="text-sm font-semibold text-slate-800">
                         {{ formatCurrency(item.totalPrice) }}
                       </p>
                       @if (item.quantity && item.unitPrice) {
@@ -204,11 +210,11 @@
               EXTRAS NO INCLUIDOS EN ESTA PROPUESTA
             </h3>
 
-            <div class="space-y-2">
+            <div class="space-y-0">
               @for (item of proposal()!.extras; track item.id; let i = $index) {
-                <div class="flex items-start gap-3 py-2">
+                <div class="flex items-start gap-3 py-1">
                   <span class="text-sm font-bold text-amber-700 min-w-[30px]">{{ i + 1 }}.</span>
-                  <p class="text-base text-amber-900">{{ item.description }}</p>
+                  <p class="text-sm text-amber-900 leading-tight">{{ item.description }}</p>
                 </div>
               }
             </div>

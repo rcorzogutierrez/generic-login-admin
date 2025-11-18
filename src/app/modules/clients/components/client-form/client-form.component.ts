@@ -81,7 +81,12 @@ export class ClientFormComponent implements OnInit {
   // Expose FieldType to template
   FieldType = FieldType;
 
-  constructor() {}
+  constructor() {
+    // Exponer el componente en la consola del navegador para debugging
+    if (typeof window !== 'undefined') {
+      (window as any).clientFormComponent = this;
+    }
+  }
 
   async ngOnInit() {
     await this.initializeForm();
@@ -743,7 +748,69 @@ export class ClientFormComponent implements OnInit {
     console.log(`  Completados: ${status.completed} / ${status.total}`);
     console.groupEnd();
 
+    // Buscar campo específico por nombre
+    console.group('🔍 Búsqueda de campo "test":');
+    const testField = this.fields().find(f => f.name === 'test');
+    if (testField) {
+      console.log('  ✅ Campo "test" encontrado en this.fields()');
+      console.log(`     - Label: ${testField.label}`);
+      console.log(`     - Activo: ${testField.isActive}`);
+      console.log(`     - Requerido: ${testField.validation.required}`);
+      console.log(`     - Tipo: ${testField.type}`);
+
+      const testControl = this.clientForm.get('test');
+      if (testControl) {
+        console.log('  ✅ Control "test" encontrado en FormGroup');
+        console.log(`     - Valor: ${testControl.value}`);
+        console.log(`     - Válido: ${testControl.valid}`);
+        console.log(`     - Errores:`, testControl.errors);
+      } else {
+        console.log('  ❌ Control "test" NO encontrado en FormGroup');
+      }
+    } else {
+      console.log('  ❌ Campo "test" NO encontrado en this.fields()');
+
+      // Buscar en TODOS los campos de la configuración (incluyendo inactivos)
+      const allFields = this.configService.fields();
+      const testInAll = allFields.find(f => f.name === 'test');
+      if (testInAll) {
+        console.log('  ⚠️ PERO SÍ está en la configuración completa (puede estar inactivo)');
+        console.log(`     - Label: ${testInAll.label}`);
+        console.log(`     - Activo: ${testInAll.isActive}`);
+        console.log(`     - Requerido: ${testInAll.validation.required}`);
+      }
+    }
     console.groupEnd();
+
+    console.groupEnd();
+  }
+
+  /**
+   * SOLUCIÓN TEMPORAL: Desactivar campo problemático
+   * Esto marcará el campo "test" como inactivo en Firebase
+   */
+  async fixTestField() {
+    try {
+      const allFields = this.configService.fields();
+      const testField = allFields.find(f => f.name === 'test');
+
+      if (!testField) {
+        console.log('❌ Campo "test" no encontrado');
+        this.snackBar.open('Campo "test" no encontrado en la configuración', 'Cerrar', { duration: 3000 });
+        return;
+      }
+
+      console.log('🔧 Desactivando campo "test"...');
+      await this.configService.updateField(testField.id, { isActive: false });
+
+      this.snackBar.open('✅ Campo "test" desactivado. Recarga la página.', 'Cerrar', { duration: 5000 });
+      console.log('✅ Campo "test" desactivado exitosamente');
+      console.log('   Por favor, recarga la página (F5) para aplicar los cambios');
+
+    } catch (error) {
+      console.error('❌ Error desactivando campo:', error);
+      this.snackBar.open('Error al desactivar el campo', 'Cerrar', { duration: 3000 });
+    }
   }
 
   // ========== MÉTODOS PARA LAYOUT PERSONALIZADO ==========

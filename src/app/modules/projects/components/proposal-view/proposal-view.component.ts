@@ -15,6 +15,7 @@ import { MatMenuModule } from '@angular/material/menu';
 
 // Services
 import { ProposalsService } from '../../services/proposals.service';
+import { BusinessInfoService } from '../../../../admin/services/business-info.service';
 
 // Models
 import { Proposal, ProposalStatus } from '../../models';
@@ -38,6 +39,7 @@ import { Proposal, ProposalStatus } from '../../models';
 })
 export class ProposalViewComponent implements OnInit {
   private proposalsService = inject(ProposalsService);
+  private businessInfoService = inject(BusinessInfoService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);
@@ -45,11 +47,15 @@ export class ProposalViewComponent implements OnInit {
   // Signals
   proposal = signal<Proposal | null>(null);
   isLoading = signal<boolean>(false);
+  businessInfo = this.businessInfoService.businessInfo;
 
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      await this.loadProposal(id);
+      await Promise.all([
+        this.loadProposal(id),
+        this.businessInfoService.getBusinessInfo()
+      ]);
     }
   }
 

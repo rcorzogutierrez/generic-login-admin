@@ -61,6 +61,71 @@
       <!-- ========== FORMULARIO ========== -->
       <form [formGroup]="clientForm" (ngSubmit)="onSubmit()" class="bg-white rounded-b-2xl shadow-lg">
 
+        <!-- Banner de Validación (solo en modo create/edit si hay errores y el form fue touched) -->
+        @if (mode() !== 'view' && hasValidationErrors() && clientForm.touched) {
+          <div class="mx-8 mt-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
+            <div class="flex items-start gap-3">
+              <mat-icon class="text-red-500 !text-xl">error_outline</mat-icon>
+              <div class="flex-1">
+                <h4 class="text-sm font-bold text-red-800 mb-1">Campos incompletos o inválidos</h4>
+                <p class="text-xs text-red-700">
+                  Por favor, revisa y completa los siguientes campos:
+                </p>
+                <ul class="mt-2 space-y-1">
+                  @for (field of getInvalidFields().slice(0, 5); track field.id) {
+                    <li class="text-xs text-red-700 flex items-center gap-1.5">
+                      <span class="w-1 h-1 bg-red-500 rounded-full"></span>
+                      <strong>{{ field.label }}</strong>
+                      @if (field.validation.required) {
+                        <span class="text-red-500">(requerido)</span>
+                      }
+                    </li>
+                  }
+                  @if (getInvalidFields().length > 5) {
+                    <li class="text-xs text-red-600 italic">
+                      ... y {{ getInvalidFields().length - 5 }} campo(s) más
+                    </li>
+                  }
+                </ul>
+                <button
+                  type="button"
+                  mat-button
+                  class="!text-red-600 !text-xs !mt-2 !p-0 !min-w-0 !h-auto"
+                  (click)="showAllValidationErrors()">
+                  Mostrar todos los errores
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Indicador de Progreso de Campos Requeridos -->
+        @if (mode() !== 'view' && getRequiredFieldsStatus().total > 0) {
+          <div class="mx-8 mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <mat-icon class="text-blue-600 !text-lg">assignment_turned_in</mat-icon>
+                <span class="text-sm font-semibold text-blue-800">Campos Requeridos</span>
+              </div>
+              <span class="text-sm font-bold text-blue-600">
+                {{ getRequiredFieldsStatus().completed }} / {{ getRequiredFieldsStatus().total }}
+              </span>
+            </div>
+            <div class="w-full bg-blue-200 rounded-full h-2 overflow-hidden">
+              <div
+                class="bg-blue-600 h-full transition-all duration-500 ease-out"
+                [style.width.%]="(getRequiredFieldsStatus().completed / getRequiredFieldsStatus().total) * 100">
+              </div>
+            </div>
+            @if (getRequiredFieldsStatus().completed === getRequiredFieldsStatus().total) {
+              <p class="text-xs text-green-600 mt-2 flex items-center gap-1">
+                <mat-icon class="!text-sm">check_circle</mat-icon>
+                ¡Todos los campos requeridos están completos!
+              </p>
+            }
+          </div>
+        }
+
         <div class="px-8 py-8">
 
           <!-- Grid de Campos con Layout Personalizado -->
@@ -345,6 +410,9 @@
               mat-raised-button
               color="primary"
               [disabled]="clientForm.invalid || isSaving()"
+              [matTooltip]="getSubmitButtonTooltip()"
+              [matTooltipDisabled]="!clientForm.invalid && !isSaving()"
+              matTooltipPosition="above"
               class="flex items-center gap-2 font-semibold px-7 py-3 rounded-lg !bg-gradient-to-br !from-purple-500 !to-purple-600 !text-white !shadow-[0_4px_12px_rgba(139,92,246,0.3)] hover:!shadow-[0_8px_20px_rgba(139,92,246,0.4)] hover:!-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed">
               @if (isSaving()) {
                 <mat-spinner diameter="20" class="inline-block"></mat-spinner>

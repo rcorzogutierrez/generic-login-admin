@@ -565,6 +565,90 @@ export class ClientFormComponent implements OnInit {
     return this.clientForm.dirty;
   }
 
+  /**
+   * Obtener lista de campos inválidos
+   */
+  getInvalidFields(): FieldConfig[] {
+    if (!this.clientForm) return [];
+
+    return this.fields().filter(field => {
+      // Para campos DICTIONARY, verificar cada opción
+      if (field.type === FieldType.DICTIONARY && field.options && field.options.length > 0) {
+        return field.options.some(option => {
+          const controlName = `${field.name}_${option.value}`;
+          const control = this.clientForm.get(controlName);
+          return control && control.invalid;
+        });
+      } else {
+        const control = this.clientForm.get(field.name);
+        return control && control.invalid;
+      }
+    });
+  }
+
+  /**
+   * Obtener número de campos requeridos completados
+   */
+  getRequiredFieldsStatus(): { completed: number, total: number } {
+    const requiredFields = this.fields().filter(f => f.validation.required);
+    let completed = 0;
+
+    requiredFields.forEach(field => {
+      if (field.type === FieldType.DICTIONARY && field.options && field.options.length > 0) {
+        // Para DICTIONARY, verificar cada opción
+        const allValid = field.options.every(option => {
+          const controlName = `${field.name}_${option.value}`;
+          const control = this.clientForm.get(controlName);
+          return control && control.valid;
+        });
+        if (allValid) completed++;
+      } else {
+        const control = this.clientForm.get(field.name);
+        if (control && control.valid) {
+          completed++;
+        }
+      }
+    });
+
+    return { completed, total: requiredFields.length };
+  }
+
+  /**
+   * Verificar si el formulario tiene errores de validación
+   */
+  hasValidationErrors(): boolean {
+    return this.clientForm && this.clientForm.invalid;
+  }
+
+  /**
+   * Obtener mensaje de tooltip para el botón deshabilitado
+   */
+  getSubmitButtonTooltip(): string {
+    if (this.isSaving()) {
+      return 'Guardando cliente...';
+    }
+
+    if (this.clientForm.invalid) {
+      const invalidFields = this.getInvalidFields();
+      if (invalidFields.length > 0) {
+        const fieldNames = invalidFields.map(f => f.label).slice(0, 3).join(', ');
+        const more = invalidFields.length > 3 ? ` y ${invalidFields.length - 3} más` : '';
+        return `Completa los campos requeridos: ${fieldNames}${more}`;
+      }
+      return 'Completa todos los campos requeridos';
+    }
+
+    return '';
+  }
+
+  /**
+   * Marcar todos los campos como touched para mostrar errores
+   */
+  showAllValidationErrors() {
+    this.clientForm.markAllAsTouched();
+    this.cdr.markForCheck();
+  }
+
   // ========== MÉTODOS PARA LAYOUT PERSONALIZADO ==========
 
   /**

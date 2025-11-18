@@ -119,23 +119,23 @@
                   @if (businessInfo()!.emails && businessInfo()!.emails.length > 0) {
                     <p>{{ businessInfo()!.emails[0].value }}</p>
                   }
-                  @if (businessInfo()!.phones && businessInfo()!.phones.length > 0) {
-                    <p>{{ businessInfo()!.phones[0].value }}</p>
+                  @if (businessInfo()!.phones && businessInfo()!.phones!.length > 0) {
+                    <p>{{ businessInfo()!.phones![0].value }}</p>
                   }
                   @if (businessInfo()!.address) {
-                    @if (businessInfo()!.address.street) {
-                      <p>{{ businessInfo()!.address.street }}</p>
+                    @if (businessInfo()!.address!.street) {
+                      <p>{{ businessInfo()!.address!.street }}</p>
                     }
-                    @if (businessInfo()!.address.city || businessInfo()!.address.state) {
+                    @if (businessInfo()!.address!.city || businessInfo()!.address!.state) {
                       <p>
-                        @if (businessInfo()!.address.city) {
-                          {{ businessInfo()!.address.city }}
+                        @if (businessInfo()!.address!.city) {
+                          {{ businessInfo()!.address!.city }}
                         }
-                        @if (businessInfo()!.address.state) {
-                          , {{ businessInfo()!.address.state }}
+                        @if (businessInfo()!.address!.state) {
+                          , {{ businessInfo()!.address!.state }}
                         }
-                        @if (businessInfo()!.address.zipCode) {
-                          {{ businessInfo()!.address.zipCode }}
+                        @if (businessInfo()!.address!.zipCode) {
+                          {{ businessInfo()!.address!.zipCode }}
                         }
                       </p>
                     }

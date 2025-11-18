@@ -96,14 +96,43 @@
 
         <!-- Encabezado del documento -->
         <div class="border-b-2 border-blue-600 pb-3 mb-3">
-          <div class="flex justify-between items-start gap-6">
-            <!-- Lado izquierdo: Título -->
-            <div class="flex-1">
-              <h2 class="text-3xl font-bold text-slate-800 mb-1">ESTIMADO</h2>
-              <p class="text-lg font-semibold text-blue-600">{{ proposal()!.proposalNumber }}</p>
+          <div class="grid grid-cols-2 gap-8">
+
+            <!-- Columna Izquierda: Info del Estimado y Cliente -->
+            <div class="space-y-3">
+              <!-- Título del Estimado -->
+              <div class="mb-3">
+                <h2 class="text-lg font-bold text-slate-800 uppercase leading-tight">Estimado</h2>
+                <p class="text-base font-bold text-blue-600">{{ proposal()!.proposalNumber }}</p>
+              </div>
+
+              <!-- Cliente -->
+              <div>
+                <h3 class="text-xs font-semibold text-slate-500 uppercase mb-1">Para</h3>
+                <div class="text-xs text-slate-700 space-y-0.5">
+                  <p class="font-bold text-sm text-slate-800">{{ proposal()!.ownerName }}</p>
+                  @if (proposal()!.ownerEmail) {
+                    <p>{{ proposal()!.ownerEmail }}</p>
+                  }
+                  @if (proposal()!.ownerPhone) {
+                    <p>{{ proposal()!.ownerPhone }}</p>
+                  }
+                </div>
+              </div>
+
+              <!-- Fechas -->
+              <div>
+                <h3 class="text-xs font-semibold text-slate-500 uppercase mb-1">Fecha</h3>
+                <div class="text-xs text-slate-700 space-y-0.5">
+                  <p><span class="font-semibold">Emitido:</span> {{ formatDate(proposal()!.date) }}</p>
+                  @if (proposal()!.validUntil) {
+                    <p><span class="font-semibold">Válido hasta:</span> {{ formatDate(proposal()!.validUntil) }}</p>
+                  }
+                </div>
+              </div>
             </div>
 
-            <!-- Lado derecho: Logo e info de empresa -->
+            <!-- Columna Derecha: Logo e Info de Empresa -->
             <div class="text-right">
               @if (businessInfo()?.logoUrl) {
                 <img
@@ -146,33 +175,7 @@
                 {{ getStatusLabel(proposal()!.status) }}
               </span>
             </div>
-          </div>
 
-          <div class="grid grid-cols-2 gap-6 mt-2">
-            <!-- Cliente -->
-            <div>
-              <h3 class="text-xs font-semibold text-slate-500 uppercase mb-1.5">Para</h3>
-              <div class="text-xs text-slate-700 space-y-0.5">
-                <p class="font-bold text-sm text-slate-800">{{ proposal()!.ownerName }}</p>
-                @if (proposal()!.ownerEmail) {
-                  <p>{{ proposal()!.ownerEmail }}</p>
-                }
-                @if (proposal()!.ownerPhone) {
-                  <p>{{ proposal()!.ownerPhone }}</p>
-                }
-              </div>
-            </div>
-
-            <!-- Fechas -->
-            <div class="text-right">
-              <h3 class="text-xs font-semibold text-slate-500 uppercase mb-1.5">Fecha del Estimado</h3>
-              <div class="text-xs text-slate-700 space-y-0.5">
-                <p><span class="font-semibold">Emitido:</span> {{ formatDate(proposal()!.date) }}</p>
-                @if (proposal()!.validUntil) {
-                  <p><span class="font-semibold">Válido hasta:</span> {{ formatDate(proposal()!.validUntil) }}</p>
-                }
-              </div>
-            </div>
           </div>
         </div>
 

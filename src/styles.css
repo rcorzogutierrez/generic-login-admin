@@ -776,15 +776,62 @@
 
 /* 11. PRINT STYLES */
 @media print {
-  body {
-    @apply bg-white !important;
+  /* Forzar fondo blanco */
+  body,
+  html {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-  
+
+  /* Ocultar TODOS los elementos de navegación y controles */
+  app-navbar,
+  app-header,
+  app-sidebar,
+  mat-toolbar,
+  mat-sidenav,
+  mat-sidenav-container mat-sidenav,
+  mat-sidenav-content mat-toolbar,
+  header,
+  nav,
+  aside,
+  .navbar,
+  .header,
+  .toolbar,
+  .sidebar,
+  .page-header,
   .icon-btn,
   .icon-button,
   .mat-mdc-menu-panel,
-  button {
+  .mat-drawer,
+  .mat-drawer-backdrop,
+  button:not(.print-visible) {
     display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+  }
+
+  /* Asegurar que el contenido principal ocupe todo */
+  mat-sidenav-container,
+  mat-sidenav-content {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Configuración de página */
+  @page {
+    margin: 0.5cm;
+    size: auto;
+  }
+
+  /* Preservar colores */
+  * {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
   }
 }
 

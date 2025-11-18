@@ -204,6 +204,21 @@
          hover:border-amber-300 transition-all;
 }
 
+/* Snackbar de error personalizado */
+::ng-deep .error-snackbar {
+  background-color: #ef4444 !important;
+  color: white !important;
+}
+
+::ng-deep .error-snackbar .mat-mdc-snack-bar-label {
+  color: white !important;
+  font-weight: 500 !important;
+}
+
+::ng-deep .error-snackbar .mat-mdc-button {
+  color: white !important;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   ::ng-deep .mat-mdc-input-element {

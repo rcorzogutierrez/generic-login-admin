@@ -25,6 +25,10 @@ import { AuthService } from '../../../../core/services/auth.service';
 // Models
 import { Proposal, ProposalFilters, ProposalSort, ProposalStatus } from '../../models';
 
+// Shared Components
+import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
+import { GenericModuleConfig, GenericFieldConfig } from '../../../../shared/models/generic-entity.interface';
+
 @Component({
   selector: 'app-proposals-list',
   standalone: true,
@@ -119,6 +123,41 @@ export class ProposalsListComponent implements OnInit {
     return Math.ceil(total / perPage);
   });
 
+  // Configuración para el diálogo de eliminación
+  private deleteDialogConfig: GenericModuleConfig = {
+    moduleName: 'proposals',
+    singularName: 'Estimado',
+    pluralName: 'Estimados',
+    fields: [
+      {
+        name: 'proposalNumber',
+        label: 'Número de Estimado',
+        type: 'text',
+        showInDelete: true
+      },
+      {
+        name: 'ownerName',
+        label: 'Cliente',
+        type: 'text',
+        showInDelete: true
+      },
+      {
+        name: 'address',
+        label: 'Dirección del Trabajo',
+        type: 'text',
+        showInDelete: true
+      },
+      {
+        name: 'total',
+        label: 'Total',
+        type: 'currency',
+        showInDelete: true,
+        format: (value: number) => this.formatCurrency(value)
+      }
+    ] as GenericFieldConfig[],
+    deleteDialogFieldsCount: 4
+  };
+
   constructor() {}
 
   async ngOnInit() {
@@ -208,20 +247,28 @@ export class ProposalsListComponent implements OnInit {
    * Eliminar proposal
    */
   async deleteProposal(proposal: Proposal) {
-    const confirmed = confirm(
-      `¿Estás seguro de eliminar el estimado ${proposal.proposalNumber}?\n\nEsta acción no se puede deshacer.`
-    );
+    const dialogRef = this.dialog.open(GenericDeleteDialogComponent, {
+      data: {
+        entity: proposal,
+        config: this.deleteDialogConfig
+      },
+      width: '600px',
+      maxWidth: '95vw',
+      disableClose: true
+    });
 
-    if (confirmed) {
-      try {
-        await this.proposalsService.deleteProposal(proposal.id);
-        this.snackBar.open('Estimado eliminado exitosamente', 'Cerrar', { duration: 3000 });
-        this.cdr.markForCheck();
-      } catch (error) {
-        console.error('Error eliminando proposal:', error);
-        this.snackBar.open('Error al eliminar el estimado', 'Cerrar', { duration: 3000 });
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result?.confirmed) {
+        try {
+          await this.proposalsService.deleteProposal(proposal.id);
+          this.snackBar.open('Estimado eliminado exitosamente', 'Cerrar', { duration: 3000 });
+          this.cdr.markForCheck();
+        } catch (error) {
+          console.error('Error eliminando proposal:', error);
+          this.snackBar.open('Error al eliminar el estimado', 'Cerrar', { duration: 3000 });
+        }
       }
-    }
+    });
   }
 
   /**

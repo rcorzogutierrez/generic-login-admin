@@ -29,12 +29,20 @@
             Cancelar
           </button>
           <button
+            mat-button
+            color="accent"
+            (click)="save(true)"
+            [disabled]="isLoading()">
+            <mat-icon>drafts</mat-icon>
+            Guardar Borrador
+          </button>
+          <button
             mat-raised-button
             color="primary"
-            (click)="save()"
+            (click)="save(false)"
             [disabled]="isLoading()">
             <mat-icon>save</mat-icon>
-            {{ isEditMode() ? 'Actualizar' : 'Guardar' }}
+            {{ isEditMode() ? 'Actualizar' : 'Guardar y Finalizar' }}
           </button>
         </div>
       </div>
@@ -896,18 +904,32 @@
             Cancelar
           </button>
           <button
+            mat-button
+            color="accent"
+            type="button"
+            (click)="save(true)"
+            [disabled]="isLoading()"
+            class="!px-6 !py-3 !border-2">
+            @if (isLoading()) {
+              <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
+            } @else {
+              <mat-icon>drafts</mat-icon>
+            }
+            Guardar Borrador
+          </button>
+          <button
             mat-raised-button
             color="primary"
             type="button"
-            (click)="save()"
-            [disabled]="isLoading() || proposalForm.invalid"
+            (click)="save(false)"
+            [disabled]="isLoading()"
             class="!px-8 !py-3 !text-base">
             @if (isLoading()) {
               <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
             } @else {
               <mat-icon>save</mat-icon>
             }
-            {{ isEditMode() ? 'Actualizar Estimado' : 'Guardar Estimado' }}
+            {{ isEditMode() ? 'Actualizar Estimado' : 'Guardar y Finalizar' }}
           </button>
         </div>
       </div>

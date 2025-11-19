@@ -549,28 +549,50 @@ export class ProposalFormComponent implements OnInit {
 
   /**
    * Guardar proposal
+   * @param asDraft - Si es true, guarda como borrador sin validaciones estrictas
    */
-  async save() {
-    // Marcar formulario como enviado para mostrar validaciones
-    this.formSubmitted.set(true);
-
-    if (this.proposalForm.invalid) {
-      this.validateAndShowErrors();
-      return;
-    }
-
+  async save(asDraft: boolean = false) {
     try {
       this.isLoading.set(true);
       const formValue = this.proposalForm.value;
 
-      // Validar que el subtotal sea mayor a 0
-      const subtotal = formValue.subtotal || 0;
-      if (subtotal <= 0) {
-        this.snackBar.open('El subtotal debe ser mayor a 0', 'Cerrar', {
-          duration: 5000,
+      // Validaciones mínimas para borrador: solo cliente
+      if (!formValue.ownerId || !formValue.ownerName) {
+        this.snackBar.open('Debes seleccionar al menos un cliente', 'Cerrar', {
+          duration: 3000,
           panelClass: ['error-snackbar']
         });
         return;
+      }
+
+      // Si NO es borrador, validar todo el formulario
+      if (!asDraft) {
+        // Marcar formulario como enviado para mostrar validaciones
+        this.formSubmitted.set(true);
+
+        if (this.proposalForm.invalid) {
+          this.validateAndShowErrors();
+          return;
+        }
+
+        // Validar que el subtotal sea mayor a 0
+        const subtotal = formValue.subtotal || 0;
+        if (subtotal <= 0) {
+          this.snackBar.open('El subtotal debe ser mayor a 0', 'Cerrar', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
+          return;
+        }
+
+        // Validar que tenga al menos un item
+        if (this.selectedCatalogItems().length === 0) {
+          this.snackBar.open('Debes agregar al menos un item incluido', 'Cerrar', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
+          return;
+        }
       }
 
       const taxPercentage = formValue.taxPercentage || 0;
@@ -609,11 +631,11 @@ export class ProposalFormComponent implements OnInit {
         zipCode: formValue.zipCode,
         workType: formValue.workType,
         jobCategory: formValue.jobCategory,
-        date: Timestamp.fromDate(this.parseDateFromInput(formValue.date)),
+        date: formValue.date ? Timestamp.fromDate(this.parseDateFromInput(formValue.date)) : Timestamp.now(),
         validUntil: formValue.validUntil ? Timestamp.fromDate(this.parseDateFromInput(formValue.validUntil)) : null,
         includes: includesToSave,
         extras: extrasToSave,
-        subtotal,
+        subtotal: formValue.subtotal || 0,
         tax,
         taxPercentage,
         discount,
@@ -628,25 +650,28 @@ export class ProposalFormComponent implements OnInit {
       // Filtrar valores undefined/null/vacíos para prevenir errores de Firebase
       const proposalData = this.filterUndefinedValues(baseData) as CreateProposalData;
 
-      // Asegurar que los campos requeridos siempre estén presentes
+      // Asegurar que los campos mínimos siempre estén presentes
       proposalData.ownerId = formValue.ownerId;
       proposalData.ownerName = formValue.ownerName;
-      proposalData.address = formValue.address;
-      proposalData.city = formValue.city;
-      proposalData.workType = formValue.workType;
-      proposalData.jobCategory = formValue.jobCategory;
-      proposalData.date = Timestamp.fromDate(this.parseDateFromInput(formValue.date));
       proposalData.includes = includesToSave;
       proposalData.extras = extrasToSave;
-      proposalData.total = total;
+      proposalData.total = total || 0;
       proposalData.status = 'draft';
 
       if (this.isEditMode() && this.proposalId()) {
         await this.proposalsService.updateProposal(this.proposalId()!, proposalData);
-        this.snackBar.open('Estimado actualizado exitosamente', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(
+          asDraft ? 'Borrador guardado exitosamente' : 'Estimado actualizado exitosamente',
+          'Cerrar',
+          { duration: 3000 }
+        );
       } else {
         const newProposal = await this.proposalsService.createProposal(proposalData);
-        this.snackBar.open('Estimado creado exitosamente', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(
+          asDraft ? 'Borrador guardado exitosamente' : 'Estimado creado exitosamente',
+          'Cerrar',
+          { duration: 3000 }
+        );
         this.router.navigate(['/modules/projects', newProposal.id]);
         return;
       }

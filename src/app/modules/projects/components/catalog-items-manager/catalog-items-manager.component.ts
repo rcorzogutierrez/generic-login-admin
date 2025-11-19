@@ -3,7 +3,7 @@
 import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogRef, MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -36,6 +36,7 @@ import { CatalogItem, CreateCatalogItemData } from '../../models';
 })
 export class CatalogItemsManagerComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<CatalogItemsManagerComponent>);
+  private dialog = inject(MatDialog);
   private fb = inject(FormBuilder);
   private catalogItemsService = inject(CatalogItemsService);
   private snackBar = inject(MatSnackBar);
@@ -150,22 +151,37 @@ export class CatalogItemsManagerComponent implements OnInit {
    * Eliminar item
    */
   async deleteItem(item: CatalogItem) {
-    if (!confirm(`¿Estás seguro de eliminar "${item.name}"?`)) {
-      return;
-    }
+    // Importar dinámicamente el diálogo de confirmación
+    const { ConfirmDialogComponent } = await import('../confirm-dialog/confirm-dialog.component');
 
-    try {
-      await this.catalogItemsService.deleteItem(item.id);
-      this.snackBar.open('Item eliminado exitosamente', 'Cerrar', { duration: 3000 });
-
-      // Si estábamos editando este item, resetear form
-      if (this.editingItemId() === item.id) {
-        this.resetForm();
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '500px',
+      data: {
+        title: 'Eliminar Item',
+        message: `¿Estás seguro de eliminar "${item.name}"?\n\nEsta acción no se puede deshacer.`,
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        confirmColor: 'warn',
+        icon: 'delete'
       }
-    } catch (error) {
-      console.error('Error eliminando item:', error);
-      this.snackBar.open('Error al eliminar el item', 'Cerrar', { duration: 3000 });
-    }
+    });
+
+    dialogRef.afterClosed().subscribe(async (confirmed) => {
+      if (confirmed) {
+        try {
+          await this.catalogItemsService.deleteItem(item.id);
+          this.snackBar.open('Item eliminado exitosamente', 'Cerrar', { duration: 3000 });
+
+          // Si estábamos editando este item, resetear form
+          if (this.editingItemId() === item.id) {
+            this.resetForm();
+          }
+        } catch (error) {
+          console.error('Error eliminando item:', error);
+          this.snackBar.open('Error al eliminar el item', 'Cerrar', { duration: 3000 });
+        }
+      }
+    });
   }
 
   /**

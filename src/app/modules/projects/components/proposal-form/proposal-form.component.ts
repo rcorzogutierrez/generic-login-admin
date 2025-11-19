@@ -176,6 +176,13 @@ export class ProposalFormComponent implements OnInit {
   }
 
   /**
+   * Convertir Date a formato YYYY-MM-DD para inputs de tipo date
+   */
+  private formatDateForInput(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
+  /**
    * Inicializar formulario
    */
   initForm() {
@@ -201,8 +208,8 @@ export class ProposalFormComponent implements OnInit {
       zipCode: [''],
       workType: [defaultWorkType, Validators.required],
       jobCategory: ['', Validators.required],
-      date: [today, Validators.required],
-      validUntil: [validUntilDate],
+      date: [this.formatDateForInput(today), Validators.required],
+      validUntil: [this.formatDateForInput(validUntilDate)],
       notes: [''],
       internalNotes: [''],
       terms: [defaultTerms],

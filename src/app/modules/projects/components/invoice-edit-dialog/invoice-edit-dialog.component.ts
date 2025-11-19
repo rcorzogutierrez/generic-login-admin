@@ -131,9 +131,11 @@ export class InvoiceEditDialogComponent implements OnInit {
 
   /**
    * Guardar cambios
+   * @param asDraft - Si es true, guarda como borrador sin validaciones estrictas
    */
-  async save() {
-    if (this.invoiceForm.invalid) {
+  async save(asDraft: boolean = false) {
+    // Si NO es borrador, validar formulario completo
+    if (!asDraft && this.invoiceForm.invalid) {
       this.snackBar.open('Por favor, completa todos los campos requeridos', 'Cerrar', {
         duration: 3000
       });
@@ -145,9 +147,9 @@ export class InvoiceEditDialogComponent implements OnInit {
       const formValue = this.invoiceForm.value;
 
       const updateData: any = {
-        workers: formValue.workers,
-        materialsUsed: formValue.materialsUsed,
-        workTime: formValue.workTime
+        workers: formValue.workers || [],
+        materialsUsed: formValue.materialsUsed || [],
+        workTime: formValue.workTime || null
       };
 
       // Convertir fechas a Timestamp si existen
@@ -160,9 +162,11 @@ export class InvoiceEditDialogComponent implements OnInit {
 
       await this.proposalsService.updateProposal(this.data.proposal.id, updateData);
 
-      this.snackBar.open('Datos de factura actualizados exitosamente', 'Cerrar', {
-        duration: 3000
-      });
+      this.snackBar.open(
+        asDraft ? 'Borrador de factura guardado exitosamente' : 'Datos de factura actualizados exitosamente',
+        'Cerrar',
+        { duration: 3000 }
+      );
 
       this.dialogRef.close(true);
     } catch (error) {

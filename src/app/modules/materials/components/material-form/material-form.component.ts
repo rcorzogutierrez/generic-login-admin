@@ -314,7 +314,16 @@ export class MaterialFormComponent implements OnInit {
       const defaultFields: any = {};
       const customFields: any = {};
 
-      this.fields().forEach(field => {
+      // Obtener solo los campos que están en el layout (los mismos que tienen controles en el FormGroup)
+      const layout = this.formLayout();
+      let fieldsToProcess = this.fields();
+
+      if (layout && layout.fields && Object.keys(layout.fields).length > 0) {
+        fieldsToProcess = this.fields().filter(field => layout.fields[field.id] !== undefined);
+        console.log('📤 onSubmit(): Procesando', fieldsToProcess.length, 'campos (filtrados por layout)');
+      }
+
+      fieldsToProcess.forEach(field => {
         const value = formValue[field.name];
 
         if (field.isDefault) {

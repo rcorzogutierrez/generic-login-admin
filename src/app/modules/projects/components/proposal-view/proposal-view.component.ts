@@ -140,9 +140,10 @@ export class ProposalViewComponent implements OnInit {
           this.snackBar.open('Estimado convertido a factura exitosamente', 'Cerrar', { duration: 3000 });
 
           // Abrir automáticamente el diálogo para agregar datos de factura
-          setTimeout(() => {
-            this.editInvoiceData();
-          }, 500);
+          // Usar requestAnimationFrame para asegurar que la UI se actualice primero
+          requestAnimationFrame(async () => {
+            await this.editInvoiceData();
+          });
         } catch (error) {
           console.error('Error convirtiendo a factura:', error);
           this.snackBar.open('Error al convertir a factura', 'Cerrar', { duration: 3000 });
@@ -258,13 +259,15 @@ export class ProposalViewComponent implements OnInit {
   /**
    * Editar datos de factura
    */
-  editInvoiceData() {
+  async editInvoiceData() {
     const proposal = this.proposal();
     if (!proposal) return;
 
-    // Importar dinámicamente el componente del diálogo
-    import('../invoice-edit-dialog/invoice-edit-dialog.component').then(m => {
-      const dialogRef = this.dialog.open(m.InvoiceEditDialogComponent, {
+    try {
+      // Importar dinámicamente el componente del diálogo
+      const { InvoiceEditDialogComponent } = await import('../invoice-edit-dialog/invoice-edit-dialog.component');
+
+      const dialogRef = this.dialog.open(InvoiceEditDialogComponent, {
         width: '900px',
         maxWidth: '95vw',
         maxHeight: '90vh',
@@ -277,6 +280,9 @@ export class ProposalViewComponent implements OnInit {
           await this.loadProposal(proposal.id);
         }
       });
-    });
+    } catch (error) {
+      console.error('Error abriendo diálogo de factura:', error);
+      this.snackBar.open('Error al abrir el editor de factura', 'Cerrar', { duration: 3000 });
+    }
   }
 }

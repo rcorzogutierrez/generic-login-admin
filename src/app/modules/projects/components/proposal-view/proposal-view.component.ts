@@ -12,6 +12,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 // Services
 import { ProposalsService } from '../../services/proposals.service';
@@ -31,7 +32,8 @@ import { Proposal, ProposalStatus } from '../../models';
     MatSnackBarModule,
     MatDividerModule,
     MatChipsModule,
-    MatMenuModule
+    MatMenuModule,
+    MatDialogModule
   ],
   templateUrl: './proposal-view.component.html',
   styleUrl: './proposal-view.component.css',
@@ -43,6 +45,7 @@ export class ProposalViewComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
 
   // Signals
   proposal = signal<Proposal | null>(null);
@@ -219,5 +222,30 @@ export class ProposalViewComponent implements OnInit {
    */
   print() {
     window.print();
+  }
+
+  /**
+   * Editar datos de factura
+   */
+  editInvoiceData() {
+    const proposal = this.proposal();
+    if (!proposal) return;
+
+    // Importar dinámicamente el componente del diálogo
+    import('../invoice-edit-dialog/invoice-edit-dialog.component').then(m => {
+      const dialogRef = this.dialog.open(m.InvoiceEditDialogComponent, {
+        width: '900px',
+        maxWidth: '95vw',
+        maxHeight: '90vh',
+        data: { proposal }
+      });
+
+      dialogRef.afterClosed().subscribe(async (result) => {
+        if (result) {
+          // Recargar el proposal para ver los cambios
+          await this.loadProposal(proposal.id);
+        }
+      });
+    });
   }
 }

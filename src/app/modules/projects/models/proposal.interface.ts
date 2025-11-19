@@ -19,6 +19,25 @@ export interface ProposalItem {
 }
 
 /**
+ * Interface para material usado en la factura
+ */
+export interface MaterialUsed {
+  id: string;                          // ID único
+  material: string;                    // Nombre del material
+  amount: number;                      // Cantidad usada
+  price: number;                       // Precio del material
+}
+
+/**
+ * Información de trabajador
+ */
+export interface Worker {
+  id: string;                          // ID único
+  name: string;                        // Nombre del trabajador
+  role?: string;                       // Rol (opcional: carpintero, plomero, etc.)
+}
+
+/**
  * Tipo de trabajo
  */
 export type WorkType = 'residential' | 'commercial';
@@ -103,6 +122,13 @@ export interface Proposal {
   assignedTo?: string;             // UID del usuario asignado
   tags?: string[];                 // Tags/etiquetas
   attachments?: string[];          // URLs de archivos adjuntos
+
+  // ========== Datos de Factura (solo cuando status === 'converted_to_invoice') ==========
+  materialsUsed?: MaterialUsed[];  // Materiales usados en el trabajo
+  workStartDate?: Timestamp;       // Fecha de inicio del trabajo
+  workEndDate?: Timestamp;         // Fecha de finalización del trabajo
+  workTime?: number;               // Tiempo de trabajo (en horas)
+  workers?: Worker[];              // Trabajadores que participaron
 }
 
 /**
@@ -147,6 +173,12 @@ export interface UpdateProposalData extends Partial<CreateProposalData> {
   sentDate?: Timestamp;
   projectId?: string;
   invoiceId?: string;
+  // Campos adicionales de factura
+  materialsUsed?: MaterialUsed[];
+  workStartDate?: Timestamp;
+  workEndDate?: Timestamp;
+  workTime?: number;
+  workers?: Worker[];
 }
 
 /**

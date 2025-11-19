@@ -179,22 +179,22 @@ export class ProposalFormComponent implements OnInit {
     this.proposalForm = this.fb.group({
       ownerId: ['', Validators.required],
       ownerName: ['', Validators.required],
-      ownerEmail: [''],
+      ownerEmail: ['', [Validators.email]],
       ownerPhone: [''],
       address: ['', Validators.required],
       city: ['', Validators.required],
       state: [''],
       zipCode: [''],
       workType: ['residential', Validators.required],
-      jobCategory: [''],
+      jobCategory: ['', Validators.required],
       date: [new Date(), Validators.required],
       validUntil: [''],
       notes: [''],
       internalNotes: [''],
       terms: [''],
-      subtotal: [0, [Validators.min(0)]],
-      taxPercentage: [0],
-      discountPercentage: [0]
+      subtotal: [0, [Validators.required, Validators.min(0)]],
+      taxPercentage: [0, [Validators.min(0), Validators.max(100)]],
+      discountPercentage: [0, [Validators.min(0), Validators.max(100)]]
     });
 
     // Suscribirse a cambios en ownerId para autocompletar datos del cliente
@@ -480,6 +480,26 @@ export class ProposalFormComponent implements OnInit {
   }
 
   /**
+   * Filtrar valores undefined/null de un objeto para prevenir errores de Firebase
+   * Firebase no permite valores undefined en documentos
+   */
+  private filterUndefinedValues<T extends Record<string, any>>(obj: T): Partial<T> {
+    const filtered: Partial<T> = {};
+
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const value = obj[key];
+        // Solo incluir valores que no sean undefined o null, o strings vacíos
+        if (value !== undefined && value !== null && value !== '') {
+          filtered[key] = value;
+        }
+      }
+    }
+
+    return filtered;
+  }
+
+  /**
    * Guardar proposal
    */
   async save() {
@@ -495,7 +515,16 @@ export class ProposalFormComponent implements OnInit {
       this.isLoading.set(true);
       const formValue = this.proposalForm.value;
 
+      // Validar que el subtotal sea mayor a 0
       const subtotal = formValue.subtotal || 0;
+      if (subtotal <= 0) {
+        this.snackBar.open('El subtotal debe ser mayor a 0', 'Cerrar', {
+          duration: 5000,
+          panelClass: ['error-snackbar']
+        });
+        return;
+      }
+
       const taxPercentage = formValue.taxPercentage || 0;
       const discountPercentage = formValue.discountPercentage || 0;
       const tax = this.calculateTax();
@@ -520,7 +549,8 @@ export class ProposalFormComponent implements OnInit {
           }))
         : [];
 
-      const proposalData: CreateProposalData = {
+      // Construir objeto de datos base
+      const baseData = {
         ownerId: formValue.ownerId,
         ownerName: formValue.ownerName,
         ownerEmail: formValue.ownerEmail,
@@ -530,9 +560,9 @@ export class ProposalFormComponent implements OnInit {
         state: formValue.state,
         zipCode: formValue.zipCode,
         workType: formValue.workType,
-        jobCategory: formValue.jobCategory || undefined,
+        jobCategory: formValue.jobCategory,
         date: Timestamp.fromDate(new Date(formValue.date)),
-        validUntil: formValue.validUntil ? Timestamp.fromDate(new Date(formValue.validUntil)) : undefined,
+        validUntil: formValue.validUntil ? Timestamp.fromDate(new Date(formValue.validUntil)) : null,
         includes: includesToSave,
         extras: extrasToSave,
         subtotal,
@@ -544,8 +574,24 @@ export class ProposalFormComponent implements OnInit {
         notes: formValue.notes,
         internalNotes: formValue.internalNotes,
         terms: formValue.terms,
-        status: 'draft'
+        status: 'draft' as const
       };
+
+      // Filtrar valores undefined/null/vacíos para prevenir errores de Firebase
+      const proposalData = this.filterUndefinedValues(baseData) as CreateProposalData;
+
+      // Asegurar que los campos requeridos siempre estén presentes
+      proposalData.ownerId = formValue.ownerId;
+      proposalData.ownerName = formValue.ownerName;
+      proposalData.address = formValue.address;
+      proposalData.city = formValue.city;
+      proposalData.workType = formValue.workType;
+      proposalData.jobCategory = formValue.jobCategory;
+      proposalData.date = Timestamp.fromDate(new Date(formValue.date));
+      proposalData.includes = includesToSave;
+      proposalData.extras = extrasToSave;
+      proposalData.total = total;
+      proposalData.status = 'draft';
 
       if (this.isEditMode() && this.proposalId()) {
         await this.proposalsService.updateProposal(this.proposalId()!, proposalData);
@@ -580,18 +626,27 @@ export class ProposalFormComponent implements OnInit {
     const fieldLabels: { [key: string]: string } = {
       ownerId: 'Cliente',
       ownerName: 'Nombre del Cliente',
+      ownerEmail: 'Email (válido)',
       address: 'Dirección del Trabajo',
       city: 'Ciudad',
       workType: 'Tipo de Trabajo',
+      jobCategory: 'Clasificación del Servicio',
       date: 'Fecha',
       subtotal: 'Subtotal'
     };
 
     Object.keys(this.proposalForm.controls).forEach(key => {
       const control = this.proposalForm.get(key);
-      if (control?.invalid && control?.errors?.['required']) {
-        const label = fieldLabels[key] || key;
-        missingFields.push(label);
+      if (control?.invalid) {
+        if (control?.errors?.['required']) {
+          const label = fieldLabels[key] || key;
+          missingFields.push(label);
+        } else if (control?.errors?.['email']) {
+          missingFields.push('Email (formato inválido)');
+        } else if (control?.errors?.['min']) {
+          const label = fieldLabels[key] || key;
+          missingFields.push(`${label} (valor inválido)`);
+        }
       }
     });
 

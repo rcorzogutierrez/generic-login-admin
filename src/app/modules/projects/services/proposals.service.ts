@@ -250,6 +250,27 @@ export class ProposalsService {
   }
 
   /**
+   * Filtrar valores undefined/null/empty de un objeto antes de guardar en Firebase
+   * Firebase no permite valores undefined
+   */
+  private sanitizeDataForFirebase<T extends Record<string, any>>(data: T): T {
+    const sanitized = {} as T;
+
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        const value = data[key];
+        // Solo incluir valores que no sean undefined
+        // Mantener null, arrays vacíos y strings vacíos ya que Firebase los permite
+        if (value !== undefined) {
+          sanitized[key] = value;
+        }
+      }
+    }
+
+    return sanitized;
+  }
+
+  /**
    * Crear un nuevo proposal
    */
   async createProposal(data: CreateProposalData): Promise<Proposal> {
@@ -277,7 +298,10 @@ export class ProposalsService {
         updatedBy: currentUser.uid
       };
 
-      const docRef = await addDoc(this.proposalsCollection, proposalData);
+      // Sanitizar datos para prevenir errores de Firebase con undefined
+      const sanitizedData = this.sanitizeDataForFirebase(proposalData);
+
+      const docRef = await addDoc(this.proposalsCollection, sanitizedData);
 
       const newProposal: Proposal = {
         id: docRef.id,
@@ -320,7 +344,10 @@ export class ProposalsService {
         updatedBy: currentUser.uid
       };
 
-      await updateDoc(docRef, updateData);
+      // Sanitizar datos para prevenir errores de Firebase con undefined
+      const sanitizedData = this.sanitizeDataForFirebase(updateData);
+
+      await updateDoc(docRef, sanitizedData);
 
       // Actualizar la lista local
       this.proposals.update(proposals =>

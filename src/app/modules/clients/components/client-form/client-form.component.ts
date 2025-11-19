@@ -640,50 +640,6 @@ export class ClientFormComponent implements OnInit {
   }
 
   /**
-   * Obtener número de campos requeridos completados
-   * IMPORTANTE: Solo cuenta campos que están ACTIVOS y presentes en el FormGroup
-   */
-  getRequiredFieldsStatus(): { completed: number, total: number } {
-    // Solo filtrar campos requeridos que están activos y presentes en el FormGroup
-    const requiredFields = this.fields().filter(f => {
-      if (!f.validation.required) return false;
-      if (!f.isActive) return false; // Doble verificación de seguridad
-
-      // Verificar que el campo exista en el FormGroup
-      if (f.type === FieldType.DICTIONARY && f.options && f.options.length > 0) {
-        // Para DICTIONARY, verificar que al menos un control exista
-        return f.options.some(option => {
-          const controlName = `${f.name}_${option.value}`;
-          return this.clientForm.get(controlName) !== null;
-        });
-      } else {
-        return this.clientForm.get(f.name) !== null;
-      }
-    });
-
-    let completed = 0;
-
-    requiredFields.forEach(field => {
-      if (field.type === FieldType.DICTIONARY && field.options && field.options.length > 0) {
-        // Para DICTIONARY, verificar cada opción
-        const allValid = field.options.every(option => {
-          const controlName = `${field.name}_${option.value}`;
-          const control = this.clientForm.get(controlName);
-          return control && control.valid;
-        });
-        if (allValid) completed++;
-      } else {
-        const control = this.clientForm.get(field.name);
-        if (control && control.valid) {
-          completed++;
-        }
-      }
-    });
-
-    return { completed, total: requiredFields.length };
-  }
-
-  /**
    * Verificar si el formulario tiene errores de validación
    */
   hasValidationErrors(): boolean {
@@ -765,11 +721,6 @@ export class ClientFormComponent implements OnInit {
         console.log(`     - Errores del control:`, control?.errors);
       });
     }
-    console.groupEnd();
-
-    console.group('📊 Estado de Campos Requeridos:');
-    const status = this.getRequiredFieldsStatus();
-    console.log(`  Completados: ${status.completed} / ${status.total}`);
     console.groupEnd();
 
     // Buscar campo específico por nombre

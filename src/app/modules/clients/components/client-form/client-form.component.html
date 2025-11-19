@@ -99,33 +99,6 @@
           </div>
         }
 
-        <!-- Indicador de Progreso de Campos Requeridos -->
-        @if (mode() !== 'view' && getRequiredFieldsStatus().total > 0) {
-          <div class="mx-8 mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-2">
-                <mat-icon class="text-blue-600 !text-lg">assignment_turned_in</mat-icon>
-                <span class="text-sm font-semibold text-blue-800">Campos Requeridos</span>
-              </div>
-              <span class="text-sm font-bold text-blue-600">
-                {{ getRequiredFieldsStatus().completed }} / {{ getRequiredFieldsStatus().total }}
-              </span>
-            </div>
-            <div class="w-full bg-blue-200 rounded-full h-2 overflow-hidden">
-              <div
-                class="bg-blue-600 h-full transition-all duration-500 ease-out"
-                [style.width.%]="(getRequiredFieldsStatus().completed / getRequiredFieldsStatus().total) * 100">
-              </div>
-            </div>
-            @if (getRequiredFieldsStatus().completed === getRequiredFieldsStatus().total) {
-              <p class="text-xs text-green-600 mt-2 flex items-center gap-1">
-                <mat-icon class="!text-sm">check_circle</mat-icon>
-                ¡Todos los campos requeridos están completos!
-              </p>
-            }
-          </div>
-        }
-
         <div class="px-8 py-8">
 
           <!-- Grid de Campos con Layout Personalizado -->

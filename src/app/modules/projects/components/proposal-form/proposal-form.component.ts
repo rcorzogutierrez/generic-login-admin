@@ -183,6 +183,15 @@ export class ProposalFormComponent implements OnInit {
   }
 
   /**
+   * Convertir string YYYY-MM-DD a Date en zona horaria local
+   * Evita problemas de desfase de un día al interpretar la fecha como UTC
+   */
+  private parseDateFromInput(dateString: string): Date {
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day, 0, 0, 0, 0);
+  }
+
+  /**
    * Inicializar formulario
    */
   initForm() {
@@ -600,8 +609,8 @@ export class ProposalFormComponent implements OnInit {
         zipCode: formValue.zipCode,
         workType: formValue.workType,
         jobCategory: formValue.jobCategory,
-        date: Timestamp.fromDate(new Date(formValue.date)),
-        validUntil: formValue.validUntil ? Timestamp.fromDate(new Date(formValue.validUntil)) : null,
+        date: Timestamp.fromDate(this.parseDateFromInput(formValue.date)),
+        validUntil: formValue.validUntil ? Timestamp.fromDate(this.parseDateFromInput(formValue.validUntil)) : null,
         includes: includesToSave,
         extras: extrasToSave,
         subtotal,
@@ -626,7 +635,7 @@ export class ProposalFormComponent implements OnInit {
       proposalData.city = formValue.city;
       proposalData.workType = formValue.workType;
       proposalData.jobCategory = formValue.jobCategory;
-      proposalData.date = Timestamp.fromDate(new Date(formValue.date));
+      proposalData.date = Timestamp.fromDate(this.parseDateFromInput(formValue.date));
       proposalData.includes = includesToSave;
       proposalData.extras = extrasToSave;
       proposalData.total = total;

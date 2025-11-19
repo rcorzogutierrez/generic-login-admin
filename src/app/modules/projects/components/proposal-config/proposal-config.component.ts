@@ -102,8 +102,8 @@ export class ProposalConfigComponent implements OnInit {
 
       // Agregar campos estándar que siempre existen (sin todas las propiedades de FieldConfig)
       const standardFields: Pick<FieldConfig, 'name' | 'label' | 'type'>[] = [
-        { name: 'address', label: 'Dirección (Campo Estándar)', type: 'text' as any },
-        { name: 'city', label: 'Ciudad (Campo Estándar)', type: 'text' as any }
+        { name: 'address', label: 'Dirección', type: 'text' as any },
+        { name: 'city', label: 'Ciudad', type: 'text' as any }
       ];
 
       // Combinar campos estándar con campos personalizados
@@ -127,12 +127,53 @@ export class ProposalConfigComponent implements OnInit {
   }
 
   /**
-   * Cargar configuración actual
+   * Sugerir el mejor campo del cliente por similitud de nombre
+   * @param targetFieldName Nombre del campo destino (ej: 'state', 'zipCode')
+   * @returns El nombre del campo sugerido del cliente
+   */
+  suggestClientField(targetFieldName: string): string {
+    const available = this.availableFields();
+    if (available.length === 0) return targetFieldName;
+
+    // Mapeo de sinónimos comunes
+    const synonyms: Record<string, string[]> = {
+      address: ['address', 'direccion', 'domicilio', 'calle'],
+      city: ['city', 'ciudad'],
+      state: ['state', 'estado', 'provincia'],
+      zipCode: ['zipcode', 'zip_code', 'codigo_postal', 'codigopostal', 'cp', 'postal']
+    };
+
+    const targetSynonyms = synonyms[targetFieldName] || [targetFieldName];
+
+    // Buscar coincidencia exacta (case insensitive)
+    for (const synonym of targetSynonyms) {
+      const exact = available.find(f =>
+        f.name.toLowerCase() === synonym.toLowerCase()
+      );
+      if (exact) return exact.name;
+    }
+
+    // Buscar coincidencia parcial
+    for (const synonym of targetSynonyms) {
+      const partial = available.find(f =>
+        f.name.toLowerCase().includes(synonym.toLowerCase()) ||
+        synonym.toLowerCase().includes(f.name.toLowerCase())
+      );
+      if (partial) return partial.name;
+    }
+
+    // Si no hay coincidencia, retornar el primero disponible
+    return available[0]?.name || targetFieldName;
+  }
+
+  /**
+   * Cargar configuración actual o usar sugerencias inteligentes
    */
   loadCurrentConfig() {
     const config = this.proposalConfigService.config();
 
     if (config) {
+      // Cargar configuración existente
       this.configForm.patchValue({
         address: config.clientAddressMapping.address,
         city: config.clientAddressMapping.city,
@@ -144,6 +185,19 @@ export class ProposalConfigComponent implements OnInit {
       });
 
       console.log('✅ Configuración actual cargada:', config);
+    } else {
+      // No hay configuración, usar sugerencias inteligentes
+      this.configForm.patchValue({
+        address: this.suggestClientField('address'),
+        city: this.suggestClientField('city'),
+        state: this.suggestClientField('state'),
+        zipCode: this.suggestClientField('zipCode'),
+        defaultTaxPercentage: 0,
+        defaultValidityDays: 30,
+        defaultWorkType: 'residential'
+      });
+
+      console.log('💡 Usando sugerencias automáticas para configuración inicial');
     }
   }
 
@@ -196,21 +250,21 @@ export class ProposalConfigComponent implements OnInit {
   }
 
   /**
-   * Restablecer a valores por defecto
+   * Restablecer a sugerencias automáticas
    */
   resetToDefaults() {
     this.configForm.patchValue({
-      address: 'address',
-      city: 'city',
-      state: 'estado',
-      zipCode: 'codigo_postal',
+      address: this.suggestClientField('address'),
+      city: this.suggestClientField('city'),
+      state: this.suggestClientField('state'),
+      zipCode: this.suggestClientField('zipCode'),
       defaultTaxPercentage: 0,
       defaultValidityDays: 30,
       defaultWorkType: 'residential'
     });
 
-    this.snackBar.open('Valores restablecidos a configuración por defecto', 'Cerrar', {
-      duration: 2000
+    this.snackBar.open('💡 Valores restablecidos con sugerencias automáticas', 'Cerrar', {
+      duration: 3000
     });
   }
 

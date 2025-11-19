@@ -276,8 +276,17 @@ export class ProposalFormComponent implements OnInit {
   getClientState(client: Client | undefined): string {
     if (!client) return '';
 
-    // Buscar en campos dinámicos (no hay campo estándar 'state' en Client)
-    const value = getFieldValue(client, 'state') || getFieldValue(client, 'estado');
+    // Debug: ver qué campos tiene el cliente
+    console.log('🔍 Debug getClientState - customFields:', client.customFields);
+    console.log('🔍 Debug getClientState - todas las propiedades:', Object.keys(client));
+
+    // Buscar en campos dinámicos con múltiples variantes del nombre
+    const value = getFieldValue(client, 'state') ||
+                  getFieldValue(client, 'Estado') ||
+                  getFieldValue(client, 'estado') ||
+                  getFieldValue(client, 'State');
+
+    console.log('🔍 Debug getClientState - valor encontrado:', value);
     return value ? String(value) : '';
   }
 
@@ -287,10 +296,19 @@ export class ProposalFormComponent implements OnInit {
   getClientZipCode(client: Client | undefined): string {
     if (!client) return '';
 
-    // Buscar en campos dinámicos (no hay campo estándar 'zipCode' en Client)
+    // Debug: ver qué campos tiene el cliente
+    console.log('🔍 Debug getClientZipCode - customFields:', client.customFields);
+
+    // Buscar en campos dinámicos con múltiples variantes del nombre
     const value = getFieldValue(client, 'zipCode') ||
+                  getFieldValue(client, 'ZipCode') ||
                   getFieldValue(client, 'zip_code') ||
-                  getFieldValue(client, 'codigo_postal');
+                  getFieldValue(client, 'Zip_Code') ||
+                  getFieldValue(client, 'codigo_postal') ||
+                  getFieldValue(client, 'Codigo_Postal') ||
+                  getFieldValue(client, 'CodigoPostal');
+
+    console.log('🔍 Debug getClientZipCode - valor encontrado:', value);
     return value ? String(value) : '';
   }
 

@@ -218,6 +218,14 @@ export class ProposalConfigService {
   }
 
   /**
+   * Obtener términos y condiciones por defecto
+   */
+  getDefaultTerms(): string {
+    const config = this.config();
+    return config?.defaultTerms ?? DEFAULT_PROPOSAL_CONFIG.defaultTerms ?? '';
+  }
+
+  /**
    * Refrescar la configuración desde Firestore
    */
   async refresh(): Promise<void> {

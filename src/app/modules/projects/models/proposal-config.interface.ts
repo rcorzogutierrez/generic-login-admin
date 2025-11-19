@@ -46,6 +46,7 @@ export interface ProposalModuleConfig {
   defaultTaxPercentage?: number;        // Porcentaje de impuesto por defecto
   defaultValidityDays?: number;         // Días de validez por defecto
   defaultWorkType?: 'residential' | 'commercial';  // Tipo de trabajo por defecto
+  defaultTerms?: string;                // Términos y condiciones por defecto
 
   // Metadata del sistema
   createdAt: Timestamp;
@@ -62,6 +63,7 @@ export interface CreateProposalConfigData {
   defaultTaxPercentage?: number;
   defaultValidityDays?: number;
   defaultWorkType?: 'residential' | 'commercial';
+  defaultTerms?: string;
 }
 
 /**
@@ -81,5 +83,18 @@ export const DEFAULT_PROPOSAL_CONFIG: Omit<ProposalModuleConfig, 'id' | 'created
   },
   defaultTaxPercentage: 0,
   defaultValidityDays: 30,
-  defaultWorkType: 'residential'
+  defaultWorkType: 'residential',
+  defaultTerms: `Términos y Condiciones:
+
+1. Forma de Pago: 50% al inicio de los trabajos y 50% al finalizar.
+
+2. Los precios pueden variar según cambios en el alcance del proyecto o materiales adicionales solicitados.
+
+3. Cualquier trabajo adicional no especificado en este estimado será cotizado por separado.
+
+4. El cliente es responsable de obtener los permisos necesarios antes del inicio de los trabajos.
+
+5. Este estimado es válido por el periodo especificado. Después de esta fecha, los precios están sujetos a cambios.
+
+6. La empresa no se hace responsable por daños a estructuras ocultas o no visibles durante la inspección inicial.`
 };

@@ -179,6 +179,17 @@ export class ProposalFormComponent implements OnInit {
    * Inicializar formulario
    */
   initForm() {
+    // Obtener valores por defecto de la configuración
+    const defaultWorkType = this.proposalConfigService.getDefaultWorkType();
+    const defaultTaxPercentage = this.proposalConfigService.getDefaultTaxPercentage();
+    const defaultValidityDays = this.proposalConfigService.getDefaultValidityDays();
+    const defaultTerms = this.proposalConfigService.getDefaultTerms();
+
+    // Calcular fecha de validez automáticamente
+    const today = new Date();
+    const validUntilDate = new Date(today);
+    validUntilDate.setDate(validUntilDate.getDate() + defaultValidityDays);
+
     this.proposalForm = this.fb.group({
       ownerId: ['', Validators.required],
       ownerName: ['', Validators.required],
@@ -188,15 +199,15 @@ export class ProposalFormComponent implements OnInit {
       city: ['', Validators.required],
       state: [''],
       zipCode: [''],
-      workType: ['residential', Validators.required],
+      workType: [defaultWorkType, Validators.required],
       jobCategory: ['', Validators.required],
-      date: [new Date(), Validators.required],
-      validUntil: [''],
+      date: [today, Validators.required],
+      validUntil: [validUntilDate],
       notes: [''],
       internalNotes: [''],
-      terms: [''],
+      terms: [defaultTerms],
       subtotal: [0, [Validators.required, Validators.min(0)]],
-      taxPercentage: [0, [Validators.min(0), Validators.max(100)]],
+      taxPercentage: [defaultTaxPercentage, [Validators.min(0), Validators.max(100)]],
       discountPercentage: [0, [Validators.min(0), Validators.max(100)]]
     });
 

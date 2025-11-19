@@ -86,7 +86,8 @@ export class ProposalConfigComponent implements OnInit {
       zipCode: ['codigo_postal', Validators.required],
       defaultTaxPercentage: [0, [Validators.min(0), Validators.max(100)]],
       defaultValidityDays: [30, [Validators.min(1)]],
-      defaultWorkType: ['residential', Validators.required]
+      defaultWorkType: ['residential', Validators.required],
+      defaultTerms: ['']
     });
   }
 
@@ -181,7 +182,8 @@ export class ProposalConfigComponent implements OnInit {
         zipCode: config.clientAddressMapping.zipCode,
         defaultTaxPercentage: config.defaultTaxPercentage || 0,
         defaultValidityDays: config.defaultValidityDays || 30,
-        defaultWorkType: config.defaultWorkType || 'residential'
+        defaultWorkType: config.defaultWorkType || 'residential',
+        defaultTerms: config.defaultTerms || this.proposalConfigService.getDefaultTerms()
       });
 
       console.log('✅ Configuración actual cargada:', config);
@@ -194,7 +196,8 @@ export class ProposalConfigComponent implements OnInit {
         zipCode: this.suggestClientField('zipCode'),
         defaultTaxPercentage: 0,
         defaultValidityDays: 30,
-        defaultWorkType: 'residential'
+        defaultWorkType: 'residential',
+        defaultTerms: this.proposalConfigService.getDefaultTerms()
       });
 
       console.log('💡 Usando sugerencias automáticas para configuración inicial');
@@ -229,7 +232,8 @@ export class ProposalConfigComponent implements OnInit {
         clientAddressMapping: mapping,
         defaultTaxPercentage: formValue.defaultTaxPercentage,
         defaultValidityDays: formValue.defaultValidityDays,
-        defaultWorkType: formValue.defaultWorkType
+        defaultWorkType: formValue.defaultWorkType,
+        defaultTerms: formValue.defaultTerms
       });
 
       this.snackBar.open('✅ Configuración guardada exitosamente', 'Cerrar', {
@@ -260,7 +264,8 @@ export class ProposalConfigComponent implements OnInit {
       zipCode: this.suggestClientField('zipCode'),
       defaultTaxPercentage: 0,
       defaultValidityDays: 30,
-      defaultWorkType: 'residential'
+      defaultWorkType: 'residential',
+      defaultTerms: this.proposalConfigService.getDefaultTerms()
     });
 
     this.snackBar.open('💡 Valores restablecidos con sugerencias automáticas', 'Cerrar', {

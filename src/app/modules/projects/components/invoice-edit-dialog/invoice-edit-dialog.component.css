@@ -1,0 +1,18 @@
+/* invoice-edit-dialog.component.css */
+
+:host ::ng-deep .mat-mdc-dialog-container {
+  max-width: 900px;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

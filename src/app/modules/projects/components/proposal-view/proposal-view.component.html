@@ -306,6 +306,126 @@
           </div>
         }
 
+        <!-- ========== SECCIÓN DE FACTURA (solo cuando está convertido a invoice) ========== -->
+        @if (proposal()!.status === 'converted_to_invoice') {
+          <div class="mt-8 p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border-2 border-green-300">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-2xl font-bold text-green-800 flex items-center gap-2">
+                <mat-icon class="text-green-600">receipt_long</mat-icon>
+                INFORMACIÓN DE FACTURA
+              </h2>
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="editInvoiceData()"
+                class="print:hidden">
+                <mat-icon>edit</mat-icon>
+                Editar Datos
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <!-- Fechas del Trabajo -->
+              <div class="bg-white p-4 rounded-lg border border-green-200">
+                <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
+                  <mat-icon class="!text-lg text-green-600">calendar_month</mat-icon>
+                  Fechas del Trabajo
+                </h3>
+                <div class="space-y-2 text-sm">
+                  <div class="flex justify-between">
+                    <span class="text-slate-600 font-medium">Fecha de Inicio:</span>
+                    <span class="text-slate-800 font-semibold">
+                      {{ proposal()!.workStartDate ? formatDate(proposal()!.workStartDate) : 'No especificada' }}
+                    </span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-slate-600 font-medium">Fecha de Finalización:</span>
+                    <span class="text-slate-800 font-semibold">
+                      {{ proposal()!.workEndDate ? formatDate(proposal()!.workEndDate) : 'No especificada' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Work Time y Workers -->
+              <div class="bg-white p-4 rounded-lg border border-green-200">
+                <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
+                  <mat-icon class="!text-lg text-green-600">schedule</mat-icon>
+                  Tiempo y Personal
+                </h3>
+                <div class="space-y-2 text-sm">
+                  <div class="flex justify-between">
+                    <span class="text-slate-600 font-medium">Tiempo de Trabajo:</span>
+                    <span class="text-slate-800 font-semibold">
+                      {{ proposal()!.workTime ? proposal()!.workTime + ' horas' : 'No especificado' }}
+                    </span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-slate-600 font-medium">Trabajadores:</span>
+                    <span class="text-slate-800 font-semibold">
+                      {{ proposal()!.workers && proposal()!.workers.length > 0 ? proposal()!.workers.length : '0' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Trabajadores -->
+            @if (proposal()!.workers && proposal()!.workers.length > 0) {
+              <div class="bg-white p-4 rounded-lg border border-green-200 mb-6">
+                <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
+                  <mat-icon class="!text-lg text-green-600">groups</mat-icon>
+                  Trabajadores que Participaron
+                </h3>
+                <div class="flex flex-wrap gap-2">
+                  @for (worker of proposal()!.workers; track worker.id) {
+                    <div class="bg-green-50 px-4 py-2 rounded-lg border border-green-200">
+                      <p class="text-sm font-semibold text-slate-800">{{ worker.name }}</p>
+                      @if (worker.role) {
+                        <p class="text-xs text-slate-600">{{ worker.role }}</p>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Materiales Usados -->
+            @if (proposal()!.materialsUsed && proposal()!.materialsUsed.length > 0) {
+              <div class="bg-white p-4 rounded-lg border border-green-200">
+                <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
+                  <mat-icon class="!text-lg text-green-600">inventory_2</mat-icon>
+                  Materiales Usados
+                </h3>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-sm">
+                    <thead>
+                      <tr class="bg-green-50 border-b-2 border-green-200">
+                        <th class="text-left p-3 font-bold text-slate-700">Material</th>
+                        <th class="text-center p-3 font-bold text-slate-700">Cantidad</th>
+                        <th class="text-right p-3 font-bold text-slate-700">Precio</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (material of proposal()!.materialsUsed; track material.id) {
+                        <tr class="border-b border-green-100 hover:bg-green-50">
+                          <td class="p-3 text-slate-800 font-medium">{{ material.material }}</td>
+                          <td class="p-3 text-center text-slate-800">{{ material.amount }}</td>
+                          <td class="p-3 text-right text-slate-800 font-semibold">{{ formatCurrency(material.price) }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            } @else {
+              <div class="bg-white p-4 rounded-lg border border-green-200 text-center">
+                <p class="text-sm text-slate-500">No se han agregado materiales usados</p>
+              </div>
+            }
+          </div>
+        }
+
       </div>
 
     }

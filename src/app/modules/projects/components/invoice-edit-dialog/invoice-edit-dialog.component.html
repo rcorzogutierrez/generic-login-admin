@@ -1,0 +1,178 @@
+<!-- invoice-edit-dialog.component.html -->
+
+<h2 mat-dialog-title class="flex items-center gap-2 text-2xl font-bold text-green-800">
+  <mat-icon class="text-green-600">receipt_long</mat-icon>
+  Editar Datos de Factura
+</h2>
+
+<mat-dialog-content class="!p-6">
+  <form [formGroup]="invoiceForm" class="space-y-6">
+
+    <!-- Fechas del Trabajo -->
+    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+      <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+        <mat-icon class="!text-lg text-green-600">calendar_month</mat-icon>
+        Fechas del Trabajo
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Fecha de Inicio</mat-label>
+          <input matInput [matDatepicker]="startPicker" formControlName="workStartDate">
+          <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Fecha de Finalización</mat-label>
+          <input matInput [matDatepicker]="endPicker" formControlName="workEndDate">
+          <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Tiempo de Trabajo -->
+    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+      <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+        <mat-icon class="!text-lg text-green-600">schedule</mat-icon>
+        Tiempo de Trabajo
+      </h3>
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Horas Trabajadas</mat-label>
+        <input matInput type="number" formControlName="workTime" placeholder="Ej: 40">
+        <span matSuffix>hrs</span>
+      </mat-form-field>
+    </div>
+
+    <!-- Trabajadores -->
+    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <mat-icon class="!text-lg text-green-600">groups</mat-icon>
+          Trabajadores
+        </h3>
+        <button
+          type="button"
+          mat-mini-fab
+          color="primary"
+          (click)="addWorker()"
+          matTooltip="Agregar trabajador">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+
+      <div formArrayName="workers" class="space-y-3">
+        @for (worker of workers.controls; track $index; let i = $index) {
+          <div [formGroupName]="i" class="flex gap-3 items-start bg-white p-3 rounded-lg border border-slate-200">
+            <mat-form-field appearance="outline" class="flex-1">
+              <mat-label>Nombre del Trabajador</mat-label>
+              <input matInput formControlName="name" placeholder="Ej: Juan Pérez">
+              <mat-icon matPrefix>person</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="flex-1">
+              <mat-label>Rol (Opcional)</mat-label>
+              <input matInput formControlName="role" placeholder="Ej: Carpintero">
+              <mat-icon matPrefix>work</mat-icon>
+            </mat-form-field>
+
+            <button
+              type="button"
+              mat-icon-button
+              color="warn"
+              (click)="removeWorker(i)"
+              matTooltip="Eliminar trabajador"
+              class="mt-1">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
+        @if (workers.controls.length === 0) {
+          <p class="text-sm text-slate-500 text-center py-4">
+            No hay trabajadores agregados. Haz clic en + para agregar uno.
+          </p>
+        }
+      </div>
+    </div>
+
+    <!-- Materiales Usados -->
+    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <mat-icon class="!text-lg text-green-600">inventory_2</mat-icon>
+          Materiales Usados
+        </h3>
+        <button
+          type="button"
+          mat-mini-fab
+          color="primary"
+          (click)="addMaterial()"
+          matTooltip="Agregar material">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+
+      <div formArrayName="materialsUsed" class="space-y-3">
+        @for (material of materialsUsed.controls; track $index; let i = $index) {
+          <div [formGroupName]="i" class="grid grid-cols-12 gap-3 items-start bg-white p-3 rounded-lg border border-slate-200">
+            <mat-form-field appearance="outline" class="col-span-5">
+              <mat-label>Material</mat-label>
+              <input matInput formControlName="material" placeholder="Ej: Cemento Portland">
+              <mat-icon matPrefix>build</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="col-span-3">
+              <mat-label>Cantidad</mat-label>
+              <input matInput type="number" formControlName="amount" placeholder="0">
+              <mat-icon matPrefix>numbers</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="col-span-3">
+              <mat-label>Precio</mat-label>
+              <input matInput type="number" formControlName="price" placeholder="0.00">
+              <span matPrefix>$&nbsp;</span>
+            </mat-form-field>
+
+            <button
+              type="button"
+              mat-icon-button
+              color="warn"
+              (click)="removeMaterial(i)"
+              matTooltip="Eliminar material"
+              class="col-span-1 mt-1">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
+        @if (materialsUsed.controls.length === 0) {
+          <p class="text-sm text-slate-500 text-center py-4">
+            No hay materiales agregados. Haz clic en + para agregar uno.
+          </p>
+        }
+      </div>
+    </div>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="!p-6 !pt-0">
+  <button
+    mat-button
+    (click)="cancel()"
+    [disabled]="isSaving()">
+    Cancelar
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="save()"
+    [disabled]="isSaving() || invoiceForm.invalid">
+    @if (isSaving()) {
+      <mat-icon class="animate-spin">refresh</mat-icon>
+      Guardando...
+    } @else {
+      <mat-icon>save</mat-icon>
+      Guardar Cambios
+    }
+  </button>
+</mat-dialog-actions>

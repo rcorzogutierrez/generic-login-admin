@@ -619,6 +619,9 @@ export class ProposalFormComponent implements OnInit {
           }))
         : [];
 
+      // Determinar el estado según si es borrador o no
+      const status: 'draft' | 'sent' = asDraft ? 'draft' : 'sent';
+
       // Construir objeto de datos base
       const baseData = {
         ownerId: formValue.ownerId,
@@ -644,7 +647,7 @@ export class ProposalFormComponent implements OnInit {
         notes: formValue.notes,
         internalNotes: formValue.internalNotes,
         terms: formValue.terms,
-        status: (asDraft ? 'draft' : 'sent') as const
+        status
       };
 
       // Filtrar valores undefined/null/vacíos para prevenir errores de Firebase

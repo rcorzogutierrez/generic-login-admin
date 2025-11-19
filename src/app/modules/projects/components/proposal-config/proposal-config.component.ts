@@ -100,14 +100,18 @@ export class ProposalConfigComponent implements OnInit {
       // Obtener todos los campos configurados en el módulo de clientes
       const fields = this.clientConfigService.getFieldsInUse();
 
-      // Agregar campos estándar que siempre existen
-      const standardFields: FieldConfig[] = [
-        { name: 'address', label: 'Dirección (Campo Estándar)', type: 'text' as any, enabled: true, required: false, order: 0 },
-        { name: 'city', label: 'Ciudad (Campo Estándar)', type: 'text' as any, enabled: true, required: false, order: 1 }
+      // Agregar campos estándar que siempre existen (sin todas las propiedades de FieldConfig)
+      const standardFields: Pick<FieldConfig, 'name' | 'label' | 'type'>[] = [
+        { name: 'address', label: 'Dirección (Campo Estándar)', type: 'text' as any },
+        { name: 'city', label: 'Ciudad (Campo Estándar)', type: 'text' as any }
       ];
 
       // Combinar campos estándar con campos personalizados
-      const allFields = [...standardFields, ...fields];
+      // Convertimos standardFields a FieldConfig parcial
+      const allFields: FieldConfig[] = [
+        ...standardFields.map(f => ({ ...f, id: f.name } as any as FieldConfig)),
+        ...fields
+      ];
 
       // Ordenar alfabéticamente
       allFields.sort((a, b) => a.label.localeCompare(b.label));

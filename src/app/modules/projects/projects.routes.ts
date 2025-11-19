@@ -26,6 +26,14 @@ export const PROJECTS_ROUTES: Routes = [
           ),
         title: 'Nuevo Estimado'
       },
+      {
+        path: 'config',
+        loadComponent: () =>
+          import('./components/proposal-config/proposal-config.component').then(
+            m => m.ProposalConfigComponent
+          ),
+        title: 'Configuración de Estimados'
+      },
       // Rutas dinámicas van al final
       {
         path: ':id',

@@ -644,7 +644,7 @@ export class ProposalFormComponent implements OnInit {
         notes: formValue.notes,
         internalNotes: formValue.internalNotes,
         terms: formValue.terms,
-        status: 'draft' as const
+        status: (asDraft ? 'draft' : 'sent') as const
       };
 
       // Filtrar valores undefined/null/vacíos para prevenir errores de Firebase
@@ -656,7 +656,7 @@ export class ProposalFormComponent implements OnInit {
       proposalData.includes = includesToSave;
       proposalData.extras = extrasToSave;
       proposalData.total = total || 0;
-      proposalData.status = 'draft';
+      proposalData.status = asDraft ? 'draft' : 'sent';
 
       if (this.isEditMode() && this.proposalId()) {
         await this.proposalsService.updateProposal(this.proposalId()!, proposalData);

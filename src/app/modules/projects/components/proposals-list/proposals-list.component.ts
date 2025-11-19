@@ -296,20 +296,33 @@ export class ProposalsListComponent implements OnInit {
    * Convertir a factura
    */
   async convertToInvoice(proposal: Proposal) {
-    const confirmed = confirm(
-      `¿Convertir el estimado ${proposal.proposalNumber} a factura?\n\nEsto cambiará el estado del estimado a "Convertido a Factura".`
-    );
+    // Importar dinámicamente el diálogo de confirmación
+    const { ConfirmDialogComponent } = await import('../confirm-dialog/confirm-dialog.component');
 
-    if (confirmed) {
-      try {
-        const invoiceId = await this.proposalsService.convertToInvoice(proposal.id);
-        this.snackBar.open(`Estimado convertido a factura exitosamente`, 'Cerrar', { duration: 3000 });
-        this.cdr.markForCheck();
-      } catch (error) {
-        console.error('Error convirtiendo a factura:', error);
-        this.snackBar.open('Error al convertir a factura', 'Cerrar', { duration: 3000 });
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '500px',
+      data: {
+        title: 'Convertir a Factura',
+        message: `¿Convertir el estimado ${proposal.proposalNumber} a factura?\n\nPodrás agregar materiales, fechas y trabajadores después.`,
+        confirmText: 'Convertir',
+        cancelText: 'Cancelar',
+        confirmColor: 'primary',
+        icon: 'receipt_long'
       }
-    }
+    });
+
+    dialogRef.afterClosed().subscribe(async (confirmed) => {
+      if (confirmed) {
+        try {
+          const invoiceId = await this.proposalsService.convertToInvoice(proposal.id);
+          this.snackBar.open(`Estimado convertido a factura exitosamente`, 'Cerrar', { duration: 3000 });
+          this.cdr.markForCheck();
+        } catch (error) {
+          console.error('Error convirtiendo a factura:', error);
+          this.snackBar.open('Error al convertir a factura', 'Cerrar', { duration: 3000 });
+        }
+      }
+    });
   }
 
   /**

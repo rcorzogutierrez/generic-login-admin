@@ -117,20 +117,38 @@ export class ProposalViewComponent implements OnInit {
     const proposal = this.proposal();
     if (!proposal) return;
 
-    const confirmed = confirm(
-      `¿Convertir el estimado ${proposal.proposalNumber} a factura?\n\nEsto cambiará el estado del estimado a "Convertido a Factura".`
-    );
+    // Importar dinámicamente el diálogo de confirmación
+    const { ConfirmDialogComponent } = await import('../confirm-dialog/confirm-dialog.component');
 
-    if (confirmed) {
-      try {
-        await this.proposalsService.convertToInvoice(proposal.id);
-        await this.loadProposal(proposal.id);
-        this.snackBar.open('Estimado convertido a factura exitosamente', 'Cerrar', { duration: 3000 });
-      } catch (error) {
-        console.error('Error convirtiendo a factura:', error);
-        this.snackBar.open('Error al convertir a factura', 'Cerrar', { duration: 3000 });
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '500px',
+      data: {
+        title: 'Convertir a Factura',
+        message: `¿Convertir el estimado ${proposal.proposalNumber} a factura?\n\nDespués podrás agregar materiales, fechas y trabajadores.`,
+        confirmText: 'Convertir',
+        cancelText: 'Cancelar',
+        confirmColor: 'primary',
+        icon: 'receipt_long'
       }
-    }
+    });
+
+    dialogRef.afterClosed().subscribe(async (confirmed) => {
+      if (confirmed) {
+        try {
+          await this.proposalsService.convertToInvoice(proposal.id);
+          await this.loadProposal(proposal.id);
+          this.snackBar.open('Estimado convertido a factura exitosamente', 'Cerrar', { duration: 3000 });
+
+          // Abrir automáticamente el diálogo para agregar datos de factura
+          setTimeout(() => {
+            this.editInvoiceData();
+          }, 500);
+        } catch (error) {
+          console.error('Error convirtiendo a factura:', error);
+          this.snackBar.open('Error al convertir a factura', 'Cerrar', { duration: 3000 });
+        }
+      }
+    });
   }
 
   /**
@@ -140,20 +158,33 @@ export class ProposalViewComponent implements OnInit {
     const proposal = this.proposal();
     if (!proposal) return;
 
-    const confirmed = confirm(
-      `¿Estás seguro de eliminar el estimado ${proposal.proposalNumber}?\n\nEsta acción no se puede deshacer.`
-    );
+    // Importar dinámicamente el diálogo de confirmación
+    const { ConfirmDialogComponent } = await import('../confirm-dialog/confirm-dialog.component');
 
-    if (confirmed) {
-      try {
-        await this.proposalsService.deleteProposal(proposal.id);
-        this.snackBar.open('Estimado eliminado exitosamente', 'Cerrar', { duration: 3000 });
-        this.router.navigate(['/modules/projects']);
-      } catch (error) {
-        console.error('Error eliminando proposal:', error);
-        this.snackBar.open('Error al eliminar el estimado', 'Cerrar', { duration: 3000 });
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '500px',
+      data: {
+        title: 'Eliminar Estimado',
+        message: `¿Estás seguro de eliminar el estimado ${proposal.proposalNumber}?\n\nEsta acción no se puede deshacer.`,
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        confirmColor: 'warn',
+        icon: 'delete'
       }
-    }
+    });
+
+    dialogRef.afterClosed().subscribe(async (confirmed) => {
+      if (confirmed) {
+        try {
+          await this.proposalsService.deleteProposal(proposal.id);
+          this.snackBar.open('Estimado eliminado exitosamente', 'Cerrar', { duration: 3000 });
+          this.router.navigate(['/modules/projects']);
+        } catch (error) {
+          console.error('Error eliminando proposal:', error);
+          this.snackBar.open('Error al eliminar el estimado', 'Cerrar', { duration: 3000 });
+        }
+      }
+    });
   }
 
   /**

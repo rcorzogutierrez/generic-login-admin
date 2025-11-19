@@ -1,0 +1,12 @@
+/* proposal-config.component.css */
+
+/* Estilos personalizados si son necesarios */
+.success-snackbar {
+  background-color: #10b981 !important;
+  color: white !important;
+}
+
+.error-snackbar {
+  background-color: #ef4444 !important;
+  color: white !important;
+}

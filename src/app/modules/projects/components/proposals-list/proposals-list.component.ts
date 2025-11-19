@@ -230,6 +230,13 @@ export class ProposalsListComponent implements OnInit {
   }
 
   /**
+   * Abrir configuración del módulo
+   */
+  openConfig() {
+    this.router.navigate(['/modules/projects/config']);
+  }
+
+  /**
    * Editar proposal
    */
   editProposal(proposal: Proposal) {

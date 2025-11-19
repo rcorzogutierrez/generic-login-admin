@@ -28,6 +28,16 @@
           <button
             mat-icon-button
             class="icon-btn"
+            (click)="openConfig()"
+            [disabled]="isLoading()"
+            matTooltip="Configuración del Módulo"
+            aria-label="Configuración del módulo de estimados">
+            <mat-icon>settings</mat-icon>
+          </button>
+
+          <button
+            mat-icon-button
+            class="icon-btn"
             (click)="refresh()"
             [disabled]="isLoading()"
             matTooltip="Actualizar"

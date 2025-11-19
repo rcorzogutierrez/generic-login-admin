@@ -168,11 +168,15 @@
     (click)="save()"
     [disabled]="isSaving() || invoiceForm.invalid">
     @if (isSaving()) {
-      <mat-icon class="animate-spin">refresh</mat-icon>
-      Guardando...
+      <ng-container>
+        <mat-icon class="animate-spin">refresh</mat-icon>
+        Guardando...
+      </ng-container>
     } @else {
-      <mat-icon>save</mat-icon>
-      Guardar Cambios
+      <ng-container>
+        <mat-icon>save</mat-icon>
+        Guardar Cambios
+      </ng-container>
     }
   </button>
 </mat-dialog-actions>

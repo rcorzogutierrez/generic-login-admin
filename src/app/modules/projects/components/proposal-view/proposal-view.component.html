@@ -363,7 +363,7 @@
                   <div class="flex justify-between">
                     <span class="text-slate-600 font-medium">Trabajadores:</span>
                     <span class="text-slate-800 font-semibold">
-                      {{ proposal()!.workers && proposal()!.workers.length > 0 ? proposal()!.workers.length : '0' }}
+                      {{ proposal()!.workers?.length ?? 0 }}
                     </span>
                   </div>
                 </div>
@@ -371,7 +371,7 @@
             </div>
 
             <!-- Trabajadores -->
-            @if (proposal()!.workers && proposal()!.workers.length > 0) {
+            @if (proposal()!.workers && proposal()!.workers?.length > 0) {
               <div class="bg-white p-4 rounded-lg border border-green-200 mb-6">
                 <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
                   <mat-icon class="!text-lg text-green-600">groups</mat-icon>
@@ -391,7 +391,7 @@
             }
 
             <!-- Materiales Usados -->
-            @if (proposal()!.materialsUsed && proposal()!.materialsUsed.length > 0) {
+            @if (proposal()!.materialsUsed && proposal()!.materialsUsed?.length > 0) {
               <div class="bg-white p-4 rounded-lg border border-green-200">
                 <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
                   <mat-icon class="!text-lg text-green-600">inventory_2</mat-icon>

@@ -118,7 +118,7 @@ export class ProposalViewComponent implements OnInit {
     if (!proposal) return;
 
     const confirmed = confirm(
-      `¿Convertir el estimado ${proposal.proposalNumber} a factura?\n\nEsto cambiará el estado del estimado a "Convertido a Factura".`
+      `¿Convertir el estimado ${proposal.proposalNumber} a factura?\n\nDespués podrás agregar materiales, fechas y trabajadores.`
     );
 
     if (confirmed) {
@@ -126,6 +126,11 @@ export class ProposalViewComponent implements OnInit {
         await this.proposalsService.convertToInvoice(proposal.id);
         await this.loadProposal(proposal.id);
         this.snackBar.open('Estimado convertido a factura exitosamente', 'Cerrar', { duration: 3000 });
+
+        // Abrir automáticamente el diálogo para agregar datos de factura
+        setTimeout(() => {
+          this.editInvoiceData();
+        }, 500);
       } catch (error) {
         console.error('Error convirtiendo a factura:', error);
         this.snackBar.open('Error al convertir a factura', 'Cerrar', { duration: 3000 });

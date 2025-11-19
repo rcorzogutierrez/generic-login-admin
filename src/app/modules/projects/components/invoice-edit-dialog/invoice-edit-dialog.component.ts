@@ -2,171 +2,257 @@
 
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { Proposal, MaterialUsed, Worker } from '../../models';
+import { Proposal } from '../../models';
 import { ProposalsService } from '../../services/proposals.service';
+import { MaterialsService } from '../../../materials/services/materials.service';
+import { WorkersService } from '../../../workers/services/workers.service';
+import { Material } from '../../../materials/models';
+import { Worker } from '../../../workers/models';
 import { Timestamp } from 'firebase/firestore';
+
+interface SelectedMaterial {
+  materialId: string;
+  materialName: string;
+  amount: number;
+  price: number;
+}
+
+interface SelectedWorker {
+  workerId: string;
+  workerName: string;
+  role: string;
+}
 
 @Component({
   selector: 'app-invoice-edit-dialog',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
+    FormsModule,
     MatDialogModule,
-    MatButtonModule,
     MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     MatSnackBarModule
   ],
   templateUrl: './invoice-edit-dialog.component.html',
   styleUrls: ['./invoice-edit-dialog.component.css']
 })
 export class InvoiceEditDialogComponent implements OnInit {
-  private fb = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<InvoiceEditDialogComponent>);
   private proposalsService = inject(ProposalsService);
+  private materialsService = inject(MaterialsService);
+  private workersService = inject(WorkersService);
   private snackBar = inject(MatSnackBar);
   public data = inject<{ proposal: Proposal }>(MAT_DIALOG_DATA);
 
-  invoiceForm!: FormGroup;
+  // Signals
   isSaving = signal(false);
+  availableMaterials = signal<Material[]>([]);
+  availableWorkers = signal<Worker[]>([]);
 
-  ngOnInit() {
-    this.initForm();
+  // Form data
+  workStartDate: string = '';
+  workEndDate: string = '';
+  workTime: number | null = null;
+  selectedMaterials: SelectedMaterial[] = [];
+  selectedWorkers: SelectedWorker[] = [];
+
+  async ngOnInit() {
+    await this.loadData();
+    this.initFormData();
   }
 
   /**
-   * Inicializar formulario
+   * Cargar materiales y trabajadores disponibles
    */
-  initForm() {
+  async loadData() {
+    try {
+      // Inicializar servicios si no están inicializados
+      await this.materialsService.initialize();
+      await this.workersService.initialize();
+
+      // Cargar materiales y trabajadores activos
+      this.availableMaterials.set(this.materialsService.activeMaterials());
+      this.availableWorkers.set(this.workersService.activeWorkers());
+    } catch (error) {
+      console.error('Error cargando datos:', error);
+      this.snackBar.open('Error al cargar materiales y trabajadores', 'Cerrar', {
+        duration: 3000
+      });
+    }
+  }
+
+  /**
+   * Inicializar datos del formulario con los datos existentes del proposal
+   */
+  initFormData() {
     const proposal = this.data.proposal;
 
-    this.invoiceForm = this.fb.group({
-      workStartDate: [proposal.workStartDate?.toDate() || null],
-      workEndDate: [proposal.workEndDate?.toDate() || null],
-      workTime: [proposal.workTime || null, [Validators.min(0)]],
-      workers: this.fb.array(
-        proposal.workers?.map(w => this.createWorkerFormGroup(w)) || []
-      ),
-      materialsUsed: this.fb.array(
-        proposal.materialsUsed?.map(m => this.createMaterialFormGroup(m)) || []
-      )
+    // Fechas
+    if (proposal.workStartDate) {
+      const date = proposal.workStartDate.toDate();
+      this.workStartDate = date.toISOString().split('T')[0];
+    }
+    if (proposal.workEndDate) {
+      const date = proposal.workEndDate.toDate();
+      this.workEndDate = date.toISOString().split('T')[0];
+    }
+
+    // Tiempo de trabajo
+    this.workTime = proposal.workTime || null;
+
+    // Materiales
+    if (proposal.materialsUsed && proposal.materialsUsed.length > 0) {
+      this.selectedMaterials = proposal.materialsUsed.map(m => ({
+        materialId: m.id,
+        materialName: m.material,
+        amount: m.amount,
+        price: m.price
+      }));
+    }
+
+    // Trabajadores
+    if (proposal.workers && proposal.workers.length > 0) {
+      this.selectedWorkers = proposal.workers.map(w => ({
+        workerId: w.id,
+        workerName: w.name,
+        role: w.role || ''
+      }));
+    }
+  }
+
+  /**
+   * Agregar material seleccionado
+   */
+  addMaterial(materialId: string) {
+    const material = this.availableMaterials().find(m => m.id === materialId);
+    if (!material) return;
+
+    // Verificar si ya está agregado
+    const exists = this.selectedMaterials.find(m => m.materialId === materialId);
+    if (exists) {
+      this.snackBar.open('Este material ya está agregado', 'Cerrar', { duration: 2000 });
+      return;
+    }
+
+    this.selectedMaterials.push({
+      materialId: material.id!,
+      materialName: material.name,
+      amount: 1,
+      price: 0
     });
-  }
-
-  /**
-   * Crear FormGroup para un trabajador
-   */
-  createWorkerFormGroup(worker?: Worker): FormGroup {
-    return this.fb.group({
-      id: [worker?.id || `worker-${Date.now()}-${Math.random()}`],
-      name: [worker?.name || '', Validators.required],
-      role: [worker?.role || '']
-    });
-  }
-
-  /**
-   * Crear FormGroup para un material
-   */
-  createMaterialFormGroup(material?: MaterialUsed): FormGroup {
-    return this.fb.group({
-      id: [material?.id || `material-${Date.now()}-${Math.random()}`],
-      material: [material?.material || '', Validators.required],
-      amount: [material?.amount || 0, [Validators.required, Validators.min(0)]],
-      price: [material?.price || 0, [Validators.required, Validators.min(0)]]
-    });
-  }
-
-  /**
-   * Getters para FormArrays
-   */
-  get workers(): FormArray {
-    return this.invoiceForm.get('workers') as FormArray;
-  }
-
-  get materialsUsed(): FormArray {
-    return this.invoiceForm.get('materialsUsed') as FormArray;
-  }
-
-  /**
-   * Agregar trabajador
-   */
-  addWorker() {
-    this.workers.push(this.createWorkerFormGroup());
-  }
-
-  /**
-   * Eliminar trabajador
-   */
-  removeWorker(index: number) {
-    this.workers.removeAt(index);
-  }
-
-  /**
-   * Agregar material
-   */
-  addMaterial() {
-    this.materialsUsed.push(this.createMaterialFormGroup());
   }
 
   /**
    * Eliminar material
    */
   removeMaterial(index: number) {
-    this.materialsUsed.removeAt(index);
+    this.selectedMaterials.splice(index, 1);
   }
 
   /**
-   * Guardar cambios
-   * @param asDraft - Si es true, guarda como borrador sin validaciones estrictas
+   * Agregar trabajador seleccionado
    */
-  async save(asDraft: boolean = false) {
-    // Si NO es borrador, validar formulario completo
-    if (!asDraft && this.invoiceForm.invalid) {
-      this.snackBar.open('Por favor, completa todos los campos requeridos', 'Cerrar', {
-        duration: 3000
-      });
+  addWorker(workerId: string) {
+    const worker = this.availableWorkers().find(w => w.id === workerId);
+    if (!worker) return;
+
+    // Verificar si ya está agregado
+    const exists = this.selectedWorkers.find(w => w.workerId === workerId);
+    if (exists) {
+      this.snackBar.open('Este trabajador ya está agregado', 'Cerrar', { duration: 2000 });
+      return;
+    }
+
+    this.selectedWorkers.push({
+      workerId: worker.id!,
+      workerName: worker.name,
+      role: worker.position || ''
+    });
+  }
+
+  /**
+   * Eliminar trabajador
+   */
+  removeWorker(index: number) {
+    this.selectedWorkers.splice(index, 1);
+  }
+
+  /**
+   * Validar formulario
+   */
+  validate(): boolean {
+    if (this.selectedMaterials.length === 0) {
+      this.snackBar.open('Debes agregar al menos un material', 'Cerrar', { duration: 3000 });
+      return false;
+    }
+
+    if (this.selectedWorkers.length === 0) {
+      this.snackBar.open('Debes agregar al menos un trabajador', 'Cerrar', { duration: 3000 });
+      return false;
+    }
+
+    // Validar que todos los materiales tengan cantidad y precio
+    for (const material of this.selectedMaterials) {
+      if (!material.amount || material.amount <= 0) {
+        this.snackBar.open(`El material "${material.materialName}" debe tener una cantidad mayor a 0`, 'Cerrar', {
+          duration: 3000
+        });
+        return false;
+      }
+      if (!material.price || material.price < 0) {
+        this.snackBar.open(`El material "${material.materialName}" debe tener un precio válido`, 'Cerrar', {
+          duration: 3000
+        });
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Guardar cambios y cambiar estado a 'converted_to_invoice'
+   */
+  async save() {
+    if (!this.validate()) {
       return;
     }
 
     try {
       this.isSaving.set(true);
-      const formValue = this.invoiceForm.value;
 
       const updateData: any = {
-        workers: formValue.workers || [],
-        materialsUsed: formValue.materialsUsed || [],
-        workTime: formValue.workTime || null
+        workers: this.selectedWorkers.map(w => ({
+          id: w.workerId,
+          name: w.workerName,
+          role: w.role
+        })),
+        materialsUsed: this.selectedMaterials.map(m => ({
+          id: m.materialId,
+          material: m.materialName,
+          amount: m.amount,
+          price: m.price
+        })),
+        workTime: this.workTime || null,
+        status: 'converted_to_invoice' // Cambiar el estado al guardar
       };
 
       // Convertir fechas a Timestamp si existen
-      if (formValue.workStartDate) {
-        updateData.workStartDate = Timestamp.fromDate(new Date(formValue.workStartDate));
+      if (this.workStartDate) {
+        updateData.workStartDate = Timestamp.fromDate(new Date(this.workStartDate));
       }
-      if (formValue.workEndDate) {
-        updateData.workEndDate = Timestamp.fromDate(new Date(formValue.workEndDate));
+      if (this.workEndDate) {
+        updateData.workEndDate = Timestamp.fromDate(new Date(this.workEndDate));
       }
 
       await this.proposalsService.updateProposal(this.data.proposal.id, updateData);
 
-      this.snackBar.open(
-        asDraft ? 'Borrador de factura guardado exitosamente' : 'Datos de factura actualizados exitosamente',
-        'Cerrar',
-        { duration: 3000 }
-      );
+      this.snackBar.open('Factura creada exitosamente', 'Cerrar', { duration: 3000 });
 
       this.dialogRef.close(true);
     } catch (error) {

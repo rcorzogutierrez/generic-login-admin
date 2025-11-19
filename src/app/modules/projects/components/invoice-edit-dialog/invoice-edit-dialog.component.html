@@ -1,199 +1,252 @@
 <!-- invoice-edit-dialog.component.html -->
 
-<h2 mat-dialog-title class="flex items-center gap-2 text-2xl font-bold text-green-800">
-  <mat-icon class="text-green-600">receipt_long</mat-icon>
-  Editar Datos de Factura
-</h2>
+<div class="bg-white rounded-lg overflow-hidden max-h-[90vh] flex flex-col">
 
-<mat-dialog-content class="!p-6">
-  <form [formGroup]="invoiceForm" class="space-y-6">
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-6">
+    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+      <span class="text-3xl">📋</span>
+      Crear Factura
+    </h2>
+    <p class="text-green-100 mt-1">Completa los datos para convertir el estimado en factura</p>
+  </div>
+
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto p-6 space-y-6">
 
     <!-- Fechas del Trabajo -->
-    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-      <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
-        <mat-icon class="!text-lg text-green-600">calendar_month</mat-icon>
+    <div class="bg-slate-50 p-5 rounded-lg border-2 border-slate-200">
+      <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+        <span class="text-xl">📅</span>
         Fechas del Trabajo
       </h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Fecha de Inicio</mat-label>
-          <input matInput [matDatepicker]="startPicker" formControlName="workStartDate">
-          <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-          <mat-datepicker #startPicker></mat-datepicker>
-        </mat-form-field>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            Fecha de Inicio
+          </label>
+          <input
+            type="date"
+            [(ngModel)]="workStartDate"
+            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
+            placeholder="Selecciona una fecha">
+        </div>
 
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Fecha de Finalización</mat-label>
-          <input matInput [matDatepicker]="endPicker" formControlName="workEndDate">
-          <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-          <mat-datepicker #endPicker></mat-datepicker>
-        </mat-form-field>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            Fecha de Finalización
+          </label>
+          <input
+            type="date"
+            [(ngModel)]="workEndDate"
+            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
+            placeholder="Selecciona una fecha">
+        </div>
       </div>
     </div>
 
     <!-- Tiempo de Trabajo -->
-    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-      <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
-        <mat-icon class="!text-lg text-green-600">schedule</mat-icon>
+    <div class="bg-slate-50 p-5 rounded-lg border-2 border-slate-200">
+      <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+        <span class="text-xl">⏱️</span>
         Tiempo de Trabajo
       </h3>
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Horas Trabajadas</mat-label>
-        <input matInput type="number" formControlName="workTime" placeholder="Ej: 40">
-        <span matSuffix>hrs</span>
-      </mat-form-field>
-    </div>
-
-    <!-- Trabajadores -->
-    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-          <mat-icon class="!text-lg text-green-600">groups</mat-icon>
-          Trabajadores
-        </h3>
-        <button
-          type="button"
-          mat-mini-fab
-          color="primary"
-          (click)="addWorker()"
-          matTooltip="Agregar trabajador">
-          <mat-icon>add</mat-icon>
-        </button>
-      </div>
-
-      <div formArrayName="workers" class="space-y-3">
-        @for (worker of workers.controls; track $index; let i = $index) {
-          <div [formGroupName]="i" class="flex gap-3 items-start bg-white p-3 rounded-lg border border-slate-200">
-            <mat-form-field appearance="outline" class="flex-1">
-              <mat-label>Nombre del Trabajador</mat-label>
-              <input matInput formControlName="name" placeholder="Ej: Juan Pérez">
-              <mat-icon matPrefix>person</mat-icon>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="flex-1">
-              <mat-label>Rol (Opcional)</mat-label>
-              <input matInput formControlName="role" placeholder="Ej: Carpintero">
-              <mat-icon matPrefix>work</mat-icon>
-            </mat-form-field>
-
-            <button
-              type="button"
-              mat-icon-button
-              color="warn"
-              (click)="removeWorker(i)"
-              matTooltip="Eliminar trabajador"
-              class="mt-1">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-        }
-        @if (workers.controls.length === 0) {
-          <p class="text-sm text-slate-500 text-center py-4">
-            No hay trabajadores agregados. Haz clic en + para agregar uno.
-          </p>
-        }
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-2">
+          Horas Trabajadas
+        </label>
+        <div class="flex items-center gap-2">
+          <input
+            type="number"
+            [(ngModel)]="workTime"
+            min="0"
+            step="0.5"
+            class="flex-1 px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
+            placeholder="Ej: 40">
+          <span class="text-slate-600 font-medium">hrs</span>
+        </div>
       </div>
     </div>
 
     <!-- Materiales Usados -->
-    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+    <div class="bg-slate-50 p-5 rounded-lg border-2 border-slate-200">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-          <mat-icon class="!text-lg text-green-600">inventory_2</mat-icon>
+        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <span class="text-xl">🧱</span>
           Materiales Usados
         </h3>
-        <button
-          type="button"
-          mat-mini-fab
-          color="primary"
-          (click)="addMaterial()"
-          matTooltip="Agregar material">
-          <mat-icon>add</mat-icon>
-        </button>
       </div>
 
-      <div formArrayName="materialsUsed" class="space-y-3">
-        @for (material of materialsUsed.controls; track $index; let i = $index) {
-          <div [formGroupName]="i" class="grid grid-cols-12 gap-3 items-start bg-white p-3 rounded-lg border border-slate-200">
-            <mat-form-field appearance="outline" class="col-span-5">
-              <mat-label>Material</mat-label>
-              <input matInput formControlName="material" placeholder="Ej: Cemento Portland">
-              <mat-icon matPrefix>build</mat-icon>
-            </mat-form-field>
+      <!-- Select para agregar material -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold text-slate-700 mb-2">
+          Seleccionar Material
+        </label>
+        <select
+          #materialSelect
+          (change)="addMaterial(materialSelect.value); materialSelect.value = ''"
+          class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all bg-white">
+          <option value="">-- Selecciona un material --</option>
+          @for (material of availableMaterials(); track material.id) {
+            <option [value]="material.id">{{ material.name }} ({{ material.code }})</option>
+          }
+        </select>
+      </div>
 
-            <mat-form-field appearance="outline" class="col-span-3">
-              <mat-label>Cantidad</mat-label>
-              <input matInput type="number" formControlName="amount" placeholder="0">
-              <mat-icon matPrefix>numbers</mat-icon>
-            </mat-form-field>
+      <!-- Lista de materiales seleccionados -->
+      <div class="space-y-3">
+        @for (material of selectedMaterials; track $index; let i = $index) {
+          <div class="bg-white p-4 rounded-lg border-2 border-slate-200 shadow-sm">
+            <div class="flex items-start gap-3">
+              <div class="flex-1 space-y-3">
+                <!-- Nombre del material -->
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Material</label>
+                  <div class="text-base font-bold text-slate-800">{{ material.materialName }}</div>
+                </div>
 
-            <mat-form-field appearance="outline" class="col-span-3">
-              <mat-label>Precio</mat-label>
-              <input matInput type="number" formControlName="price" placeholder="0.00">
-              <span matPrefix>$&nbsp;</span>
-            </mat-form-field>
+                <!-- Cantidad y Precio -->
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Cantidad</label>
+                    <input
+                      type="number"
+                      [(ngModel)]="material.amount"
+                      min="0"
+                      step="1"
+                      class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
+                      placeholder="0">
+                  </div>
 
-            <button
-              type="button"
-              mat-icon-button
-              color="warn"
-              (click)="removeMaterial(i)"
-              matTooltip="Eliminar material"
-              class="col-span-1 mt-1">
-              <mat-icon>delete</mat-icon>
-            </button>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Precio</label>
+                    <div class="flex items-center gap-1">
+                      <span class="text-slate-600 font-medium">$</span>
+                      <input
+                        type="number"
+                        [(ngModel)]="material.price"
+                        min="0"
+                        step="0.01"
+                        class="flex-1 px-3 py-2 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
+                        placeholder="0.00">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botón eliminar -->
+              <button
+                type="button"
+                (click)="removeMaterial(i)"
+                class="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors flex-shrink-0">
+                <span class="text-xl">🗑️</span>
+              </button>
+            </div>
           </div>
         }
-        @if (materialsUsed.controls.length === 0) {
-          <p class="text-sm text-slate-500 text-center py-4">
-            No hay materiales agregados. Haz clic en + para agregar uno.
-          </p>
+        @if (selectedMaterials.length === 0) {
+          <div class="text-center py-8 text-slate-500">
+            <div class="text-4xl mb-2">📦</div>
+            <p>No hay materiales agregados.</p>
+            <p class="text-sm">Selecciona un material del menú superior.</p>
+          </div>
         }
       </div>
     </div>
 
-  </form>
-</mat-dialog-content>
+    <!-- Trabajadores -->
+    <div class="bg-slate-50 p-5 rounded-lg border-2 border-slate-200">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <span class="text-xl">👷</span>
+          Trabajadores
+        </h3>
+      </div>
 
-<mat-dialog-actions align="end" class="!p-6 !pt-0">
-  <button
-    mat-button
-    (click)="cancel()"
-    [disabled]="isSaving()">
-    Cancelar
-  </button>
-  <button
-    mat-button
-    color="accent"
-    (click)="save(true)"
-    [disabled]="isSaving()">
-    @if (isSaving()) {
-      <ng-container>
-        <mat-icon class="animate-spin">refresh</mat-icon>
-        Guardando...
-      </ng-container>
-    } @else {
-      <ng-container>
-        <mat-icon>drafts</mat-icon>
-        Guardar Borrador
-      </ng-container>
-    }
-  </button>
-  <button
-    mat-raised-button
-    color="primary"
-    (click)="save(false)"
-    [disabled]="isSaving()">
-    @if (isSaving()) {
-      <ng-container>
-        <mat-icon class="animate-spin">refresh</mat-icon>
-        Guardando...
-      </ng-container>
-    } @else {
-      <ng-container>
-        <mat-icon>save</mat-icon>
-        Guardar y Finalizar
-      </ng-container>
-    }
-  </button>
-</mat-dialog-actions>
+      <!-- Select para agregar trabajador -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold text-slate-700 mb-2">
+          Seleccionar Trabajador
+        </label>
+        <select
+          #workerSelect
+          (change)="addWorker(workerSelect.value); workerSelect.value = ''"
+          class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all bg-white">
+          <option value="">-- Selecciona un trabajador --</option>
+          @for (worker of availableWorkers(); track worker.id) {
+            <option [value]="worker.id">{{ worker.name }}@if (worker.position) { - {{ worker.position }}}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Lista de trabajadores seleccionados -->
+      <div class="space-y-3">
+        @for (worker of selectedWorkers; track $index; let i = $index) {
+          <div class="bg-white p-4 rounded-lg border-2 border-slate-200 shadow-sm">
+            <div class="flex items-start gap-3">
+              <div class="flex-1 space-y-3">
+                <!-- Nombre del trabajador -->
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Trabajador</label>
+                  <div class="text-base font-bold text-slate-800">{{ worker.workerName }}</div>
+                </div>
+
+                <!-- Rol -->
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Rol (Opcional)</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="worker.role"
+                    class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
+                    placeholder="Ej: Carpintero, Plomero, etc.">
+                </div>
+              </div>
+
+              <!-- Botón eliminar -->
+              <button
+                type="button"
+                (click)="removeWorker(i)"
+                class="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors flex-shrink-0">
+                <span class="text-xl">🗑️</span>
+              </button>
+            </div>
+          </div>
+        }
+        @if (selectedWorkers.length === 0) {
+          <div class="text-center py-8 text-slate-500">
+            <div class="text-4xl mb-2">👥</div>
+            <p>No hay trabajadores agregados.</p>
+            <p class="text-sm">Selecciona un trabajador del menú superior.</p>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="border-t-2 border-slate-200 p-6 bg-slate-50 flex items-center justify-end gap-3">
+    <button
+      type="button"
+      (click)="cancel()"
+      [disabled]="isSaving()"
+      class="px-6 py-2.5 border-2 border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+      Cancelar
+    </button>
+
+    <button
+      type="button"
+      (click)="save()"
+      [disabled]="isSaving()"
+      class="px-6 py-2.5 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+      @if (isSaving()) {
+        <span class="animate-spin text-lg">⏳</span>
+        <span>Guardando...</span>
+      } @else {
+        <span class="text-lg">💾</span>
+        <span>Crear Factura</span>
+      }
+    </button>
+  </div>
+
+</div>

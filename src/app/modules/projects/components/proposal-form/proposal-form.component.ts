@@ -276,10 +276,7 @@ export class ProposalFormComponent implements OnInit {
   getClientState(client: Client | undefined): string {
     if (!client) return '';
 
-    // Buscar en campos estándar
-    if (client.state) return client.state;
-
-    // Buscar en campos dinámicos
+    // Buscar en campos dinámicos (no hay campo estándar 'state' en Client)
     const value = getFieldValue(client, 'state') || getFieldValue(client, 'estado');
     return value ? String(value) : '';
   }
@@ -290,10 +287,7 @@ export class ProposalFormComponent implements OnInit {
   getClientZipCode(client: Client | undefined): string {
     if (!client) return '';
 
-    // Buscar en campos estándar
-    if (client.zipCode) return client.zipCode;
-
-    // Buscar en campos dinámicos
+    // Buscar en campos dinámicos (no hay campo estándar 'zipCode' en Client)
     const value = getFieldValue(client, 'zipCode') ||
                   getFieldValue(client, 'zip_code') ||
                   getFieldValue(client, 'codigo_postal');

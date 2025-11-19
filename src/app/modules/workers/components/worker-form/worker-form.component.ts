@@ -181,10 +181,26 @@ export class WorkerFormComponent implements OnInit {
   private buildForm(worker?: Worker) {
     const formControls: any = {};
     const fields = this.fields();
+    const layout = this.formLayout();
 
     console.log('🔨 buildForm(): Construyendo formulario con', fields.length, 'campos');
+    console.log('   Modo:', this.mode());
 
-    fields.forEach(field => {
+    // Si hay layout personalizado, obtener solo los campos que están en el layout
+    let fieldsToRender = fields;
+    if (layout && layout.fields && Object.keys(layout.fields).length > 0) {
+      console.log('   ⚙️ Layout personalizado detectado - filtrando campos');
+      fieldsToRender = fields.filter(field => {
+        const isInLayout = layout.fields[field.id] !== undefined;
+        if (!isInLayout) {
+          console.warn(`   ⚠️ Campo "${field.label}" (${field.name}) está activo pero NO está en el layout - se omitirá del FormGroup`);
+        }
+        return isInLayout;
+      });
+      console.log(`   📋 Campos después de filtrar por layout: ${fieldsToRender.length} de ${fields.length}`);
+    }
+
+    fieldsToRender.forEach(field => {
       const initialValue = this.getInitialValue(field, worker);
       const validators = this.createValidators(field);
 
@@ -298,7 +314,16 @@ export class WorkerFormComponent implements OnInit {
       const defaultFields: any = {};
       const customFields: any = {};
 
-      this.fields().forEach(field => {
+      // Obtener solo los campos que están en el layout (los mismos que tienen controles en el FormGroup)
+      const layout = this.formLayout();
+      let fieldsToProcess = this.fields();
+
+      if (layout && layout.fields && Object.keys(layout.fields).length > 0) {
+        fieldsToProcess = this.fields().filter(field => layout.fields[field.id] !== undefined);
+        console.log('📤 onSubmit(): Procesando', fieldsToProcess.length, 'campos (filtrados por layout)');
+      }
+
+      fieldsToProcess.forEach(field => {
         const value = formValue[field.name];
 
         if (field.isDefault) {

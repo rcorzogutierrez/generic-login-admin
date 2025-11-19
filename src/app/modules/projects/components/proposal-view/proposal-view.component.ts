@@ -112,44 +112,15 @@ export class ProposalViewComponent implements OnInit {
 
   /**
    * Convertir a factura
+   * Abre el diálogo para agregar datos de factura
    */
   async convertToInvoice() {
     const proposal = this.proposal();
     if (!proposal) return;
 
-    // Importar dinámicamente el diálogo de confirmación
-    const { ConfirmDialogComponent } = await import('../confirm-dialog/confirm-dialog.component');
-
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '500px',
-      data: {
-        title: 'Convertir a Factura',
-        message: `¿Convertir el estimado ${proposal.proposalNumber} a factura?\n\nDespués podrás agregar materiales, fechas y trabajadores.`,
-        confirmText: 'Convertir',
-        cancelText: 'Cancelar',
-        confirmColor: 'primary',
-        icon: 'receipt_long'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(async (confirmed) => {
-      if (confirmed) {
-        try {
-          await this.proposalsService.convertToInvoice(proposal.id);
-          await this.loadProposal(proposal.id);
-          this.snackBar.open('Estimado convertido a factura exitosamente', 'Cerrar', { duration: 3000 });
-
-          // Abrir automáticamente el diálogo para agregar datos de factura
-          // Usar requestAnimationFrame para asegurar que la UI se actualice primero
-          requestAnimationFrame(async () => {
-            await this.editInvoiceData();
-          });
-        } catch (error) {
-          console.error('Error convirtiendo a factura:', error);
-          this.snackBar.open('Error al convertir a factura', 'Cerrar', { duration: 3000 });
-        }
-      }
-    });
+    // Abrir directamente el diálogo para agregar datos de factura
+    // El estado se cambiará a 'converted_to_invoice' cuando se guarden los datos
+    await this.editInvoiceData();
   }
 
   /**

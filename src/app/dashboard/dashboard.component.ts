@@ -106,11 +106,6 @@ export class DashboardComponent implements OnInit {
   logoUrl = this.appConfigService.logoUrl;
 
   /**
-   * Texto del footer
-   */
-  footerText = this.appConfigService.footerText;
-
-  /**
    * Estado de carga
    */
   loading = signal(true);

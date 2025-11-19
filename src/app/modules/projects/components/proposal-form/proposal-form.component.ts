@@ -18,6 +18,7 @@ import { Timestamp } from 'firebase/firestore';
 
 // Services
 import { ProposalsService } from '../../services/proposals.service';
+import { ProposalConfigService } from '../../services/proposal-config.service';
 import { CatalogItemsService } from '../../services/catalog-items.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ClientConfigServiceRefactored } from '../../../clients/services/client-config-refactored.service';
@@ -56,6 +57,7 @@ import { getFieldValue } from '../../../../shared/modules/dynamic-form-builder/u
 export class ProposalFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private proposalsService = inject(ProposalsService);
+  private proposalConfigService = inject(ProposalConfigService);
   private catalogItemsService = inject(CatalogItemsService);
   private clientsService = inject(ClientsService);
   private clientConfigService = inject(ClientConfigServiceRefactored);
@@ -156,11 +158,12 @@ export class ProposalFormComponent implements OnInit {
   }
 
   async ngOnInit() {
-    // Cargar configuración de clientes, clientes y catálogo de items en paralelo
+    // Cargar configuraciones, clientes y catálogo de items en paralelo
     await Promise.all([
       this.clientConfigService.initialize(),
       this.clientsService.initialize(),
-      this.catalogItemsService.initialize()
+      this.catalogItemsService.initialize(),
+      this.proposalConfigService.initialize()  // Cargar configuración de proposals
     ]);
 
     // Verificar si es edición
@@ -244,71 +247,71 @@ export class ProposalFormComponent implements OnInit {
 
   /**
    * Obtener dirección del cliente desde sus campos dinámicos
+   * Usa el mapping configurado en ProposalConfigService
    */
   getClientAddress(client: Client | undefined): string {
     if (!client) return '';
 
-    // Buscar en campos estándar
+    // Buscar en campos estándar primero
     if (client.address) return client.address;
 
-    // Buscar en campos dinámicos
-    const value = getFieldValue(client, 'address') || getFieldValue(client, 'direccion');
+    // Obtener el nombre del campo desde la configuración
+    const mapping = this.proposalConfigService.getAddressMapping();
+    const fieldName = mapping.address;
+
+    // Buscar usando el nombre configurado
+    const value = getFieldValue(client, fieldName);
     return value ? String(value) : '';
   }
 
   /**
    * Obtener ciudad del cliente desde sus campos dinámicos
+   * Usa el mapping configurado en ProposalConfigService
    */
   getClientCity(client: Client | undefined): string {
     if (!client) return '';
 
-    // Buscar en campos estándar
+    // Buscar en campos estándar primero
     if (client.city) return client.city;
 
-    // Buscar en campos dinámicos
-    const value = getFieldValue(client, 'city') || getFieldValue(client, 'ciudad');
+    // Obtener el nombre del campo desde la configuración
+    const mapping = this.proposalConfigService.getAddressMapping();
+    const fieldName = mapping.city;
+
+    // Buscar usando el nombre configurado
+    const value = getFieldValue(client, fieldName);
     return value ? String(value) : '';
   }
 
   /**
    * Obtener estado del cliente desde sus campos dinámicos
+   * Usa el mapping configurado en ProposalConfigService
    */
   getClientState(client: Client | undefined): string {
     if (!client) return '';
 
-    // Debug: ver qué campos tiene el cliente
-    console.log('🔍 Debug getClientState - customFields:', client.customFields);
-    console.log('🔍 Debug getClientState - todas las propiedades:', Object.keys(client));
+    // Obtener el nombre del campo desde la configuración
+    const mapping = this.proposalConfigService.getAddressMapping();
+    const fieldName = mapping.state;
 
-    // Buscar en campos dinámicos con múltiples variantes del nombre
-    const value = getFieldValue(client, 'state') ||
-                  getFieldValue(client, 'Estado') ||
-                  getFieldValue(client, 'estado') ||
-                  getFieldValue(client, 'State');
-
-    console.log('🔍 Debug getClientState - valor encontrado:', value);
+    // Buscar usando el nombre configurado
+    const value = getFieldValue(client, fieldName);
     return value ? String(value) : '';
   }
 
   /**
    * Obtener código postal del cliente desde sus campos dinámicos
+   * Usa el mapping configurado en ProposalConfigService
    */
   getClientZipCode(client: Client | undefined): string {
     if (!client) return '';
 
-    // Debug: ver qué campos tiene el cliente
-    console.log('🔍 Debug getClientZipCode - customFields:', client.customFields);
+    // Obtener el nombre del campo desde la configuración
+    const mapping = this.proposalConfigService.getAddressMapping();
+    const fieldName = mapping.zipCode;
 
-    // Buscar en campos dinámicos con múltiples variantes del nombre
-    const value = getFieldValue(client, 'zipCode') ||
-                  getFieldValue(client, 'ZipCode') ||
-                  getFieldValue(client, 'zip_code') ||
-                  getFieldValue(client, 'Zip_Code') ||
-                  getFieldValue(client, 'codigo_postal') ||
-                  getFieldValue(client, 'Codigo_Postal') ||
-                  getFieldValue(client, 'CodigoPostal');
-
-    console.log('🔍 Debug getClientZipCode - valor encontrado:', value);
+    // Buscar usando el nombre configurado
+    const value = getFieldValue(client, fieldName);
     return value ? String(value) : '';
   }
 

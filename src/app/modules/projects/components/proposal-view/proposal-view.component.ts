@@ -13,6 +13,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 // Services
 import { ProposalsService } from '../../services/proposals.service';
@@ -33,7 +34,8 @@ import { Proposal, ProposalStatus } from '../../models';
     MatDividerModule,
     MatChipsModule,
     MatMenuModule,
-    MatDialogModule
+    MatDialogModule,
+    MatSlideToggleModule
   ],
   templateUrl: './proposal-view.component.html',
   styleUrl: './proposal-view.component.css',
@@ -51,6 +53,7 @@ export class ProposalViewComponent implements OnInit {
   proposal = signal<Proposal | null>(null);
   isLoading = signal<boolean>(false);
   businessInfo = this.businessInfoService.businessInfo;
+  showProposalDetails = signal<boolean>(false); // Toggle para mostrar detalles del estimado original
 
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -238,6 +241,13 @@ export class ProposalViewComponent implements OnInit {
    */
   print() {
     window.print();
+  }
+
+  /**
+   * Toggle para mostrar/ocultar detalles del estimado original
+   */
+  toggleProposalDetails() {
+    this.showProposalDetails.update(value => !value);
   }
 
   /**

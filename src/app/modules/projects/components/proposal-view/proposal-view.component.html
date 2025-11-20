@@ -40,6 +40,19 @@
           </div>
 
           <div class="flex items-center gap-3">
+            <!-- Toggle para mostrar detalles del estimado (solo en facturas) -->
+            @if (proposal()!.status === 'converted_to_invoice') {
+              <div class="flex items-center gap-2 px-3 py-2 bg-slate-100 rounded-lg">
+                <mat-icon class="!text-lg text-slate-600">{{showProposalDetails() ? 'visibility' : 'visibility_off'}}</mat-icon>
+                <mat-slide-toggle
+                  [checked]="showProposalDetails()"
+                  (change)="toggleProposalDetails()"
+                  color="primary"
+                  class="text-sm">
+                  <span class="text-sm text-slate-700 font-medium">Detalles del estimado</span>
+                </mat-slide-toggle>
+              </div>
+            }
             <button
               mat-icon-button
               (click)="print()"
@@ -198,6 +211,9 @@
           </div>
         </div>
 
+        <!-- ========== DETALLES DEL ESTIMADO ORIGINAL (ocultables en facturas) ========== -->
+        @if (proposal()!.status !== 'converted_to_invoice' || showProposalDetails()) {
+
         <!-- Items Incluidos -->
         @if (proposal()!.includes && proposal()!.includes.length > 0) {
           <div class="mb-6">
@@ -268,6 +284,9 @@
             <p class="text-sm text-slate-600 whitespace-pre-line">{{ proposal()!.terms }}</p>
           </div>
         }
+
+        }
+        <!-- Fin de detalles del estimado original -->
 
         <!-- ========== SECCIÓN DE FACTURA (solo cuando está convertido a invoice) ========== -->
         @if (proposal()!.status === 'converted_to_invoice') {

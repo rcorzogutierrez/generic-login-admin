@@ -88,7 +88,7 @@
           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all bg-white">
           <option value="">-- Selecciona un material --</option>
           @for (material of availableMaterials(); track material.id) {
-            <option [value]="material.id">{{ material.name }} ({{ material.code }})</option>
+            <option [value]="material.id">{{ getMaterialName(material) }}</option>
           }
         </select>
       </div>
@@ -174,7 +174,7 @@
           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all bg-white">
           <option value="">-- Selecciona un trabajador --</option>
           @for (worker of availableWorkers(); track worker.id) {
-            <option [value]="worker.id">{{ worker.name }}@if (worker.position) { - {{ worker.position }}}</option>
+            <option [value]="worker.id">{{ getWorkerName(worker) }}</option>
           }
         </select>
       </div>

@@ -154,7 +154,9 @@ export class ProposalFormComponent implements OnInit {
   proposalForm!: FormGroup;
 
   constructor() {
-    // No inicializar el formulario aquí - se inicializará después de cargar la configuración
+    // Inicializar formulario inmediatamente con valores temporales
+    // para evitar errores de template al acceder a proposalForm
+    this.initFormWithDefaults();
   }
 
   async ngOnInit() {
@@ -166,8 +168,8 @@ export class ProposalFormComponent implements OnInit {
       this.proposalConfigService.initialize()  // Cargar configuración de proposals
     ]);
 
-    // Inicializar el formulario DESPUÉS de cargar la configuración
-    this.initForm();
+    // Actualizar formulario con valores de configuración reales
+    this.updateFormWithConfig();
 
     // Verificar si es edición
     const id = this.route.snapshot.paramMap.get('id');
@@ -176,6 +178,68 @@ export class ProposalFormComponent implements OnInit {
       this.isEditMode.set(true);
       await this.loadProposal(id);
     }
+  }
+
+  /**
+   * Inicializar formulario con valores por defecto temporales
+   * Se llama en el constructor para que el form exista desde el inicio
+   */
+  initFormWithDefaults() {
+    const today = new Date();
+    const validUntilDate = new Date(today);
+    validUntilDate.setDate(validUntilDate.getDate() + 30); // Temporal: 30 días
+
+    this.proposalForm = this.fb.group({
+      ownerId: ['', Validators.required],
+      ownerName: ['', Validators.required],
+      ownerEmail: ['', [Validators.email]],
+      ownerPhone: [''],
+      address: ['', Validators.required],
+      city: ['', Validators.required],
+      state: [''],
+      zipCode: [''],
+      workType: ['residential', Validators.required], // Temporal
+      jobCategory: ['', Validators.required],
+      date: [this.formatDateForInput(today), Validators.required],
+      validUntil: [this.formatDateForInput(validUntilDate)],
+      notes: [''],
+      internalNotes: [''],
+      terms: [''], // Temporal: vacío
+      subtotal: [0, [Validators.required, Validators.min(0)]],
+      taxPercentage: [0, [Validators.min(0), Validators.max(100)]], // Temporal: 0
+      discountPercentage: [0, [Validators.min(0), Validators.max(100)]]
+    });
+
+    // Suscribirse a cambios en ownerId para autocompletar datos del cliente
+    this.proposalForm.get('ownerId')?.valueChanges.subscribe(ownerId => {
+      if (ownerId) {
+        this.fillClientData(ownerId);
+      }
+    });
+  }
+
+  /**
+   * Actualizar formulario con valores de configuración reales
+   * Se llama después de cargar la configuración en ngOnInit
+   */
+  updateFormWithConfig() {
+    const defaultWorkType = this.proposalConfigService.getDefaultWorkType();
+    const defaultTaxPercentage = this.proposalConfigService.getDefaultTaxPercentage();
+    const defaultValidityDays = this.proposalConfigService.getDefaultValidityDays();
+    const defaultTerms = this.proposalConfigService.getDefaultTerms();
+
+    // Actualizar fecha de validez con los días correctos
+    const today = new Date();
+    const validUntilDate = new Date(today);
+    validUntilDate.setDate(validUntilDate.getDate() + defaultValidityDays);
+
+    // Actualizar solo los campos que dependen de la configuración
+    this.proposalForm.patchValue({
+      workType: defaultWorkType,
+      validUntil: this.formatDateForInput(validUntilDate),
+      terms: defaultTerms,
+      taxPercentage: defaultTaxPercentage
+    });
   }
 
   /**
@@ -192,50 +256,6 @@ export class ProposalFormComponent implements OnInit {
   private parseDateFromInput(dateString: string): Date {
     const [year, month, day] = dateString.split('-').map(Number);
     return new Date(year, month - 1, day, 0, 0, 0, 0);
-  }
-
-  /**
-   * Inicializar formulario
-   */
-  initForm() {
-    // Obtener valores por defecto de la configuración
-    const defaultWorkType = this.proposalConfigService.getDefaultWorkType();
-    const defaultTaxPercentage = this.proposalConfigService.getDefaultTaxPercentage();
-    const defaultValidityDays = this.proposalConfigService.getDefaultValidityDays();
-    const defaultTerms = this.proposalConfigService.getDefaultTerms();
-
-    // Calcular fecha de validez automáticamente
-    const today = new Date();
-    const validUntilDate = new Date(today);
-    validUntilDate.setDate(validUntilDate.getDate() + defaultValidityDays);
-
-    this.proposalForm = this.fb.group({
-      ownerId: ['', Validators.required],
-      ownerName: ['', Validators.required],
-      ownerEmail: ['', [Validators.email]],
-      ownerPhone: [''],
-      address: ['', Validators.required],
-      city: ['', Validators.required],
-      state: [''],
-      zipCode: [''],
-      workType: [defaultWorkType, Validators.required],
-      jobCategory: ['', Validators.required],
-      date: [this.formatDateForInput(today), Validators.required],
-      validUntil: [this.formatDateForInput(validUntilDate)],
-      notes: [''],
-      internalNotes: [''],
-      terms: [defaultTerms],
-      subtotal: [0, [Validators.required, Validators.min(0)]],
-      taxPercentage: [defaultTaxPercentage, [Validators.min(0), Validators.max(100)]],
-      discountPercentage: [0, [Validators.min(0), Validators.max(100)]]
-    });
-
-    // Suscribirse a cambios en ownerId para autocompletar datos del cliente
-    this.proposalForm.get('ownerId')?.valueChanges.subscribe(ownerId => {
-      if (ownerId) {
-        this.fillClientData(ownerId);
-      }
-    });
   }
 
   /**

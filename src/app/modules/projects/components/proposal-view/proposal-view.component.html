@@ -123,9 +123,13 @@
 
             <!-- Columna Izquierda: Info del Estimado y Cliente -->
             <div class="space-y-3">
-              <!-- Título del Estimado -->
+              <!-- Título del Estimado/Factura -->
               <div class="mb-3">
-                <h2 class="text-lg font-bold text-slate-800 uppercase leading-tight">Estimado</h2>
+                @if (proposal()!.status === 'converted_to_invoice') {
+                  <h2 class="text-lg font-bold text-slate-800 uppercase leading-tight">Factura</h2>
+                } @else {
+                  <h2 class="text-lg font-bold text-slate-800 uppercase leading-tight">Estimado</h2>
+                }
                 <p class="text-base font-bold text-blue-600">{{ proposal()!.proposalNumber }}</p>
               </div>
 

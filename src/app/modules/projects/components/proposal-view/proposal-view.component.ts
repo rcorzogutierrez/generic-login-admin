@@ -62,6 +62,15 @@ export class ProposalViewComponent implements OnInit {
         this.loadProposal(id),
         this.businessInfoService.getBusinessInfo()
       ]);
+
+      // Si viene el query param para abrir el diálogo de factura, abrirlo
+      const openInvoiceDialog = this.route.snapshot.queryParamMap.get('openInvoiceDialog');
+      if (openInvoiceDialog === 'true' && this.proposal()?.status === 'converted_to_invoice') {
+        // Esperar un tick para asegurar que el componente esté completamente renderizado
+        setTimeout(() => {
+          this.editInvoiceData();
+        }, 100);
+      }
     }
   }
 

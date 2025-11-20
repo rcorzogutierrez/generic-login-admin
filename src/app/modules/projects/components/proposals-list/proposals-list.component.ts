@@ -303,7 +303,7 @@ export class ProposalsListComponent implements OnInit {
       width: '500px',
       data: {
         title: 'Convertir a Factura',
-        message: `¿Convertir el estimado ${proposal.proposalNumber} a factura?\n\nPodrás agregar materiales, fechas y trabajadores después.`,
+        message: `¿Convertir el estimado ${proposal.proposalNumber} a factura?\n\nPodrás agregar materiales, fechas y trabajadores inmediatamente.`,
         confirmText: 'Convertir',
         cancelText: 'Cancelar',
         confirmColor: 'primary',
@@ -314,8 +314,14 @@ export class ProposalsListComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async (confirmed) => {
       if (confirmed) {
         try {
-          const invoiceId = await this.proposalsService.convertToInvoice(proposal.id);
+          await this.proposalsService.convertToInvoice(proposal.id);
           this.snackBar.open(`Estimado convertido a factura exitosamente`, 'Cerrar', { duration: 3000 });
+
+          // Navegar a la vista del estimado con query param para abrir diálogo automáticamente
+          this.router.navigate(['/modules/projects', proposal.id], {
+            queryParams: { openInvoiceDialog: 'true' }
+          });
+
           this.cdr.markForCheck();
         } catch (error) {
           console.error('Error convirtiendo a factura:', error);

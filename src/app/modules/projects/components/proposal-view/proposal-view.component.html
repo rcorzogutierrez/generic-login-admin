@@ -23,9 +23,19 @@
             </button>
             <div>
               <h1 class="text-2xl font-bold text-slate-800">
-                Estimado {{ proposal()!.proposalNumber }}
+                @if (proposal()!.status === 'converted_to_invoice') {
+                  Factura {{ proposal()!.proposalNumber }}
+                } @else {
+                  Estimado {{ proposal()!.proposalNumber }}
+                }
               </h1>
-              <p class="text-sm text-slate-500">Vista detallada del estimado</p>
+              <p class="text-sm text-slate-500">
+                @if (proposal()!.status === 'converted_to_invoice') {
+                  Vista detallada de la factura
+                } @else {
+                  Vista detallada del estimado
+                }
+              </p>
             </div>
           </div>
 
@@ -243,53 +253,6 @@
           </div>
         }
 
-        <!-- Totales -->
-        <div class="border-t-2 border-slate-200 pt-6 mt-6">
-          <div class="max-w-md ml-auto space-y-3">
-            <div class="flex justify-between text-base">
-              <span class="text-slate-600">Subtotal:</span>
-              <span class="font-semibold text-slate-800">
-                {{ formatCurrency(proposal()!.subtotal || 0) }}
-              </span>
-            </div>
-
-            @if ((proposal()!.tax ?? 0) > 0) {
-              <div class="flex justify-between text-base">
-                <span class="text-slate-600">
-                  Impuesto
-                  @if (proposal()!.taxPercentage) {
-                    ({{ proposal()!.taxPercentage }}%)
-                  }:
-                </span>
-                <span class="font-semibold text-green-600">
-                  + {{ formatCurrency(proposal()!.tax ?? 0) }}
-                </span>
-              </div>
-            }
-
-            @if ((proposal()!.discount ?? 0) > 0) {
-              <div class="flex justify-between text-base">
-                <span class="text-slate-600">
-                  Descuento
-                  @if (proposal()!.discountPercentage) {
-                    ({{ proposal()!.discountPercentage }}%)
-                  }:
-                </span>
-                <span class="font-semibold text-red-600">
-                  - {{ formatCurrency(proposal()!.discount ?? 0) }}
-                </span>
-              </div>
-            }
-
-            <mat-divider></mat-divider>
-
-            <div class="flex justify-between text-2xl font-bold bg-blue-50 p-4 rounded-lg">
-              <span class="text-blue-900">TOTAL:</span>
-              <span class="text-blue-600">{{ formatCurrency(proposal()!.total) }}</span>
-            </div>
-          </div>
-        </div>
-
         <!-- Notas -->
         @if (proposal()!.notes) {
           <div class="mt-6 p-4 bg-slate-50 rounded-lg">
@@ -425,6 +388,73 @@
             }
           </div>
         }
+
+        <!-- ========== SECCIÓN DE TOTALES ========== -->
+        <div class="border-t-2 border-slate-200 pt-6 mt-6">
+          <div class="max-w-md ml-auto space-y-3">
+
+            <!-- Subtotal del Trabajo -->
+            <div class="flex justify-between items-center text-base">
+              <span class="text-slate-600 font-medium">Subtotal del Trabajo:</span>
+              <span class="font-semibold text-slate-800">
+                {{ formatCurrency(proposal()!.subtotal || 0) }}
+              </span>
+            </div>
+
+            <!-- Tax (si existe) -->
+            @if ((proposal()!.tax ?? 0) > 0) {
+              <div class="flex justify-between items-center text-base">
+                <span class="text-slate-600 font-medium">Impuesto ({{ proposal()!.tax }}%):</span>
+                <span class="font-semibold text-slate-800">
+                  {{ formatCurrency((proposal()!.subtotal || 0) * (proposal()!.tax! / 100)) }}
+                </span>
+              </div>
+            }
+
+            <!-- Discount (si existe) -->
+            @if ((proposal()!.discount ?? 0) > 0) {
+              <div class="flex justify-between items-center text-base">
+                <span class="text-slate-600 font-medium">Descuento ({{ proposal()!.discount }}%):</span>
+                <span class="font-semibold text-red-600">
+                  -{{ formatCurrency((proposal()!.subtotal || 0) * (proposal()!.discount! / 100)) }}
+                </span>
+              </div>
+            }
+
+            <mat-divider></mat-divider>
+
+            <!-- Total del Trabajo (Propuesta Original) -->
+            <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <span class="text-base font-bold text-blue-800">Total del Trabajo:</span>
+              <span class="text-xl font-bold text-blue-900">
+                {{ formatCurrency(proposal()!.total) }}
+              </span>
+            </div>
+
+            <!-- Si es factura y tiene materiales, mostrar materiales y gran total -->
+            @if (proposal()!.status === 'converted_to_invoice' && (proposal()!.materialsUsed?.length ?? 0) > 0) {
+
+              <!-- Subtotal de Materiales -->
+              <div class="flex justify-between items-center p-3 bg-amber-50 rounded-lg border border-amber-200 mt-4">
+                <span class="text-base font-bold text-amber-800">Materiales Usados:</span>
+                <span class="text-xl font-bold text-amber-900">
+                  + {{ formatCurrency(calculateMaterialsTotal()) }}
+                </span>
+              </div>
+
+              <mat-divider></mat-divider>
+
+              <!-- Gran Total -->
+              <div class="flex justify-between items-center p-5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg shadow-lg mt-4">
+                <span class="text-lg font-bold uppercase tracking-wide">Gran Total:</span>
+                <span class="text-3xl font-extrabold">
+                  {{ formatCurrency(calculateGrandTotal()) }}
+                </span>
+              </div>
+            }
+
+          </div>
+        </div>
 
       </div>
 

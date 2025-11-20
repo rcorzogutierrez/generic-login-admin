@@ -241,6 +241,33 @@ export class ProposalViewComponent implements OnInit {
   }
 
   /**
+   * Calcular el total de materiales usados
+   */
+  calculateMaterialsTotal(): number {
+    const proposal = this.proposal();
+    if (!proposal?.materialsUsed || proposal.materialsUsed.length === 0) {
+      return 0;
+    }
+
+    return proposal.materialsUsed.reduce((total, material) => {
+      return total + (material.amount * material.price);
+    }, 0);
+  }
+
+  /**
+   * Calcular el gran total (proposal total + materiales)
+   */
+  calculateGrandTotal(): number {
+    const proposal = this.proposal();
+    if (!proposal) return 0;
+
+    const proposalTotal = proposal.total || 0;
+    const materialsTotal = this.calculateMaterialsTotal();
+
+    return proposalTotal + materialsTotal;
+  }
+
+  /**
    * Editar datos de factura
    */
   async editInvoiceData() {

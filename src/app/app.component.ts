@@ -17,7 +17,7 @@ import { AppConfigService } from './core/services/app-config.service';
     }
     <router-outlet />
     @if (navbarService.showNavbar()) {
-      <footer class="bg-slate-800 p-6 mt-8 border-t border-slate-700">
+      <footer class="print:hidden bg-slate-800 p-6 mt-8 border-t border-slate-700">
         <div class="max-w-[1400px] mx-auto text-center">
           <p class="text-sm text-slate-300 font-medium">
             {{ appConfigService.footerText() }}

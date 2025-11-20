@@ -249,12 +249,27 @@
           </table>
         </div>
 
-        <!-- Subtotal Total -->
-        <div class="flex justify-end">
-          <div class="bg-green-600 text-white px-6 py-3 rounded-lg">
-            <div class="flex items-center gap-4">
-              <span class="text-sm font-semibold uppercase">Subtotal de Materiales:</span>
-              <span class="text-2xl font-bold">{{ formatCurrency(calculateSubtotal()) }}</span>
+        <!-- Resumen de Totales -->
+        <div class="space-y-3">
+          <!-- Subtotal del Estimado Original -->
+          <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <span class="text-sm font-semibold text-blue-800">Subtotal del Estimado Original:</span>
+            <span class="text-lg font-bold text-blue-900">{{ formatCurrency(getProposalSubtotal()) }}</span>
+          </div>
+
+          <!-- Subtotal de Materiales -->
+          <div class="flex justify-between items-center p-3 bg-amber-50 rounded-lg border border-amber-200">
+            <span class="text-sm font-semibold text-amber-800">Subtotal de Materiales:</span>
+            <span class="text-lg font-bold text-amber-900">{{ formatCurrency(calculateMaterialsSubtotal()) }}</span>
+          </div>
+
+          <!-- Gran Total -->
+          <div class="flex justify-end">
+            <div class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-lg shadow-lg">
+              <div class="flex items-center gap-4">
+                <span class="text-base font-bold uppercase">Gran Total:</span>
+                <span class="text-3xl font-extrabold">{{ formatCurrency(calculateGrandTotal()) }}</span>
+              </div>
             </div>
           </div>
         </div>

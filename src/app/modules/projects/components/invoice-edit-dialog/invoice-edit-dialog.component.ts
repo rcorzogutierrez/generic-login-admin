@@ -414,12 +414,26 @@ export class InvoiceEditDialogComponent implements OnInit {
   }
 
   /**
+   * Obtener subtotal del estimado original
+   */
+  getProposalSubtotal(): number {
+    return this.data.proposal.subtotal || 0;
+  }
+
+  /**
    * Calcular subtotal de materiales
    */
-  calculateSubtotal(): number {
+  calculateMaterialsSubtotal(): number {
     return this.selectedMaterials.reduce((total, material) => {
       return total + (material.amount * material.price);
     }, 0);
+  }
+
+  /**
+   * Calcular gran total (estimado + materiales)
+   */
+  calculateGrandTotal(): number {
+    return this.getProposalSubtotal() + this.calculateMaterialsSubtotal();
   }
 
   /**

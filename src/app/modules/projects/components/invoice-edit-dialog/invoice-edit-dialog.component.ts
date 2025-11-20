@@ -25,7 +25,6 @@ interface SelectedMaterial {
 interface SelectedWorker {
   workerId: string;
   workerName: string;
-  role: string;
 }
 
 @Component({
@@ -71,13 +70,22 @@ export class InvoiceEditDialogComponent implements OnInit {
    */
   async loadData() {
     try {
-      // Inicializar servicios si no están inicializados
-      await this.materialsService.initialize();
-      await this.workersService.initialize();
+      // Inicializar servicios en paralelo (como lo hace proposal-form)
+      await Promise.all([
+        this.materialsService.initialize(),
+        this.workersService.initialize()
+      ]);
 
-      // Cargar materiales y trabajadores activos
-      this.availableMaterials.set(this.materialsService.activeMaterials());
-      this.availableWorkers.set(this.workersService.activeWorkers());
+      // Los signals de los servicios ya están actualizados después de initialize()
+      // Simplemente leemos los valores actuales
+      const materials = this.materialsService.activeMaterials();
+      const workers = this.workersService.activeWorkers();
+
+      console.log('Materiales cargados:', materials.length);
+      console.log('Trabajadores cargados:', workers.length);
+
+      this.availableMaterials.set(materials);
+      this.availableWorkers.set(workers);
     } catch (error) {
       console.error('Error cargando datos:', error);
       this.snackBar.open('Error al cargar materiales y trabajadores', 'Cerrar', {
@@ -119,8 +127,7 @@ export class InvoiceEditDialogComponent implements OnInit {
     if (proposal.workers && proposal.workers.length > 0) {
       this.selectedWorkers = proposal.workers.map(w => ({
         workerId: w.id,
-        workerName: w.name,
-        role: w.role || ''
+        workerName: w.name
       }));
     }
   }
@@ -170,8 +177,7 @@ export class InvoiceEditDialogComponent implements OnInit {
 
     this.selectedWorkers.push({
       workerId: worker.id!,
-      workerName: worker.name,
-      role: worker.position || ''
+      workerName: worker.name
     });
   }
 
@@ -229,8 +235,7 @@ export class InvoiceEditDialogComponent implements OnInit {
       const updateData: any = {
         workers: this.selectedWorkers.map(w => ({
           id: w.workerId,
-          name: w.workerName,
-          role: w.role
+          name: w.workerName
         })),
         materialsUsed: this.selectedMaterials.map(m => ({
           id: m.materialId,

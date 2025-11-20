@@ -183,23 +183,11 @@
       <div class="space-y-3">
         @for (worker of selectedWorkers; track $index; let i = $index) {
           <div class="bg-white p-4 rounded-lg border-2 border-slate-200 shadow-sm">
-            <div class="flex items-start gap-3">
-              <div class="flex-1 space-y-3">
-                <!-- Nombre del trabajador -->
-                <div>
-                  <label class="block text-xs font-semibold text-slate-600 mb-1">Trabajador</label>
-                  <div class="text-base font-bold text-slate-800">{{ worker.workerName }}</div>
-                </div>
-
-                <!-- Rol -->
-                <div>
-                  <label class="block text-xs font-semibold text-slate-600 mb-1">Rol (Opcional)</label>
-                  <input
-                    type="text"
-                    [(ngModel)]="worker.role"
-                    class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
-                    placeholder="Ej: Carpintero, Plomero, etc.">
-                </div>
+            <div class="flex items-center justify-between gap-3">
+              <!-- Nombre del trabajador -->
+              <div class="flex-1">
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Trabajador</label>
+                <div class="text-base font-bold text-slate-800">{{ worker.workerName }}</div>
               </div>
 
               <!-- Botón eliminar -->

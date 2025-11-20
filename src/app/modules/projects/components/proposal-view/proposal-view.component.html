@@ -149,9 +149,15 @@
               <!-- Fechas -->
               <div>
                 <div class="text-xs text-slate-700 space-y-0.5">
-                  <p><span class="font-semibold text-slate-500 uppercase">Fecha:</span> <span class="font-semibold">Emitido:</span> {{ formatDate(proposal()!.date) }}</p>
-                  @if (proposal()!.validUntil) {
-                    <p class="pl-10"><span class="font-semibold">Válido hasta:</span> {{ formatDate(proposal()!.validUntil) }}</p>
+                  @if (proposal()!.status === 'converted_to_invoice') {
+                    <!-- Para facturas, mostrar fecha de factura -->
+                    <p><span class="font-semibold text-slate-500 uppercase">Fecha de Factura:</span> <span class="font-semibold">{{ proposal()!.invoiceDate ? formatDate(proposal()!.invoiceDate) : '-' }}</span></p>
+                  } @else {
+                    <!-- Para estimados, mostrar fecha de emisión y validez -->
+                    <p><span class="font-semibold text-slate-500 uppercase">Fecha:</span> <span class="font-semibold">Emitido:</span> {{ formatDate(proposal()!.date) }}</p>
+                    @if (proposal()!.validUntil) {
+                      <p class="pl-10"><span class="font-semibold">Válido hasta:</span> {{ formatDate(proposal()!.validUntil) }}</p>
+                    }
                   }
                 </div>
               </div>

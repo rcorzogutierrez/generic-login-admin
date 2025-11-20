@@ -194,9 +194,11 @@ export class InvoiceEditDialogComponent implements OnInit {
 
     console.log('  - Material encontrado:', material);
 
-    // Obtener nombre del material usando campos dinámicos
+    // Obtener nombre y precio del material usando campos dinámicos
     const materialName = this.getMaterialName(material);
+    const materialPrice = this.getMaterialPrice(material);
     console.log('  - Nombre del material:', materialName);
+    console.log('  - Precio del material:', materialPrice);
 
     // Verificar si ya está agregado
     const exists = this.selectedMaterials.find(m => m.materialId === materialId);
@@ -210,7 +212,7 @@ export class InvoiceEditDialogComponent implements OnInit {
       materialId: material.id!,
       materialName: materialName,
       amount: 1,
-      price: 0
+      price: materialPrice
     });
 
     console.log('  ✅ Material agregado. Total:', this.selectedMaterials.length);
@@ -412,6 +414,42 @@ export class InvoiceEditDialogComponent implements OnInit {
     if (material.name) return material.name;
 
     return 'Sin nombre';
+  }
+
+  /**
+   * Obtener precio del material desde sus campos dinámicos
+   */
+  getMaterialPrice(material: Material | undefined): number {
+    if (!material) return 0;
+
+    const fields = this.materialsConfigService.getFieldsInUse();
+
+    // Buscar el campo de precio (puede ser NUMBER o CURRENCY)
+    const priceField = fields.find(f =>
+      f.type === FieldType.NUMBER ||
+      f.type === FieldType.CURRENCY ||
+      f.name === 'price' ||
+      f.name === 'precio' ||
+      f.name === 'cost' ||
+      f.name === 'costo' ||
+      f.name === 'unit_price' ||
+      f.name === 'precio_unitario'
+    );
+
+    if (priceField) {
+      const value = getFieldValue(material, priceField.name);
+      if (value !== null && value !== undefined) {
+        const numValue = Number(value);
+        return isNaN(numValue) ? 0 : numValue;
+      }
+    }
+
+    // Fallback a campo estándar si existe
+    if (material.customFields && material.customFields['price']) {
+      return Number(material.customFields['price']) || 0;
+    }
+
+    return 0;
   }
 
   /**

@@ -124,6 +124,7 @@ export interface Proposal {
   attachments?: string[];          // URLs de archivos adjuntos
 
   // ========== Datos de Factura (solo cuando status === 'converted_to_invoice') ==========
+  invoiceDate?: Timestamp;         // Fecha de emisión de la factura
   materialsUsed?: MaterialUsed[];  // Materiales usados en el trabajo
   workStartDate?: Timestamp;       // Fecha de inicio del trabajo
   workEndDate?: Timestamp;         // Fecha de finalización del trabajo
@@ -174,6 +175,7 @@ export interface UpdateProposalData extends Partial<CreateProposalData> {
   projectId?: string;
   invoiceId?: string;
   // Campos adicionales de factura
+  invoiceDate?: Timestamp;
   materialsUsed?: MaterialUsed[];
   workStartDate?: Timestamp;
   workEndDate?: Timestamp;

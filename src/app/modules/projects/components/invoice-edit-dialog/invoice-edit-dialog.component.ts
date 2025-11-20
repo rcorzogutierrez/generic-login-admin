@@ -60,6 +60,7 @@ export class InvoiceEditDialogComponent implements OnInit {
   availableWorkers = signal<Worker[]>([]);
 
   // Form data
+  invoiceDate: string = '';
   workStartDate: string = '';
   workEndDate: string = '';
   workTime: number | null = null;
@@ -131,7 +132,18 @@ export class InvoiceEditDialogComponent implements OnInit {
     console.log('📝 Inicializando datos del formulario...');
     const proposal = this.data.proposal;
 
-    // Fechas
+    // Fecha de factura (si existe, cargar; si no, usar fecha actual)
+    if (proposal.invoiceDate) {
+      const date = proposal.invoiceDate.toDate();
+      this.invoiceDate = date.toISOString().split('T')[0];
+      console.log('  ✓ invoiceDate:', this.invoiceDate);
+    } else {
+      // Usar fecha actual por defecto
+      this.invoiceDate = new Date().toISOString().split('T')[0];
+      console.log('  ✓ invoiceDate (por defecto):', this.invoiceDate);
+    }
+
+    // Fechas de trabajo
     if (proposal.workStartDate) {
       const date = proposal.workStartDate.toDate();
       this.workStartDate = date.toISOString().split('T')[0];
@@ -277,11 +289,19 @@ export class InvoiceEditDialogComponent implements OnInit {
    */
   validate(): boolean {
     console.log('🔍 Validando formulario...');
+    console.log('  - Fecha de factura:', this.invoiceDate);
     console.log('  - Materiales seleccionados:', this.selectedMaterials.length);
     console.log('  - Trabajadores seleccionados:', this.selectedWorkers.length);
     console.log('  - Fecha inicio:', this.workStartDate);
     console.log('  - Fecha fin:', this.workEndDate);
     console.log('  - Horas trabajadas:', this.workTime);
+
+    // Validar fecha de factura (requerida)
+    if (!this.invoiceDate) {
+      console.log('  ❌ Falta fecha de factura');
+      this.snackBar.open('Debes ingresar la fecha de emisión de la factura', 'Cerrar', { duration: 3000 });
+      return false;
+    }
 
     // Validar fechas de trabajo (requeridas)
     if (!this.workStartDate) {
@@ -376,6 +396,9 @@ export class InvoiceEditDialogComponent implements OnInit {
       };
 
       // Convertir fechas a Timestamp si existen
+      if (this.invoiceDate) {
+        updateData.invoiceDate = Timestamp.fromDate(new Date(this.invoiceDate));
+      }
       if (this.workStartDate) {
         updateData.workStartDate = Timestamp.fromDate(new Date(this.workStartDate));
       }

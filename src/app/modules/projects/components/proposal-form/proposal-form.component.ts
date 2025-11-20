@@ -661,6 +661,13 @@ export class ProposalFormComponent implements OnInit {
       proposalData.total = total || 0;
       proposalData.status = asDraft ? 'draft' : 'sent';
 
+      // Asegurar que los porcentajes siempre se guarden (incluso si son 0)
+      proposalData.taxPercentage = taxPercentage;
+      proposalData.discountPercentage = discountPercentage;
+      proposalData.tax = tax;
+      proposalData.discount = discount;
+      proposalData.subtotal = formValue.subtotal || 0;
+
       if (this.isEditMode() && this.proposalId()) {
         await this.proposalsService.updateProposal(this.proposalId()!, proposalData);
         this.snackBar.open(

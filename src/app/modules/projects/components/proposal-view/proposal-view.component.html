@@ -60,13 +60,14 @@
               <mat-icon>print</mat-icon>
             </button>
 
-            @if (proposal()!.status === 'draft') {
+            <!-- Botón de editar (disponible para estimados no facturados) -->
+            @if (proposal()!.status !== 'converted_to_invoice') {
               <button
                 mat-raised-button
                 color="primary"
                 (click)="editProposal()">
                 <mat-icon>edit</mat-icon>
-                Editar
+                Editar Estimado
               </button>
             }
 

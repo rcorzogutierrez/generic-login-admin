@@ -19,26 +19,29 @@
       <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
         <span class="text-xl">📅</span>
         Fechas del Trabajo
+        <span class="text-xs text-red-600 font-semibold ml-2">*Requerido</span>
       </h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-semibold text-slate-700 mb-2">
-            Fecha de Inicio
+            Fecha de Inicio <span class="text-red-500">*</span>
           </label>
           <input
             type="date"
             [(ngModel)]="workStartDate"
+            required
             class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
             placeholder="Selecciona una fecha">
         </div>
 
         <div>
           <label class="block text-sm font-semibold text-slate-700 mb-2">
-            Fecha de Finalización
+            Fecha de Finalización <span class="text-red-500">*</span>
           </label>
           <input
             type="date"
             [(ngModel)]="workEndDate"
+            required
             class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
             placeholder="Selecciona una fecha">
         </div>
@@ -50,17 +53,19 @@
       <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
         <span class="text-xl">⏱️</span>
         Tiempo de Trabajo
+        <span class="text-xs text-red-600 font-semibold ml-2">*Requerido</span>
       </h3>
       <div>
         <label class="block text-sm font-semibold text-slate-700 mb-2">
-          Horas Trabajadas
+          Horas Trabajadas <span class="text-red-500">*</span>
         </label>
         <div class="flex items-center gap-2">
           <input
             type="number"
             [(ngModel)]="workTime"
-            min="0"
+            min="0.5"
             step="0.5"
+            required
             class="flex-1 px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
             placeholder="Ej: 40">
           <span class="text-slate-600 font-medium">hrs</span>
@@ -209,6 +214,67 @@
         }
       </div>
     </div>
+
+    <!-- Subtotal de Materiales -->
+    @if (selectedMaterials.length > 0) {
+      <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border-2 border-green-300">
+        <h3 class="text-lg font-bold text-green-800 mb-4 flex items-center gap-2">
+          <span class="text-xl">💰</span>
+          Resumen de Costos
+        </h3>
+
+        <!-- Detalle de materiales -->
+        <div class="bg-white rounded-lg p-4 mb-4">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b-2 border-slate-200">
+                <th class="text-left p-2 text-sm font-bold text-slate-700">Material</th>
+                <th class="text-center p-2 text-sm font-bold text-slate-700">Cantidad</th>
+                <th class="text-right p-2 text-sm font-bold text-slate-700">Precio Unit.</th>
+                <th class="text-right p-2 text-sm font-bold text-slate-700">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (material of selectedMaterials; track $index) {
+                <tr class="border-b border-slate-100">
+                  <td class="p-2 text-sm text-slate-800">{{ material.materialName }}</td>
+                  <td class="p-2 text-sm text-center text-slate-600">{{ material.amount }}</td>
+                  <td class="p-2 text-sm text-right text-slate-600">{{ formatCurrency(material.price) }}</td>
+                  <td class="p-2 text-sm text-right font-semibold text-slate-800">
+                    {{ formatCurrency(material.amount * material.price) }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Resumen de Totales -->
+        <div class="space-y-3">
+          <!-- Subtotal del Estimado Original -->
+          <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <span class="text-sm font-semibold text-blue-800">Subtotal del Estimado Original:</span>
+            <span class="text-lg font-bold text-blue-900">{{ formatCurrency(getProposalSubtotal()) }}</span>
+          </div>
+
+          <!-- Subtotal de Materiales -->
+          <div class="flex justify-between items-center p-3 bg-amber-50 rounded-lg border border-amber-200">
+            <span class="text-sm font-semibold text-amber-800">Subtotal de Materiales:</span>
+            <span class="text-lg font-bold text-amber-900">{{ formatCurrency(calculateMaterialsSubtotal()) }}</span>
+          </div>
+
+          <!-- Gran Total -->
+          <div class="flex justify-end">
+            <div class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-lg shadow-lg">
+              <div class="flex items-center gap-4">
+                <span class="text-base font-bold uppercase">Gran Total:</span>
+                <span class="text-3xl font-extrabold">{{ formatCurrency(calculateGrandTotal()) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
 
   </div>
 

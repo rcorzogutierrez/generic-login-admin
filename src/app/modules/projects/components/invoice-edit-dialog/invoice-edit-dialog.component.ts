@@ -10,9 +10,13 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Proposal } from '../../models';
 import { ProposalsService } from '../../services/proposals.service';
 import { MaterialsService } from '../../../materials/services/materials.service';
+import { MaterialsConfigService } from '../../../materials/services/materials-config.service';
 import { WorkersService } from '../../../workers/services/workers.service';
+import { WorkersConfigService } from '../../../workers/services/workers-config.service';
 import { Material } from '../../../materials/models';
 import { Worker } from '../../../workers/models';
+import { FieldType } from '../../../materials/models';
+import { getFieldValue } from '../../../../shared/modules/dynamic-form-builder/utils';
 import { Timestamp } from 'firebase/firestore';
 
 interface SelectedMaterial {
@@ -44,7 +48,9 @@ export class InvoiceEditDialogComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<InvoiceEditDialogComponent>);
   private proposalsService = inject(ProposalsService);
   private materialsService = inject(MaterialsService);
+  private materialsConfigService = inject(MaterialsConfigService);
   private workersService = inject(WorkersService);
+  private workersConfigService = inject(WorkersConfigService);
   private snackBar = inject(MatSnackBar);
   public data = inject<{ proposal: Proposal }>(MAT_DIALOG_DATA);
 
@@ -80,8 +86,10 @@ export class InvoiceEditDialogComponent implements OnInit {
 
     try {
       // Inicializar servicios en paralelo (como lo hace proposal-form)
-      console.log('🔧 Inicializando MaterialsService y WorkersService...');
+      console.log('🔧 Inicializando servicios...');
       await Promise.all([
+        this.materialsConfigService.initialize(),
+        this.workersConfigService.initialize(),
         this.materialsService.initialize(),
         this.workersService.initialize()
       ]);
@@ -186,6 +194,10 @@ export class InvoiceEditDialogComponent implements OnInit {
 
     console.log('  - Material encontrado:', material);
 
+    // Obtener nombre del material usando campos dinámicos
+    const materialName = this.getMaterialName(material);
+    console.log('  - Nombre del material:', materialName);
+
     // Verificar si ya está agregado
     const exists = this.selectedMaterials.find(m => m.materialId === materialId);
     if (exists) {
@@ -196,7 +208,7 @@ export class InvoiceEditDialogComponent implements OnInit {
 
     this.selectedMaterials.push({
       materialId: material.id!,
-      materialName: material.name,
+      materialName: materialName,
       amount: 1,
       price: 0
     });
@@ -231,6 +243,10 @@ export class InvoiceEditDialogComponent implements OnInit {
 
     console.log('  - Trabajador encontrado:', worker);
 
+    // Obtener nombre del trabajador usando campos dinámicos
+    const workerName = this.getWorkerName(worker);
+    console.log('  - Nombre del trabajador:', workerName);
+
     // Verificar si ya está agregado
     const exists = this.selectedWorkers.find(w => w.workerId === workerId);
     if (exists) {
@@ -241,7 +257,7 @@ export class InvoiceEditDialogComponent implements OnInit {
 
     this.selectedWorkers.push({
       workerId: worker.id!,
-      workerName: worker.name
+      workerName: workerName
     });
 
     console.log('  ✅ Trabajador agregado. Total:', this.selectedWorkers.length);
@@ -258,32 +274,50 @@ export class InvoiceEditDialogComponent implements OnInit {
    * Validar formulario
    */
   validate(): boolean {
+    console.log('🔍 Validando formulario...');
+    console.log('  - Materiales seleccionados:', this.selectedMaterials.length);
+    console.log('  - Trabajadores seleccionados:', this.selectedWorkers.length);
+
     if (this.selectedMaterials.length === 0) {
+      console.log('  ❌ No hay materiales');
       this.snackBar.open('Debes agregar al menos un material', 'Cerrar', { duration: 3000 });
       return false;
     }
 
     if (this.selectedWorkers.length === 0) {
+      console.log('  ❌ No hay trabajadores');
       this.snackBar.open('Debes agregar al menos un trabajador', 'Cerrar', { duration: 3000 });
       return false;
     }
 
-    // Validar que todos los materiales tengan cantidad y precio
+    // Validar que todos los materiales tengan cantidad y precio válidos
     for (const material of this.selectedMaterials) {
+      console.log(`  - Validando material "${material.materialName}":`, {
+        amount: material.amount,
+        price: material.price
+      });
+
       if (!material.amount || material.amount <= 0) {
+        console.log(`    ❌ Cantidad inválida: ${material.amount}`);
         this.snackBar.open(`El material "${material.materialName}" debe tener una cantidad mayor a 0`, 'Cerrar', {
           duration: 3000
         });
         return false;
       }
-      if (!material.price || material.price < 0) {
-        this.snackBar.open(`El material "${material.materialName}" debe tener un precio válido`, 'Cerrar', {
+
+      // Permitir precio 0 (gratis), pero no null/undefined/negativo
+      if (material.price === null || material.price === undefined || material.price < 0) {
+        console.log(`    ❌ Precio inválido: ${material.price}`);
+        this.snackBar.open(`El material "${material.materialName}" debe tener un precio válido (mínimo 0)`, 'Cerrar', {
           duration: 3000
         });
         return false;
       }
+
+      console.log(`    ✅ Material válido`);
     }
 
+    console.log('✅ Validación exitosa');
     return true;
   }
 
@@ -352,5 +386,57 @@ export class InvoiceEditDialogComponent implements OnInit {
    */
   cancel() {
     this.dialogRef.close(false);
+  }
+
+  /**
+   * Obtener nombre del material desde sus campos dinámicos
+   */
+  getMaterialName(material: Material | undefined): string {
+    if (!material) return 'Sin nombre';
+
+    const fields = this.materialsConfigService.getFieldsInUse();
+
+    // Buscar el campo de nombre
+    const nameField = fields.find(f =>
+      f.type === FieldType.TEXT ||
+      f.name === 'name' ||
+      f.name === 'nombre'
+    );
+
+    if (nameField) {
+      const value = getFieldValue(material, nameField.name);
+      if (value) return String(value);
+    }
+
+    // Fallback a campos estándar
+    if (material.name) return material.name;
+
+    return 'Sin nombre';
+  }
+
+  /**
+   * Obtener nombre del trabajador desde sus campos dinámicos
+   */
+  getWorkerName(worker: Worker | undefined): string {
+    if (!worker) return 'Sin nombre';
+
+    const fields = this.workersConfigService.getFieldsInUse();
+
+    // Buscar el campo de nombre
+    const nameField = fields.find(f =>
+      f.type === FieldType.TEXT ||
+      f.name === 'name' ||
+      f.name === 'nombre'
+    );
+
+    if (nameField) {
+      const value = getFieldValue(worker, nameField.name);
+      if (value) return String(value);
+    }
+
+    // Fallback a campos estándar
+    if (worker.name) return worker.name;
+
+    return 'Sin nombre';
   }
 }

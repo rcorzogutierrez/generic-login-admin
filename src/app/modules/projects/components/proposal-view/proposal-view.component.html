@@ -402,21 +402,21 @@
             </div>
 
             <!-- Tax (si existe) -->
-            @if ((proposal()!.tax ?? 0) > 0) {
+            @if ((proposal()!.taxPercentage ?? 0) > 0) {
               <div class="flex justify-between items-center text-base">
-                <span class="text-slate-600 font-medium">Impuesto ({{ proposal()!.tax }}%):</span>
+                <span class="text-slate-600 font-medium">Impuesto ({{ proposal()!.taxPercentage }}%):</span>
                 <span class="font-semibold text-slate-800">
-                  {{ formatCurrency((proposal()!.subtotal || 0) * (proposal()!.tax! / 100)) }}
+                  + {{ formatCurrency(proposal()!.tax || 0) }}
                 </span>
               </div>
             }
 
             <!-- Discount (si existe) -->
-            @if ((proposal()!.discount ?? 0) > 0) {
+            @if ((proposal()!.discountPercentage ?? 0) > 0) {
               <div class="flex justify-between items-center text-base">
-                <span class="text-slate-600 font-medium">Descuento ({{ proposal()!.discount }}%):</span>
+                <span class="text-slate-600 font-medium">Descuento ({{ proposal()!.discountPercentage }}%):</span>
                 <span class="font-semibold text-red-600">
-                  -{{ formatCurrency((proposal()!.subtotal || 0) * (proposal()!.discount! / 100)) }}
+                  - {{ formatCurrency(proposal()!.discount || 0) }}
                 </span>
               </div>
             }

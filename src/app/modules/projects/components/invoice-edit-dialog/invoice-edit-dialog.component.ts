@@ -279,6 +279,29 @@ export class InvoiceEditDialogComponent implements OnInit {
     console.log('🔍 Validando formulario...');
     console.log('  - Materiales seleccionados:', this.selectedMaterials.length);
     console.log('  - Trabajadores seleccionados:', this.selectedWorkers.length);
+    console.log('  - Fecha inicio:', this.workStartDate);
+    console.log('  - Fecha fin:', this.workEndDate);
+    console.log('  - Horas trabajadas:', this.workTime);
+
+    // Validar fechas de trabajo (requeridas)
+    if (!this.workStartDate) {
+      console.log('  ❌ Falta fecha de inicio');
+      this.snackBar.open('Debes ingresar la fecha de inicio del trabajo', 'Cerrar', { duration: 3000 });
+      return false;
+    }
+
+    if (!this.workEndDate) {
+      console.log('  ❌ Falta fecha de finalización');
+      this.snackBar.open('Debes ingresar la fecha de finalización del trabajo', 'Cerrar', { duration: 3000 });
+      return false;
+    }
+
+    // Validar horas trabajadas (requeridas)
+    if (this.workTime === null || this.workTime === undefined || this.workTime <= 0) {
+      console.log('  ❌ Horas trabajadas inválidas:', this.workTime);
+      this.snackBar.open('Debes ingresar las horas trabajadas (mayor a 0)', 'Cerrar', { duration: 3000 });
+      return false;
+    }
 
     if (this.selectedMaterials.length === 0) {
       console.log('  ❌ No hay materiales');
@@ -388,6 +411,27 @@ export class InvoiceEditDialogComponent implements OnInit {
    */
   cancel() {
     this.dialogRef.close(false);
+  }
+
+  /**
+   * Calcular subtotal de materiales
+   */
+  calculateSubtotal(): number {
+    return this.selectedMaterials.reduce((total, material) => {
+      return total + (material.amount * material.price);
+    }, 0);
+  }
+
+  /**
+   * Formatear número como moneda
+   */
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
   }
 
   /**

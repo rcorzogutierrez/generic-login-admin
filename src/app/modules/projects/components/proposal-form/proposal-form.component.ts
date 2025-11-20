@@ -154,7 +154,7 @@ export class ProposalFormComponent implements OnInit {
   proposalForm!: FormGroup;
 
   constructor() {
-    this.initForm();
+    // No inicializar el formulario aquí - se inicializará después de cargar la configuración
   }
 
   async ngOnInit() {
@@ -165,6 +165,9 @@ export class ProposalFormComponent implements OnInit {
       this.catalogItemsService.initialize(),
       this.proposalConfigService.initialize()  // Cargar configuración de proposals
     ]);
+
+    // Inicializar el formulario DESPUÉS de cargar la configuración
+    this.initForm();
 
     // Verificar si es edición
     const id = this.route.snapshot.paramMap.get('id');

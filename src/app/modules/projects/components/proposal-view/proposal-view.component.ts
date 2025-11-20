@@ -116,7 +116,20 @@ export class ProposalViewComponent implements OnInit {
    */
   async convertToInvoice() {
     const proposal = this.proposal();
-    if (!proposal) return;
+    if (!proposal) {
+      console.error('No hay proposal disponible');
+      return;
+    }
+
+    // Validar que el proposal esté aprobado
+    if (proposal.status !== 'approved') {
+      this.snackBar.open('Solo se pueden convertir a factura los estimados aprobados', 'Cerrar', {
+        duration: 3000
+      });
+      return;
+    }
+
+    console.log('🔄 Abriendo diálogo de factura para proposal:', proposal.id);
 
     // Abrir directamente el diálogo para agregar datos de factura
     // El estado se cambiará a 'converted_to_invoice' cuando se guarden los datos
@@ -232,27 +245,45 @@ export class ProposalViewComponent implements OnInit {
    */
   async editInvoiceData() {
     const proposal = this.proposal();
-    if (!proposal) return;
+    if (!proposal) {
+      console.error('No hay proposal disponible para editar factura');
+      return;
+    }
+
+    console.log('📋 Abriendo diálogo de factura con datos:', {
+      proposalId: proposal.id,
+      status: proposal.status,
+      hasWorkers: !!proposal.workers,
+      hasMaterials: !!proposal.materialsUsed
+    });
 
     try {
       // Importar dinámicamente el componente del diálogo
+      console.log('⏳ Cargando componente InvoiceEditDialogComponent...');
       const { InvoiceEditDialogComponent } = await import('../invoice-edit-dialog/invoice-edit-dialog.component');
+      console.log('✅ Componente cargado exitosamente');
 
+      console.log('🔓 Abriendo diálogo...');
       const dialogRef = this.dialog.open(InvoiceEditDialogComponent, {
         width: '900px',
         maxWidth: '95vw',
         maxHeight: '90vh',
+        disableClose: false,
         data: { proposal }
       });
 
+      console.log('✅ Diálogo abierto');
+
       dialogRef.afterClosed().subscribe(async (result) => {
+        console.log('🔒 Diálogo cerrado con resultado:', result);
         if (result) {
           // Recargar el proposal para ver los cambios
+          console.log('🔄 Recargando proposal...');
           await this.loadProposal(proposal.id);
         }
       });
     } catch (error) {
-      console.error('Error abriendo diálogo de factura:', error);
+      console.error('❌ Error abriendo diálogo de factura:', error);
       this.snackBar.open('Error al abrir el editor de factura', 'Cerrar', { duration: 3000 });
     }
   }

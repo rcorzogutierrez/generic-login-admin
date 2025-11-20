@@ -255,16 +255,74 @@ export class ProposalViewComponent implements OnInit {
   }
 
   /**
-   * Calcular el gran total (proposal total + materiales)
+   * Calcular el subtotal combinado (trabajo + materiales)
+   */
+  calculateCombinedSubtotal(): number {
+    const proposal = this.proposal();
+    if (!proposal) return 0;
+
+    const workSubtotal = proposal.subtotal || 0;
+    const materialsTotal = this.calculateMaterialsTotal();
+
+    return workSubtotal + materialsTotal;
+  }
+
+  /**
+   * Calcular impuesto sobre el subtotal combinado (si hay materiales)
+   */
+  calculateTaxAmount(): number {
+    const proposal = this.proposal();
+    if (!proposal) return 0;
+
+    // Si no hay materiales, usar el impuesto original
+    if (!proposal.materialsUsed || proposal.materialsUsed.length === 0) {
+      return proposal.tax || 0;
+    }
+
+    // Si hay materiales, recalcular el impuesto sobre el subtotal combinado
+    const combinedSubtotal = this.calculateCombinedSubtotal();
+    const taxPercentage = proposal.taxPercentage || 0;
+
+    return (combinedSubtotal * taxPercentage) / 100;
+  }
+
+  /**
+   * Calcular descuento sobre el subtotal combinado (si hay materiales)
+   */
+  calculateDiscountAmount(): number {
+    const proposal = this.proposal();
+    if (!proposal) return 0;
+
+    // Si no hay materiales, usar el descuento original
+    if (!proposal.materialsUsed || proposal.materialsUsed.length === 0) {
+      return proposal.discount || 0;
+    }
+
+    // Si hay materiales, recalcular el descuento sobre el subtotal combinado
+    const combinedSubtotal = this.calculateCombinedSubtotal();
+    const discountPercentage = proposal.discountPercentage || 0;
+
+    return (combinedSubtotal * discountPercentage) / 100;
+  }
+
+  /**
+   * Calcular el gran total (subtotal combinado + impuesto - descuento)
    */
   calculateGrandTotal(): number {
     const proposal = this.proposal();
     if (!proposal) return 0;
 
-    const proposalTotal = proposal.total || 0;
-    const materialsTotal = this.calculateMaterialsTotal();
+    // Si no hay materiales, usar el total original
+    if (!proposal.materialsUsed || proposal.materialsUsed.length === 0) {
+      return proposal.total || 0;
+    }
 
-    return proposalTotal + materialsTotal;
+    // Si hay materiales, calcular el gran total con impuestos y descuentos recalculados
+    const combinedSubtotal = this.calculateCombinedSubtotal();
+    const tax = this.calculateTaxAmount();
+    const discount = this.calculateDiscountAmount();
+
+    return combinedSubtotal + tax - discount;
   }
 
   /**

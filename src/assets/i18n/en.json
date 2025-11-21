@@ -1,0 +1,149 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "actions": "Actions",
+    "yes": "Yes",
+    "no": "No",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "projects": {
+    "documentLanguage": "Document Language",
+    "proposal": {
+      "title": "Estimate Proposal",
+      "titlePlural": "Estimate Proposals",
+      "number": "Number",
+      "client": "Client",
+      "createNew": "New Proposal",
+      "edit": "Edit Proposal",
+      "view": "View Proposal",
+      "delete": "Delete Proposal",
+      "convert": "Convert to Invoice",
+      "status": {
+        "label": "Status",
+        "draft": "Draft",
+        "sent": "Sent",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "converted_to_invoice": "Converted to Invoice",
+        "cancelled": "Cancelled"
+      },
+      "client_info": {
+        "title": "Client Information",
+        "name": "Client Name",
+        "email": "Email Address",
+        "phone": "Phone Number"
+      },
+      "location": {
+        "title": "Location",
+        "address": "Address",
+        "city": "City",
+        "state": "State",
+        "zipCode": "ZIP Code"
+      },
+      "project": {
+        "title": "Project Information",
+        "type": "Project Type",
+        "residential": "Residential",
+        "commercial": "Commercial",
+        "category": "Category",
+        "remodeling": "Remodeling",
+        "plumbing": "Plumbing",
+        "services": "Services",
+        "equipment": "Equipment",
+        "newConstruction": "New Construction"
+      },
+      "items": {
+        "includes": "Includes",
+        "extras": "Extras",
+        "description": "Description",
+        "type": "Type",
+        "labor": "Labor",
+        "material": "Material",
+        "both": "Both",
+        "quantity": "Quantity",
+        "unitPrice": "Unit Price",
+        "total": "Total",
+        "addItem": "Add Item",
+        "noItems": "No items added"
+      },
+      "totals": {
+        "subtotal": "Subtotal",
+        "tax": "Tax",
+        "taxPercent": "Tax (%)",
+        "taxAmount": "Tax Amount",
+        "discount": "Discount",
+        "discountPercent": "Discount (%)",
+        "discountAmount": "Discount Amount",
+        "total": "Total",
+        "grandTotal": "Grand Total"
+      },
+      "terms": {
+        "title": "Terms and Conditions",
+        "placeholder": "Enter terms and conditions..."
+      },
+      "notes": {
+        "title": "Internal Notes",
+        "placeholder": "Private notes (not visible to client)..."
+      },
+      "messages": {
+        "created": "Proposal created successfully",
+        "updated": "Proposal updated successfully",
+        "deleted": "Proposal deleted successfully",
+        "error": "Error processing proposal",
+        "loadError": "Error loading proposal"
+      }
+    },
+    "invoice": {
+      "title": "Invoice",
+      "titlePlural": "Invoices",
+      "number": "Invoice Number",
+      "createFromProposal": "Create Invoice from Proposal",
+      "issueDate": "Issue Date",
+      "dueDate": "Due Date",
+      "workPeriod": "Work Period",
+      "workStartDate": "Work Start Date",
+      "workEndDate": "Work End Date",
+      "workTime": "Work Time (hours)",
+      "materials": {
+        "title": "Materials Used",
+        "name": "Material",
+        "quantity": "Quantity",
+        "price": "Price",
+        "subtotal": "Materials Subtotal",
+        "addMaterial": "Add Material",
+        "noMaterials": "No materials added"
+      },
+      "workers": {
+        "title": "Assigned Workers",
+        "addWorker": "Add Worker",
+        "noWorkers": "No workers assigned"
+      },
+      "validation": {
+        "issueDateRequired": "You must enter the invoice issue date",
+        "workStartRequired": "You must enter the work start date",
+        "workEndRequired": "You must enter the work end date",
+        "workTimeRequired": "You must enter the work time",
+        "workEndAfterStart": "End date must be after start date",
+        "materialsRequired": "You must add at least one material",
+        "materialNameRequired": "Material name is required",
+        "materialQuantityRequired": "Quantity is required",
+        "materialPriceRequired": "Price is required"
+      },
+      "messages": {
+        "created": "Invoice created successfully",
+        "updated": "Invoice updated successfully",
+        "deleted": "Invoice deleted successfully",
+        "error": "Error processing invoice",
+        "convertSuccess": "Proposal converted to invoice successfully"
+      }
+    }
+  }
+}

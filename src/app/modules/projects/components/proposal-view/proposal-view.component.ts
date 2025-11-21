@@ -3,6 +3,7 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Material imports
 import { MatButtonModule } from '@angular/material/button';
@@ -27,6 +28,7 @@ import { Proposal, ProposalStatus } from '../../models';
   standalone: true,
   imports: [
     CommonModule,
+    TranslateModule,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
@@ -243,6 +245,22 @@ export class ProposalViewComponent implements OnInit {
       cancelled: 'badge-status-cancelled'
     };
     return classes[status] || 'badge-status-draft';
+  }
+
+  /**
+   * Obtener nombre del idioma
+   */
+  getLanguageName(language?: 'es' | 'en'): string {
+    if (!language) return 'Español';
+    return language === 'es' ? 'Español' : 'English';
+  }
+
+  /**
+   * Obtener bandera del idioma
+   */
+  getLanguageFlag(language?: 'es' | 'en'): string {
+    if (!language) return '🇪🇸';
+    return language === 'es' ? '🇪🇸' : '🇺🇸';
   }
 
   /**

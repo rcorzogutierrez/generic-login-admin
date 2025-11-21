@@ -288,6 +288,7 @@ export class ProposalsService {
       const proposalData: Omit<Proposal, 'id'> = {
         ...data,
         proposalNumber: this.generateProposalNumber(),
+        language: data.language || 'es', // Idioma por defecto: español
         includes: data.includes || [],
         extras: data.extras || [],
         status: data.status || 'draft',

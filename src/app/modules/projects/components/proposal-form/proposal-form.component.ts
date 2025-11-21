@@ -4,6 +4,7 @@ import { Component, OnInit, inject, signal, ChangeDetectionStrategy, computed } 
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Material imports
 import { MatButtonModule } from '@angular/material/button';
@@ -41,6 +42,7 @@ import { getFieldValue } from '../../../../shared/modules/dynamic-form-builder/u
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    TranslateModule,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
@@ -190,6 +192,7 @@ export class ProposalFormComponent implements OnInit {
     validUntilDate.setDate(validUntilDate.getDate() + 30); // Temporal: 30 días
 
     this.proposalForm = this.fb.group({
+      language: ['es', Validators.required], // Idioma del documento
       ownerId: ['', Validators.required],
       ownerName: ['', Validators.required],
       ownerEmail: ['', [Validators.email]],

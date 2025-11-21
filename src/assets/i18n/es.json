@@ -1,0 +1,149 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Agregar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "actions": "Acciones",
+    "yes": "Sí",
+    "no": "No",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito"
+  },
+  "projects": {
+    "documentLanguage": "Idioma del Documento",
+    "proposal": {
+      "title": "Propuesta de Estimado",
+      "titlePlural": "Propuestas de Estimado",
+      "number": "Número",
+      "client": "Cliente",
+      "createNew": "Nueva Propuesta",
+      "edit": "Editar Propuesta",
+      "view": "Ver Propuesta",
+      "delete": "Eliminar Propuesta",
+      "convert": "Convertir a Factura",
+      "status": {
+        "label": "Estado",
+        "draft": "Borrador",
+        "sent": "Enviado",
+        "approved": "Aprobado",
+        "rejected": "Rechazado",
+        "converted_to_invoice": "Convertido a Factura",
+        "cancelled": "Cancelado"
+      },
+      "client_info": {
+        "title": "Información del Cliente",
+        "name": "Nombre del Cliente",
+        "email": "Correo Electrónico",
+        "phone": "Teléfono"
+      },
+      "location": {
+        "title": "Ubicación",
+        "address": "Dirección",
+        "city": "Ciudad",
+        "state": "Estado",
+        "zipCode": "Código Postal"
+      },
+      "project": {
+        "title": "Información del Proyecto",
+        "type": "Tipo de Proyecto",
+        "residential": "Residencial",
+        "commercial": "Comercial",
+        "category": "Categoría",
+        "remodeling": "Remodelación",
+        "plumbing": "Plomería",
+        "services": "Servicios",
+        "equipment": "Equipos",
+        "newConstruction": "Nueva Construcción"
+      },
+      "items": {
+        "includes": "Incluye",
+        "extras": "Extras",
+        "description": "Descripción",
+        "type": "Tipo",
+        "labor": "Mano de Obra",
+        "material": "Material",
+        "both": "Ambos",
+        "quantity": "Cantidad",
+        "unitPrice": "Precio Unitario",
+        "total": "Total",
+        "addItem": "Agregar Item",
+        "noItems": "No hay items agregados"
+      },
+      "totals": {
+        "subtotal": "Subtotal",
+        "tax": "Impuesto",
+        "taxPercent": "Impuesto (%)",
+        "taxAmount": "Monto de Impuesto",
+        "discount": "Descuento",
+        "discountPercent": "Descuento (%)",
+        "discountAmount": "Monto de Descuento",
+        "total": "Total",
+        "grandTotal": "Total General"
+      },
+      "terms": {
+        "title": "Términos y Condiciones",
+        "placeholder": "Ingrese los términos y condiciones..."
+      },
+      "notes": {
+        "title": "Notas Internas",
+        "placeholder": "Notas privadas (no visibles para el cliente)..."
+      },
+      "messages": {
+        "created": "Propuesta creada exitosamente",
+        "updated": "Propuesta actualizada exitosamente",
+        "deleted": "Propuesta eliminada exitosamente",
+        "error": "Error al procesar la propuesta",
+        "loadError": "Error al cargar la propuesta"
+      }
+    },
+    "invoice": {
+      "title": "Factura",
+      "titlePlural": "Facturas",
+      "number": "Número de Factura",
+      "createFromProposal": "Crear Factura desde Propuesta",
+      "issueDate": "Fecha de Emisión",
+      "dueDate": "Fecha de Vencimiento",
+      "workPeriod": "Período de Trabajo",
+      "workStartDate": "Fecha de Inicio del Trabajo",
+      "workEndDate": "Fecha de Fin del Trabajo",
+      "workTime": "Tiempo de Trabajo (horas)",
+      "materials": {
+        "title": "Materiales Usados",
+        "name": "Material",
+        "quantity": "Cantidad",
+        "price": "Precio",
+        "subtotal": "Subtotal de Materiales",
+        "addMaterial": "Agregar Material",
+        "noMaterials": "No hay materiales agregados"
+      },
+      "workers": {
+        "title": "Trabajadores Asignados",
+        "addWorker": "Agregar Trabajador",
+        "noWorkers": "No hay trabajadores asignados"
+      },
+      "validation": {
+        "issueDateRequired": "Debes ingresar la fecha de emisión de la factura",
+        "workStartRequired": "Debes ingresar la fecha de inicio del trabajo",
+        "workEndRequired": "Debes ingresar la fecha de fin del trabajo",
+        "workTimeRequired": "Debes ingresar el tiempo de trabajo",
+        "workEndAfterStart": "La fecha de fin debe ser posterior a la fecha de inicio",
+        "materialsRequired": "Debes agregar al menos un material",
+        "materialNameRequired": "El nombre del material es requerido",
+        "materialQuantityRequired": "La cantidad es requerida",
+        "materialPriceRequired": "El precio es requerido"
+      },
+      "messages": {
+        "created": "Factura creada exitosamente",
+        "updated": "Factura actualizada exitosamente",
+        "deleted": "Factura eliminada exitosamente",
+        "error": "Error al procesar la factura",
+        "convertSuccess": "Propuesta convertida a factura exitosamente"
+      }
+    }
+  }
+}

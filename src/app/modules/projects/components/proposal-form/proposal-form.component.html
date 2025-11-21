@@ -15,9 +15,9 @@
           </button>
           <div>
             <h1 class="text-2xl font-bold text-slate-800">
-              {{ isEditMode() ? 'Editar Estimado' : 'Nuevo Estimado' }}
+              {{ (isEditMode() ? 'projects.proposal.editEstimate' : 'projects.proposal.newEstimate') | translate }}
             </h1>
-            <p class="text-sm text-slate-500">Complete la información del estimado</p>
+            <p class="text-sm text-slate-500">{{ 'projects.proposal.completeInformation' | translate }}</p>
           </div>
         </div>
 
@@ -26,7 +26,7 @@
             mat-stroked-button
             (click)="cancel()"
             [disabled]="isLoading()">
-            Cancelar
+            {{ 'common.cancel' | translate }}
           </button>
           <button
             mat-button
@@ -34,7 +34,7 @@
             (click)="save(true)"
             [disabled]="isLoading()">
             <mat-icon>drafts</mat-icon>
-            Guardar Borrador
+            {{ 'common.saveDraft' | translate }}
           </button>
           <button
             mat-raised-button
@@ -42,7 +42,7 @@
             (click)="save(false)"
             [disabled]="isLoading()">
             <mat-icon>save</mat-icon>
-            {{ isEditMode() ? 'Actualizar' : 'Guardar y Finalizar' }}
+            {{ (isEditMode() ? 'common.update' : 'common.saveAndFinish') | translate }}
           </button>
         </div>
       </div>
@@ -59,12 +59,12 @@
             </div>
             {{ 'projects.documentLanguage' | translate }}
           </h2>
-          <p class="text-sm text-slate-500 mt-2 ml-13">Seleccione el idioma en el que se generará el documento</p>
+          <p class="text-sm text-slate-500 mt-2 ml-13">{{ 'projects.documentLanguageDescription' | translate }}</p>
         </div>
 
         <div class="max-w-md">
           <label class="block text-sm font-semibold text-slate-700 mb-2">
-            Idioma del Documento <span class="text-red-500">*</span>
+            {{ 'projects.documentLanguage' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
           </label>
           <div class="relative">
             <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg z-10">translate</mat-icon>
@@ -80,7 +80,7 @@
             <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">arrow_drop_down</mat-icon>
           </div>
           <p class="text-xs text-slate-500 mt-2">
-            Este idioma se utilizará para generar el estimado y la factura
+            {{ 'projects.documentLanguageHelp' | translate }}
           </p>
         </div>
       </div>
@@ -92,9 +92,9 @@
             <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <mat-icon class="text-blue-600 !text-xl">person</mat-icon>
             </div>
-            Información del Cliente
+            {{ 'projects.proposal.client_info.title' | translate }}
           </h2>
-          <p class="text-sm text-slate-500 mt-2 ml-13">Selecciona el cliente y verifica sus datos</p>
+          <p class="text-sm text-slate-500 mt-2 ml-13">{{ 'projects.proposal.client_info.selectAndVerify' | translate }}</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">

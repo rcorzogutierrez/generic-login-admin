@@ -12,13 +12,22 @@
     "no": "No",
     "loading": "Cargando...",
     "error": "Error",
-    "success": "Éxito"
+    "success": "Éxito",
+    "update": "Actualizar",
+    "saveDraft": "Guardar Borrador",
+    "saveAndFinish": "Guardar y Finalizar",
+    "required": "*"
   },
   "projects": {
     "documentLanguage": "Idioma del Documento",
+    "documentLanguageDescription": "Seleccione el idioma en el que se generará el documento",
+    "documentLanguageHelp": "Este idioma se utilizará para generar el estimado y la factura",
     "proposal": {
       "title": "Propuesta de Estimado",
       "titlePlural": "Propuestas de Estimado",
+      "newEstimate": "Nuevo Estimado",
+      "editEstimate": "Editar Estimado",
+      "completeInformation": "Complete la información del estimado",
       "number": "Número",
       "client": "Cliente",
       "createNew": "Nueva Propuesta",
@@ -37,6 +46,7 @@
       },
       "client_info": {
         "title": "Información del Cliente",
+        "selectAndVerify": "Selecciona el cliente y verifica sus datos",
         "name": "Nombre del Cliente",
         "email": "Correo Electrónico",
         "phone": "Teléfono"

@@ -77,6 +77,7 @@ export interface Proposal {
 
   // ========== Campos de Cabecera ==========
   proposalNumber: string;          // Número del estimado (auto-generado)
+  language: 'es' | 'en';           // Idioma del documento (español o inglés)
   ownerId: string;                 // ID del cliente (del módulo clients)
   ownerName: string;               // Nombre del cliente
   ownerEmail?: string;             // Email del cliente (copiado)
@@ -136,6 +137,7 @@ export interface Proposal {
  * Interface para crear un nuevo proposal (sin campos del sistema)
  */
 export interface CreateProposalData {
+  language?: 'es' | 'en';
   ownerId: string;
   ownerName: string;
   ownerEmail?: string;

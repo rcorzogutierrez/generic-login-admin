@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { Proposal } from '../../models';
 import { ProposalsService } from '../../services/proposals.service';
@@ -37,6 +38,7 @@ interface SelectedWorker {
   imports: [
     CommonModule,
     FormsModule,
+    TranslateModule,
     MatDialogModule,
     MatIconModule,
     MatSnackBarModule
@@ -60,6 +62,7 @@ export class InvoiceEditDialogComponent implements OnInit {
   availableWorkers = signal<Worker[]>([]);
 
   // Form data
+  language: 'es' | 'en' = 'es'; // Idioma del documento
   invoiceDate: string = '';
   workStartDate: string = '';
   workEndDate: string = '';
@@ -131,6 +134,10 @@ export class InvoiceEditDialogComponent implements OnInit {
   initFormData() {
     console.log('📝 Inicializando datos del formulario...');
     const proposal = this.data.proposal;
+
+    // Idioma del documento (heredar del proposal o usar español por defecto)
+    this.language = proposal.language || 'es';
+    console.log('  ✓ language:', this.language);
 
     // Fecha de factura (si existe, cargar; si no, usar fecha actual)
     if (proposal.invoiceDate) {
@@ -381,6 +388,7 @@ export class InvoiceEditDialogComponent implements OnInit {
       this.isSaving.set(true);
 
       const updateData: any = {
+        language: this.language, // Idioma del documento
         workers: this.selectedWorkers.map(w => ({
           id: w.workerId,
           name: w.workerName

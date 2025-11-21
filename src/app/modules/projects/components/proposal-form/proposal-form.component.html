@@ -101,7 +101,7 @@
           <!-- Cliente Autocomplete -->
           <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2">
-              Cliente <span class="text-red-500">*</span>
+              {{ 'projects.proposal.client_info.client' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
             </label>
             <div class="flex gap-2">
               <div class="relative flex-1">
@@ -111,7 +111,7 @@
                   [value]="clientSearchTerm()"
                   (input)="onClientSearchChange($event)"
                   [matAutocomplete]="autoClients"
-                  placeholder="Buscar cliente..."
+                  [placeholder]="'projects.proposal.client_info.searchClient' | translate"
                   class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
                          focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
                          transition-all bg-white text-slate-800 hover:border-slate-300">
@@ -120,7 +120,7 @@
                   @if (filteredClients().length === 0) {
                     <mat-option disabled>
                       <div class="text-slate-400 text-sm py-2">
-                        No se encontraron clientes
+                        {{ 'projects.proposal.client_info.noClientsFound' | translate }}
                       </div>
                     </mat-option>
                   }
@@ -148,7 +148,7 @@
 
                 @if (clients().length === 0) {
                   <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                    <span class="text-xs text-amber-600">Sin clientes</span>
+                    <span class="text-xs text-amber-600">{{ 'projects.proposal.client_info.noClients' | translate }}</span>
                   </div>
                 }
               </div>
@@ -157,20 +157,20 @@
                 mat-mini-fab
                 color="primary"
                 (click)="openAddClientDialog()"
-                matTooltip="Agregar nuevo cliente"
+                [matTooltip]="'projects.proposal.client_info.addNewClient' | translate"
                 class="!flex-shrink-0">
                 <mat-icon>add</mat-icon>
               </button>
             </div>
             @if (shouldShowError('ownerId')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ El cliente es requerido</p>
+              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.client_info.validation.clientRequired' | translate }}</p>
             }
           </div>
 
           <!-- Nombre del Cliente -->
           <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2">
-              Nombre del Cliente <span class="text-red-500">*</span>
+              {{ 'projects.proposal.client_info.name' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
             </label>
             <div class="relative">
               <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
@@ -183,16 +183,16 @@
                   ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
                   : 'border-slate-200 bg-white focus:border-blue-500 focus:ring-blue-100 hover:border-slate-300'"
                 class="w-full pl-11 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800"
-                placeholder="Nombre completo del cliente">
+                [placeholder]="'projects.proposal.client_info.namePlaceholder' | translate">
             </div>
             @if (shouldShowError('ownerName')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ El nombre del cliente es requerido</p>
+              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.client_info.validation.nameRequired' | translate }}</p>
             }
           </div>
 
           <!-- Email -->
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">Email</label>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">{{ 'projects.proposal.client_info.email' | translate }}</label>
             <div class="relative">
               <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
                         [ngClass]="shouldShowError('ownerEmail') ? 'text-red-500' : 'text-slate-400'">email</mat-icon>
@@ -203,16 +203,16 @@
                   ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
                   : 'border-slate-200 bg-white focus:border-blue-500 focus:ring-blue-100 hover:border-slate-300'"
                 class="w-full pl-11 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800"
-                placeholder="cliente@ejemplo.com">
+                [placeholder]="'projects.proposal.client_info.emailPlaceholder' | translate">
             </div>
             @if (shouldShowError('ownerEmail')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ El formato del email es inválido</p>
+              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.client_info.validation.emailInvalid' | translate }}</p>
             }
           </div>
 
           <!-- Teléfono -->
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">Teléfono</label>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">{{ 'projects.proposal.client_info.phone' | translate }}</label>
             <div class="relative">
               <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">phone</mat-icon>
               <input
@@ -221,7 +221,7 @@
                 class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
                        focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
                        transition-all bg-white text-slate-800 hover:border-slate-300"
-                placeholder="+1 (555) 123-4567">
+                [placeholder]="'projects.proposal.client_info.phonePlaceholder' | translate">
             </div>
           </div>
         </div>
@@ -240,10 +240,10 @@
                    disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
           <div class="flex-1">
             <span class="text-sm font-semibold text-blue-900 group-hover:text-blue-700">
-              La dirección del trabajo es la misma que la del cliente
+              {{ 'projects.proposal.location.sameAsClient' | translate }}
             </span>
             <p class="text-xs text-blue-600 mt-0.5">
-              Marque esta opción si el trabajo se realizará en la dirección del cliente
+              {{ 'projects.proposal.location.sameAsClientHelp' | translate }}
             </p>
           </div>
           <mat-icon class="text-blue-500 !text-xl">home_work</mat-icon>
@@ -257,16 +257,16 @@
             <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <mat-icon class="text-green-600 !text-xl">place</mat-icon>
             </div>
-            Ubicación del Trabajo
+            {{ 'projects.proposal.location.title' | translate }}
           </h2>
-          <p class="text-sm text-slate-500 mt-2 ml-13">Indica dónde se realizará el trabajo (puede ser diferente a la dirección del cliente)</p>
+          <p class="text-sm text-slate-500 mt-2 ml-13">{{ 'projects.proposal.location.description' | translate }}</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <!-- Tipo de Trabajo -->
           <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2">
-              Tipo de Trabajo <span class="text-red-500">*</span>
+              {{ 'projects.proposal.project.type' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
             </label>
             <div class="relative">
               <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
@@ -278,20 +278,20 @@
                   ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
                   : 'border-slate-200 bg-white focus:border-green-500 focus:ring-green-100 hover:border-slate-300'"
                 class="w-full pl-11 pr-10 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800 cursor-pointer appearance-none">
-                <option value="residential">Residencial</option>
-                <option value="commercial">Comercial</option>
+                <option value="residential">{{ 'projects.proposal.project.residential' | translate }}</option>
+                <option value="commercial">{{ 'projects.proposal.project.commercial' | translate }}</option>
               </select>
               <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">expand_more</mat-icon>
             </div>
             @if (shouldShowError('workType')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ El tipo de trabajo es requerido</p>
+              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.project.validation.typeRequired' | translate }}</p>
             }
           </div>
 
           <!-- Clasificación del Servicio -->
           <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2">
-              Clasificación del Servicio <span class="text-red-500">*</span>
+              {{ 'projects.proposal.project.category' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
             </label>
             <div class="relative">
               <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
@@ -303,24 +303,24 @@
                   ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
                   : 'border-slate-200 bg-white focus:border-green-500 focus:ring-green-100 hover:border-slate-300'"
                 class="w-full pl-11 pr-10 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800 cursor-pointer appearance-none">
-                <option value="">Seleccione una opción</option>
-                <option value="remodeling">Remodelación</option>
-                <option value="plumbing">Plomería</option>
-                <option value="services">Servicios</option>
-                <option value="equipment">Instalación de equipos</option>
-                <option value="new_construction">Nueva Construcción</option>
+                <option value="">{{ 'projects.proposal.project.selectOption' | translate }}</option>
+                <option value="remodeling">{{ 'projects.proposal.project.remodeling' | translate }}</option>
+                <option value="plumbing">{{ 'projects.proposal.project.plumbing' | translate }}</option>
+                <option value="services">{{ 'projects.proposal.project.services' | translate }}</option>
+                <option value="equipment">{{ 'projects.proposal.project.equipment' | translate }}</option>
+                <option value="new_construction">{{ 'projects.proposal.project.newConstruction' | translate }}</option>
               </select>
               <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">expand_more</mat-icon>
             </div>
             @if (shouldShowError('jobCategory')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ La clasificación del servicio es requerida</p>
+              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.project.validation.categoryRequired' | translate }}</p>
             }
           </div>
 
           <!-- Dirección del Trabajo -->
           <div class="md:col-span-2 lg:col-span-3">
             <label class="block text-sm font-semibold text-slate-700 mb-2">
-              Dirección del Trabajo <span class="text-red-500">*</span>
+              {{ 'projects.proposal.location.address' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
             </label>
             <div class="relative">
               <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
@@ -333,17 +333,17 @@
                   ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
                   : 'border-slate-200 bg-white focus:border-blue-500 focus:ring-blue-100 hover:border-slate-300'"
                 class="w-full pl-11 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800"
-                placeholder="123 Main Street">
+                [placeholder]="'projects.proposal.location.addressPlaceholder' | translate">
             </div>
             @if (shouldShowError('address')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ La dirección del trabajo es requerida</p>
+              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.location.validation.addressRequired' | translate }}</p>
             }
           </div>
 
           <!-- Ciudad -->
           <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2">
-              Ciudad <span class="text-red-500">*</span>
+              {{ 'projects.proposal.location.city' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
             </label>
             <div class="relative">
               <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
@@ -356,16 +356,16 @@
                   ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
                   : 'border-slate-200 bg-white focus:border-blue-500 focus:ring-blue-100 hover:border-slate-300'"
                 class="w-full pl-11 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800"
-                placeholder="Miami">
+                [placeholder]="'projects.proposal.location.cityPlaceholder' | translate">
             </div>
             @if (shouldShowError('city')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ La ciudad es requerida</p>
+              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.location.validation.cityRequired' | translate }}</p>
             }
           </div>
 
           <!-- Estado -->
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">Estado</label>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">{{ 'projects.proposal.location.state' | translate }}</label>
             <div class="relative">
               <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">map</mat-icon>
               <input
@@ -374,13 +374,13 @@
                 class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
                        focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
                        transition-all bg-white text-slate-800 hover:border-slate-300"
-                placeholder="FL">
+                [placeholder]="'projects.proposal.location.statePlaceholder' | translate">
             </div>
           </div>
 
           <!-- Código Postal -->
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">Código Postal</label>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">{{ 'projects.proposal.location.zipCode' | translate }}</label>
             <div class="relative">
               <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">markunread_mailbox</mat-icon>
               <input
@@ -389,7 +389,7 @@
                 class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
                        focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
                        transition-all bg-white text-slate-800 hover:border-slate-300"
-                placeholder="33101">
+                [placeholder]="'projects.proposal.location.zipCodePlaceholder' | translate">
             </div>
           </div>
         </div>

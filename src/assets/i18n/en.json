@@ -47,28 +47,57 @@
       "client_info": {
         "title": "Client Information",
         "selectAndVerify": "Select the client and verify their information",
+        "client": "Client",
         "name": "Client Name",
-        "email": "Email Address",
-        "phone": "Phone Number"
+        "namePlaceholder": "Client's full name",
+        "email": "Email",
+        "emailPlaceholder": "client@example.com",
+        "phone": "Phone",
+        "phonePlaceholder": "+1 (555) 123-4567",
+        "searchClient": "Search client...",
+        "noClientsFound": "No clients found",
+        "noClients": "No clients",
+        "addNewClient": "Add new client",
+        "validation": {
+          "clientRequired": "Client is required",
+          "nameRequired": "Client name is required",
+          "emailInvalid": "Invalid email format"
+        }
       },
       "location": {
-        "title": "Location",
-        "address": "Address",
+        "title": "Work Location",
+        "description": "Indicate where the work will be performed (may differ from client's address)",
+        "sameAsClient": "Work address is the same as client's address",
+        "sameAsClientHelp": "Check this option if the work will be performed at the client's address",
+        "address": "Work Address",
+        "addressPlaceholder": "123 Main Street",
         "city": "City",
+        "cityPlaceholder": "Miami",
         "state": "State",
-        "zipCode": "ZIP Code"
+        "statePlaceholder": "Florida",
+        "zipCode": "ZIP Code",
+        "zipCodePlaceholder": "33101",
+        "validation": {
+          "addressRequired": "Work address is required",
+          "cityRequired": "City is required"
+        }
       },
       "project": {
         "title": "Project Information",
-        "type": "Project Type",
+        "type": "Work Type",
         "residential": "Residential",
         "commercial": "Commercial",
-        "category": "Category",
+        "category": "Service Classification",
+        "selectOption": "Select an option",
         "remodeling": "Remodeling",
         "plumbing": "Plumbing",
         "services": "Services",
-        "equipment": "Equipment",
-        "newConstruction": "New Construction"
+        "equipment": "Equipment Installation",
+        "newConstruction": "New Construction",
+        "validation": {
+          "typeRequired": "Work type is required",
+          "categoryRequired": "Service classification is required"
+        }
       },
       "items": {
         "includes": "Includes",

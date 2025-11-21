@@ -47,28 +47,57 @@
       "client_info": {
         "title": "Información del Cliente",
         "selectAndVerify": "Selecciona el cliente y verifica sus datos",
+        "client": "Cliente",
         "name": "Nombre del Cliente",
-        "email": "Correo Electrónico",
-        "phone": "Teléfono"
+        "namePlaceholder": "Nombre completo del cliente",
+        "email": "Email",
+        "emailPlaceholder": "cliente@ejemplo.com",
+        "phone": "Teléfono",
+        "phonePlaceholder": "+1 (555) 123-4567",
+        "searchClient": "Buscar cliente...",
+        "noClientsFound": "No se encontraron clientes",
+        "noClients": "Sin clientes",
+        "addNewClient": "Agregar nuevo cliente",
+        "validation": {
+          "clientRequired": "El cliente es requerido",
+          "nameRequired": "El nombre del cliente es requerido",
+          "emailInvalid": "El formato del email es inválido"
+        }
       },
       "location": {
-        "title": "Ubicación",
-        "address": "Dirección",
+        "title": "Ubicación del Trabajo",
+        "description": "Indica dónde se realizará el trabajo (puede ser diferente a la dirección del cliente)",
+        "sameAsClient": "La dirección del trabajo es la misma que la del cliente",
+        "sameAsClientHelp": "Marque esta opción si el trabajo se realizará en la dirección del cliente",
+        "address": "Dirección del Trabajo",
+        "addressPlaceholder": "123 Main Street",
         "city": "Ciudad",
+        "cityPlaceholder": "Miami",
         "state": "Estado",
-        "zipCode": "Código Postal"
+        "statePlaceholder": "Florida",
+        "zipCode": "Código Postal",
+        "zipCodePlaceholder": "33101",
+        "validation": {
+          "addressRequired": "La dirección del trabajo es requerida",
+          "cityRequired": "La ciudad es requerida"
+        }
       },
       "project": {
         "title": "Información del Proyecto",
-        "type": "Tipo de Proyecto",
+        "type": "Tipo de Trabajo",
         "residential": "Residencial",
         "commercial": "Comercial",
-        "category": "Categoría",
+        "category": "Clasificación del Servicio",
+        "selectOption": "Seleccione una opción",
         "remodeling": "Remodelación",
         "plumbing": "Plomería",
         "services": "Servicios",
-        "equipment": "Equipos",
-        "newConstruction": "Nueva Construcción"
+        "equipment": "Instalación de equipos",
+        "newConstruction": "Nueva Construcción",
+        "validation": {
+          "typeRequired": "El tipo de trabajo es requerido",
+          "categoryRequired": "La clasificación del servicio es requerida"
+        }
       },
       "items": {
         "includes": "Incluye",

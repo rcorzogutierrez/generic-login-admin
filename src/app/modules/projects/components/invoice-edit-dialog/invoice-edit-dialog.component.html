@@ -26,6 +26,7 @@
         </label>
         <select
           [(ngModel)]="language"
+          (ngModelChange)="onLanguageChange($event)"
           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all bg-white cursor-pointer">
           <option value="es">🇪🇸 Español</option>
           <option value="en">🇺🇸 English</option>

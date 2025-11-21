@@ -14,6 +14,7 @@ import { MaterialsService } from '../../../materials/services/materials.service'
 import { MaterialsConfigService } from '../../../materials/services/materials-config.service';
 import { WorkersService } from '../../../workers/services/workers.service';
 import { WorkersConfigService } from '../../../workers/services/workers-config.service';
+import { LanguageService } from '../../../../core/services/language.service';
 import { Material } from '../../../materials/models';
 import { Worker } from '../../../workers/models';
 import { FieldType } from '../../../materials/models';
@@ -53,6 +54,7 @@ export class InvoiceEditDialogComponent implements OnInit {
   private materialsConfigService = inject(MaterialsConfigService);
   private workersService = inject(WorkersService);
   private workersConfigService = inject(WorkersConfigService);
+  private languageService = inject(LanguageService);
   private snackBar = inject(MatSnackBar);
   public data = inject<{ proposal: Proposal }>(MAT_DIALOG_DATA);
 
@@ -465,6 +467,13 @@ export class InvoiceEditDialogComponent implements OnInit {
    */
   calculateGrandTotal(): number {
     return this.getProposalSubtotal() + this.calculateMaterialsSubtotal();
+  }
+
+  /**
+   * Manejar cambio de idioma
+   */
+  onLanguageChange(language: 'es' | 'en'): void {
+    this.languageService.setLanguage(language);
   }
 
   /**

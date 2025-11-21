@@ -12,13 +12,22 @@
     "no": "No",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "update": "Update",
+    "saveDraft": "Save Draft",
+    "saveAndFinish": "Save and Finish",
+    "required": "*"
   },
   "projects": {
     "documentLanguage": "Document Language",
+    "documentLanguageDescription": "Select the language for document generation",
+    "documentLanguageHelp": "This language will be used to generate the estimate and invoice",
     "proposal": {
       "title": "Estimate Proposal",
       "titlePlural": "Estimate Proposals",
+      "newEstimate": "New Estimate",
+      "editEstimate": "Edit Estimate",
+      "completeInformation": "Complete the estimate information",
       "number": "Number",
       "client": "Client",
       "createNew": "New Proposal",
@@ -37,6 +46,7 @@
       },
       "client_info": {
         "title": "Client Information",
+        "selectAndVerify": "Select the client and verify their information",
         "name": "Client Name",
         "email": "Email Address",
         "phone": "Phone Number"

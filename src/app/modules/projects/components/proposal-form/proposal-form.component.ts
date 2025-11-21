@@ -23,6 +23,7 @@ import { ProposalConfigService } from '../../services/proposal-config.service';
 import { CatalogItemsService } from '../../services/catalog-items.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ClientConfigServiceRefactored } from '../../../clients/services/client-config-refactored.service';
+import { LanguageService } from '../../../../core/services/language.service';
 
 // Models
 import { Proposal, CreateProposalData, ProposalItem, CatalogItem } from '../../models';
@@ -63,6 +64,7 @@ export class ProposalFormComponent implements OnInit {
   private catalogItemsService = inject(CatalogItemsService);
   private clientsService = inject(ClientsService);
   private clientConfigService = inject(ClientConfigServiceRefactored);
+  private languageService = inject(LanguageService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);
@@ -219,6 +221,20 @@ export class ProposalFormComponent implements OnInit {
         this.fillClientData(ownerId);
       }
     });
+
+    // Suscribirse a cambios en language para actualizar el idioma de la interfaz
+    this.proposalForm.get('language')?.valueChanges.subscribe(language => {
+      if (language) {
+        this.onLanguageChange(language);
+      }
+    });
+  }
+
+  /**
+   * Manejar cambio de idioma
+   */
+  onLanguageChange(language: 'es' | 'en'): void {
+    this.languageService.setLanguage(language);
   }
 
   /**

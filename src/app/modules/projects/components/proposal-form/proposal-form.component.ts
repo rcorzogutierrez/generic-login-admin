@@ -414,6 +414,7 @@ export class ProposalFormComponent implements OnInit {
 
       if (proposal) {
         this.proposalForm.patchValue({
+          language: proposal.language || 'es', // Cargar el idioma del documento
           ownerId: proposal.ownerId,
           ownerName: proposal.ownerName,
           ownerEmail: proposal.ownerEmail || '',
@@ -433,6 +434,10 @@ export class ProposalFormComponent implements OnInit {
           taxPercentage: proposal.taxPercentage || 0,
           discountPercentage: proposal.discountPercentage || 0
         });
+
+        // Establecer el idioma de la UI según el idioma del documento
+        const documentLanguage = proposal.language || 'es';
+        this.languageService.setLanguage(documentLanguage);
 
         // Cargar items incluidos - convertir de ProposalItem[] a IDs del catálogo
         const savedIncludeIds = new Set<string>();

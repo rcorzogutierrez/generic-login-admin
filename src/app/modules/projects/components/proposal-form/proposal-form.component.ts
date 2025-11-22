@@ -666,6 +666,7 @@ export class ProposalFormComponent implements OnInit {
 
       // Construir objeto de datos base
       const baseData = {
+        language: formValue.language || 'es', // Idioma del documento
         ownerId: formValue.ownerId,
         ownerName: formValue.ownerName,
         ownerEmail: formValue.ownerEmail,
@@ -696,6 +697,7 @@ export class ProposalFormComponent implements OnInit {
       const proposalData = this.filterUndefinedValues(baseData) as CreateProposalData;
 
       // Asegurar que los campos mínimos siempre estén presentes
+      proposalData.language = formValue.language || 'es'; // Asegurar que el idioma siempre se guarde
       proposalData.ownerId = formValue.ownerId;
       proposalData.ownerName = formValue.ownerName;
       proposalData.includes = includesToSave;

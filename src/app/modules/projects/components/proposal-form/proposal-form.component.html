@@ -402,16 +402,16 @@
             <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
               <mat-icon class="text-purple-600 !text-xl">event</mat-icon>
             </div>
-            Fechas del Estimado
+            {{ 'projects.proposal.dates.title' | translate }}
           </h2>
-          <p class="text-sm text-slate-500 mt-2 ml-13">Define la fecha del estimado y su validez</p>
+          <p class="text-sm text-slate-500 mt-2 ml-13">{{ 'projects.proposal.dates.description' | translate }}</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <!-- Fecha del Estimado -->
           <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2">
-              Fecha del Estimado <span class="text-red-500">*</span>
+              {{ 'projects.proposal.dates.estimateDate' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
             </label>
             <div class="relative">
               <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">calendar_today</mat-icon>
@@ -430,7 +430,7 @@
 
           <!-- Válido Hasta -->
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">Válido Hasta (Opcional)</label>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">{{ 'projects.proposal.dates.validUntil' | translate }}</label>
             <div class="relative">
               <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">event_available</mat-icon>
               <input
@@ -477,7 +477,7 @@
               <div class="flex items-center justify-between mb-2">
                 <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
                   <mat-icon class="!text-lg text-slate-600">inventory</mat-icon>
-                  Catálogo de Items ({{ filteredCatalogItems().length }})
+                  {{ 'projects.proposal.catalog.title' | translate }} ({{ filteredCatalogItems().length }})
                 </h3>
                 <div class="flex items-center gap-2">
                   <!-- Botón Administrar Catálogo -->
@@ -496,7 +496,7 @@
                       (click)="addAllFilteredItems()"
                       class="!text-xs !py-1 !px-3">
                       <mat-icon class="!text-sm">add_circle</mat-icon>
-                      Agregar Todos
+                      {{ 'projects.proposal.catalog.addAll' | translate }}
                     </button>
                   }
                 </div>
@@ -509,7 +509,7 @@
                   type="text"
                   [value]="catalogSearchTerm()"
                   (input)="onCatalogSearchChange($event)"
-                  placeholder="Buscar en catálogo..."
+                  [placeholder]="'projects.proposal.catalog.searchCatalog' | translate"
                   class="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded
                          focus:border-blue-500 focus:ring-1 focus:ring-blue-100 outline-none
                          transition-all bg-white text-slate-800">
@@ -521,8 +521,8 @@
               @if (filteredCatalogItems().length === 0) {
                 <div class="text-center py-12 text-slate-400">
                   <mat-icon class="!text-5xl mb-2 text-slate-300">search_off</mat-icon>
-                  <p class="text-sm font-medium">No hay items disponibles</p>
-                  <p class="text-xs mt-1">Intenta con otra búsqueda</p>
+                  <p class="text-sm font-medium">{{ 'projects.proposal.catalog.noItems' | translate }}</p>
+                  <p class="text-xs mt-1">{{ 'projects.proposal.catalog.tryAnotherSearch' | translate }}</p>
                 </div>
               } @else {
                 @for (item of filteredCatalogItems(); track item.id) {
@@ -557,7 +557,7 @@
               <div class="flex items-center justify-between">
                 <h3 class="text-sm font-bold text-blue-900 flex items-center gap-2">
                   <mat-icon class="!text-lg text-blue-700">checklist</mat-icon>
-                  Items Seleccionados ({{ selectedCatalogItems().length }})
+                  {{ 'projects.proposal.catalog.selectedItems' | translate }} ({{ selectedCatalogItems().length }})
                 </h3>
                 @if (selectedCatalogItems().length > 0) {
                   <button
@@ -567,7 +567,7 @@
                     (click)="removeAllSelectedItems()"
                     class="!text-xs !py-1 !px-3">
                     <mat-icon class="!text-sm">remove_circle</mat-icon>
-                    Quitar Todos
+                    {{ 'projects.proposal.catalog.removeAll' | translate }}
                   </button>
                 }
               </div>
@@ -578,8 +578,8 @@
               @if (selectedCatalogItems().length === 0) {
                 <div class="text-center py-12 text-blue-400">
                   <mat-icon class="!text-5xl mb-2 text-blue-300">playlist_add</mat-icon>
-                  <p class="text-sm font-medium">No hay items seleccionados</p>
-                  <p class="text-xs mt-1">Haz clic en un item del catálogo para agregarlo</p>
+                  <p class="text-sm font-medium">{{ 'projects.proposal.catalog.noSelectedItems' | translate }}</p>
+                  <p class="text-xs mt-1">{{ 'projects.proposal.catalog.clickToAdd' | translate }}</p>
                 </div>
               } @else {
                 @for (item of selectedCatalogItems(); track item.id; let i = $index) {
@@ -619,8 +619,7 @@
         <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200 flex items-start gap-3">
           <mat-icon class="text-blue-600 !text-base mt-0.5">info</mat-icon>
           <p class="text-xs text-blue-800">
-            <strong>Cómo usar:</strong> Haz clic en un item del catálogo (izquierda) para agregarlo al estimado (derecha).
-            Haz clic en un item seleccionado para quitarlo. Los paneles tienen scroll independiente.
+            <strong>{{ 'projects.proposal.catalog.howToUse' | translate }}</strong> {{ 'projects.proposal.catalog.instructions' | translate }}
           </p>
         </div>
       </div>
@@ -639,10 +638,10 @@
                      [ngClass]="includeExtrasSection() ? 'bg-amber-500' : 'bg-amber-100'">
                   <mat-icon [ngClass]="includeExtrasSection() ? 'text-white' : 'text-amber-700'" class="!text-xl">do_not_disturb_on</mat-icon>
                 </div>
-                Extras NO Incluidos en el Precio
+                {{ 'projects.proposal.items.extrasNotIncluded' | translate }}
               </h2>
               <p class="text-sm text-slate-500 mt-2 ml-13">
-                Activa esta sección para incluir la lista de exclusiones en el estimado
+                {{ 'projects.proposal.items.extrasDescription' | translate }}
               </p>
             </div>
 
@@ -743,16 +742,16 @@
             <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
               <mat-icon class="text-white !text-xl">calculate</mat-icon>
             </div>
-            Resumen de Totales
+            {{ 'projects.proposal.totals.title' | translate }}
           </h2>
-          <p class="text-sm text-blue-700 mt-2 ml-13">Ingresa el subtotal y configura impuestos y descuentos</p>
+          <p class="text-sm text-blue-700 mt-2 ml-13">{{ 'projects.proposal.totals.description' | translate }}</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
           <!-- Subtotal -->
           <div>
             <label class="block text-sm font-semibold text-blue-900 mb-2">
-              Subtotal <span class="text-red-500">*</span>
+              {{ 'projects.proposal.totals.subtotal' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
             </label>
             <div class="relative">
               <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
@@ -772,13 +771,13 @@
                 placeholder="0.00">
             </div>
             @if (shouldShowError('subtotal')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ El subtotal es requerido y debe ser mayor a 0</p>
+              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.totals.subtotalRequired' | translate }}</p>
             }
           </div>
 
           <!-- Impuesto -->
           <div>
-            <label class="block text-sm font-semibold text-blue-900 mb-2">Impuesto (%)</label>
+            <label class="block text-sm font-semibold text-blue-900 mb-2">{{ 'projects.proposal.totals.taxPercent' | translate }}</label>
             <div class="relative">
               <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg">percent</mat-icon>
               <input
@@ -797,7 +796,7 @@
 
           <!-- Descuento -->
           <div>
-            <label class="block text-sm font-semibold text-blue-900 mb-2">Descuento (%)</label>
+            <label class="block text-sm font-semibold text-blue-900 mb-2">{{ 'projects.proposal.totals.discountPercent' | translate }}</label>
             <div class="relative">
               <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg">local_offer</mat-icon>
               <input
@@ -818,13 +817,13 @@
         <!-- Cálculos -->
         <div class="bg-white p-5 rounded-lg space-y-3 shadow-sm">
           <div class="flex justify-between text-sm">
-            <span class="text-slate-600 font-medium">Subtotal:</span>
+            <span class="text-slate-600 font-medium">{{ 'projects.proposal.totals.subtotal' | translate }}:</span>
             <span class="font-bold text-slate-800">{{ formatCurrency(getSubtotal()) }}</span>
           </div>
 
           @if (proposalForm.get('taxPercentage')?.value > 0) {
             <div class="flex justify-between text-sm">
-              <span class="text-slate-600">Impuesto ({{ proposalForm.get('taxPercentage')?.value }}%):</span>
+              <span class="text-slate-600">{{ 'projects.proposal.totals.tax' | translate }} ({{ proposalForm.get('taxPercentage')?.value }}%):</span>
               <span class="font-semibold text-green-600">
                 + {{ formatCurrency(calculateTax()) }}
               </span>
@@ -833,7 +832,7 @@
 
           @if (proposalForm.get('discountPercentage')?.value > 0) {
             <div class="flex justify-between text-sm">
-              <span class="text-slate-600">Descuento ({{ proposalForm.get('discountPercentage')?.value }}%):</span>
+              <span class="text-slate-600">{{ 'projects.proposal.totals.discount' | translate }} ({{ proposalForm.get('discountPercentage')?.value }}%):</span>
               <span class="font-semibold text-red-600">
                 - {{ formatCurrency(calculateDiscount()) }}
               </span>
@@ -843,7 +842,7 @@
           <mat-divider class="my-3"></mat-divider>
 
           <div class="flex justify-between items-center pt-2">
-            <span class="text-lg font-bold text-blue-900">TOTAL:</span>
+            <span class="text-lg font-bold text-blue-900">{{ 'projects.proposal.totals.totalLabel' | translate }}</span>
             <span class="text-2xl font-bold text-blue-600">{{ formatCurrency(calculateTotal()) }}</span>
           </div>
         </div>
@@ -856,9 +855,9 @@
             <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
               <mat-icon class="text-slate-600 !text-xl">notes</mat-icon>
             </div>
-            Notas y Términos
+            {{ 'projects.proposal.notes.title' | translate }}
           </h2>
-          <p class="text-sm text-slate-500 mt-2 ml-13">Información adicional y condiciones del servicio</p>
+          <p class="text-sm text-slate-500 mt-2 ml-13">{{ 'projects.proposal.notes.description' | translate }}</p>
         </div>
 
         <div class="space-y-5">
@@ -866,7 +865,7 @@
           <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
               <mat-icon class="!text-lg text-slate-600">visibility</mat-icon>
-              Notas (visibles para el cliente)
+              {{ 'projects.proposal.notes.clientNotes' | translate }}
             </label>
             <textarea
               formControlName="notes"
@@ -875,14 +874,14 @@
                      focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
                      transition-all bg-white text-slate-800 hover:border-slate-300
                      resize-vertical min-h-[100px]"
-              placeholder="Información adicional que verá el cliente en el estimado..."></textarea>
+              [placeholder]="'projects.proposal.notes.clientNotesPlaceholder' | translate"></textarea>
           </div>
 
           <!-- Notas Internas -->
           <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
               <mat-icon class="!text-lg text-slate-600">visibility_off</mat-icon>
-              Notas Internas (solo uso interno)
+              {{ 'projects.proposal.notes.internalNotes' | translate }}
             </label>
             <textarea
               formControlName="internalNotes"
@@ -891,14 +890,14 @@
                      focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none
                      transition-all bg-purple-50/30 text-slate-800 hover:border-purple-300
                      resize-vertical min-h-[80px]"
-              placeholder="Notas privadas que solo tú y tu equipo pueden ver..."></textarea>
+              [placeholder]="'projects.proposal.notes.internalNotesPlaceholder' | translate"></textarea>
           </div>
 
           <!-- Términos y Condiciones -->
           <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
               <mat-icon class="!text-lg text-slate-600">gavel</mat-icon>
-              Términos y Condiciones
+              {{ 'projects.proposal.terms.title' | translate }}
             </label>
             <textarea
               formControlName="terms"
@@ -907,7 +906,7 @@
                      focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
                      transition-all bg-white text-slate-800 hover:border-slate-300
                      resize-vertical min-h-[120px]"
-              placeholder="Condiciones de pago, garantías, plazos de entrega, etc..."></textarea>
+              [placeholder]="'projects.proposal.terms.placeholder' | translate"></textarea>
           </div>
         </div>
       </div>
@@ -918,12 +917,12 @@
           @if (proposalForm.invalid) {
             <div class="flex items-center gap-2 text-amber-600">
               <mat-icon class="!text-base">warning</mat-icon>
-              <span class="font-medium">Completa todos los campos requeridos para guardar</span>
+              <span class="font-medium">{{ 'projects.proposal.validation.formIncomplete' | translate }}</span>
             </div>
           } @else {
             <div class="flex items-center gap-2 text-green-600">
               <mat-icon class="!text-base">check_circle</mat-icon>
-              <span class="font-medium">Formulario completo - Listo para guardar</span>
+              <span class="font-medium">{{ 'projects.proposal.validation.formComplete' | translate }}</span>
             </div>
           }
         </div>

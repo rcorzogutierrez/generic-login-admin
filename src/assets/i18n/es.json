@@ -99,9 +99,34 @@
           "categoryRequired": "La clasificación del servicio es requerida"
         }
       },
+      "dates": {
+        "title": "Fechas del Estimado",
+        "description": "Define la fecha del estimado y su validez",
+        "estimateDate": "Fecha del Estimado",
+        "validUntil": "Válido Hasta (Opcional)"
+      },
+      "catalog": {
+        "title": "Catálogo de Items",
+        "availableItems": "Items Disponibles del Catálogo",
+        "selectedItems": "Items Seleccionados",
+        "manageButton": "Administrar Catálogo",
+        "addAll": "Agregar Todos",
+        "removeAll": "Quitar Todos",
+        "search": "Buscar items...",
+        "searchCatalog": "Buscar en catálogo...",
+        "noItems": "No hay items disponibles",
+        "tryAnotherSearch": "Intenta con otra búsqueda",
+        "noSelectedItems": "No hay items seleccionados",
+        "clickToAdd": "Haz clic en un item del catálogo para agregarlo",
+        "howToUse": "Cómo usar:",
+        "instructions": "Haz clic en un item del catálogo (izquierda) para agregarlo al estimado (derecha). Haz clic en un item seleccionado para quitarlo. Los paneles tienen scroll independiente.",
+        "itemsCount": "Catálogo de Items ({{count}})"
+      },
       "items": {
         "includes": "Incluye",
         "extras": "Extras",
+        "extrasNotIncluded": "Extras NO Incluidos en el Precio",
+        "extrasDescription": "Activa esta sección para incluir la lista de exclusiones en el estimado",
         "description": "Descripción",
         "type": "Tipo",
         "labor": "Mano de Obra",
@@ -114,7 +139,10 @@
         "noItems": "No hay items agregados"
       },
       "totals": {
+        "title": "Resumen de Totales",
+        "description": "Ingresa el subtotal y configura impuestos y descuentos",
         "subtotal": "Subtotal",
+        "subtotalRequired": "El subtotal es requerido y debe ser mayor a 0",
         "tax": "Impuesto",
         "taxPercent": "Impuesto (%)",
         "taxAmount": "Monto de Impuesto",
@@ -122,15 +150,24 @@
         "discountPercent": "Descuento (%)",
         "discountAmount": "Monto de Descuento",
         "total": "Total",
+        "totalLabel": "TOTAL:",
         "grandTotal": "Total General"
+      },
+      "notes": {
+        "title": "Notas y Términos",
+        "description": "Información adicional y condiciones del servicio",
+        "clientNotes": "Notas (visibles para el cliente)",
+        "clientNotesPlaceholder": "Información adicional que verá el cliente en el estimado...",
+        "internalNotes": "Notas Internas (solo uso interno)",
+        "internalNotesPlaceholder": "Notas privadas que solo tú y tu equipo pueden ver..."
       },
       "terms": {
         "title": "Términos y Condiciones",
-        "placeholder": "Ingrese los términos y condiciones..."
+        "placeholder": "Condiciones de pago, garantías, plazos de entrega, etc..."
       },
-      "notes": {
-        "title": "Notas Internas",
-        "placeholder": "Notas privadas (no visibles para el cliente)..."
+      "validation": {
+        "formIncomplete": "Completa todos los campos requeridos para guardar",
+        "formComplete": "Formulario completo - Listo para guardar"
       },
       "messages": {
         "created": "Propuesta creada exitosamente",

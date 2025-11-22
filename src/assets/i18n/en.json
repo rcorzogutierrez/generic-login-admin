@@ -99,9 +99,34 @@
           "categoryRequired": "Service classification is required"
         }
       },
+      "dates": {
+        "title": "Estimate Dates",
+        "description": "Define the estimate date and its validity",
+        "estimateDate": "Estimate Date",
+        "validUntil": "Valid Until (Optional)"
+      },
+      "catalog": {
+        "title": "Items Catalog",
+        "availableItems": "Available Catalog Items",
+        "selectedItems": "Selected Items",
+        "manageButton": "Manage Catalog",
+        "addAll": "Add All",
+        "removeAll": "Remove All",
+        "search": "Search items...",
+        "searchCatalog": "Search catalog...",
+        "noItems": "No items available",
+        "tryAnotherSearch": "Try another search",
+        "noSelectedItems": "No items selected",
+        "clickToAdd": "Click on a catalog item to add it",
+        "howToUse": "How to use:",
+        "instructions": "Click on a catalog item (left) to add it to the estimate (right). Click on a selected item to remove it. The panels have independent scrolling.",
+        "itemsCount": "Items Catalog ({{count}})"
+      },
       "items": {
         "includes": "Includes",
         "extras": "Extras",
+        "extrasNotIncluded": "Extras NOT Included in Price",
+        "extrasDescription": "Enable this section to include the exclusions list in the estimate",
         "description": "Description",
         "type": "Type",
         "labor": "Labor",
@@ -114,7 +139,10 @@
         "noItems": "No items added"
       },
       "totals": {
+        "title": "Totals Summary",
+        "description": "Enter the subtotal and configure taxes and discounts",
         "subtotal": "Subtotal",
+        "subtotalRequired": "Subtotal is required and must be greater than 0",
         "tax": "Tax",
         "taxPercent": "Tax (%)",
         "taxAmount": "Tax Amount",
@@ -122,15 +150,24 @@
         "discountPercent": "Discount (%)",
         "discountAmount": "Discount Amount",
         "total": "Total",
+        "totalLabel": "TOTAL:",
         "grandTotal": "Grand Total"
+      },
+      "notes": {
+        "title": "Notes and Terms",
+        "description": "Additional information and service conditions",
+        "clientNotes": "Notes (visible to client)",
+        "clientNotesPlaceholder": "Additional notes that the client will see in the estimate...",
+        "internalNotes": "Internal Notes (internal use only)",
+        "internalNotesPlaceholder": "Private notes that only you and your team can see..."
       },
       "terms": {
         "title": "Terms and Conditions",
-        "placeholder": "Enter terms and conditions..."
+        "placeholder": "Payment conditions, warranties, delivery deadlines, etc..."
       },
-      "notes": {
-        "title": "Internal Notes",
-        "placeholder": "Private notes (not visible to client)..."
+      "validation": {
+        "formIncomplete": "Complete all required fields to save",
+        "formComplete": "Form complete - Ready to save"
       },
       "messages": {
         "created": "Proposal created successfully",

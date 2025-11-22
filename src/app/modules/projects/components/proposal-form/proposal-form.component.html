@@ -451,9 +451,9 @@
             <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <mat-icon class="text-blue-600 !text-xl">checklist</mat-icon>
             </div>
-            Items Incluidos en el Estimado
+            {{ 'projects.proposal.items.includedItems' | translate }}
           </h2>
-          <p class="text-sm text-slate-500 mt-2 ml-13">Selecciona items del catálogo y agrégalos al estimado</p>
+          <p class="text-sm text-slate-500 mt-2 ml-13">{{ 'projects.proposal.items.includedItemsDescription' | translate }}</p>
         </div>
 
         <!-- Alerta de validación -->
@@ -461,8 +461,8 @@
           <div class="mb-4 p-4 bg-red-50 border-2 border-red-300 rounded-lg flex items-start gap-3">
             <mat-icon class="text-red-600 !text-2xl">error</mat-icon>
             <div class="flex-1">
-              <p class="text-sm font-bold text-red-800">¡Atención! Falta seleccionar items</p>
-              <p class="text-xs text-red-700 mt-1">Debes seleccionar al menos un item del catálogo para incluir en el estimado.</p>
+              <p class="text-sm font-bold text-red-800">{{ 'projects.proposal.items.selectionRequired' | translate }}</p>
+              <p class="text-xs text-red-700 mt-1">{{ 'projects.proposal.items.selectionRequiredMessage' | translate }}</p>
             </div>
           </div>
         }

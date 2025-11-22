@@ -124,6 +124,8 @@
       },
       "items": {
         "includes": "Includes",
+        "includedItems": "Items Included in Estimate",
+        "includedItemsDescription": "Select items from the catalog and add them to the estimate",
         "extras": "Extras",
         "extrasNotIncluded": "Extras NOT Included in Price",
         "extrasDescription": "Enable this section to include the exclusions list in the estimate",
@@ -136,7 +138,9 @@
         "unitPrice": "Unit Price",
         "total": "Total",
         "addItem": "Add Item",
-        "noItems": "No items added"
+        "noItems": "No items added",
+        "selectionRequired": "Attention! Items selection missing",
+        "selectionRequiredMessage": "You must select at least one item from the catalog to include in the estimate."
       },
       "totals": {
         "title": "Totals Summary",

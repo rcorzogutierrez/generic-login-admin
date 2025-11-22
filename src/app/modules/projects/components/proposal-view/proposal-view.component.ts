@@ -19,6 +19,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 // Services
 import { ProposalsService } from '../../services/proposals.service';
 import { BusinessInfoService } from '../../../../admin/services/business-info.service';
+import { LanguageService } from '../../../../core/services/language.service';
 
 // Models
 import { Proposal, ProposalStatus } from '../../models';
@@ -46,6 +47,7 @@ import { Proposal, ProposalStatus } from '../../models';
 export class ProposalViewComponent implements OnInit {
   private proposalsService = inject(ProposalsService);
   private businessInfoService = inject(BusinessInfoService);
+  private languageService = inject(LanguageService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);
@@ -85,6 +87,10 @@ export class ProposalViewComponent implements OnInit {
       const proposal = await this.proposalsService.getProposalById(id);
       if (proposal) {
         this.proposal.set(proposal);
+        // Establecer el idioma de la UI según el idioma del documento
+        if (proposal.language) {
+          this.languageService.setLanguage(proposal.language);
+        }
       } else {
         this.snackBar.open('Estimado no encontrado', 'Cerrar', { duration: 3000 });
         this.router.navigate(['/modules/projects']);

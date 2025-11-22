@@ -124,6 +124,8 @@
       },
       "items": {
         "includes": "Incluye",
+        "includedItems": "Items Incluidos en el Estimado",
+        "includedItemsDescription": "Selecciona items del catálogo y agrégalos al estimado",
         "extras": "Extras",
         "extrasNotIncluded": "Extras NO Incluidos en el Precio",
         "extrasDescription": "Activa esta sección para incluir la lista de exclusiones en el estimado",
@@ -136,7 +138,9 @@
         "unitPrice": "Precio Unitario",
         "total": "Total",
         "addItem": "Agregar Item",
-        "noItems": "No hay items agregados"
+        "noItems": "No hay items agregados",
+        "selectionRequired": "¡Atención! Falta seleccionar items",
+        "selectionRequiredMessage": "Debes seleccionar al menos un item del catálogo para incluir en el estimado."
       },
       "totals": {
         "title": "Resumen de Totales",

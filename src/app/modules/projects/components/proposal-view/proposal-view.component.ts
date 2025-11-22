@@ -15,6 +15,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Services
 import { ProposalsService } from '../../services/proposals.service';
@@ -38,7 +39,8 @@ import { Proposal, ProposalStatus } from '../../models';
     MatChipsModule,
     MatMenuModule,
     MatDialogModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    MatTooltipModule
   ],
   templateUrl: './proposal-view.component.html',
   styleUrl: './proposal-view.component.css',

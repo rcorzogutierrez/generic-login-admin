@@ -137,7 +137,7 @@
               <!-- Cliente -->
               <div>
                 <div class="text-xs text-slate-700 space-y-0.5">
-                  <p><span class="font-semibold text-slate-500 uppercase">Para:</span> <span class="font-bold text-sm text-slate-800">{{ proposal()!.ownerName }}</span></p>
+                  <p><span class="font-semibold text-slate-500 uppercase">{{ 'projects.proposal.view.for' | translate }}</span> <span class="font-bold text-sm text-slate-800">{{ proposal()!.ownerName }}</span></p>
                   @if (proposal()!.ownerEmail) {
                     <p class="pl-8">{{ proposal()!.ownerEmail }}</p>
                   }
@@ -322,19 +322,19 @@
               <div class="bg-white p-4 rounded-lg border border-green-200">
                 <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
                   <mat-icon class="!text-lg text-green-600">calendar_month</mat-icon>
-                  Fechas del Trabajo
+                  {{ 'projects.proposal.view.workDates' | translate }}
                 </h3>
                 <div class="space-y-2 text-sm">
                   <div class="flex justify-between">
-                    <span class="text-slate-600 font-medium">Fecha de Inicio:</span>
+                    <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.startDate' | translate }}</span>
                     <span class="text-slate-800 font-semibold">
-                      {{ proposal()!.workStartDate ? formatDate(proposal()!.workStartDate) : 'No especificada' }}
+                      {{ proposal()!.workStartDate ? formatDate(proposal()!.workStartDate) : ('projects.proposal.view.notSpecified' | translate) }}
                     </span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-slate-600 font-medium">Fecha de Finalización:</span>
+                    <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.endDate' | translate }}</span>
                     <span class="text-slate-800 font-semibold">
-                      {{ proposal()!.workEndDate ? formatDate(proposal()!.workEndDate) : 'No especificada' }}
+                      {{ proposal()!.workEndDate ? formatDate(proposal()!.workEndDate) : ('projects.proposal.view.notSpecified' | translate) }}
                     </span>
                   </div>
                 </div>
@@ -344,17 +344,17 @@
               <div class="bg-white p-4 rounded-lg border border-green-200">
                 <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
                   <mat-icon class="!text-lg text-green-600">schedule</mat-icon>
-                  Tiempo y Personal
+                  {{ 'projects.proposal.view.timeAndPersonnel' | translate }}
                 </h3>
                 <div class="space-y-2 text-sm">
                   <div class="flex justify-between">
-                    <span class="text-slate-600 font-medium">Tiempo de Trabajo:</span>
+                    <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.workTime' | translate }}</span>
                     <span class="text-slate-800 font-semibold">
-                      {{ proposal()!.workTime ? proposal()!.workTime + ' horas' : 'No especificado' }}
+                      {{ proposal()!.workTime ? proposal()!.workTime + ' ' + ('projects.proposal.view.hours' | translate) : ('projects.proposal.view.notSpecified' | translate) }}
                     </span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-slate-600 font-medium">Trabajadores:</span>
+                    <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.workers' | translate }}:</span>
                     <span class="text-slate-800 font-semibold">
                       {{ proposal()!.workers?.length ?? 0 }}
                     </span>
@@ -368,7 +368,7 @@
               <div class="bg-white p-4 rounded-lg border border-green-200 mb-6">
                 <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
                   <mat-icon class="!text-lg text-green-600">groups</mat-icon>
-                  Trabajadores que Participaron
+                  {{ 'projects.proposal.view.workersParticipated' | translate }}
                 </h3>
                 <div class="flex flex-wrap gap-2">
                   @for (worker of proposal()!.workers; track worker.id) {
@@ -388,7 +388,7 @@
               <div class="bg-white p-4 rounded-lg border border-green-200">
                 <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
                   <mat-icon class="!text-lg text-green-600">inventory_2</mat-icon>
-                  Materiales Usados
+                  {{ 'projects.proposal.view.materialsUsed' | translate }}
                 </h3>
                 <div class="overflow-x-auto">
                   <table class="w-full text-sm">

@@ -767,14 +767,14 @@
         <div class="bg-white p-5 rounded-lg space-y-3 shadow-sm">
           <div class="flex justify-between text-sm">
             <span class="text-slate-600 font-medium">{{ 'projects.proposal.totals.subtotal' | translate }}:</span>
-            <span class="font-bold text-slate-800">{{ formatCurrency(getSubtotal()) }}</span>
+            <span class="font-bold text-slate-800">{{ getSubtotal() | currencyFormatter }}</span>
           </div>
 
           @if (proposalForm.get('taxPercentage')?.value > 0) {
             <div class="flex justify-between text-sm">
               <span class="text-slate-600">{{ 'projects.proposal.totals.tax' | translate }} ({{ proposalForm.get('taxPercentage')?.value }}%):</span>
               <span class="font-semibold text-green-600">
-                + {{ formatCurrency(calculateTax()) }}
+                + {{ calculateTax() | currencyFormatter }}
               </span>
             </div>
           }
@@ -783,7 +783,7 @@
             <div class="flex justify-between text-sm">
               <span class="text-slate-600">{{ 'projects.proposal.totals.discount' | translate }} ({{ proposalForm.get('discountPercentage')?.value }}%):</span>
               <span class="font-semibold text-red-600">
-                - {{ formatCurrency(calculateDiscount()) }}
+                - {{ calculateDiscount() | currencyFormatter }}
               </span>
             </div>
           }
@@ -792,7 +792,7 @@
 
           <div class="flex justify-between items-center pt-2">
             <span class="text-lg font-bold text-blue-900">{{ 'projects.proposal.totals.totalLabel' | translate }}</span>
-            <span class="text-2xl font-bold text-blue-600">{{ formatCurrency(calculateTotal()) }}</span>
+            <span class="text-2xl font-bold text-blue-600">{{ calculateTotal() | currencyFormatter }}</span>
           </div>
         </div>
       </div>

@@ -19,11 +19,15 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Services
 import { ProposalsService } from '../../services/proposals.service';
+import { ProposalCalculatorService } from '../../services/proposal-calculator.service';
 import { BusinessInfoService } from '../../../../admin/services/business-info.service';
 import { LanguageService } from '../../../../core/services/language.service';
 
 // Models
 import { Proposal, ProposalStatus } from '../../models';
+
+// Shared
+import { CurrencyFormatterPipe } from '../../../../shared/pipes/currency-formatter.pipe';
 
 @Component({
   selector: 'app-proposal-view',
@@ -40,7 +44,8 @@ import { Proposal, ProposalStatus } from '../../models';
     MatMenuModule,
     MatDialogModule,
     MatSlideToggleModule,
-    MatTooltipModule
+    MatTooltipModule,
+    CurrencyFormatterPipe
   ],
   templateUrl: './proposal-view.component.html',
   styleUrl: './proposal-view.component.css',
@@ -48,6 +53,7 @@ import { Proposal, ProposalStatus } from '../../models';
 })
 export class ProposalViewComponent implements OnInit {
   private proposalsService = inject(ProposalsService);
+  private proposalCalculator = inject(ProposalCalculatorService);
   private businessInfoService = inject(BusinessInfoService);
   private languageService = inject(LanguageService);
   private router = inject(Router);
@@ -202,16 +208,6 @@ export class ProposalViewComponent implements OnInit {
   }
 
   /**
-   * Formatear moneda
-   */
-  formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  }
-
-  /**
    * Formatear fecha
    */
   formatDate(timestamp: any): string {
@@ -286,88 +282,50 @@ export class ProposalViewComponent implements OnInit {
   }
 
   /**
-   * Calcular el total de materiales usados
+   * Calcular el total de materiales usados usando el servicio centralizado
    */
   calculateMaterialsTotal(): number {
     const proposal = this.proposal();
-    if (!proposal?.materialsUsed || proposal.materialsUsed.length === 0) {
-      return 0;
-    }
-
-    return proposal.materialsUsed.reduce((total, material) => {
-      return total + (material.amount * material.price);
-    }, 0);
+    return this.proposalCalculator.calculateMaterialsTotal(proposal?.materialsUsed);
   }
 
   /**
-   * Calcular el subtotal combinado (trabajo + materiales)
+   * Calcular el subtotal combinado (trabajo + materiales) usando el servicio centralizado
    */
   calculateCombinedSubtotal(): number {
     const proposal = this.proposal();
     if (!proposal) return 0;
-
-    const workSubtotal = proposal.subtotal || 0;
-    const materialsTotal = this.calculateMaterialsTotal();
-
-    return workSubtotal + materialsTotal;
+    return this.proposalCalculator.calculateCombinedSubtotal(
+      proposal.subtotal || 0,
+      proposal.materialsUsed
+    );
   }
 
   /**
-   * Calcular impuesto sobre el subtotal combinado (si hay materiales)
+   * Calcular impuesto usando el servicio centralizado
    */
   calculateTaxAmount(): number {
     const proposal = this.proposal();
     if (!proposal) return 0;
-
-    // Si no hay materiales, usar el impuesto original
-    if (!proposal.materialsUsed || proposal.materialsUsed.length === 0) {
-      return proposal.tax || 0;
-    }
-
-    // Si hay materiales, recalcular el impuesto sobre el subtotal combinado
-    const combinedSubtotal = this.calculateCombinedSubtotal();
-    const taxPercentage = proposal.taxPercentage || 0;
-
-    return (combinedSubtotal * taxPercentage) / 100;
+    return this.proposalCalculator.calculateProposalTax(proposal);
   }
 
   /**
-   * Calcular descuento sobre el subtotal combinado (si hay materiales)
+   * Calcular descuento usando el servicio centralizado
    */
   calculateDiscountAmount(): number {
     const proposal = this.proposal();
     if (!proposal) return 0;
-
-    // Si no hay materiales, usar el descuento original
-    if (!proposal.materialsUsed || proposal.materialsUsed.length === 0) {
-      return proposal.discount || 0;
-    }
-
-    // Si hay materiales, recalcular el descuento sobre el subtotal combinado
-    const combinedSubtotal = this.calculateCombinedSubtotal();
-    const discountPercentage = proposal.discountPercentage || 0;
-
-    return (combinedSubtotal * discountPercentage) / 100;
+    return this.proposalCalculator.calculateProposalDiscount(proposal);
   }
 
   /**
-   * Calcular el gran total (subtotal combinado + impuesto - descuento)
+   * Calcular el gran total usando el servicio centralizado
    */
   calculateGrandTotal(): number {
     const proposal = this.proposal();
     if (!proposal) return 0;
-
-    // Si no hay materiales, usar el total original
-    if (!proposal.materialsUsed || proposal.materialsUsed.length === 0) {
-      return proposal.total || 0;
-    }
-
-    // Si hay materiales, calcular el gran total con impuestos y descuentos recalculados
-    const combinedSubtotal = this.calculateCombinedSubtotal();
-    const tax = this.calculateTaxAmount();
-    const discount = this.calculateDiscountAmount();
-
-    return combinedSubtotal + tax - discount;
+    return this.proposalCalculator.calculateProposalGrandTotal(proposal);
   }
 
   /**

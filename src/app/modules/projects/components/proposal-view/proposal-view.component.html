@@ -246,11 +246,11 @@
                   @if (item.totalPrice && item.totalPrice > 0) {
                     <div class="text-right min-w-[120px]">
                       <p class="text-sm font-semibold text-slate-800">
-                        {{ formatCurrency(item.totalPrice) }}
+                        {{ item.totalPrice | currencyFormatter }}
                       </p>
                       @if (item.quantity && item.unitPrice) {
                         <p class="text-xs text-slate-500">
-                          {{ item.quantity }} x {{ formatCurrency(item.unitPrice) }}
+                          {{ item.quantity }} x {{ item.unitPrice | currencyFormatter }}
                         </p>
                       }
                     </div>
@@ -404,7 +404,7 @@
                         <tr class="border-b border-green-100 hover:bg-green-50">
                           <td class="p-3 text-slate-800 font-medium">{{ material.material }}</td>
                           <td class="p-3 text-center text-slate-800">{{ material.amount }}</td>
-                          <td class="p-3 text-right text-slate-800 font-semibold">{{ formatCurrency(material.price) }}</td>
+                          <td class="p-3 text-right text-slate-800 font-semibold">{{ material.price | currencyFormatter }}</td>
                         </tr>
                       }
                     </tbody>
@@ -430,7 +430,7 @@
               <div class="flex justify-between items-center text-base">
                 <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.subtotal' | translate }}</span>
                 <span class="font-semibold text-slate-800">
-                  {{ formatCurrency(proposal()!.subtotal || 0) }}
+                  {{ (proposal()!.subtotal || 0) | currencyFormatter }}
                 </span>
               </div>
 
@@ -439,7 +439,7 @@
                 <div class="flex justify-between items-center text-base">
                   <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.tax' | translate }} ({{ proposal()!.taxPercentage }}%):</span>
                   <span class="font-semibold text-slate-800">
-                    + {{ formatCurrency(proposal()!.tax || 0) }}
+                    + {{ (proposal()!.tax || 0) | currencyFormatter }}
                   </span>
                 </div>
               }
@@ -449,7 +449,7 @@
                 <div class="flex justify-between items-center text-base">
                   <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.discount' | translate }} ({{ proposal()!.discountPercentage }}%):</span>
                   <span class="font-semibold text-red-600">
-                    - {{ formatCurrency(proposal()!.discount || 0) }}
+                    - {{ (proposal()!.discount || 0) | currencyFormatter }}
                   </span>
                 </div>
               }
@@ -460,7 +460,7 @@
               <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
                 <span class="text-base font-bold text-blue-800">{{ 'projects.proposal.view.total' | translate }}</span>
                 <span class="text-xl font-bold text-blue-900">
-                  {{ formatCurrency(proposal()!.total) }}
+                  {{ proposal()!.total | currencyFormatter }}
                 </span>
               </div>
 
@@ -471,7 +471,7 @@
               <div class="flex justify-between items-center text-base">
                 <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.workSubtotal' | translate }}</span>
                 <span class="font-semibold text-slate-800">
-                  {{ formatCurrency(proposal()!.subtotal || 0) }}
+                  {{ (proposal()!.subtotal || 0) | currencyFormatter }}
                 </span>
               </div>
 
@@ -479,7 +479,7 @@
               <div class="flex justify-between items-center text-base">
                 <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.materialsSubtotal' | translate }}</span>
                 <span class="font-semibold text-amber-700">
-                  {{ formatCurrency(calculateMaterialsTotal()) }}
+                  {{ calculateMaterialsTotal() | currencyFormatter }}
                 </span>
               </div>
 
@@ -489,7 +489,7 @@
               <div class="flex justify-between items-center text-base">
                 <span class="text-slate-700 font-semibold">{{ 'projects.proposal.view.combinedSubtotal' | translate }}</span>
                 <span class="font-bold text-slate-800">
-                  {{ formatCurrency(calculateCombinedSubtotal()) }}
+                  {{ calculateCombinedSubtotal() | currencyFormatter }}
                 </span>
               </div>
 
@@ -498,7 +498,7 @@
                 <div class="flex justify-between items-center text-base">
                   <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.tax' | translate }} ({{ proposal()!.taxPercentage }}%):</span>
                   <span class="font-semibold text-slate-800">
-                    + {{ formatCurrency(calculateTaxAmount()) }}
+                    + {{ calculateTaxAmount() | currencyFormatter }}
                   </span>
                 </div>
               }
@@ -508,7 +508,7 @@
                 <div class="flex justify-between items-center text-base">
                   <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.discount' | translate }} ({{ proposal()!.discountPercentage }}%):</span>
                   <span class="font-semibold text-red-600">
-                    - {{ formatCurrency(calculateDiscountAmount()) }}
+                    - {{ calculateDiscountAmount() | currencyFormatter }}
                   </span>
                 </div>
               }
@@ -519,7 +519,7 @@
               <div class="flex justify-between items-center p-5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg shadow-lg">
                 <span class="text-lg font-bold uppercase tracking-wide">{{ 'projects.proposal.view.grandTotal' | translate }}</span>
                 <span class="text-3xl font-extrabold">
-                  {{ formatCurrency(calculateGrandTotal()) }}
+                  {{ calculateGrandTotal() | currencyFormatter }}
                 </span>
               </div>
             }

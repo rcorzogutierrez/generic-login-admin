@@ -648,15 +648,15 @@
         </div>
 
         <!-- Lista fija de extras (siempre visible) -->
-        <div class="space-y-2">
+        <div class="space-y-1">
           @for (extra of FIXED_EXTRAS; track $index; let i = $index) {
-            <div class="flex items-start gap-4 p-3 rounded-lg border transition-all duration-200"
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all duration-200"
                  [ngClass]="includeExtrasSection()
                    ? 'bg-amber-100/50 border-amber-200'
                    : 'bg-slate-50 border-slate-200'">
 
               <!-- Número -->
-              <div class="flex items-center justify-center w-7 h-7 rounded-lg font-bold text-sm flex-shrink-0 transition-colors duration-200"
+              <div class="flex items-center justify-center w-5 h-5 rounded font-bold text-[10px] flex-shrink-0 transition-colors duration-200"
                    [ngClass]="includeExtrasSection()
                      ? 'bg-amber-600 text-white'
                      : 'bg-slate-300 text-slate-600'">
@@ -664,8 +664,8 @@
               </div>
 
               <!-- Descripción -->
-              <div class="flex-1 py-0.5">
-                <p class="text-sm font-medium transition-colors duration-200"
+              <div class="flex-1">
+                <p class="text-xs font-medium leading-tight transition-colors duration-200"
                    [ngClass]="includeExtrasSection()
                      ? 'text-amber-900'
                      : 'text-slate-600'">
@@ -675,8 +675,8 @@
 
               <!-- Indicador visual -->
               @if (includeExtrasSection()) {
-                <div class="flex items-center justify-center w-7 h-7 bg-amber-600 rounded-full flex-shrink-0 animate-fade-in">
-                  <mat-icon class="!text-base text-white">check</mat-icon>
+                <div class="flex items-center justify-center w-5 h-5 bg-amber-600 rounded-full flex-shrink-0 animate-fade-in">
+                  <mat-icon class="!text-sm text-white">check</mat-icon>
                 </div>
               }
             </div>
@@ -684,19 +684,19 @@
         </div>
 
         <!-- Info adicional -->
-        <div class="mt-6 p-4 rounded-lg border transition-all duration-300"
+        <div class="mt-4 p-3 rounded-lg border transition-all duration-300"
              [ngClass]="includeExtrasSection()
                ? 'bg-amber-100 border-amber-300'
                : 'bg-slate-50 border-slate-200'">
-          <div class="flex items-start gap-3">
-            <mat-icon class="!text-xl transition-colors duration-300"
+          <div class="flex items-start gap-2">
+            <mat-icon class="!text-base transition-colors duration-300 mt-0.5"
                       [ngClass]="includeExtrasSection() ? 'text-amber-700' : 'text-slate-500'">info</mat-icon>
-            <div class="flex-1 text-sm">
-              <p class="font-semibold mb-1 transition-colors duration-300"
+            <div class="flex-1 text-xs">
+              <p class="font-semibold leading-tight transition-colors duration-300"
                  [ngClass]="includeExtrasSection() ? 'text-amber-900' : 'text-slate-700'">
                 Acerca de esta sección
               </p>
-              <p class="transition-colors duration-300"
+              <p class="leading-tight mt-1 transition-colors duration-300"
                  [ngClass]="includeExtrasSection() ? 'text-amber-800' : 'text-slate-600'">
                 @if (includeExtrasSection()) {
                   Esta lista de <strong>exclusiones</strong> se incluirá en el estimado para el cliente.

@@ -143,7 +143,6 @@ export class ClientDataExtractorService {
     return this.extractField(client, {
       types: [FieldType.TEXT],
       names: ['zipCode', 'zip_code', 'codigo_postal', 'cp'],
-      fallbackProperty: 'zipCode',
       defaultValue: ''
     });
   }

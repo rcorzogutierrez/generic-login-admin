@@ -1,7 +1,7 @@
 // src/app/modules/projects/services/proposal-calculator.service.ts
 
 import { Injectable } from '@angular/core';
-import { Proposal, Material } from '../models';
+import { Proposal, MaterialUsed } from '../models';
 
 /**
  * Servicio para centralizar todos los cálculos financieros de proposals
@@ -60,7 +60,7 @@ export class ProposalCalculatorService {
    * @param materials - Array de materiales con amount y price
    * @returns Total de materiales
    */
-  calculateMaterialsTotal(materials?: Material[]): number {
+  calculateMaterialsTotal(materials?: MaterialUsed[]): number {
     if (!materials || materials.length === 0) {
       return 0;
     }
@@ -77,7 +77,7 @@ export class ProposalCalculatorService {
    * @param materials - Array de materiales
    * @returns Subtotal combinado
    */
-  calculateCombinedSubtotal(workSubtotal: number, materials?: Material[]): number {
+  calculateCombinedSubtotal(workSubtotal: number, materials?: MaterialUsed[]): number {
     const materialsTotal = this.calculateMaterialsTotal(materials);
     return workSubtotal + materialsTotal;
   }

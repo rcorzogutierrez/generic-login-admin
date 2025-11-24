@@ -661,7 +661,9 @@ export class ProposalFormComponent implements OnInit {
       // Convertir items seleccionados del catálogo a ProposalItem[]
       const includesToSave: ProposalItem[] = this.selectedCatalogItems().map((catalogItem, index) => ({
         id: catalogItem.id,
-        description: `${catalogItem.name} - ${catalogItem.description}`,
+        description: catalogItem.description
+          ? `${catalogItem.name} - ${catalogItem.description}`
+          : catalogItem.name,
         type: 'both' as const,
         order: index + 1
       }));

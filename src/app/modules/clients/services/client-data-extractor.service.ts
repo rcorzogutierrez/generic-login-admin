@@ -45,19 +45,25 @@ export class ClientDataExtractorService {
 
     const fields = this.clientConfigService.getFieldsInUse();
 
-    // Buscar en campos dinámicos
-    const matchingField = fields.find(f => {
-      const typeMatches = config.types?.includes(f.type);
-      const nameMatches = config.names?.includes(f.name);
-      return typeMatches || nameMatches;
-    });
-
-    if (matchingField) {
-      const value = getFieldValue(client, matchingField.name);
-      if (value) return String(value);
+    // 1. PRIORIDAD ALTA: Buscar primero por nombre específico
+    if (config.names && config.names.length > 0) {
+      const fieldByName = fields.find(f => config.names?.includes(f.name));
+      if (fieldByName) {
+        const value = getFieldValue(client, fieldByName.name);
+        if (value) return String(value);
+      }
     }
 
-    // Fallback a campos estándar
+    // 2. PRIORIDAD MEDIA: Buscar por tipo (solo si no se encontró por nombre)
+    if (config.types && config.types.length > 0) {
+      const fieldByType = fields.find(f => config.types?.includes(f.type));
+      if (fieldByType) {
+        const value = getFieldValue(client, fieldByType.name);
+        if (value) return String(value);
+      }
+    }
+
+    // 3. PRIORIDAD BAJA: Fallback a campos estándar
     if (config.fallbackProperty && client[config.fallbackProperty]) {
       return String(client[config.fallbackProperty]);
     }

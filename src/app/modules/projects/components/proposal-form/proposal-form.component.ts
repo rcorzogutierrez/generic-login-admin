@@ -231,9 +231,19 @@ export class ProposalFormComponent implements OnInit {
   }
 
   /**
-   * Manejar cambio de idioma
+   * Manejar cambio de idioma desde el selector del formulario
    */
   onLanguageChange(language: 'es' | 'en'): void {
+    this.languageService.setLanguage(language);
+  }
+
+  /**
+   * Manejar cambio de idioma desde el header (fuera del form)
+   */
+  onLanguageChangeFromHeader(language: 'es' | 'en'): void {
+    // Actualizar el valor en el formulario
+    this.proposalForm.patchValue({ language });
+    // Cambiar el idioma de la UI
     this.languageService.setLanguage(language);
   }
 

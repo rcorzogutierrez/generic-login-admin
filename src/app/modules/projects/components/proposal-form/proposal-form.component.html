@@ -884,7 +884,7 @@
             [disabled]="isLoading()"
             class="!px-6 !py-3 !border-2">
             <mat-icon>close</mat-icon>
-            Cancelar
+            {{ 'common.cancel' | translate }}
           </button>
           <button
             mat-button
@@ -898,7 +898,7 @@
             } @else {
               <mat-icon>drafts</mat-icon>
             }
-            Guardar Borrador
+            {{ 'common.saveDraft' | translate }}
           </button>
           <button
             mat-raised-button
@@ -912,7 +912,7 @@
             } @else {
               <mat-icon>save</mat-icon>
             }
-            {{ isEditMode() ? 'Actualizar Estimado' : 'Guardar y Finalizar' }}
+            {{ isEditMode() ? ('projects.proposal.updateEstimate' | translate) : ('common.saveAndFinish' | translate) }}
           </button>
         </div>
       </div>

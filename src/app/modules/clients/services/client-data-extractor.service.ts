@@ -152,3 +152,4 @@ export class ClientDataExtractorService {
     const value = getFieldValue(client, fieldName);
     return value ? String(value) : '';
   }
+}

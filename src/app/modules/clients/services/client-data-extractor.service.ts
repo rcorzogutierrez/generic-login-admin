@@ -7,24 +7,14 @@ import { ClientConfigServiceRefactored } from './client-config-refactored.servic
 import { getFieldValue } from '../../../shared/modules/dynamic-form-builder/utils';
 
 /**
- * Configuración para buscar un campo específico en un cliente
- */
-interface FieldSearchConfig {
-  /** Tipos de campo aceptables */
-  types?: FieldType[];
-  /** Nombres de campo aceptables */
-  names?: string[];
-  /** Nombre del campo estándar de fallback */
-  fallbackProperty?: keyof Client;
-  /** Valor por defecto si no se encuentra nada */
-  defaultValue?: string;
-}
-
-/**
  * Servicio para extraer datos de clientes de manera consistente
  *
  * Este servicio centraliza la lógica para extraer información de clientes,
  * considerando tanto campos dinámicos como campos estándar.
+ *
+ * NOTA: Para campos de dirección (address, city, state, zipCode), usa el
+ * ProposalConfigService.getAddressMapping() en lugar de este servicio, ya que
+ * esos campos están mapeados específicamente en la configuración del módulo.
  */
 @Injectable({
   providedIn: 'root'
@@ -33,133 +23,132 @@ export class ClientDataExtractorService {
   private clientConfigService = inject(ClientConfigServiceRefactored);
 
   /**
-   * Extrae el valor de un campo del cliente, buscando en campos dinámicos primero
-   * y luego en campos estándar
-   *
-   * @param client - El cliente del cual extraer datos
-   * @param config - Configuración de búsqueda
-   * @returns El valor encontrado o el valor por defecto
-   */
-  private extractField(client: Client | undefined, config: FieldSearchConfig): string {
-    if (!client) return config.defaultValue || '';
-
-    const fields = this.clientConfigService.getFieldsInUse();
-
-    // Buscar en campos dinámicos
-    const matchingField = fields.find(f => {
-      const typeMatches = config.types?.includes(f.type);
-      const nameMatches = config.names?.includes(f.name);
-      return typeMatches || nameMatches;
-    });
-
-    if (matchingField) {
-      const value = getFieldValue(client, matchingField.name);
-      if (value) return String(value);
-    }
-
-    // Fallback a campos estándar
-    if (config.fallbackProperty && client[config.fallbackProperty]) {
-      return String(client[config.fallbackProperty]);
-    }
-
-    return config.defaultValue || '';
-  }
-
-  /**
    * Obtiene el nombre del cliente
    */
   getName(client: Client | undefined): string {
-    return this.extractField(client, {
-      types: [FieldType.TEXT],
-      names: ['name', 'nombre', 'nombre_del_cliente'],
-      fallbackProperty: 'name',
-      defaultValue: 'Sin nombre'
-    });
+    if (!client) return 'Sin nombre';
+
+    // Buscar en campos estándar primero
+    if (client.name) return client.name;
+
+    // Buscar en campos dinámicos
+    const fields = this.clientConfigService.getFieldsInUse();
+
+    // Buscar campo de nombre por nombre específico
+    const nameField = fields.find(f =>
+      f.name === 'name' ||
+      f.name === 'nombre' ||
+      f.name === 'nombre_del_cliente'
+    );
+
+    if (nameField) {
+      const value = getFieldValue(client, nameField.name);
+      if (value) return String(value);
+    }
+
+    // Buscar cualquier campo TEXT como último recurso
+    const textField = fields.find(f => f.type === FieldType.TEXT);
+    if (textField) {
+      const value = getFieldValue(client, textField.name);
+      if (value) return String(value);
+    }
+
+    return 'Sin nombre';
   }
 
   /**
    * Obtiene el email del cliente
    */
   getEmail(client: Client | undefined): string {
-    return this.extractField(client, {
-      types: [FieldType.EMAIL],
-      names: ['email', 'correo'],
-      fallbackProperty: 'email',
-      defaultValue: ''
-    });
+    if (!client) return '';
+
+    // Buscar en campos estándar primero
+    if (client.email) return client.email;
+
+    // Buscar en campos dinámicos
+    const fields = this.clientConfigService.getFieldsInUse();
+
+    // Buscar campo de email por tipo
+    const emailField = fields.find(f => f.type === FieldType.EMAIL);
+
+    if (emailField) {
+      const value = getFieldValue(client, emailField.name);
+      if (value) return String(value);
+    }
+
+    // Buscar por nombre como fallback
+    const emailByName = fields.find(f =>
+      f.name === 'email' ||
+      f.name === 'correo'
+    );
+
+    if (emailByName) {
+      const value = getFieldValue(client, emailByName.name);
+      if (value) return String(value);
+    }
+
+    return '';
   }
 
   /**
    * Obtiene el teléfono del cliente
    */
   getPhone(client: Client | undefined): string {
-    return this.extractField(client, {
-      types: [FieldType.PHONE],
-      names: ['phone', 'telefono', 'tel'],
-      fallbackProperty: 'phone',
-      defaultValue: ''
-    });
+    if (!client) return '';
+
+    // Buscar en campos estándar primero
+    if (client.phone) return client.phone;
+
+    // Buscar en campos dinámicos
+    const fields = this.clientConfigService.getFieldsInUse();
+
+    // Buscar campo de teléfono por tipo
+    const phoneField = fields.find(f => f.type === FieldType.PHONE);
+
+    if (phoneField) {
+      const value = getFieldValue(client, phoneField.name);
+      if (value) return String(value);
+    }
+
+    // Buscar por nombre como fallback
+    const phoneByName = fields.find(f =>
+      f.name === 'phone' ||
+      f.name === 'telefono' ||
+      f.name === 'tel'
+    );
+
+    if (phoneByName) {
+      const value = getFieldValue(client, phoneByName.name);
+      if (value) return String(value);
+    }
+
+    return '';
   }
 
   /**
-   * Obtiene la dirección del cliente
+   * Obtiene un campo del cliente usando un nombre específico
+   *
+   * Este método es útil cuando tienes un nombre de campo específico
+   * (por ejemplo, del mapping de configuración) y quieres obtener su valor.
+   *
+   * @param client - El cliente
+   * @param fieldName - Nombre exacto del campo a buscar
+   * @param fallbackStandardField - Campo estándar como fallback
+   * @returns El valor del campo o string vacío
    */
-  getAddress(client: Client | undefined): string {
-    return this.extractField(client, {
-      types: [FieldType.TEXT],
-      names: ['address', 'direccion', 'calle'],
-      fallbackProperty: 'address',
-      defaultValue: ''
-    });
-  }
+  getFieldByName(
+    client: Client | undefined,
+    fieldName: string,
+    fallbackStandardField?: keyof Client
+  ): string {
+    if (!client) return '';
 
-  /**
-   * Obtiene la ciudad del cliente
-   */
-  getCity(client: Client | undefined): string {
-    return this.extractField(client, {
-      types: [FieldType.TEXT],
-      names: ['city', 'ciudad'],
-      fallbackProperty: 'city',
-      defaultValue: ''
-    });
-  }
+    // Buscar en campos estándar primero si hay fallback
+    if (fallbackStandardField && client[fallbackStandardField]) {
+      return String(client[fallbackStandardField]);
+    }
 
-  /**
-   * Obtiene el estado del cliente
-   */
-  getState(client: Client | undefined): string {
-    return this.extractField(client, {
-      types: [FieldType.TEXT],
-      names: ['state', 'estado', 'provincia'],
-      defaultValue: ''
-    });
+    // Buscar en campos dinámicos usando el nombre específico
+    const value = getFieldValue(client, fieldName);
+    return value ? String(value) : '';
   }
-
-  /**
-   * Obtiene el código postal del cliente
-   */
-  getZipCode(client: Client | undefined): string {
-    return this.extractField(client, {
-      types: [FieldType.TEXT],
-      names: ['zipCode', 'zip_code', 'codigo_postal', 'cp'],
-      defaultValue: ''
-    });
-  }
-
-  /**
-   * Obtiene todos los datos del cliente de una vez
-   * Útil para obtener todos los campos necesarios en una sola llamada
-   */
-  getAllData(client: Client | undefined) {
-    return {
-      name: this.getName(client),
-      email: this.getEmail(client),
-      phone: this.getPhone(client),
-      address: this.getAddress(client),
-      city: this.getCity(client),
-      state: this.getState(client),
-      zipCode: this.getZipCode(client)
-    };
-  }
-}

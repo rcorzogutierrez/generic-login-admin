@@ -334,31 +334,65 @@ export class ProposalFormComponent implements OnInit {
   }
 
   /**
-   * Obtener dirección del cliente usando el servicio centralizado
+   * Obtener dirección del cliente usando el mapping configurado
    */
   getClientAddress(client: Client | undefined): string {
-    return this.clientDataExtractor.getAddress(client);
+    if (!client) return '';
+
+    // Buscar en campos estándar primero
+    if (client.address) return client.address;
+
+    // Obtener el nombre del campo desde la configuración
+    const mapping = this.proposalConfigService.getAddressMapping();
+    const fieldName = mapping.address;
+
+    // Usar el servicio para obtener el valor del campo específico
+    return this.clientDataExtractor.getFieldByName(client, fieldName);
   }
 
   /**
-   * Obtener ciudad del cliente usando el servicio centralizado
+   * Obtener ciudad del cliente usando el mapping configurado
    */
   getClientCity(client: Client | undefined): string {
-    return this.clientDataExtractor.getCity(client);
+    if (!client) return '';
+
+    // Buscar en campos estándar primero
+    if (client.city) return client.city;
+
+    // Obtener el nombre del campo desde la configuración
+    const mapping = this.proposalConfigService.getAddressMapping();
+    const fieldName = mapping.city;
+
+    // Usar el servicio para obtener el valor del campo específico
+    return this.clientDataExtractor.getFieldByName(client, fieldName);
   }
 
   /**
-   * Obtener estado del cliente usando el servicio centralizado
+   * Obtener estado del cliente usando el mapping configurado
    */
   getClientState(client: Client | undefined): string {
-    return this.clientDataExtractor.getState(client);
+    if (!client) return '';
+
+    // Obtener el nombre del campo desde la configuración
+    const mapping = this.proposalConfigService.getAddressMapping();
+    const fieldName = mapping.state;
+
+    // Usar el servicio para obtener el valor del campo específico
+    return this.clientDataExtractor.getFieldByName(client, fieldName);
   }
 
   /**
-   * Obtener código postal del cliente usando el servicio centralizado
+   * Obtener código postal del cliente usando el mapping configurado
    */
   getClientZipCode(client: Client | undefined): string {
-    return this.clientDataExtractor.getZipCode(client);
+    if (!client) return '';
+
+    // Obtener el nombre del campo desde la configuración
+    const mapping = this.proposalConfigService.getAddressMapping();
+    const fieldName = mapping.zipCode;
+
+    // Usar el servicio para obtener el valor del campo específico
+    return this.clientDataExtractor.getFieldByName(client, fieldName);
   }
 
   /**

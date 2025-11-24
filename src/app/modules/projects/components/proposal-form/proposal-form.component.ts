@@ -1,6 +1,7 @@
 // src/app/modules/projects/components/proposal-form/proposal-form.component.ts
 
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -20,22 +21,23 @@ import { Timestamp } from 'firebase/firestore';
 // Services
 import { ProposalsService } from '../../services/proposals.service';
 import { ProposalConfigService } from '../../services/proposal-config.service';
+import { ProposalCalculatorService } from '../../services/proposal-calculator.service';
 import { CatalogItemsService } from '../../services/catalog-items.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ClientConfigServiceRefactored } from '../../../clients/services/client-config-refactored.service';
+import { ClientDataExtractorService } from '../../../clients/services/client-data-extractor.service';
 import { LanguageService } from '../../../../core/services/language.service';
 
 // Models
 import { Proposal, CreateProposalData, ProposalItem, CatalogItem } from '../../models';
 import { Client } from '../../../clients/models';
-import { FieldType } from '../../../clients/models/field-config.interface';
 
 // Components
 import { AddClientDialogComponent } from '../add-client-dialog/add-client-dialog.component';
 import { CatalogItemsManagerComponent } from '../catalog-items-manager/catalog-items-manager.component';
 
 // Shared utilities
-import { getFieldValue } from '../../../../shared/modules/dynamic-form-builder/utils';
+import { CurrencyFormatterPipe } from '../../../../shared/pipes/currency-formatter.pipe';
 
 @Component({
   selector: 'app-proposal-form',
@@ -51,7 +53,8 @@ import { getFieldValue } from '../../../../shared/modules/dynamic-form-builder/u
     MatDividerModule,
     MatTooltipModule,
     MatDialogModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    CurrencyFormatterPipe
   ],
   templateUrl: './proposal-form.component.html',
   styleUrl: './proposal-form.component.css',
@@ -61,9 +64,11 @@ export class ProposalFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private proposalsService = inject(ProposalsService);
   private proposalConfigService = inject(ProposalConfigService);
+  private proposalCalculator = inject(ProposalCalculatorService);
   private catalogItemsService = inject(CatalogItemsService);
   private clientsService = inject(ClientsService);
   private clientConfigService = inject(ClientConfigServiceRefactored);
+  private clientDataExtractor = inject(ClientDataExtractorService);
   private languageService = inject(LanguageService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -216,18 +221,22 @@ export class ProposalFormComponent implements OnInit {
     });
 
     // Suscribirse a cambios en ownerId para autocompletar datos del cliente
-    this.proposalForm.get('ownerId')?.valueChanges.subscribe(ownerId => {
-      if (ownerId) {
-        this.fillClientData(ownerId);
-      }
-    });
+    this.proposalForm.get('ownerId')?.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(ownerId => {
+        if (ownerId) {
+          this.fillClientData(ownerId);
+        }
+      });
 
     // Suscribirse a cambios en language para actualizar el idioma de la interfaz
-    this.proposalForm.get('language')?.valueChanges.subscribe(language => {
-      if (language) {
-        this.onLanguageChange(language);
-      }
-    });
+    this.proposalForm.get('language')?.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(language => {
+        if (language) {
+          this.onLanguageChange(language);
+        }
+      });
   }
 
   /**
@@ -325,73 +334,31 @@ export class ProposalFormComponent implements OnInit {
   }
 
   /**
-   * Obtener dirección del cliente desde sus campos dinámicos
-   * Usa el mapping configurado en ProposalConfigService
+   * Obtener dirección del cliente usando el servicio centralizado
    */
   getClientAddress(client: Client | undefined): string {
-    if (!client) return '';
-
-    // Buscar en campos estándar primero
-    if (client.address) return client.address;
-
-    // Obtener el nombre del campo desde la configuración
-    const mapping = this.proposalConfigService.getAddressMapping();
-    const fieldName = mapping.address;
-
-    // Buscar usando el nombre configurado
-    const value = getFieldValue(client, fieldName);
-    return value ? String(value) : '';
+    return this.clientDataExtractor.getAddress(client);
   }
 
   /**
-   * Obtener ciudad del cliente desde sus campos dinámicos
-   * Usa el mapping configurado en ProposalConfigService
+   * Obtener ciudad del cliente usando el servicio centralizado
    */
   getClientCity(client: Client | undefined): string {
-    if (!client) return '';
-
-    // Buscar en campos estándar primero
-    if (client.city) return client.city;
-
-    // Obtener el nombre del campo desde la configuración
-    const mapping = this.proposalConfigService.getAddressMapping();
-    const fieldName = mapping.city;
-
-    // Buscar usando el nombre configurado
-    const value = getFieldValue(client, fieldName);
-    return value ? String(value) : '';
+    return this.clientDataExtractor.getCity(client);
   }
 
   /**
-   * Obtener estado del cliente desde sus campos dinámicos
-   * Usa el mapping configurado en ProposalConfigService
+   * Obtener estado del cliente usando el servicio centralizado
    */
   getClientState(client: Client | undefined): string {
-    if (!client) return '';
-
-    // Obtener el nombre del campo desde la configuración
-    const mapping = this.proposalConfigService.getAddressMapping();
-    const fieldName = mapping.state;
-
-    // Buscar usando el nombre configurado
-    const value = getFieldValue(client, fieldName);
-    return value ? String(value) : '';
+    return this.clientDataExtractor.getState(client);
   }
 
   /**
-   * Obtener código postal del cliente desde sus campos dinámicos
-   * Usa el mapping configurado en ProposalConfigService
+   * Obtener código postal del cliente usando el servicio centralizado
    */
   getClientZipCode(client: Client | undefined): string {
-    if (!client) return '';
-
-    // Obtener el nombre del campo desde la configuración
-    const mapping = this.proposalConfigService.getAddressMapping();
-    const fieldName = mapping.zipCode;
-
-    // Buscar usando el nombre configurado
-    const value = getFieldValue(client, fieldName);
-    return value ? String(value) : '';
+    return this.clientDataExtractor.getZipCode(client);
   }
 
   /**
@@ -556,32 +523,31 @@ export class ProposalFormComponent implements OnInit {
   }
 
   /**
-   * Calcular impuesto
+   * Calcular impuesto usando el servicio centralizado
    */
   calculateTax(): number {
     const subtotal = this.getSubtotal();
     const taxPercentage = this.proposalForm.get('taxPercentage')?.value || 0;
-    return (subtotal * taxPercentage) / 100;
+    return this.proposalCalculator.calculateTax(subtotal, taxPercentage);
   }
 
   /**
-   * Calcular descuento
+   * Calcular descuento usando el servicio centralizado
    */
   calculateDiscount(): number {
     const subtotal = this.getSubtotal();
     const discountPercentage = this.proposalForm.get('discountPercentage')?.value || 0;
-    return (subtotal * discountPercentage) / 100;
+    return this.proposalCalculator.calculateDiscount(subtotal, discountPercentage);
   }
 
   /**
-   * Calcular total
+   * Calcular total usando el servicio centralizado
    */
   calculateTotal(): number {
     const subtotal = this.getSubtotal();
     const tax = this.calculateTax();
     const discount = this.calculateDiscount();
-
-    return subtotal + tax - discount;
+    return this.proposalCalculator.calculateTotal(subtotal, tax, discount);
   }
 
   /**
@@ -847,16 +813,6 @@ export class ProposalFormComponent implements OnInit {
   }
 
   /**
-   * Formatear moneda
-   */
-  formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  }
-
-  /**
    * Abrir dialog para agregar nuevo cliente
    */
   openAddClientDialog() {
@@ -930,85 +886,23 @@ export class ProposalFormComponent implements OnInit {
   }
 
   /**
-   * Obtener nombre del cliente desde sus campos dinámicos
-   * Usa la configuración de campos para identificar el campo de nombre
+   * Obtener nombre del cliente usando el servicio centralizado
    */
   getClientName(client: Client | undefined): string {
-    if (!client) return '';
-
-    const fields = this.clientConfigService.getFieldsInUse();
-
-    // Buscar el primer campo de tipo TEXT que probablemente sea el nombre
-    const nameField = fields.find(f =>
-      f.type === FieldType.TEXT ||
-      f.name === 'name' ||
-      f.name === 'nombre' ||
-      f.name === 'nombre_del_cliente'
-    );
-
-    if (nameField) {
-      const value = getFieldValue(client, nameField.name);
-      if (value) return String(value);
-    }
-
-    // Fallback a campos estándar
-    if (client.name) return client.name;
-
-    return 'Sin nombre';
+    return this.clientDataExtractor.getName(client);
   }
 
   /**
-   * Obtener email del cliente desde sus campos dinámicos
-   * Usa la configuración de campos para identificar el campo de email
+   * Obtener email del cliente usando el servicio centralizado
    */
   getClientEmail(client: Client | undefined): string {
-    if (!client) return '';
-
-    const fields = this.clientConfigService.getFieldsInUse();
-
-    // Buscar el primer campo de tipo EMAIL
-    const emailField = fields.find(f =>
-      f.type === FieldType.EMAIL ||
-      f.name === 'email' ||
-      f.name === 'correo'
-    );
-
-    if (emailField) {
-      const value = getFieldValue(client, emailField.name);
-      if (value) return String(value);
-    }
-
-    // Fallback a campos estándar
-    if (client.email) return client.email;
-
-    return '';
+    return this.clientDataExtractor.getEmail(client);
   }
 
   /**
-   * Obtener teléfono del cliente desde sus campos dinámicos
-   * Usa la configuración de campos para identificar el campo de teléfono
+   * Obtener teléfono del cliente usando el servicio centralizado
    */
   getClientPhone(client: Client | undefined): string {
-    if (!client) return '';
-
-    const fields = this.clientConfigService.getFieldsInUse();
-
-    // Buscar el primer campo de tipo PHONE
-    const phoneField = fields.find(f =>
-      f.type === FieldType.PHONE ||
-      f.name === 'phone' ||
-      f.name === 'telefono' ||
-      f.name === 'tel'
-    );
-
-    if (phoneField) {
-      const value = getFieldValue(client, phoneField.name);
-      if (value) return String(value);
-    }
-
-    // Fallback a campos estándar
-    if (client.phone) return client.phone;
-
-    return '';
+    return this.clientDataExtractor.getPhone(client);
   }
 }

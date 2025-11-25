@@ -112,11 +112,11 @@
                     </label>
                     <div class="relative">
                       @if (field.type === FieldType.CURRENCY) {
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-semibold">$</span>
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-semibold pointer-events-none">$</span>
                       }
                       <input
                         type="number"
-                        [class]="'input-field' + (field.type === FieldType.CURRENCY ? ' pl-10' : '')"
+                        [class]="'input-field' + (field.type === FieldType.CURRENCY ? ' pl-12' : '')"
                         [formControlName]="field.name"
                         [placeholder]="field.placeholder || ''"
                         [min]="field.validation.min ?? null"

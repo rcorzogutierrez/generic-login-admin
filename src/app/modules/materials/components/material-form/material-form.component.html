@@ -112,16 +112,17 @@
                     </label>
                     <div class="relative">
                       @if (field.type === FieldType.CURRENCY) {
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-semibold pointer-events-none">$</span>
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium pointer-events-none select-none z-10">$</span>
                       }
                       <input
                         type="number"
-                        [class]="'input-field' + (field.type === FieldType.CURRENCY ? ' pl-12' : '')"
+                        [class]="'input-field relative' + (field.type === FieldType.CURRENCY ? ' !pl-11' : '')"
                         [formControlName]="field.name"
                         [placeholder]="field.placeholder || ''"
                         [min]="field.validation.min ?? null"
                         [max]="field.validation.max ?? null"
-                        [readonly]="mode() === 'view'">
+                        [readonly]="mode() === 'view'"
+                        [step]="field.type === FieldType.CURRENCY ? '0.01' : 'any'">
                     </div>
                     @if (field.helpText && !hasError(field.name)) {
                       <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>

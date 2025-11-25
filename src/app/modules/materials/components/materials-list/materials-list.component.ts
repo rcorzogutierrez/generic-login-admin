@@ -55,14 +55,31 @@ export class MaterialsListComponent implements OnInit {
   filteredMaterials = computed(() => {
     const materials = this.materials();
     const search = this.searchTerm().toLowerCase();
+    const fields = this.gridFields();
 
     if (!search) return materials;
 
-    return materials.filter(m =>
-      m.name.toLowerCase().includes(search) ||
-      m.code.toLowerCase().includes(search) ||
-      (m.description && m.description.toLowerCase().includes(search))
-    );
+    return materials.filter(material => {
+      // Buscar en todos los campos visibles en el grid
+      for (const field of fields) {
+        const value = this.getFieldValue(material, field.name);
+
+        if (value !== null && value !== undefined) {
+          // Para campos tipo select/dictionary, usar el valor formateado (labels)
+          const formattedValue = this.formatFieldValue(value, field);
+          if (formattedValue.toLowerCase().includes(search)) {
+            return true;
+          }
+        }
+      }
+
+      // También buscar en campos por defecto que no estén en el grid
+      if (material.name?.toLowerCase().includes(search)) return true;
+      if (material.code?.toLowerCase().includes(search)) return true;
+      if (material.description?.toLowerCase().includes(search)) return true;
+
+      return false;
+    });
   });
 
   // Materials paginados

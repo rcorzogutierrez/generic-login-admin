@@ -55,15 +55,32 @@ export class WorkersListComponent implements OnInit {
   filteredWorkers = computed(() => {
     const workers = this.workers();
     const search = this.searchTerm().toLowerCase();
+    const fields = this.gridFields();
 
     if (!search) return workers;
 
-    return workers.filter(w =>
-      w.name.toLowerCase().includes(search) ||
-      w.email.toLowerCase().includes(search) ||
-      (w.position && w.position.toLowerCase().includes(search)) ||
-      (w.phone && w.phone.toLowerCase().includes(search))
-    );
+    return workers.filter(worker => {
+      // Buscar en todos los campos visibles en el grid
+      for (const field of fields) {
+        const value = this.getFieldValue(worker, field.name);
+
+        if (value !== null && value !== undefined) {
+          // Para campos tipo select/dictionary, usar el valor formateado (labels)
+          const formattedValue = this.formatFieldValue(value, field);
+          if (formattedValue.toLowerCase().includes(search)) {
+            return true;
+          }
+        }
+      }
+
+      // También buscar en campos por defecto que no estén en el grid
+      if (worker.name?.toLowerCase().includes(search)) return true;
+      if (worker.email?.toLowerCase().includes(search)) return true;
+      if (worker.position?.toLowerCase().includes(search)) return true;
+      if (worker.phone?.includes(search)) return true;
+
+      return false;
+    });
   });
 
   // Workers paginados

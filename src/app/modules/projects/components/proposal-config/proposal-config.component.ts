@@ -79,10 +79,10 @@ export class ProposalConfigComponent implements OnInit {
 
   // Configuraciones de mapeo de campos de dirección
   addressFieldMappings: FieldMappingConfig[] = [
-    { formControlName: 'address', icon: 'home', destinationIcon: 'location_on', label: 'Dirección del Trabajo', targetTheme: 'green' },
-    { formControlName: 'city', icon: 'location_city', label: 'Ciudad', targetTheme: 'green' },
-    { formControlName: 'state', icon: 'map', label: 'Estado', targetTheme: 'green', badge: 'IMPORTANTE' },
-    { formControlName: 'zipCode', icon: 'markunread_mailbox', label: 'Código Postal', targetTheme: 'green' }
+    { formControlName: 'address', icon: 'home', destinationIcon: 'location_on', label: 'Dirección del Trabajo', targetTheme: 'purple' },
+    { formControlName: 'city', icon: 'location_city', label: 'Ciudad', targetTheme: 'purple' },
+    { formControlName: 'state', icon: 'map', label: 'Estado', targetTheme: 'purple', badge: 'IMPORTANTE' },
+    { formControlName: 'zipCode', icon: 'markunread_mailbox', label: 'Código Postal', targetTheme: 'purple' }
   ];
 
   constructor() {

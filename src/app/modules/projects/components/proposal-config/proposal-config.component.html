@@ -19,7 +19,7 @@
               Mapeo de Campos del Cliente
             </h1>
             <p class="text-sm text-slate-500 mt-1">
-              Selecciona qué campos del cliente quieres mapear al estimado
+              Conecta los campos del cliente con los del estimado
             </p>
           </div>
         </div>
@@ -33,12 +33,12 @@
         <div class="flex-1">
           <h3 class="text-lg font-bold text-blue-900 mb-2">¿Cómo funciona?</h3>
           <p class="text-sm text-blue-800 mb-3">
-            Elige los campos del cliente que quieres usar en tus estimados y mapéalos a los campos correspondientes.
-            Solo agrega los campos que necesites.
+            Cuando actives <strong>"Usar misma dirección del cliente"</strong> en el formulario de estimados,
+            el sistema copiará automáticamente los datos usando este mapeo.
           </p>
           <div class="flex items-center gap-2 text-xs text-blue-700 bg-blue-100 rounded px-3 py-2">
             <mat-icon class="!text-sm">info</mat-icon>
-            <span>Puedes <strong>agregar o eliminar</strong> campos según tus necesidades</span>
+            <span><strong>Selecciona de qué campo del cliente</strong> quieres obtener cada dato del estimado</span>
           </div>
         </div>
       </div>
@@ -46,34 +46,18 @@
 
     <form [formGroup]="configForm" class="space-y-6">
 
-      <!-- ========== MAPEO DE CAMPOS ========== -->
+      <!-- ========== CAMPOS BÁSICOS DEL CLIENTE ========== -->
       <div class="card-modern p-6">
         <div class="mb-6 pb-4 border-b-2 border-slate-100">
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <mat-icon class="text-blue-600 !text-xl">link</mat-icon>
-                </div>
-                Campos Mapeados
-              </h2>
-              <p class="text-sm text-slate-500 mt-2 ml-13">
-                Mapea los campos del <strong>Cliente</strong> con los del <strong>Estimado</strong>
-              </p>
+          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <mat-icon class="text-blue-600 !text-xl">person</mat-icon>
             </div>
-
-            @if (availableTargetFields().length > 0) {
-              <button
-                mat-raised-button
-                color="primary"
-                type="button"
-                (click)="addMapping()"
-                class="!px-5 !py-2">
-                <mat-icon>add</mat-icon>
-                Agregar Campo
-              </button>
-            }
-          </div>
+            Campos Básicos del Cliente
+          </h2>
+          <p class="text-sm text-slate-500 mt-2 ml-13">
+            Mapea los campos básicos del <strong>Cliente</strong> (izquierda) con los del <strong>Estimado</strong> (derecha)
+          </p>
         </div>
 
         <!-- ENCABEZADOS DE COLUMNAS -->
@@ -87,35 +71,24 @@
           <div class="col-span-2 flex items-center justify-center">
             <mat-icon class="!text-3xl text-slate-400">arrow_forward</mat-icon>
           </div>
-          <div class="col-span-4">
+          <div class="col-span-5">
             <div class="flex items-center gap-2 text-sm font-bold text-slate-700 bg-purple-50 rounded-lg px-4 py-3 border-2 border-purple-200">
               <mat-icon class="!text-lg text-purple-600">description</mat-icon>
               <span>Campo del Estimado (Destino)</span>
             </div>
           </div>
-          <div class="col-span-1">
-            <div class="text-sm font-bold text-slate-700 text-center">Acciones</div>
-          </div>
         </div>
 
-        <!-- FILAS DE MAPEO DINÁMICAS -->
-        <div class="space-y-4" formArrayName="fieldMappings">
-          @for (mappingControl of fieldMappingsArray.controls; track $index; let i = $index) {
-            @let targetField = mappingControl.get('targetField')?.value;
-            @let targetDef = getTargetFieldDefinition(targetField);
-
-            <div class="grid grid-cols-12 gap-4 items-center bg-white rounded-lg p-4 border-2"
-                 [class.border-amber-200]="targetDef?.important"
-                 [class.border-slate-200]="!targetDef?.important"
-                 class="hover:border-blue-300 transition-all"
-                 [formGroupName]="i">
-
-              <!-- Campo Origen (Cliente) - SELECT -->
+        <!-- FILAS DE MAPEO CAMPOS BÁSICOS -->
+        <div class="space-y-4">
+          @for (mapping of basicFieldMappings; track mapping.formControlName) {
+            <div class="grid grid-cols-12 gap-4 items-center bg-white rounded-lg p-4 border-2 border-slate-200 hover:border-blue-300 transition-all">
+              <!-- Campo Origen (Cliente) -->
               <div class="col-span-5">
                 <div class="relative">
-                  <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg z-10">folder</mat-icon>
+                  <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg z-10">{{ mapping.icon }}</mat-icon>
                   <select
-                    formControlName="sourceField"
+                    [formControlName]="mapping.formControlName"
                     required
                     class="w-full pl-11 pr-10 py-3 text-sm border-2 border-blue-200 rounded-lg
                            focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
@@ -128,88 +101,121 @@
                   <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg pointer-events-none">expand_more</mat-icon>
                 </div>
                 <p class="text-xs text-blue-600 mt-1.5 font-medium pl-11">
-                  Campo: <strong>{{ mappingControl.get('sourceField')?.value }}</strong>
+                  Campo: <strong>{{ configForm.get(mapping.formControlName)?.value }}</strong>
                 </p>
               </div>
 
               <!-- Flecha -->
               <div class="col-span-2 flex items-center justify-center">
                 <div class="flex flex-col items-center">
-                  <mat-icon class="!text-2xl text-purple-600">arrow_forward</mat-icon>
+                  <mat-icon class="!text-2xl text-{{ mapping.targetTheme }}-600">arrow_forward</mat-icon>
                   <span class="text-xs text-slate-500 font-semibold mt-1">mapea a</span>
                 </div>
               </div>
 
-              <!-- Campo Destino (Estimado) - FIJO/LABEL -->
-              <div class="col-span-4">
-                <div class="flex items-center gap-3 p-3 bg-purple-50 border-2 border-purple-200 rounded-lg">
-                  @if (targetDef) {
-                    <mat-icon class="text-purple-600 !text-lg">{{ targetDef.icon }}</mat-icon>
-                    <div class="flex-1">
-                      <p class="text-sm font-bold text-purple-900">{{ targetDef.label }}</p>
-                      <p class="text-xs text-purple-700">Campo fijo del estimado</p>
-                    </div>
-                    @if (targetDef.important) {
-                      <div class="bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded">
-                        IMPORTANTE
-                      </div>
-                    }
-                  }
+              <!-- Campo Destino (Estimado) - FIJO -->
+              <div class="col-span-5">
+                <div class="flex items-center gap-3 p-3 bg-{{ mapping.targetTheme }}-50 border-2 border-{{ mapping.targetTheme }}-200 rounded-lg">
+                  <mat-icon class="text-{{ mapping.targetTheme }}-600 !text-lg">{{ mapping.destinationIcon || mapping.icon }}</mat-icon>
+                  <div class="flex-1">
+                    <p class="text-sm font-bold text-{{ mapping.targetTheme }}-900">{{ mapping.label }}</p>
+                    <p class="text-xs text-{{ mapping.targetTheme }}-700">Campo fijo del estimado</p>
+                  </div>
                 </div>
               </div>
-
-              <!-- Botón Eliminar -->
-              <div class="col-span-1 flex justify-center">
-                <button
-                  mat-icon-button
-                  type="button"
-                  color="warn"
-                  (click)="removeMapping(i)"
-                  matTooltip="Eliminar mapeo"
-                  class="!text-red-600 hover:!bg-red-50">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            </div>
-          }
-
-          <!-- Mensaje si no hay mapeos -->
-          @if (fieldMappingsArray.length === 0) {
-            <div class="text-center py-12 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">
-              <mat-icon class="!text-5xl text-slate-400 mb-3">link_off</mat-icon>
-              <p class="text-lg font-semibold text-slate-600 mb-2">No hay campos mapeados</p>
-              <p class="text-sm text-slate-500 mb-4">Agrega campos del cliente para mapear al estimado</p>
-              <button
-                mat-raised-button
-                color="primary"
-                type="button"
-                (click)="addMapping()"
-                class="!px-5 !py-2">
-                <mat-icon>add</mat-icon>
-                Agregar Primer Campo
-              </button>
             </div>
           }
         </div>
+      </div>
 
-        <!-- CAMPOS DISPONIBLES PARA AGREGAR -->
-        @if (availableTargetFields().length > 0 && fieldMappingsArray.length > 0) {
-          <div class="mt-6 pt-4 border-t-2 border-slate-100">
-            <p class="text-sm font-semibold text-slate-700 mb-3">Campos disponibles para agregar:</p>
-            <div class="flex flex-wrap gap-2">
-              @for (targetField of availableTargetFields(); track targetField.value) {
-                <button
-                  mat-stroked-button
-                  type="button"
-                  (click)="addMapping(targetField.value)"
-                  class="!px-4 !py-2 !border-2 !border-blue-200 hover:!border-blue-400 hover:!bg-blue-50 !text-sm">
-                  <mat-icon class="!text-base mr-1">{{ targetField.icon }}</mat-icon>
-                  {{ targetField.label }}
-                </button>
-              }
+      <!-- ========== CAMPOS DE DIRECCIÓN ========== -->
+      <div class="card-modern p-6">
+        <div class="mb-6 pb-4 border-b-2 border-slate-100">
+          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <mat-icon class="text-green-600 !text-xl">link</mat-icon>
+            </div>
+            Campos de Dirección
+          </h2>
+          <p class="text-sm text-slate-500 mt-2 ml-13">
+            Mapea los campos de dirección del <strong>Cliente</strong> (izquierda) con los del <strong>Estimado</strong> (derecha)
+          </p>
+        </div>
+
+        <!-- ENCABEZADOS DE COLUMNAS -->
+        <div class="grid grid-cols-12 gap-4 mb-4">
+          <div class="col-span-5">
+            <div class="flex items-center gap-2 text-sm font-bold text-slate-700 bg-blue-50 rounded-lg px-4 py-3 border-2 border-blue-200">
+              <mat-icon class="!text-lg text-blue-600">person</mat-icon>
+              <span>Campo del Cliente (Origen)</span>
             </div>
           </div>
-        }
+          <div class="col-span-2 flex items-center justify-center">
+            <mat-icon class="!text-3xl text-slate-400">arrow_forward</mat-icon>
+          </div>
+          <div class="col-span-5">
+            <div class="flex items-center gap-2 text-sm font-bold text-slate-700 bg-green-50 rounded-lg px-4 py-3 border-2 border-green-200">
+              <mat-icon class="!text-lg text-green-600">description</mat-icon>
+              <span>Campo del Estimado (Destino)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- FILAS DE MAPEO -->
+        <div class="space-y-4">
+          @for (mapping of addressFieldMappings; track mapping.formControlName) {
+            <div class="grid grid-cols-12 gap-4 items-center bg-white rounded-lg p-4 border-2"
+                 [class.border-amber-200]="mapping.badge"
+                 [class.border-slate-200]="!mapping.badge"
+                 class="hover:border-blue-300 transition-all">
+              <!-- Campo Origen (Cliente) -->
+              <div class="col-span-5">
+                <div class="relative">
+                  <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg z-10">{{ mapping.icon }}</mat-icon>
+                  <select
+                    [formControlName]="mapping.formControlName"
+                    required
+                    class="w-full pl-11 pr-10 py-3 text-sm border-2 border-blue-200 rounded-lg
+                           focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                           transition-all bg-blue-50 text-slate-800 hover:border-blue-400 cursor-pointer
+                           appearance-none font-semibold">
+                    @for (field of availableFields(); track field.name) {
+                      <option [value]="field.name">{{ field.label }}</option>
+                    }
+                  </select>
+                  <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg pointer-events-none">expand_more</mat-icon>
+                </div>
+                <p class="text-xs text-blue-600 mt-1.5 font-medium pl-11">
+                  Campo: <strong>{{ configForm.get(mapping.formControlName)?.value }}</strong>
+                </p>
+              </div>
+
+              <!-- Flecha -->
+              <div class="col-span-2 flex items-center justify-center">
+                <div class="flex flex-col items-center">
+                  <mat-icon class="!text-2xl text-{{ mapping.targetTheme }}-600">arrow_forward</mat-icon>
+                  <span class="text-xs text-slate-500 font-semibold mt-1">mapea a</span>
+                </div>
+              </div>
+
+              <!-- Campo Destino (Estimado) - FIJO -->
+              <div class="col-span-5">
+                <div class="flex items-center gap-3 p-3 bg-{{ mapping.targetTheme }}-50 border-2 border-{{ mapping.targetTheme }}-200 rounded-lg">
+                  <mat-icon class="text-{{ mapping.targetTheme }}-600 !text-lg">{{ mapping.destinationIcon || mapping.icon }}</mat-icon>
+                  <div class="flex-1">
+                    <p class="text-sm font-bold text-{{ mapping.targetTheme }}-900">{{ mapping.label }}</p>
+                    <p class="text-xs text-{{ mapping.targetTheme }}-700">Campo fijo del estimado</p>
+                  </div>
+                  @if (mapping.badge) {
+                    <div class="bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded">
+                      {{ mapping.badge }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
       </div>
 
       <!-- ========== VALORES POR DEFECTO ========== -->

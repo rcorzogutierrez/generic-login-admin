@@ -23,6 +23,18 @@ import { ClientConfigServiceRefactored } from '../../../clients/services/client-
 import { ProposalClientFieldsMapping, ProposalAddressMapping } from '../../models';
 import { FieldConfig } from '../../../clients/models/field-config.interface';
 
+/**
+ * Configuración de un campo de mapeo
+ */
+interface FieldMappingConfig {
+  formControlName: string;
+  icon: string;
+  destinationIcon?: string;  // Icono para el campo destino (si es diferente al de origen)
+  label: string;
+  targetTheme: 'purple' | 'green';
+  badge?: string;
+}
+
 @Component({
   selector: 'app-proposal-config',
   standalone: true,
@@ -56,6 +68,22 @@ export class ProposalConfigComponent implements OnInit {
 
   // Form
   configForm!: FormGroup;
+
+  // Configuraciones de mapeo de campos básicos
+  basicFieldMappings: FieldMappingConfig[] = [
+    { formControlName: 'name', icon: 'badge', label: 'Nombre del Cliente', targetTheme: 'purple' },
+    { formControlName: 'email', icon: 'email', label: 'Email del Cliente', targetTheme: 'purple' },
+    { formControlName: 'phone', icon: 'phone', label: 'Teléfono del Cliente', targetTheme: 'purple' },
+    { formControlName: 'company', icon: 'business', label: 'Compañía del Cliente', targetTheme: 'purple' }
+  ];
+
+  // Configuraciones de mapeo de campos de dirección
+  addressFieldMappings: FieldMappingConfig[] = [
+    { formControlName: 'address', icon: 'home', destinationIcon: 'location_on', label: 'Dirección del Trabajo', targetTheme: 'green' },
+    { formControlName: 'city', icon: 'location_city', label: 'Ciudad', targetTheme: 'green' },
+    { formControlName: 'state', icon: 'map', label: 'Estado', targetTheme: 'green', badge: 'IMPORTANTE' },
+    { formControlName: 'zipCode', icon: 'markunread_mailbox', label: 'Código Postal', targetTheme: 'green' }
+  ];
 
   constructor() {
     this.initForm();

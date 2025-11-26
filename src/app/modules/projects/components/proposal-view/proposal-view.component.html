@@ -123,39 +123,30 @@
           <div class="grid grid-cols-12 gap-4">
 
             <!-- Columna Izquierda: Nombre, Dirección y Fecha -->
-            <div class="col-span-4 space-y-2">
+            <div class="col-span-4 space-y-1.5">
               <!-- Nombre del Cliente -->
-              <div>
-                <p class="text-xs font-semibold text-slate-500 uppercase mb-0.5">{{ 'projects.proposal.view.for' | translate }}</p>
-                <p class="font-bold text-base text-slate-800">{{ proposal()!.ownerName }}</p>
-              </div>
+              <p class="text-xs text-slate-700">
+                <span class="font-semibold text-slate-500">Owner Name:</span>
+                <span class="font-bold text-sm text-slate-800 ml-1">{{ proposal()!.ownerName }}</span>
+              </p>
 
               <!-- Dirección -->
-              <div>
-                <p class="text-xs font-semibold text-slate-500 uppercase mb-0.5">{{ 'projects.proposal.location.address' | translate }}</p>
-                <p class="text-xs text-slate-700 leading-tight">
-                  {{ proposal()!.address }}<br>
-                  {{ proposal()!.city }}@if (proposal()!.state) {, {{ proposal()!.state }}}@if (proposal()!.zipCode) { {{ proposal()!.zipCode }}}
-                </p>
-              </div>
+              <p class="text-xs text-slate-700">
+                <span class="font-semibold text-slate-500">Dirección del Trabajo:</span>
+                <span class="text-slate-800 ml-1">{{ proposal()!.address }}, {{ proposal()!.city }}@if (proposal()!.state) {, {{ proposal()!.state }}}@if (proposal()!.zipCode) { {{ proposal()!.zipCode }}}</span>
+              </p>
 
               <!-- Fecha -->
-              <div>
-                <p class="text-xs font-semibold text-slate-500 uppercase mb-0.5">
-                  @if (proposal()!.status === 'converted_to_invoice') {
-                    {{ 'projects.proposal.view.invoiceDate' | translate }}
-                  } @else {
-                    {{ 'projects.proposal.view.date' | translate }}
-                  }
-                </p>
-                <p class="text-xs font-semibold text-slate-700">
+              <p class="text-xs text-slate-700">
+                <span class="font-semibold text-slate-500">Fecha:</span>
+                <span class="font-semibold text-slate-800 ml-1">
                   @if (proposal()!.status === 'converted_to_invoice') {
                     {{ proposal()!.invoiceDate ? formatDate(proposal()!.invoiceDate) : formatDate(proposal()!.date) }}
                   } @else {
                     {{ formatDate(proposal()!.date) }}
                   }
-                </p>
-              </div>
+                </span>
+              </p>
             </div>
 
             <!-- Columna Central: Número del Estimado/Factura -->

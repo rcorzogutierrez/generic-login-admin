@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore';
 import {
   ProposalModuleConfig,
+  ProposalClientFieldsMapping,
   ProposalAddressMapping,
   CreateProposalConfigData,
   UpdateProposalConfigData,
@@ -170,6 +171,27 @@ export class ProposalConfigService {
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  /**
+   * Obtener el mapeo de campos básicos del cliente
+   */
+  getClientFieldsMapping(): ProposalClientFieldsMapping {
+    const config = this.config();
+    if (!config) {
+      // Si no hay configuración, retornar valores por defecto
+      return DEFAULT_PROPOSAL_CONFIG.clientFieldsMapping;
+    }
+    return config.clientFieldsMapping;
+  }
+
+  /**
+   * Actualizar solo el mapeo de campos básicos del cliente
+   */
+  async updateClientFieldsMapping(mapping: ProposalClientFieldsMapping): Promise<void> {
+    await this.updateConfig({
+      clientFieldsMapping: mapping
+    });
   }
 
   /**

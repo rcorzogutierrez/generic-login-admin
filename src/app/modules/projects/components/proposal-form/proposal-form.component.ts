@@ -924,30 +924,39 @@ export class ProposalFormComponent implements OnInit {
   }
 
   /**
-   * Obtener nombre del cliente usando el servicio centralizado
+   * Obtener nombre del cliente usando el mapeo de configuración
    */
   getClientName(client: Client | undefined): string {
-    return this.clientDataExtractor.getName(client);
+    if (!client) return 'Sin nombre';
+    const mapping = this.proposalConfigService.getClientFieldsMapping();
+    const value = this.clientDataExtractor.getFieldByName(client, mapping.name, 'name');
+    return value || 'Sin nombre';
   }
 
   /**
-   * Obtener email del cliente usando el servicio centralizado
+   * Obtener email del cliente usando el mapeo de configuración
    */
   getClientEmail(client: Client | undefined): string {
-    return this.clientDataExtractor.getEmail(client);
+    if (!client) return '';
+    const mapping = this.proposalConfigService.getClientFieldsMapping();
+    return this.clientDataExtractor.getFieldByName(client, mapping.email, 'email');
   }
 
   /**
-   * Obtener teléfono del cliente usando el servicio centralizado
+   * Obtener teléfono del cliente usando el mapeo de configuración
    */
   getClientPhone(client: Client | undefined): string {
-    return this.clientDataExtractor.getPhone(client);
+    if (!client) return '';
+    const mapping = this.proposalConfigService.getClientFieldsMapping();
+    return this.clientDataExtractor.getFieldByName(client, mapping.phone, 'phone');
   }
 
   /**
-   * Obtener compañía del cliente usando el servicio centralizado
+   * Obtener compañía del cliente usando el mapeo de configuración
    */
   getClientCompany(client: Client | undefined): string {
-    return this.clientDataExtractor.getCompany(client);
+    if (!client) return '';
+    const mapping = this.proposalConfigService.getClientFieldsMapping();
+    return this.clientDataExtractor.getFieldByName(client, mapping.company, 'company');
   }
 }

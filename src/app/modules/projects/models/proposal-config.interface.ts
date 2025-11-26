@@ -3,7 +3,37 @@
 import { Timestamp } from 'firebase/firestore';
 
 /**
- * Mapeo de campos del cliente al formulario de propuesta
+ * Mapeo de campos básicos del cliente
+ * Permite configurar qué campos del cliente se usan para información básica
+ */
+export interface ProposalClientFieldsMapping {
+  /**
+   * Nombre del campo de nombre en el cliente
+   * Ej: 'name', 'nombre', 'client_name'
+   */
+  name: string;
+
+  /**
+   * Nombre del campo de email en el cliente
+   * Ej: 'email', 'correo', 'email_address'
+   */
+  email: string;
+
+  /**
+   * Nombre del campo de teléfono en el cliente
+   * Ej: 'phone', 'telefono', 'phone_number'
+   */
+  phone: string;
+
+  /**
+   * Nombre del campo de compañía en el cliente
+   * Ej: 'company', 'empresa', 'compania'
+   */
+  company: string;
+}
+
+/**
+ * Mapeo de campos de dirección del cliente
  * Permite configurar qué campos del cliente se copian al estimado
  */
 export interface ProposalAddressMapping {
@@ -39,7 +69,10 @@ export interface ProposalModuleConfig {
   // ID único de la configuración
   id: string;
 
-  // Mapeo de campos del cliente al formulario de propuesta
+  // Mapeo de campos básicos del cliente
+  clientFieldsMapping: ProposalClientFieldsMapping;
+
+  // Mapeo de campos de dirección del cliente
   clientAddressMapping: ProposalAddressMapping;
 
   // Configuración de valores por defecto
@@ -59,6 +92,7 @@ export interface ProposalModuleConfig {
  * Datos para crear una nueva configuración
  */
 export interface CreateProposalConfigData {
+  clientFieldsMapping: ProposalClientFieldsMapping;
   clientAddressMapping: ProposalAddressMapping;
   defaultTaxPercentage?: number;
   defaultValidityDays?: number;
@@ -75,6 +109,12 @@ export interface UpdateProposalConfigData extends Partial<CreateProposalConfigDa
  * Configuración por defecto del módulo
  */
 export const DEFAULT_PROPOSAL_CONFIG: Omit<ProposalModuleConfig, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'> = {
+  clientFieldsMapping: {
+    name: 'name',
+    email: 'email',
+    phone: 'phone',
+    company: 'company'
+  },
   clientAddressMapping: {
     address: 'address',
     city: 'city',

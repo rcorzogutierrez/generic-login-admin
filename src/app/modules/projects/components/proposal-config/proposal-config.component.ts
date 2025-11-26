@@ -20,7 +20,7 @@ import { ClientsService } from '../../../clients/services/clients.service';
 import { ClientConfigServiceRefactored } from '../../../clients/services/client-config-refactored.service';
 
 // Models
-import { ProposalAddressMapping } from '../../models';
+import { ProposalClientFieldsMapping, ProposalAddressMapping } from '../../models';
 import { FieldConfig } from '../../../clients/models/field-config.interface';
 
 @Component({
@@ -80,10 +80,17 @@ export class ProposalConfigComponent implements OnInit {
    */
   initForm() {
     this.configForm = this.fb.group({
+      // Mapeo de campos básicos del cliente
+      name: ['name', Validators.required],
+      email: ['email', Validators.required],
+      phone: ['phone', Validators.required],
+      company: ['company', Validators.required],
+      // Mapeo de campos de dirección
       address: ['address', Validators.required],
       city: ['city', Validators.required],
       state: ['estado', Validators.required],
       zipCode: ['codigo_postal', Validators.required],
+      // Valores por defecto
       defaultTaxPercentage: [0, [Validators.min(0), Validators.max(100)]],
       defaultValidityDays: [30, [Validators.min(1)]],
       defaultWorkType: ['residential', Validators.required],
@@ -138,6 +145,10 @@ export class ProposalConfigComponent implements OnInit {
 
     // Mapeo de sinónimos comunes
     const synonyms: Record<string, string[]> = {
+      name: ['name', 'nombre', 'client_name', 'nombre_cliente'],
+      email: ['email', 'correo', 'email_address', 'correo_electronico'],
+      phone: ['phone', 'telefono', 'phone_number', 'tel'],
+      company: ['company', 'empresa', 'compania', 'compañia'],
       address: ['address', 'direccion', 'domicilio', 'calle'],
       city: ['city', 'ciudad'],
       state: ['state', 'estado', 'provincia'],
@@ -176,6 +187,10 @@ export class ProposalConfigComponent implements OnInit {
     if (config) {
       // Cargar configuración existente
       this.configForm.patchValue({
+        name: config.clientFieldsMapping?.name || 'name',
+        email: config.clientFieldsMapping?.email || 'email',
+        phone: config.clientFieldsMapping?.phone || 'phone',
+        company: config.clientFieldsMapping?.company || 'company',
         address: config.clientAddressMapping.address,
         city: config.clientAddressMapping.city,
         state: config.clientAddressMapping.state,
@@ -190,6 +205,10 @@ export class ProposalConfigComponent implements OnInit {
     } else {
       // No hay configuración, usar sugerencias inteligentes
       this.configForm.patchValue({
+        name: this.suggestClientField('name'),
+        email: this.suggestClientField('email'),
+        phone: this.suggestClientField('phone'),
+        company: this.suggestClientField('company'),
         address: this.suggestClientField('address'),
         city: this.suggestClientField('city'),
         state: this.suggestClientField('state'),
@@ -221,7 +240,14 @@ export class ProposalConfigComponent implements OnInit {
 
       const formValue = this.configForm.value;
 
-      const mapping: ProposalAddressMapping = {
+      const clientFieldsMapping = {
+        name: formValue.name,
+        email: formValue.email,
+        phone: formValue.phone,
+        company: formValue.company
+      };
+
+      const addressMapping: ProposalAddressMapping = {
         address: formValue.address,
         city: formValue.city,
         state: formValue.state,
@@ -229,7 +255,8 @@ export class ProposalConfigComponent implements OnInit {
       };
 
       await this.proposalConfigService.updateConfig({
-        clientAddressMapping: mapping,
+        clientFieldsMapping: clientFieldsMapping,
+        clientAddressMapping: addressMapping,
         defaultTaxPercentage: formValue.defaultTaxPercentage,
         defaultValidityDays: formValue.defaultValidityDays,
         defaultWorkType: formValue.defaultWorkType,
@@ -241,7 +268,7 @@ export class ProposalConfigComponent implements OnInit {
         panelClass: ['success-snackbar']
       });
 
-      console.log('✅ Configuración guardada:', mapping);
+      console.log('✅ Configuración guardada - Campos básicos:', clientFieldsMapping, 'Dirección:', addressMapping);
     } catch (error) {
       console.error('❌ Error guardando configuración:', error);
       this.snackBar.open('❌ Error al guardar la configuración', 'Cerrar', {
@@ -258,6 +285,10 @@ export class ProposalConfigComponent implements OnInit {
    */
   resetToDefaults() {
     this.configForm.patchValue({
+      name: this.suggestClientField('name'),
+      email: this.suggestClientField('email'),
+      phone: this.suggestClientField('phone'),
+      company: this.suggestClientField('company'),
       address: this.suggestClientField('address'),
       city: this.suggestClientField('city'),
       state: this.suggestClientField('state'),

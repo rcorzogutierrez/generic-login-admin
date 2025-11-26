@@ -156,10 +156,11 @@
                 type="text"
                 formControlName="ownerName"
                 required
+                readonly
                 [ngClass]="shouldShowError('ownerName')
                   ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
-                  : 'border-slate-200 bg-white focus:border-blue-500 focus:ring-blue-100 hover:border-slate-300'"
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800"
+                  : 'border-slate-200 bg-slate-50 focus:border-blue-500 focus:ring-blue-100'"
+                class="w-full pl-11 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800 cursor-not-allowed"
                 [placeholder]="'projects.proposal.client_info.namePlaceholder' | translate">
             </div>
             @if (shouldShowError('ownerName')) {
@@ -176,10 +177,11 @@
               <input
                 type="email"
                 formControlName="ownerEmail"
+                readonly
                 [ngClass]="shouldShowError('ownerEmail')
                   ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
-                  : 'border-slate-200 bg-white focus:border-blue-500 focus:ring-blue-100 hover:border-slate-300'"
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800"
+                  : 'border-slate-200 bg-slate-50 focus:border-blue-500 focus:ring-blue-100'"
+                class="w-full pl-11 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800 cursor-not-allowed"
                 [placeholder]="'projects.proposal.client_info.emailPlaceholder' | translate">
             </div>
             @if (shouldShowError('ownerEmail')) {
@@ -195,9 +197,10 @@
               <input
                 type="tel"
                 formControlName="ownerPhone"
+                readonly
                 class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
                        focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                       transition-all bg-white text-slate-800 hover:border-slate-300"
+                       transition-all bg-slate-50 text-slate-800 cursor-not-allowed"
                 [placeholder]="'projects.proposal.client_info.phonePlaceholder' | translate">
             </div>
           </div>

@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore';
 import {
   ProposalModuleConfig,
+  ProposalFieldMapping,
   ProposalClientFieldsMapping,
   ProposalAddressMapping,
   CreateProposalConfigData,
@@ -253,6 +254,45 @@ export class ProposalConfigService {
   async refresh(): Promise<void> {
     this.isInitialized = false;
     await this.initialize();
+  }
+
+  // ========== NUEVOS MÉTODOS PARA MAPEOS DINÁMICOS ==========
+
+  /**
+   * Obtener todos los mapeos de campos configurados
+   */
+  getFieldMappings(): ProposalFieldMapping[] {
+    const config = this.config();
+    if (!config || !config.fieldMappings) {
+      return DEFAULT_PROPOSAL_CONFIG.fieldMappings;
+    }
+    return config.fieldMappings;
+  }
+
+  /**
+   * Actualizar los mapeos de campos
+   */
+  async updateFieldMappings(mappings: ProposalFieldMapping[]): Promise<void> {
+    await this.updateConfig({
+      fieldMappings: mappings
+    });
+  }
+
+  /**
+   * Obtener un mapeo específico por campo destino
+   */
+  getMappingByTargetField(targetField: string): ProposalFieldMapping | undefined {
+    const mappings = this.getFieldMappings();
+    return mappings.find(m => m.targetField === targetField);
+  }
+
+  /**
+   * Obtener el sourceField para un targetField específico
+   * Útil para mantener compatibilidad con código legacy
+   */
+  getSourceFieldFor(targetField: 'name' | 'email' | 'phone' | 'company' | 'address' | 'city' | 'state' | 'zipCode'): string {
+    const mapping = this.getMappingByTargetField(targetField);
+    return mapping?.sourceField || targetField; // Fallback al mismo nombre si no hay mapeo
   }
 
   /**

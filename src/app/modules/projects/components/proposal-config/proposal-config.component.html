@@ -81,163 +81,50 @@
 
         <!-- FILAS DE MAPEO CAMPOS BÁSICOS -->
         <div class="space-y-4">
+          @for (mapping of basicFieldMappings; track mapping.formControlName) {
+            <div class="grid grid-cols-12 gap-4 items-center bg-white rounded-lg p-4 border-2 border-slate-200 hover:border-blue-300 transition-all">
+              <!-- Campo Origen (Cliente) -->
+              <div class="col-span-5">
+                <div class="relative">
+                  <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg z-10">{{ mapping.icon }}</mat-icon>
+                  <select
+                    [formControlName]="mapping.formControlName"
+                    required
+                    class="w-full pl-11 pr-10 py-3 text-sm border-2 border-blue-200 rounded-lg
+                           focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                           transition-all bg-blue-50 text-slate-800 hover:border-blue-400 cursor-pointer
+                           appearance-none font-semibold">
+                    @for (field of availableFields(); track field.name) {
+                      <option [value]="field.name">{{ field.label }}</option>
+                    }
+                  </select>
+                  <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg pointer-events-none">expand_more</mat-icon>
+                </div>
+                <p class="text-xs text-blue-600 mt-1.5 font-medium pl-11">
+                  Campo: <strong>{{ configForm.get(mapping.formControlName)?.value }}</strong>
+                </p>
+              </div>
 
-          <!-- MAPEO: NOMBRE -->
-          <div class="grid grid-cols-12 gap-4 items-center bg-white rounded-lg p-4 border-2 border-slate-200 hover:border-blue-300 transition-all">
-            <div class="col-span-5">
-              <div class="relative">
-                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg z-10">badge</mat-icon>
-                <select
-                  formControlName="name"
-                  required
-                  class="w-full pl-11 pr-10 py-3 text-sm border-2 border-blue-200 rounded-lg
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                         transition-all bg-blue-50 text-slate-800 hover:border-blue-400 cursor-pointer
-                         appearance-none font-semibold">
-                  @for (field of availableFields(); track field.name) {
-                    <option [value]="field.name">{{ field.label }}</option>
-                  }
-                </select>
-                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg pointer-events-none">expand_more</mat-icon>
+              <!-- Flecha -->
+              <div class="col-span-2 flex items-center justify-center">
+                <div class="flex flex-col items-center">
+                  <mat-icon class="!text-2xl text-{{ mapping.targetTheme }}-600">arrow_forward</mat-icon>
+                  <span class="text-xs text-slate-500 font-semibold mt-1">mapea a</span>
+                </div>
               </div>
-              <p class="text-xs text-blue-600 mt-1.5 font-medium pl-11">
-                Campo: <strong>{{ configForm.get('name')?.value }}</strong>
-              </p>
-            </div>
-            <div class="col-span-2 flex items-center justify-center">
-              <div class="flex flex-col items-center">
-                <mat-icon class="!text-2xl text-purple-600">arrow_forward</mat-icon>
-                <span class="text-xs text-slate-500 font-semibold mt-1">mapea a</span>
-              </div>
-            </div>
-            <div class="col-span-5">
-              <div class="flex items-center gap-3 p-3 bg-purple-50 border-2 border-purple-200 rounded-lg">
-                <mat-icon class="text-purple-600 !text-lg">badge</mat-icon>
-                <div class="flex-1">
-                  <p class="text-sm font-bold text-purple-900">Nombre del Cliente</p>
-                  <p class="text-xs text-purple-700">Campo fijo del estimado</p>
+
+              <!-- Campo Destino (Estimado) - FIJO -->
+              <div class="col-span-5">
+                <div class="flex items-center gap-3 p-3 bg-{{ mapping.targetTheme }}-50 border-2 border-{{ mapping.targetTheme }}-200 rounded-lg">
+                  <mat-icon class="text-{{ mapping.targetTheme }}-600 !text-lg">{{ mapping.destinationIcon || mapping.icon }}</mat-icon>
+                  <div class="flex-1">
+                    <p class="text-sm font-bold text-{{ mapping.targetTheme }}-900">{{ mapping.label }}</p>
+                    <p class="text-xs text-{{ mapping.targetTheme }}-700">Campo fijo del estimado</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- MAPEO: EMAIL -->
-          <div class="grid grid-cols-12 gap-4 items-center bg-white rounded-lg p-4 border-2 border-slate-200 hover:border-blue-300 transition-all">
-            <div class="col-span-5">
-              <div class="relative">
-                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg z-10">email</mat-icon>
-                <select
-                  formControlName="email"
-                  required
-                  class="w-full pl-11 pr-10 py-3 text-sm border-2 border-blue-200 rounded-lg
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                         transition-all bg-blue-50 text-slate-800 hover:border-blue-400 cursor-pointer
-                         appearance-none font-semibold">
-                  @for (field of availableFields(); track field.name) {
-                    <option [value]="field.name">{{ field.label }}</option>
-                  }
-                </select>
-                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg pointer-events-none">expand_more</mat-icon>
-              </div>
-              <p class="text-xs text-blue-600 mt-1.5 font-medium pl-11">
-                Campo: <strong>{{ configForm.get('email')?.value }}</strong>
-              </p>
-            </div>
-            <div class="col-span-2 flex items-center justify-center">
-              <div class="flex flex-col items-center">
-                <mat-icon class="!text-2xl text-purple-600">arrow_forward</mat-icon>
-                <span class="text-xs text-slate-500 font-semibold mt-1">mapea a</span>
-              </div>
-            </div>
-            <div class="col-span-5">
-              <div class="flex items-center gap-3 p-3 bg-purple-50 border-2 border-purple-200 rounded-lg">
-                <mat-icon class="text-purple-600 !text-lg">email</mat-icon>
-                <div class="flex-1">
-                  <p class="text-sm font-bold text-purple-900">Email del Cliente</p>
-                  <p class="text-xs text-purple-700">Campo fijo del estimado</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- MAPEO: TELÉFONO -->
-          <div class="grid grid-cols-12 gap-4 items-center bg-white rounded-lg p-4 border-2 border-slate-200 hover:border-blue-300 transition-all">
-            <div class="col-span-5">
-              <div class="relative">
-                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg z-10">phone</mat-icon>
-                <select
-                  formControlName="phone"
-                  required
-                  class="w-full pl-11 pr-10 py-3 text-sm border-2 border-blue-200 rounded-lg
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                         transition-all bg-blue-50 text-slate-800 hover:border-blue-400 cursor-pointer
-                         appearance-none font-semibold">
-                  @for (field of availableFields(); track field.name) {
-                    <option [value]="field.name">{{ field.label }}</option>
-                  }
-                </select>
-                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg pointer-events-none">expand_more</mat-icon>
-              </div>
-              <p class="text-xs text-blue-600 mt-1.5 font-medium pl-11">
-                Campo: <strong>{{ configForm.get('phone')?.value }}</strong>
-              </p>
-            </div>
-            <div class="col-span-2 flex items-center justify-center">
-              <div class="flex flex-col items-center">
-                <mat-icon class="!text-2xl text-purple-600">arrow_forward</mat-icon>
-                <span class="text-xs text-slate-500 font-semibold mt-1">mapea a</span>
-              </div>
-            </div>
-            <div class="col-span-5">
-              <div class="flex items-center gap-3 p-3 bg-purple-50 border-2 border-purple-200 rounded-lg">
-                <mat-icon class="text-purple-600 !text-lg">phone</mat-icon>
-                <div class="flex-1">
-                  <p class="text-sm font-bold text-purple-900">Teléfono del Cliente</p>
-                  <p class="text-xs text-purple-700">Campo fijo del estimado</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- MAPEO: COMPAÑÍA -->
-          <div class="grid grid-cols-12 gap-4 items-center bg-white rounded-lg p-4 border-2 border-slate-200 hover:border-blue-300 transition-all">
-            <div class="col-span-5">
-              <div class="relative">
-                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg z-10">business</mat-icon>
-                <select
-                  formControlName="company"
-                  required
-                  class="w-full pl-11 pr-10 py-3 text-sm border-2 border-blue-200 rounded-lg
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                         transition-all bg-blue-50 text-slate-800 hover:border-blue-400 cursor-pointer
-                         appearance-none font-semibold">
-                  @for (field of availableFields(); track field.name) {
-                    <option [value]="field.name">{{ field.label }}</option>
-                  }
-                </select>
-                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg pointer-events-none">expand_more</mat-icon>
-              </div>
-              <p class="text-xs text-blue-600 mt-1.5 font-medium pl-11">
-                Campo: <strong>{{ configForm.get('company')?.value }}</strong>
-              </p>
-            </div>
-            <div class="col-span-2 flex items-center justify-center">
-              <div class="flex flex-col items-center">
-                <mat-icon class="!text-2xl text-purple-600">arrow_forward</mat-icon>
-                <span class="text-xs text-slate-500 font-semibold mt-1">mapea a</span>
-              </div>
-            </div>
-            <div class="col-span-5">
-              <div class="flex items-center gap-3 p-3 bg-purple-50 border-2 border-purple-200 rounded-lg">
-                <mat-icon class="text-purple-600 !text-lg">business</mat-icon>
-                <div class="flex-1">
-                  <p class="text-sm font-bold text-purple-900">Compañía del Cliente</p>
-                  <p class="text-xs text-purple-700">Campo fijo del estimado</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
+          }
         </div>
       </div>
 
@@ -276,186 +163,58 @@
 
         <!-- FILAS DE MAPEO -->
         <div class="space-y-4">
+          @for (mapping of addressFieldMappings; track mapping.formControlName) {
+            <div class="grid grid-cols-12 gap-4 items-center bg-white rounded-lg p-4 border-2"
+                 [class.border-amber-200]="mapping.badge"
+                 [class.border-slate-200]="!mapping.badge"
+                 class="hover:border-blue-300 transition-all">
+              <!-- Campo Origen (Cliente) -->
+              <div class="col-span-5">
+                <div class="relative">
+                  <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg z-10">{{ mapping.icon }}</mat-icon>
+                  <select
+                    [formControlName]="mapping.formControlName"
+                    required
+                    class="w-full pl-11 pr-10 py-3 text-sm border-2 border-blue-200 rounded-lg
+                           focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
+                           transition-all bg-blue-50 text-slate-800 hover:border-blue-400 cursor-pointer
+                           appearance-none font-semibold">
+                    @for (field of availableFields(); track field.name) {
+                      <option [value]="field.name">{{ field.label }}</option>
+                    }
+                  </select>
+                  <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg pointer-events-none">expand_more</mat-icon>
+                </div>
+                <p class="text-xs text-blue-600 mt-1.5 font-medium pl-11">
+                  Campo: <strong>{{ configForm.get(mapping.formControlName)?.value }}</strong>
+                </p>
+              </div>
 
-          <!-- MAPEO 1: DIRECCIÓN -->
-          <div class="grid grid-cols-12 gap-4 items-center bg-white rounded-lg p-4 border-2 border-slate-200 hover:border-blue-300 transition-all">
-            <!-- Campo Origen (Cliente) -->
-            <div class="col-span-5">
-              <div class="relative">
-                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg z-10">home</mat-icon>
-                <select
-                  formControlName="address"
-                  required
-                  class="w-full pl-11 pr-10 py-3 text-sm border-2 border-blue-200 rounded-lg
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                         transition-all bg-blue-50 text-slate-800 hover:border-blue-400 cursor-pointer
-                         appearance-none font-semibold">
-                  @for (field of availableFields(); track field.name) {
-                    <option [value]="field.name">{{ field.label }}</option>
+              <!-- Flecha -->
+              <div class="col-span-2 flex items-center justify-center">
+                <div class="flex flex-col items-center">
+                  <mat-icon class="!text-2xl text-{{ mapping.targetTheme }}-600">arrow_forward</mat-icon>
+                  <span class="text-xs text-slate-500 font-semibold mt-1">mapea a</span>
+                </div>
+              </div>
+
+              <!-- Campo Destino (Estimado) - FIJO -->
+              <div class="col-span-5">
+                <div class="flex items-center gap-3 p-3 bg-{{ mapping.targetTheme }}-50 border-2 border-{{ mapping.targetTheme }}-200 rounded-lg">
+                  <mat-icon class="text-{{ mapping.targetTheme }}-600 !text-lg">{{ mapping.destinationIcon || mapping.icon }}</mat-icon>
+                  <div class="flex-1">
+                    <p class="text-sm font-bold text-{{ mapping.targetTheme }}-900">{{ mapping.label }}</p>
+                    <p class="text-xs text-{{ mapping.targetTheme }}-700">Campo fijo del estimado</p>
+                  </div>
+                  @if (mapping.badge) {
+                    <div class="bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded">
+                      {{ mapping.badge }}
+                    </div>
                   }
-                </select>
-                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg pointer-events-none">expand_more</mat-icon>
-              </div>
-              <p class="text-xs text-blue-600 mt-1.5 font-medium pl-11">
-                Campo: <strong>{{ configForm.get('address')?.value }}</strong>
-              </p>
-            </div>
-
-            <!-- Flecha -->
-            <div class="col-span-2 flex items-center justify-center">
-              <div class="flex flex-col items-center">
-                <mat-icon class="!text-2xl text-green-600">arrow_forward</mat-icon>
-                <span class="text-xs text-slate-500 font-semibold mt-1">mapea a</span>
-              </div>
-            </div>
-
-            <!-- Campo Destino (Estimado) - FIJO -->
-            <div class="col-span-5">
-              <div class="flex items-center gap-3 p-3 bg-green-50 border-2 border-green-200 rounded-lg">
-                <mat-icon class="text-green-600 !text-lg">location_on</mat-icon>
-                <div class="flex-1">
-                  <p class="text-sm font-bold text-green-900">Dirección del Trabajo</p>
-                  <p class="text-xs text-green-700">Campo fijo del estimado</p>
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- MAPEO 2: CIUDAD -->
-          <div class="grid grid-cols-12 gap-4 items-center bg-white rounded-lg p-4 border-2 border-slate-200 hover:border-blue-300 transition-all">
-            <!-- Campo Origen (Cliente) -->
-            <div class="col-span-5">
-              <div class="relative">
-                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg z-10">location_city</mat-icon>
-                <select
-                  formControlName="city"
-                  required
-                  class="w-full pl-11 pr-10 py-3 text-sm border-2 border-blue-200 rounded-lg
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                         transition-all bg-blue-50 text-slate-800 hover:border-blue-400 cursor-pointer
-                         appearance-none font-semibold">
-                  @for (field of availableFields(); track field.name) {
-                    <option [value]="field.name">{{ field.label }}</option>
-                  }
-                </select>
-                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg pointer-events-none">expand_more</mat-icon>
-              </div>
-              <p class="text-xs text-blue-600 mt-1.5 font-medium pl-11">
-                Campo: <strong>{{ configForm.get('city')?.value }}</strong>
-              </p>
-            </div>
-
-            <!-- Flecha -->
-            <div class="col-span-2 flex items-center justify-center">
-              <div class="flex flex-col items-center">
-                <mat-icon class="!text-2xl text-green-600">arrow_forward</mat-icon>
-                <span class="text-xs text-slate-500 font-semibold mt-1">mapea a</span>
-              </div>
-            </div>
-
-            <!-- Campo Destino (Estimado) - FIJO -->
-            <div class="col-span-5">
-              <div class="flex items-center gap-3 p-3 bg-green-50 border-2 border-green-200 rounded-lg">
-                <mat-icon class="text-green-600 !text-lg">location_city</mat-icon>
-                <div class="flex-1">
-                  <p class="text-sm font-bold text-green-900">Ciudad</p>
-                  <p class="text-xs text-green-700">Campo fijo del estimado</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- MAPEO 3: ESTADO -->
-          <div class="grid grid-cols-12 gap-4 items-center bg-white rounded-lg p-4 border-2 border-amber-200 hover:border-blue-300 transition-all">
-            <!-- Campo Origen (Cliente) -->
-            <div class="col-span-5">
-              <div class="relative">
-                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg z-10">map</mat-icon>
-                <select
-                  formControlName="state"
-                  required
-                  class="w-full pl-11 pr-10 py-3 text-sm border-2 border-blue-200 rounded-lg
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                         transition-all bg-blue-50 text-slate-800 hover:border-blue-400 cursor-pointer
-                         appearance-none font-semibold">
-                  @for (field of availableFields(); track field.name) {
-                    <option [value]="field.name">{{ field.label }}</option>
-                  }
-                </select>
-                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg pointer-events-none">expand_more</mat-icon>
-              </div>
-              <p class="text-xs text-blue-600 mt-1.5 font-medium pl-11">
-                Campo: <strong>{{ configForm.get('state')?.value }}</strong>
-              </p>
-            </div>
-
-            <!-- Flecha -->
-            <div class="col-span-2 flex items-center justify-center">
-              <div class="flex flex-col items-center">
-                <mat-icon class="!text-2xl text-green-600">arrow_forward</mat-icon>
-                <span class="text-xs text-slate-500 font-semibold mt-1">mapea a</span>
-              </div>
-            </div>
-
-            <!-- Campo Destino (Estimado) - FIJO -->
-            <div class="col-span-5">
-              <div class="flex items-center gap-3 p-3 bg-green-50 border-2 border-green-200 rounded-lg">
-                <mat-icon class="text-green-600 !text-lg">map</mat-icon>
-                <div class="flex-1">
-                  <p class="text-sm font-bold text-green-900">Estado</p>
-                  <p class="text-xs text-green-700">Campo fijo del estimado</p>
-                </div>
-                <div class="bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded">
-                  IMPORTANTE
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- MAPEO 4: CÓDIGO POSTAL -->
-          <div class="grid grid-cols-12 gap-4 items-center bg-white rounded-lg p-4 border-2 border-slate-200 hover:border-blue-300 transition-all">
-            <!-- Campo Origen (Cliente) -->
-            <div class="col-span-5">
-              <div class="relative">
-                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg z-10">markunread_mailbox</mat-icon>
-                <select
-                  formControlName="zipCode"
-                  required
-                  class="w-full pl-11 pr-10 py-3 text-sm border-2 border-blue-200 rounded-lg
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                         transition-all bg-blue-50 text-slate-800 hover:border-blue-400 cursor-pointer
-                         appearance-none font-semibold">
-                  @for (field of availableFields(); track field.name) {
-                    <option [value]="field.name">{{ field.label }}</option>
-                  }
-                </select>
-                <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg pointer-events-none">expand_more</mat-icon>
-              </div>
-              <p class="text-xs text-blue-600 mt-1.5 font-medium pl-11">
-                Campo: <strong>{{ configForm.get('zipCode')?.value }}</strong>
-              </p>
-            </div>
-
-            <!-- Flecha -->
-            <div class="col-span-2 flex items-center justify-center">
-              <div class="flex flex-col items-center">
-                <mat-icon class="!text-2xl text-green-600">arrow_forward</mat-icon>
-                <span class="text-xs text-slate-500 font-semibold mt-1">mapea a</span>
-              </div>
-            </div>
-
-            <!-- Campo Destino (Estimado) - FIJO -->
-            <div class="col-span-5">
-              <div class="flex items-center gap-3 p-3 bg-green-50 border-2 border-green-200 rounded-lg">
-                <mat-icon class="text-green-600 !text-lg">markunread_mailbox</mat-icon>
-                <div class="flex-1">
-                  <p class="text-sm font-bold text-green-900">Código Postal</p>
-                  <p class="text-xs text-green-700">Campo fijo del estimado</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
+          }
         </div>
       </div>
 

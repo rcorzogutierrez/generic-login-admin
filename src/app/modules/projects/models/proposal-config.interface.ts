@@ -88,8 +88,13 @@ export interface CreateProposalConfigData {
 
 /**
  * Datos para actualizar la configuración
+ * Incluye soporte para campos legacy para compatibilidad
  */
-export interface UpdateProposalConfigData extends Partial<CreateProposalConfigData> {}
+export interface UpdateProposalConfigData extends Partial<CreateProposalConfigData> {
+  // Campos legacy opcionales para compatibilidad
+  clientFieldsMapping?: ProposalClientFieldsMapping;
+  clientAddressMapping?: ProposalAddressMapping;
+}
 
 /**
  * Configuración por defecto del módulo

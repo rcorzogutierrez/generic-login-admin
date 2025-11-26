@@ -3,46 +3,62 @@
 import { Timestamp } from 'firebase/firestore';
 
 /**
- * Un mapeo individual de campo del cliente al estimado
- */
-export interface ProposalFieldMapping {
-  /**
-   * Nombre del campo en el cliente (origen)
-   * Ej: 'name', 'email', 'direccion', 'telefono_movil'
-   */
-  sourceField: string;
-
-  /**
-   * Nombre del campo en el estimado (destino)
-   * Valores permitidos: 'name', 'email', 'phone', 'company', 'address', 'city', 'state', 'zipCode'
-   */
-  targetField: 'name' | 'email' | 'phone' | 'company' | 'address' | 'city' | 'state' | 'zipCode';
-
-  /**
-   * Orden de visualización en la UI
-   */
-  order?: number;
-}
-
-/**
- * @deprecated - Usar ProposalFieldMapping[] en su lugar
- * Mantenido para compatibilidad con datos existentes
+ * Mapeo de campos básicos del cliente
+ * Permite configurar qué campos del cliente se usan para información básica
  */
 export interface ProposalClientFieldsMapping {
+  /**
+   * Nombre del campo de nombre en el cliente
+   * Ej: 'name', 'nombre', 'client_name'
+   */
   name: string;
+
+  /**
+   * Nombre del campo de email en el cliente
+   * Ej: 'email', 'correo', 'email_address'
+   */
   email: string;
+
+  /**
+   * Nombre del campo de teléfono en el cliente
+   * Ej: 'phone', 'telefono', 'phone_number'
+   */
   phone: string;
+
+  /**
+   * Nombre del campo de compañía en el cliente
+   * Ej: 'company', 'empresa', 'compania'
+   */
   company: string;
 }
 
 /**
- * @deprecated - Usar ProposalFieldMapping[] en su lugar
- * Mantenido para compatibilidad con datos existentes
+ * Mapeo de campos de dirección del cliente
+ * Permite configurar qué campos del cliente se copian al estimado
  */
 export interface ProposalAddressMapping {
+  /**
+   * Nombre del campo de dirección en el cliente
+   * Ej: 'address', 'direccion', 'Address'
+   */
   address: string;
+
+  /**
+   * Nombre del campo de ciudad en el cliente
+   * Ej: 'city', 'ciudad', 'City'
+   */
   city: string;
+
+  /**
+   * Nombre del campo de estado en el cliente
+   * Ej: 'state', 'estado', 'Estado'
+   */
   state: string;
+
+  /**
+   * Nombre del campo de código postal en el cliente
+   * Ej: 'zipCode', 'codigo_postal', 'zip_code'
+   */
   zipCode: string;
 }
 
@@ -53,14 +69,11 @@ export interface ProposalModuleConfig {
   // ID único de la configuración
   id: string;
 
-  // Mapeo dinámico de campos del cliente al estimado
-  fieldMappings: ProposalFieldMapping[];
+  // Mapeo de campos básicos del cliente
+  clientFieldsMapping: ProposalClientFieldsMapping;
 
-  // ====== Campos legacy (deprecados) ======
-  // @deprecated - Usar fieldMappings en su lugar
-  clientFieldsMapping?: ProposalClientFieldsMapping;
-  // @deprecated - Usar fieldMappings en su lugar
-  clientAddressMapping?: ProposalAddressMapping;
+  // Mapeo de campos de dirección del cliente
+  clientAddressMapping: ProposalAddressMapping;
 
   // Configuración de valores por defecto
   defaultTaxPercentage?: number;        // Porcentaje de impuesto por defecto
@@ -79,7 +92,8 @@ export interface ProposalModuleConfig {
  * Datos para crear una nueva configuración
  */
 export interface CreateProposalConfigData {
-  fieldMappings: ProposalFieldMapping[];
+  clientFieldsMapping: ProposalClientFieldsMapping;
+  clientAddressMapping: ProposalAddressMapping;
   defaultTaxPercentage?: number;
   defaultValidityDays?: number;
   defaultWorkType?: 'residential' | 'commercial';
@@ -88,28 +102,25 @@ export interface CreateProposalConfigData {
 
 /**
  * Datos para actualizar la configuración
- * Incluye soporte para campos legacy para compatibilidad
  */
-export interface UpdateProposalConfigData extends Partial<CreateProposalConfigData> {
-  // Campos legacy opcionales para compatibilidad
-  clientFieldsMapping?: ProposalClientFieldsMapping;
-  clientAddressMapping?: ProposalAddressMapping;
-}
+export interface UpdateProposalConfigData extends Partial<CreateProposalConfigData> {}
 
 /**
  * Configuración por defecto del módulo
  */
 export const DEFAULT_PROPOSAL_CONFIG: Omit<ProposalModuleConfig, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'> = {
-  fieldMappings: [
-    { sourceField: 'name', targetField: 'name', order: 1 },
-    { sourceField: 'email', targetField: 'email', order: 2 },
-    { sourceField: 'phone', targetField: 'phone', order: 3 },
-    { sourceField: 'company', targetField: 'company', order: 4 },
-    { sourceField: 'address', targetField: 'address', order: 5 },
-    { sourceField: 'city', targetField: 'city', order: 6 },
-    { sourceField: 'estado', targetField: 'state', order: 7 },
-    { sourceField: 'codigo_postal', targetField: 'zipCode', order: 8 }
-  ],
+  clientFieldsMapping: {
+    name: 'name',
+    email: 'email',
+    phone: 'phone',
+    company: 'company'
+  },
+  clientAddressMapping: {
+    address: 'address',
+    city: 'city',
+    state: 'estado',           // Valor por defecto común en español
+    zipCode: 'codigo_postal'   // Valor por defecto común en español
+  },
   defaultTaxPercentage: 0,
   defaultValidityDays: 30,
   defaultWorkType: 'residential',

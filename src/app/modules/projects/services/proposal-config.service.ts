@@ -13,7 +13,6 @@ import {
 } from 'firebase/firestore';
 import {
   ProposalModuleConfig,
-  ProposalFieldMapping,
   ProposalClientFieldsMapping,
   ProposalAddressMapping,
   CreateProposalConfigData,
@@ -175,85 +174,45 @@ export class ProposalConfigService {
   }
 
   /**
-   * @deprecated - Usar getFieldMappings() en su lugar
    * Obtener el mapeo de campos básicos del cliente
-   * Convierte desde el nuevo formato fieldMappings al formato legacy
    */
   getClientFieldsMapping(): ProposalClientFieldsMapping {
     const config = this.config();
-
-    // Si hay configuración legacy, usarla
-    if (config?.clientFieldsMapping) {
-      return config.clientFieldsMapping;
+    if (!config) {
+      // Si no hay configuración, retornar valores por defecto
+      return DEFAULT_PROPOSAL_CONFIG.clientFieldsMapping;
     }
-
-    // Convertir desde fieldMappings al formato legacy
-    const mappings = this.getFieldMappings();
-    return {
-      name: mappings.find(m => m.targetField === 'name')?.sourceField || 'name',
-      email: mappings.find(m => m.targetField === 'email')?.sourceField || 'email',
-      phone: mappings.find(m => m.targetField === 'phone')?.sourceField || 'phone',
-      company: mappings.find(m => m.targetField === 'company')?.sourceField || 'company'
-    };
+    return config.clientFieldsMapping;
   }
 
   /**
-   * @deprecated - Usar updateFieldMappings() en su lugar
    * Actualizar solo el mapeo de campos básicos del cliente
    */
   async updateClientFieldsMapping(mapping: ProposalClientFieldsMapping): Promise<void> {
-    // Convertir el formato legacy a fieldMappings
-    const currentMappings = this.getFieldMappings();
-    const updatedMappings = currentMappings.map(m => {
-      if (m.targetField === 'name') return { ...m, sourceField: mapping.name };
-      if (m.targetField === 'email') return { ...m, sourceField: mapping.email };
-      if (m.targetField === 'phone') return { ...m, sourceField: mapping.phone };
-      if (m.targetField === 'company') return { ...m, sourceField: mapping.company };
-      return m;
+    await this.updateConfig({
+      clientFieldsMapping: mapping
     });
-
-    await this.updateFieldMappings(updatedMappings);
   }
 
   /**
-   * @deprecated - Usar getFieldMappings() en su lugar
    * Obtener el mapeo de campos de dirección del cliente
-   * Convierte desde el nuevo formato fieldMappings al formato legacy
    */
   getAddressMapping(): ProposalAddressMapping {
     const config = this.config();
-
-    // Si hay configuración legacy, usarla
-    if (config?.clientAddressMapping) {
-      return config.clientAddressMapping;
+    if (!config) {
+      // Si no hay configuración, retornar valores por defecto
+      return DEFAULT_PROPOSAL_CONFIG.clientAddressMapping;
     }
-
-    // Convertir desde fieldMappings al formato legacy
-    const mappings = this.getFieldMappings();
-    return {
-      address: mappings.find(m => m.targetField === 'address')?.sourceField || 'address',
-      city: mappings.find(m => m.targetField === 'city')?.sourceField || 'city',
-      state: mappings.find(m => m.targetField === 'state')?.sourceField || 'estado',
-      zipCode: mappings.find(m => m.targetField === 'zipCode')?.sourceField || 'codigo_postal'
-    };
+    return config.clientAddressMapping;
   }
 
   /**
-   * @deprecated - Usar updateFieldMappings() en su lugar
    * Actualizar solo el mapeo de campos de dirección
    */
   async updateAddressMapping(mapping: ProposalAddressMapping): Promise<void> {
-    // Convertir el formato legacy a fieldMappings
-    const currentMappings = this.getFieldMappings();
-    const updatedMappings = currentMappings.map(m => {
-      if (m.targetField === 'address') return { ...m, sourceField: mapping.address };
-      if (m.targetField === 'city') return { ...m, sourceField: mapping.city };
-      if (m.targetField === 'state') return { ...m, sourceField: mapping.state };
-      if (m.targetField === 'zipCode') return { ...m, sourceField: mapping.zipCode };
-      return m;
+    await this.updateConfig({
+      clientAddressMapping: mapping
     });
-
-    await this.updateFieldMappings(updatedMappings);
   }
 
   /**
@@ -294,45 +253,6 @@ export class ProposalConfigService {
   async refresh(): Promise<void> {
     this.isInitialized = false;
     await this.initialize();
-  }
-
-  // ========== NUEVOS MÉTODOS PARA MAPEOS DINÁMICOS ==========
-
-  /**
-   * Obtener todos los mapeos de campos configurados
-   */
-  getFieldMappings(): ProposalFieldMapping[] {
-    const config = this.config();
-    if (!config || !config.fieldMappings) {
-      return DEFAULT_PROPOSAL_CONFIG.fieldMappings;
-    }
-    return config.fieldMappings;
-  }
-
-  /**
-   * Actualizar los mapeos de campos
-   */
-  async updateFieldMappings(mappings: ProposalFieldMapping[]): Promise<void> {
-    await this.updateConfig({
-      fieldMappings: mappings
-    });
-  }
-
-  /**
-   * Obtener un mapeo específico por campo destino
-   */
-  getMappingByTargetField(targetField: string): ProposalFieldMapping | undefined {
-    const mappings = this.getFieldMappings();
-    return mappings.find(m => m.targetField === targetField);
-  }
-
-  /**
-   * Obtener el sourceField para un targetField específico
-   * Útil para mantener compatibilidad con código legacy
-   */
-  getSourceFieldFor(targetField: 'name' | 'email' | 'phone' | 'company' | 'address' | 'city' | 'state' | 'zipCode'): string {
-    const mapping = this.getMappingByTargetField(targetField);
-    return mapping?.sourceField || targetField; // Fallback al mismo nombre si no hay mapeo
   }
 
   /**

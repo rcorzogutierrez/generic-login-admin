@@ -1,9 +1,9 @@
 // src/app/modules/projects/components/proposal-config/proposal-config.component.ts
 
-import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
 // Material imports
 import { MatButtonModule } from '@angular/material/button';
@@ -20,18 +20,19 @@ import { ClientsService } from '../../../clients/services/clients.service';
 import { ClientConfigServiceRefactored } from '../../../clients/services/client-config-refactored.service';
 
 // Models
-import { ProposalFieldMapping } from '../../models';
+import { ProposalClientFieldsMapping, ProposalAddressMapping } from '../../models';
 import { FieldConfig } from '../../../clients/models/field-config.interface';
 
 /**
- * Definición de campos del estimado disponibles para mapeo
+ * Configuración de un campo de mapeo
  */
-interface TargetFieldDefinition {
-  value: 'name' | 'email' | 'phone' | 'company' | 'address' | 'city' | 'state' | 'zipCode';
-  label: string;
+interface FieldMappingConfig {
+  formControlName: string;
   icon: string;
-  category: 'basic' | 'address';
-  important?: boolean;
+  destinationIcon?: string;  // Icono para el campo destino (si es diferente al de origen)
+  label: string;
+  targetTheme: 'purple' | 'green';
+  badge?: string;
 }
 
 @Component({
@@ -68,29 +69,21 @@ export class ProposalConfigComponent implements OnInit {
   // Form
   configForm!: FormGroup;
 
-  // Campos disponibles del estimado (destino)
-  targetFieldsDefinitions: TargetFieldDefinition[] = [
-    { value: 'name', label: 'Nombre del Cliente', icon: 'badge', category: 'basic' },
-    { value: 'email', label: 'Email del Cliente', icon: 'email', category: 'basic' },
-    { value: 'phone', label: 'Teléfono del Cliente', icon: 'phone', category: 'basic' },
-    { value: 'company', label: 'Compañía del Cliente', icon: 'business', category: 'basic' },
-    { value: 'address', label: 'Dirección del Trabajo', icon: 'location_on', category: 'address' },
-    { value: 'city', label: 'Ciudad', icon: 'location_city', category: 'address' },
-    { value: 'state', label: 'Estado', icon: 'map', category: 'address', important: true },
-    { value: 'zipCode', label: 'Código Postal', icon: 'markunread_mailbox', category: 'address' }
+  // Configuraciones de mapeo de campos básicos
+  basicFieldMappings: FieldMappingConfig[] = [
+    { formControlName: 'name', icon: 'badge', label: 'Nombre del Cliente', targetTheme: 'purple' },
+    { formControlName: 'email', icon: 'email', label: 'Email del Cliente', targetTheme: 'purple' },
+    { formControlName: 'phone', icon: 'phone', label: 'Teléfono del Cliente', targetTheme: 'purple' },
+    { formControlName: 'company', icon: 'business', label: 'Compañía del Cliente', targetTheme: 'purple' }
   ];
 
-  // Computed: Campos destino que ya están mapeados
-  mappedTargetFields = computed(() => {
-    const mappings = this.fieldMappingsArray.value as ProposalFieldMapping[];
-    return new Set(mappings.map(m => m.targetField));
-  });
-
-  // Computed: Campos destino disponibles para agregar (los que no están mapeados)
-  availableTargetFields = computed(() => {
-    const mapped = this.mappedTargetFields();
-    return this.targetFieldsDefinitions.filter(tf => !mapped.has(tf.value));
-  });
+  // Configuraciones de mapeo de campos de dirección
+  addressFieldMappings: FieldMappingConfig[] = [
+    { formControlName: 'address', icon: 'home', destinationIcon: 'location_on', label: 'Dirección del Trabajo', targetTheme: 'green' },
+    { formControlName: 'city', icon: 'location_city', label: 'Ciudad', targetTheme: 'green' },
+    { formControlName: 'state', icon: 'map', label: 'Estado', targetTheme: 'green', badge: 'IMPORTANTE' },
+    { formControlName: 'zipCode', icon: 'markunread_mailbox', label: 'Código Postal', targetTheme: 'green' }
+  ];
 
   constructor() {
     this.initForm();
@@ -115,51 +108,22 @@ export class ProposalConfigComponent implements OnInit {
    */
   initForm() {
     this.configForm = this.fb.group({
-      // Array dinámico de mapeos de campos
-      fieldMappings: this.fb.array([]),
+      // Mapeo de campos básicos del cliente
+      name: ['name', Validators.required],
+      email: ['email', Validators.required],
+      phone: ['phone', Validators.required],
+      company: ['company', Validators.required],
+      // Mapeo de campos de dirección
+      address: ['address', Validators.required],
+      city: ['city', Validators.required],
+      state: ['estado', Validators.required],
+      zipCode: ['codigo_postal', Validators.required],
       // Valores por defecto
       defaultTaxPercentage: [0, [Validators.min(0), Validators.max(100)]],
       defaultValidityDays: [30, [Validators.min(1)]],
       defaultWorkType: ['residential', Validators.required],
       defaultTerms: ['']
     });
-  }
-
-  /**
-   * Obtener el FormArray de mapeos de campos
-   */
-  get fieldMappingsArray(): FormArray {
-    return this.configForm.get('fieldMappings') as FormArray;
-  }
-
-  /**
-   * Crear un FormGroup para un mapeo individual
-   */
-  createMappingFormGroup(mapping?: ProposalFieldMapping): FormGroup {
-    return this.fb.group({
-      sourceField: [mapping?.sourceField || '', Validators.required],
-      targetField: [mapping?.targetField || '', Validators.required],
-      order: [mapping?.order || 0]
-    });
-  }
-
-  /**
-   * Agregar un nuevo mapeo de campo
-   */
-  addMapping(targetField?: string) {
-    const newMapping = this.createMappingFormGroup({
-      sourceField: this.suggestClientField(targetField || ''),
-      targetField: targetField as any || this.availableTargetFields()[0]?.value,
-      order: this.fieldMappingsArray.length + 1
-    });
-    this.fieldMappingsArray.push(newMapping);
-  }
-
-  /**
-   * Eliminar un mapeo de campo
-   */
-  removeMapping(index: number) {
-    this.fieldMappingsArray.removeAt(index);
   }
 
   /**
@@ -172,13 +136,14 @@ export class ProposalConfigComponent implements OnInit {
       // Obtener todos los campos configurados en el módulo de clientes
       const fields = this.clientConfigService.getFieldsInUse();
 
-      // Agregar campos estándar que siempre existen
+      // Agregar campos estándar que siempre existen (sin todas las propiedades de FieldConfig)
       const standardFields: Pick<FieldConfig, 'name' | 'label' | 'type'>[] = [
         { name: 'address', label: 'Dirección', type: 'text' as any },
         { name: 'city', label: 'Ciudad', type: 'text' as any }
       ];
 
       // Combinar campos estándar con campos personalizados
+      // Convertimos standardFields a FieldConfig parcial
       const allFields: FieldConfig[] = [
         ...standardFields.map(f => ({ ...f, id: f.name } as any as FieldConfig)),
         ...fields
@@ -199,6 +164,8 @@ export class ProposalConfigComponent implements OnInit {
 
   /**
    * Sugerir el mejor campo del cliente por similitud de nombre
+   * @param targetFieldName Nombre del campo destino (ej: 'state', 'zipCode')
+   * @returns El nombre del campo sugerido del cliente
    */
   suggestClientField(targetFieldName: string): string {
     const available = this.availableFields();
@@ -240,43 +207,48 @@ export class ProposalConfigComponent implements OnInit {
   }
 
   /**
-   * Cargar configuración actual o crear mapeos por defecto
+   * Cargar configuración actual o usar sugerencias inteligentes
    */
   loadCurrentConfig() {
     const config = this.proposalConfigService.config();
 
-    // Limpiar array actual
-    this.fieldMappingsArray.clear();
-
-    if (config && config.fieldMappings && config.fieldMappings.length > 0) {
-      // Cargar mapeos existentes
-      config.fieldMappings
-        .sort((a, b) => (a.order || 0) - (b.order || 0))
-        .forEach(mapping => {
-          this.fieldMappingsArray.push(this.createMappingFormGroup(mapping));
-        });
-
-      console.log('✅ Configuración actual cargada:', config.fieldMappings);
-    } else {
-      // No hay configuración, crear mapeos por defecto
-      this.targetFieldsDefinitions.forEach((targetField, index) => {
-        this.fieldMappingsArray.push(this.createMappingFormGroup({
-          sourceField: this.suggestClientField(targetField.value),
-          targetField: targetField.value,
-          order: index + 1
-        }));
+    if (config) {
+      // Cargar configuración existente
+      this.configForm.patchValue({
+        name: config.clientFieldsMapping?.name || 'name',
+        email: config.clientFieldsMapping?.email || 'email',
+        phone: config.clientFieldsMapping?.phone || 'phone',
+        company: config.clientFieldsMapping?.company || 'company',
+        address: config.clientAddressMapping.address,
+        city: config.clientAddressMapping.city,
+        state: config.clientAddressMapping.state,
+        zipCode: config.clientAddressMapping.zipCode,
+        defaultTaxPercentage: config.defaultTaxPercentage || 0,
+        defaultValidityDays: config.defaultValidityDays || 30,
+        defaultWorkType: config.defaultWorkType || 'residential',
+        defaultTerms: config.defaultTerms || this.proposalConfigService.getDefaultTerms()
       });
 
-      console.log('💡 Usando mapeos por defecto con sugerencias automáticas');
-    }
+      console.log('✅ Configuración actual cargada:', config);
+    } else {
+      // No hay configuración, usar sugerencias inteligentes
+      this.configForm.patchValue({
+        name: this.suggestClientField('name'),
+        email: this.suggestClientField('email'),
+        phone: this.suggestClientField('phone'),
+        company: this.suggestClientField('company'),
+        address: this.suggestClientField('address'),
+        city: this.suggestClientField('city'),
+        state: this.suggestClientField('state'),
+        zipCode: this.suggestClientField('zipCode'),
+        defaultTaxPercentage: 0,
+        defaultValidityDays: 30,
+        defaultWorkType: 'residential',
+        defaultTerms: this.proposalConfigService.getDefaultTerms()
+      });
 
-    // Cargar valores por defecto
-    this.configForm.patchValue({
-      defaultTaxPercentage: config?.defaultTaxPercentage || 0,
-      defaultValidityDays: config?.defaultValidityDays || 30,
-      defaultWorkType: config?.defaultWorkType || 'residential',
-      defaultTerms: config?.defaultTerms || this.proposalConfigService.getDefaultTerms()
-    });
+      console.log('💡 Usando sugerencias automáticas para configuración inicial');
+    }
   }
 
   /**
@@ -296,8 +268,23 @@ export class ProposalConfigComponent implements OnInit {
 
       const formValue = this.configForm.value;
 
+      const clientFieldsMapping = {
+        name: formValue.name,
+        email: formValue.email,
+        phone: formValue.phone,
+        company: formValue.company
+      };
+
+      const addressMapping: ProposalAddressMapping = {
+        address: formValue.address,
+        city: formValue.city,
+        state: formValue.state,
+        zipCode: formValue.zipCode
+      };
+
       await this.proposalConfigService.updateConfig({
-        fieldMappings: formValue.fieldMappings,
+        clientFieldsMapping: clientFieldsMapping,
+        clientAddressMapping: addressMapping,
         defaultTaxPercentage: formValue.defaultTaxPercentage,
         defaultValidityDays: formValue.defaultValidityDays,
         defaultWorkType: formValue.defaultWorkType,
@@ -309,7 +296,7 @@ export class ProposalConfigComponent implements OnInit {
         panelClass: ['success-snackbar']
       });
 
-      console.log('✅ Configuración guardada:', formValue.fieldMappings);
+      console.log('✅ Configuración guardada - Campos básicos:', clientFieldsMapping, 'Dirección:', addressMapping);
     } catch (error) {
       console.error('❌ Error guardando configuración:', error);
       this.snackBar.open('❌ Error al guardar la configuración', 'Cerrar', {
@@ -325,19 +312,15 @@ export class ProposalConfigComponent implements OnInit {
    * Restablecer a sugerencias automáticas
    */
   resetToDefaults() {
-    // Limpiar array actual
-    this.fieldMappingsArray.clear();
-
-    // Crear mapeos por defecto para todos los campos
-    this.targetFieldsDefinitions.forEach((targetField, index) => {
-      this.fieldMappingsArray.push(this.createMappingFormGroup({
-        sourceField: this.suggestClientField(targetField.value),
-        targetField: targetField.value,
-        order: index + 1
-      }));
-    });
-
     this.configForm.patchValue({
+      name: this.suggestClientField('name'),
+      email: this.suggestClientField('email'),
+      phone: this.suggestClientField('phone'),
+      company: this.suggestClientField('company'),
+      address: this.suggestClientField('address'),
+      city: this.suggestClientField('city'),
+      state: this.suggestClientField('state'),
+      zipCode: this.suggestClientField('zipCode'),
       defaultTaxPercentage: 0,
       defaultValidityDays: 30,
       defaultWorkType: 'residential',
@@ -362,12 +345,5 @@ export class ProposalConfigComponent implements OnInit {
   getFieldLabel(fieldName: string): string {
     const field = this.availableFields().find(f => f.name === fieldName);
     return field ? field.label : fieldName;
-  }
-
-  /**
-   * Obtener la definición de un campo destino
-   */
-  getTargetFieldDefinition(targetField: string): TargetFieldDefinition | undefined {
-    return this.targetFieldsDefinitions.find(tf => tf.value === targetField);
   }
 }

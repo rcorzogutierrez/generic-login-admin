@@ -56,6 +56,8 @@
         "emailPlaceholder": "client@example.com",
         "phone": "Phone",
         "phonePlaceholder": "+1 (555) 123-4567",
+        "company": "Company",
+        "companyPlaceholder": "Company name",
         "searchClient": "Search client...",
         "noClientsFound": "No clients found",
         "noClients": "No clients",

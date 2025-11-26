@@ -204,6 +204,7 @@ export class ProposalFormComponent implements OnInit {
       ownerName: ['', Validators.required],
       ownerEmail: ['', [Validators.email]],
       ownerPhone: [''],
+      ownerCompany: [''],
       address: ['', Validators.required],
       city: ['', Validators.required],
       state: [''],
@@ -305,7 +306,8 @@ export class ProposalFormComponent implements OnInit {
       this.proposalForm.patchValue({
         ownerName: this.getClientName(client),
         ownerEmail: this.getClientEmail(client),
-        ownerPhone: this.getClientPhone(client)
+        ownerPhone: this.getClientPhone(client),
+        ownerCompany: this.getClientCompany(client)
       });
 
       // Si el checkbox está marcado, copiar también la dirección
@@ -940,5 +942,12 @@ export class ProposalFormComponent implements OnInit {
    */
   getClientPhone(client: Client | undefined): string {
     return this.clientDataExtractor.getPhone(client);
+  }
+
+  /**
+   * Obtener compañía del cliente usando el servicio centralizado
+   */
+  getClientCompany(client: Client | undefined): string {
+    return this.clientDataExtractor.getCompany(client);
   }
 }

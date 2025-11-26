@@ -126,6 +126,33 @@ export class ClientDataExtractorService {
   }
 
   /**
+   * Obtiene la compañía del cliente
+   */
+  getCompany(client: Client | undefined): string {
+    if (!client) return '';
+
+    // Buscar en campos estándar primero
+    if (client.company) return client.company;
+
+    // Buscar en campos dinámicos
+    const fields = this.clientConfigService.getFieldsInUse();
+
+    // Buscar por nombre como fallback
+    const companyField = fields.find(f =>
+      f.name === 'company' ||
+      f.name === 'empresa' ||
+      f.name === 'compania'
+    );
+
+    if (companyField) {
+      const value = getFieldValue(client, companyField.name);
+      if (value) return String(value);
+    }
+
+    return '';
+  }
+
+  /**
    * Obtiene un campo del cliente usando un nombre específico
    *
    * Este método es útil cuando tienes un nombre de campo específico

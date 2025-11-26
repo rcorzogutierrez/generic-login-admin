@@ -81,7 +81,7 @@ export class ProposalConfigComponent implements OnInit {
   addressFieldMappings: FieldMappingConfig[] = [
     { formControlName: 'address', icon: 'home', destinationIcon: 'location_on', label: 'Dirección del Trabajo', targetTheme: 'purple' },
     { formControlName: 'city', icon: 'location_city', label: 'Ciudad', targetTheme: 'purple' },
-    { formControlName: 'state', icon: 'map', label: 'Estado', targetTheme: 'purple', badge: 'IMPORTANTE' },
+    { formControlName: 'state', icon: 'map', label: 'Estado', targetTheme: 'purple' },
     { formControlName: 'zipCode', icon: 'markunread_mailbox', label: 'Código Postal', targetTheme: 'purple' }
   ];
 

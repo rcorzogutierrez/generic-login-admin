@@ -79,6 +79,7 @@ export class ProposalFormComponent implements OnInit {
   isLoading = signal<boolean>(false);
   isEditMode = signal<boolean>(false);
   proposalId = signal<string | null>(null);
+  proposalNumber = signal<string>(''); // Número del estimado (auto-generado o cargado)
   clients = this.clientsService.clients;
   clientSearchTerm = signal<string>('');
   useSameAddress = signal<boolean>(false);
@@ -426,12 +427,16 @@ export class ProposalFormComponent implements OnInit {
       const proposal = await this.proposalsService.getProposalById(id);
 
       if (proposal) {
+        // Cargar el número del estimado
+        this.proposalNumber.set(proposal.proposalNumber || '');
+
         this.proposalForm.patchValue({
           language: proposal.language || 'es', // Cargar el idioma del documento
           ownerId: proposal.ownerId,
           ownerName: proposal.ownerName,
           ownerEmail: proposal.ownerEmail || '',
           ownerPhone: proposal.ownerPhone || '',
+          ownerCompany: (proposal as any).ownerCompany || '',
           address: proposal.address,
           city: proposal.city,
           state: proposal.state || '',

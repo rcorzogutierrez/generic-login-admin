@@ -119,26 +119,32 @@
       <div class="card-modern mt-6 print:shadow-none print:border-0">
 
         <!-- Encabezado del documento -->
-        <div class="border-b-2 border-blue-600 pb-3 mb-3">
+        <div class="border-b-2 border-blue-600 pb-2 mb-2">
           <div class="grid grid-cols-12 gap-4">
 
             <!-- Columna Izquierda: Nombre, Dirección y Fecha -->
             <div class="col-span-4 space-y-1.5">
               <!-- Nombre del Cliente -->
               <p class="text-xs text-slate-700">
-                <span class="font-semibold text-slate-500">Owner Name:</span>
+                <span class="font-semibold text-slate-500">{{ 'projects.proposal.view.for' | translate }}:</span>
                 <span class="font-bold text-sm text-slate-800 ml-1">{{ proposal()!.ownerName }}</span>
               </p>
 
               <!-- Dirección -->
               <p class="text-xs text-slate-700">
-                <span class="font-semibold text-slate-500">Dirección del Trabajo:</span>
+                <span class="font-semibold text-slate-500">{{ 'projects.proposal.location.address' | translate }}:</span>
                 <span class="text-slate-800 ml-1">{{ proposal()!.address }}, {{ proposal()!.city }}@if (proposal()!.state) {, {{ proposal()!.state }}}@if (proposal()!.zipCode) { {{ proposal()!.zipCode }}}</span>
               </p>
 
               <!-- Fecha -->
               <p class="text-xs text-slate-700">
-                <span class="font-semibold text-slate-500">Fecha:</span>
+                <span class="font-semibold text-slate-500">
+                  @if (proposal()!.status === 'converted_to_invoice') {
+                    {{ 'projects.proposal.view.invoiceDate' | translate }}:
+                  } @else {
+                    {{ 'projects.proposal.view.date' | translate }}:
+                  }
+                </span>
                 <span class="font-semibold text-slate-800 ml-1">
                   @if (proposal()!.status === 'converted_to_invoice') {
                     {{ proposal()!.invoiceDate ? formatDate(proposal()!.invoiceDate) : formatDate(proposal()!.date) }}
@@ -213,29 +219,29 @@
 
         <!-- Items Incluidos -->
         @if (proposal()!.includes && proposal()!.includes.length > 0) {
-          <div class="mb-6">
-            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <mat-icon class="text-blue-600">checklist</mat-icon>
+          <div class="mb-3">
+            <h3 class="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
+              <mat-icon class="!text-base text-blue-600">checklist</mat-icon>
               {{ 'projects.proposal.view.includes' | translate }}
             </h3>
 
             <div class="space-y-0">
               @for (item of proposal()!.includes; track item.id; let i = $index) {
-                <div class="flex items-start gap-3 py-1 border-b border-slate-200">
-                  <span class="text-sm font-bold text-slate-600 min-w-[30px]">{{ i + 1 }}.</span>
+                <div class="flex items-start gap-2 py-0.5 border-b border-slate-200">
+                  <span class="text-xs font-bold text-slate-600 min-w-[25px]">{{ i + 1 }}.</span>
                   <div class="flex-1">
-                    <p class="text-sm text-slate-800 leading-tight">{{ item.description }}</p>
+                    <p class="text-xs text-slate-800 leading-tight">{{ item.description }}</p>
                     @if (item.notes) {
-                      <p class="text-xs text-slate-500 mt-0.5">{{ item.notes }}</p>
+                      <p class="text-[10px] text-slate-500 mt-0.5">{{ item.notes }}</p>
                     }
                   </div>
                   @if (item.totalPrice && item.totalPrice > 0) {
-                    <div class="text-right min-w-[120px]">
-                      <p class="text-sm font-semibold text-slate-800">
+                    <div class="text-right min-w-[100px]">
+                      <p class="text-xs font-semibold text-slate-800">
                         {{ item.totalPrice | currencyFormatter }}
                       </p>
                       @if (item.quantity && item.unitPrice) {
-                        <p class="text-xs text-slate-500">
+                        <p class="text-[10px] text-slate-500">
                           {{ item.quantity }} x {{ item.unitPrice | currencyFormatter }}
                         </p>
                       }
@@ -249,17 +255,17 @@
 
         <!-- Extras No Incluidos -->
         @if (proposal()!.extras && proposal()!.extras.length > 0) {
-          <div class="mb-6 bg-amber-50 p-4 rounded-lg border-2 border-amber-200">
-            <h3 class="text-lg font-bold text-amber-900 mb-4 flex items-center gap-2">
-              <mat-icon class="text-amber-600">do_not_disturb_on</mat-icon>
+          <div class="mb-3 border-l-2 border-amber-400 pl-2">
+            <h3 class="text-xs font-bold text-amber-800 mb-1 flex items-center gap-1 uppercase">
+              <mat-icon class="!text-sm text-amber-600">do_not_disturb_on</mat-icon>
               {{ 'projects.proposal.view.extrasNotIncluded' | translate }}
             </h3>
 
             <div class="space-y-0">
               @for (item of proposal()!.extras; track item.id; let i = $index) {
-                <div class="flex items-start gap-3 py-1">
-                  <span class="text-sm font-bold text-amber-700 min-w-[30px]">{{ i + 1 }}.</span>
-                  <p class="text-sm text-amber-900 leading-tight">{{ item.description }}</p>
+                <div class="flex items-start gap-2 py-0.5">
+                  <span class="text-[10px] font-bold text-amber-700 min-w-[20px]">{{ i + 1 }}.</span>
+                  <p class="text-[10px] text-slate-700 leading-tight">{{ item.description }}</p>
                 </div>
               }
             </div>
@@ -268,17 +274,17 @@
 
         <!-- Notas -->
         @if (proposal()!.notes) {
-          <div class="mt-6 p-4 bg-slate-50 rounded-lg">
-            <h3 class="text-sm font-semibold text-slate-700 uppercase mb-2">{{ 'projects.proposal.notes.title' | translate }}</h3>
-            <p class="text-base text-slate-700 whitespace-pre-line">{{ proposal()!.notes }}</p>
+          <div class="mt-3 p-2 bg-slate-50 rounded">
+            <h3 class="text-xs font-semibold text-slate-700 uppercase mb-1">{{ 'projects.proposal.notes.title' | translate }}</h3>
+            <p class="text-xs text-slate-700 whitespace-pre-line leading-tight">{{ proposal()!.notes }}</p>
           </div>
         }
 
         <!-- Términos y Condiciones -->
         @if (proposal()!.terms) {
-          <div class="mt-6 p-4 bg-slate-50 rounded-lg border-l-4 border-blue-600">
-            <h3 class="text-sm font-semibold text-slate-700 uppercase mb-2">{{ 'projects.proposal.terms.title' | translate }}</h3>
-            <p class="text-sm text-slate-600 whitespace-pre-line">{{ proposal()!.terms }}</p>
+          <div class="mt-3 p-2 bg-slate-50 rounded border-l-2 border-blue-600">
+            <h3 class="text-xs font-semibold text-slate-700 uppercase mb-1">{{ 'projects.proposal.terms.title' | translate }}</h3>
+            <p class="text-[10px] text-slate-600 whitespace-pre-line leading-tight">{{ proposal()!.terms }}</p>
           </div>
         }
 
@@ -406,14 +412,14 @@
         }
 
         <!-- ========== SECCIÓN DE TOTALES ========== -->
-        <div class="border-t-2 border-slate-200 pt-6 mt-6">
-          <div class="max-w-md ml-auto space-y-3">
+        <div class="border-t-2 border-slate-200 pt-3 mt-3">
+          <div class="max-w-md ml-auto space-y-1.5">
 
             <!-- Si NO hay materiales (propuesta normal) -->
             @if (!proposal()!.materialsUsed || (proposal()!.materialsUsed?.length ?? 0) === 0) {
 
               <!-- Subtotal del Trabajo -->
-              <div class="flex justify-between items-center text-base">
+              <div class="flex justify-between items-center text-xs">
                 <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.subtotal' | translate }}</span>
                 <span class="font-semibold text-slate-800">
                   {{ (proposal()!.subtotal || 0) | currencyFormatter }}
@@ -422,7 +428,7 @@
 
               <!-- Tax (si existe) -->
               @if ((proposal()!.taxPercentage ?? 0) > 0) {
-                <div class="flex justify-between items-center text-base">
+                <div class="flex justify-between items-center text-xs">
                   <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.tax' | translate }} ({{ proposal()!.taxPercentage }}%):</span>
                   <span class="font-semibold text-slate-800">
                     + {{ (proposal()!.tax || 0) | currencyFormatter }}
@@ -432,7 +438,7 @@
 
               <!-- Discount (si existe) -->
               @if ((proposal()!.discountPercentage ?? 0) > 0) {
-                <div class="flex justify-between items-center text-base">
+                <div class="flex justify-between items-center text-xs">
                   <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.discount' | translate }} ({{ proposal()!.discountPercentage }}%):</span>
                   <span class="font-semibold text-red-600">
                     - {{ (proposal()!.discount || 0) | currencyFormatter }}
@@ -443,9 +449,9 @@
               <mat-divider></mat-divider>
 
               <!-- Total -->
-              <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <span class="text-base font-bold text-blue-800">{{ 'projects.proposal.view.total' | translate }}</span>
-                <span class="text-xl font-bold text-blue-900">
+              <div class="flex justify-between items-center p-2 bg-blue-50 rounded border border-blue-200">
+                <span class="text-sm font-bold text-blue-800">{{ 'projects.proposal.view.total' | translate }}</span>
+                <span class="text-lg font-bold text-blue-900">
                   {{ proposal()!.total | currencyFormatter }}
                 </span>
               </div>
@@ -454,7 +460,7 @@
               <!-- Si HAY materiales (factura) - Recalcular impuestos sobre el subtotal combinado -->
 
               <!-- Subtotal del Trabajo Original -->
-              <div class="flex justify-between items-center text-base">
+              <div class="flex justify-between items-center text-xs">
                 <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.workSubtotal' | translate }}</span>
                 <span class="font-semibold text-slate-800">
                   {{ (proposal()!.subtotal || 0) | currencyFormatter }}
@@ -462,7 +468,7 @@
               </div>
 
               <!-- Subtotal de Materiales -->
-              <div class="flex justify-between items-center text-base">
+              <div class="flex justify-between items-center text-xs">
                 <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.materialsSubtotal' | translate }}</span>
                 <span class="font-semibold text-amber-700">
                   {{ calculateMaterialsTotal() | currencyFormatter }}
@@ -472,7 +478,7 @@
               <mat-divider></mat-divider>
 
               <!-- Subtotal Combinado -->
-              <div class="flex justify-between items-center text-base">
+              <div class="flex justify-between items-center text-xs">
                 <span class="text-slate-700 font-semibold">{{ 'projects.proposal.view.combinedSubtotal' | translate }}</span>
                 <span class="font-bold text-slate-800">
                   {{ calculateCombinedSubtotal() | currencyFormatter }}
@@ -481,7 +487,7 @@
 
               <!-- Impuesto recalculado (si existe) -->
               @if ((proposal()!.taxPercentage ?? 0) > 0) {
-                <div class="flex justify-between items-center text-base">
+                <div class="flex justify-between items-center text-xs">
                   <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.tax' | translate }} ({{ proposal()!.taxPercentage }}%):</span>
                   <span class="font-semibold text-slate-800">
                     + {{ calculateTaxAmount() | currencyFormatter }}
@@ -491,7 +497,7 @@
 
               <!-- Descuento recalculado (si existe) -->
               @if ((proposal()!.discountPercentage ?? 0) > 0) {
-                <div class="flex justify-between items-center text-base">
+                <div class="flex justify-between items-center text-xs">
                   <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.discount' | translate }} ({{ proposal()!.discountPercentage }}%):</span>
                   <span class="font-semibold text-red-600">
                     - {{ calculateDiscountAmount() | currencyFormatter }}
@@ -502,9 +508,9 @@
               <mat-divider></mat-divider>
 
               <!-- Gran Total -->
-              <div class="flex justify-between items-center p-5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg shadow-lg">
-                <span class="text-lg font-bold uppercase tracking-wide">{{ 'projects.proposal.view.grandTotal' | translate }}</span>
-                <span class="text-3xl font-extrabold">
+              <div class="flex justify-between items-center p-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded">
+                <span class="text-sm font-bold uppercase tracking-wide">{{ 'projects.proposal.view.grandTotal' | translate }}</span>
+                <span class="text-lg font-extrabold">
                   {{ calculateGrandTotal() | currencyFormatter }}
                 </span>
               </div>

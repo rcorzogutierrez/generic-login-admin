@@ -16,7 +16,9 @@
   .toolbar,
   .sidebar,
   .page-header,
-  aside {
+  aside,
+  button,
+  mat-slide-toggle {
     display: none !important;
     visibility: hidden !important;
     height: 0 !important;
@@ -31,12 +33,17 @@
     border: 0 !important;
   }
 
-  /* Resetear fondos y colores */
+  .print\:mb-1 {
+    margin-bottom: 0.25rem !important;
+  }
+
+  /* Resetear fondos y colores - FACTURA PROFESIONAL */
   body,
   html {
     background: white !important;
     margin: 0 !important;
     padding: 0 !important;
+    font-size: 10pt !important;
   }
 
   /* Forzar que el contenido principal tome todo el ancho */
@@ -55,14 +62,16 @@
 
   .card-modern {
     box-shadow: none !important;
-    padding: 15px !important;
+    padding: 10px !important;
     margin: 0 !important;
+    border: none !important;
+    background: white !important;
   }
 
   /* Reducir márgenes para aprovechar espacio */
   .max-w-\[1200px\] {
     max-width: 100% !important;
-    padding: 0 !important;
+    padding: 0 5mm !important;
     margin: 0 !important;
   }
 
@@ -79,17 +88,136 @@
     -webkit-print-color-adjust: exact;
   }
 
-  /* Mantener colores en impresión */
-  * {
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
+  /* Eliminar backgrounds de colores - FACTURA LIMPIA */
+  .bg-green-50,
+  .bg-green-100,
+  .bg-amber-50,
+  .bg-amber-100,
+  .bg-blue-50,
+  .bg-blue-100,
+  .bg-slate-50,
+  .bg-slate-100,
+  .from-green-50,
+  .to-emerald-50,
+  .bg-gradient-to-r,
+  .bg-gradient-to-br {
+    background: white !important;
+    background-image: none !important;
+  }
+
+  /* Convertir borders de colores a negro/gris profesional */
+  .border-green-200,
+  .border-green-300,
+  .border-amber-200,
+  .border-blue-200,
+  .border-slate-200 {
+    border-color: #e5e7eb !important;
+  }
+
+  .border-b-2.border-blue-600 {
+    border-bottom-color: #1e3a8a !important;
+    border-bottom-width: 2px !important;
+  }
+
+  .border-t-2.border-green-200 {
+    border-top-color: #000 !important;
+    border-top-width: 1px !important;
+  }
+
+  .border-t-2.border-slate-200 {
+    border-top-color: #000 !important;
+    border-top-width: 2px !important;
+  }
+
+  /* Texto en negro para impresión */
+  .text-green-700,
+  .text-green-800,
+  .text-amber-700,
+  .text-amber-800,
+  .text-blue-600,
+  .text-blue-800,
+  .text-blue-900,
+  .text-slate-700,
+  .text-slate-800,
+  .text-green-600 {
+    color: #000 !important;
+  }
+
+  .text-slate-500,
+  .text-slate-600 {
+    color: #4b5563 !important;
+  }
+
+  /* Iconos en negro */
+  mat-icon {
+    color: #000 !important;
+  }
+
+  /* Tablas profesionales */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  table thead tr {
+    background: #f3f4f6 !important;
+    border-bottom: 2px solid #000 !important;
+  }
+
+  table tbody tr {
+    border-bottom: 1px solid #e5e7eb !important;
+  }
+
+  table td,
+  table th {
+    padding: 4px 6px !important;
+  }
+
+  /* Sección de totales */
+  .bg-blue-50.rounded.border.border-blue-200,
+  .bg-gradient-to-r.from-green-600.to-emerald-600 {
+    background: #f3f4f6 !important;
+    border: 2px solid #000 !important;
+    border-radius: 0 !important;
+  }
+
+  /* Texto blanco a negro en totales */
+  .bg-gradient-to-r.from-green-600.to-emerald-600 * {
+    color: #000 !important;
+  }
+
+  /* Badges de trabajadores compactos */
+  .bg-green-50.px-2.py-0\.5 {
+    background: transparent !important;
+    border: 1px solid #d1d5db !important;
+  }
+
+  /* Redondeos mínimos para impresión */
+  .rounded,
+  .rounded-lg,
+  .rounded-xl {
+    border-radius: 0 !important;
   }
 
   /* Asegurar que solo se vea el documento */
   @page {
-    margin: 0.5cm;
+    margin: 10mm 8mm;
+    size: letter;
+  }
+
+  /* Forzar page break después de cierto contenido si es necesario */
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  /* Evitar page breaks dentro de elementos importantes */
+  .card-modern,
+  table,
+  .grid {
+    page-break-inside: avoid;
   }
 }
+
 
 /* Estilos específicos para badges de status (reutilizados de proposals-list) */
 .badge-status-draft {

@@ -126,13 +126,13 @@
             <div class="col-span-4 space-y-1.5">
               <!-- Nombre del Cliente -->
               <p class="text-xs text-slate-700">
-                <span class="font-semibold text-slate-500">{{ 'projects.proposal.view.for' | translate }}:</span>
+                <span class="font-semibold text-slate-500">{{ 'projects.proposal.view.for' | translate }}</span>
                 <span class="font-bold text-sm text-slate-800 ml-1">{{ proposal()!.ownerName }}</span>
               </p>
 
               <!-- Dirección -->
               <p class="text-xs text-slate-700">
-                <span class="font-semibold text-slate-500">{{ 'projects.proposal.location.address' | translate }}:</span>
+                <span class="font-semibold text-slate-500">{{ 'projects.proposal.location.address' | translate }}</span>
                 <span class="text-slate-800 ml-1">{{ proposal()!.address }}, {{ proposal()!.city }}@if (proposal()!.state) {, {{ proposal()!.state }}}@if (proposal()!.zipCode) { {{ proposal()!.zipCode }}}</span>
               </p>
 
@@ -140,9 +140,9 @@
               <p class="text-xs text-slate-700">
                 <span class="font-semibold text-slate-500">
                   @if (proposal()!.status === 'converted_to_invoice') {
-                    {{ 'projects.proposal.view.invoiceDate' | translate }}:
+                    {{ 'projects.proposal.view.invoiceDate' | translate }}
                   } @else {
-                    {{ 'projects.proposal.view.date' | translate }}:
+                    {{ 'projects.proposal.view.date' | translate }}
                   }
                 </span>
                 <span class="font-semibold text-slate-800 ml-1">

@@ -60,18 +60,18 @@
     </header>
 
     <!-- ========== STATS CARDS ========== -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
 
       <!-- Total -->
       <div class="card-corporate cursor-pointer hover:shadow-lg transition-shadow"
            (click)="filterByStatus('all')">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-slate-500 mb-1">Total</p>
-            <p class="text-3xl font-bold text-slate-800">{{ filteredStats().total }}</p>
+            <p class="text-xs font-medium text-slate-500 mb-1">Total</p>
+            <p class="text-2xl font-bold text-slate-800">{{ filteredStats().total }}</p>
           </div>
-          <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-blue-600">description</mat-icon>
+          <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-blue-600 !text-xl">description</mat-icon>
           </div>
         </div>
       </div>
@@ -81,11 +81,11 @@
            (click)="filterByStatus('draft')">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-slate-500 mb-1">Borradores</p>
-            <p class="text-3xl font-bold text-slate-600">{{ filteredStats().byStatus.draft }}</p>
+            <p class="text-xs font-medium text-slate-500 mb-1">Borradores</p>
+            <p class="text-2xl font-bold text-slate-600">{{ filteredStats().byStatus.draft }}</p>
           </div>
-          <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-slate-600">edit</mat-icon>
+          <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-slate-600 !text-xl">edit</mat-icon>
           </div>
         </div>
       </div>
@@ -95,11 +95,11 @@
            (click)="filterByStatus('sent')">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-slate-500 mb-1">Enviados</p>
-            <p class="text-3xl font-bold text-amber-600">{{ filteredStats().byStatus.sent }}</p>
+            <p class="text-xs font-medium text-slate-500 mb-1">Enviados</p>
+            <p class="text-2xl font-bold text-amber-600">{{ filteredStats().byStatus.sent }}</p>
           </div>
-          <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-amber-600">send</mat-icon>
+          <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-amber-600 !text-xl">send</mat-icon>
           </div>
         </div>
       </div>
@@ -109,24 +109,80 @@
            (click)="filterByStatus('approved')">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-slate-500 mb-1">Aprobados</p>
-            <p class="text-3xl font-bold text-green-600">{{ filteredStats().byStatus.approved }}</p>
+            <p class="text-xs font-medium text-slate-500 mb-1">Aprobados</p>
+            <p class="text-2xl font-bold text-green-600">{{ filteredStats().byStatus.approved }}</p>
           </div>
-          <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-green-600">check_circle</mat-icon>
+          <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-green-600 !text-xl">check_circle</mat-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- Facturados -->
+      <div class="card-corporate cursor-pointer hover:shadow-lg transition-shadow"
+           (click)="filterByStatus('converted_to_invoice')">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 mb-1">Facturados</p>
+            <p class="text-2xl font-bold text-purple-600">{{ filteredStats().byStatus.converted_to_invoice }}</p>
+          </div>
+          <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-purple-600 !text-xl">receipt_long</mat-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagados -->
+      <div class="card-corporate cursor-pointer hover:shadow-lg transition-shadow"
+           (click)="filterByStatus('paid')">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 mb-1">Pagados</p>
+            <p class="text-2xl font-bold text-emerald-600">{{ filteredStats().byStatus.paid }}</p>
+          </div>
+          <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-emerald-600 !text-xl">payments</mat-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rechazados -->
+      <div class="card-corporate cursor-pointer hover:shadow-lg transition-shadow"
+           (click)="filterByStatus('rejected')">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 mb-1">Rechazados</p>
+            <p class="text-2xl font-bold text-red-600">{{ filteredStats().byStatus.rejected }}</p>
+          </div>
+          <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-red-600 !text-xl">cancel</mat-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cancelados -->
+      <div class="card-corporate cursor-pointer hover:shadow-lg transition-shadow"
+           (click)="filterByStatus('cancelled')">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 mb-1">Cancelados</p>
+            <p class="text-2xl font-bold text-orange-600">{{ filteredStats().byStatus.cancelled }}</p>
+          </div>
+          <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-orange-600 !text-xl">block</mat-icon>
           </div>
         </div>
       </div>
 
       <!-- Valor Total -->
-      <div class="card-corporate">
+      <div class="card-corporate sm:col-span-2 md:col-span-1 lg:col-span-2">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-slate-500 mb-1">Valor Total</p>
+            <p class="text-xs font-medium text-slate-500 mb-1">Valor Total</p>
             <p class="text-2xl font-bold text-blue-600">{{ formatCurrency(filteredStats().totalValue) }}</p>
           </div>
-          <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-blue-600">attach_money</mat-icon>
+          <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-blue-600 !text-xl">attach_money</mat-icon>
           </div>
         </div>
       </div>
@@ -169,6 +225,7 @@
               @else if (statusFilter() === 'approved') { Aprobado }
               @else if (statusFilter() === 'rejected') { Rechazado }
               @else if (statusFilter() === 'converted_to_invoice') { Facturado }
+              @else if (statusFilter() === 'paid') { Pagado }
               @else if (statusFilter() === 'cancelled') { Cancelado }
               <button matChipRemove>
                 <mat-icon>cancel</mat-icon>
@@ -387,8 +444,15 @@
 
                       @if (proposal.status === 'approved') {
                         <button mat-menu-item (click)="convertToInvoice(proposal)">
-                          <mat-icon class="text-blue-600">receipt</mat-icon>
+                          <mat-icon class="text-purple-600">receipt_long</mat-icon>
                           <span>Convertir a factura</span>
+                        </button>
+                      }
+
+                      @if (proposal.status === 'converted_to_invoice') {
+                        <button mat-menu-item (click)="changeProposalStatus(proposal, 'paid')">
+                          <mat-icon class="text-emerald-600">payments</mat-icon>
+                          <span>Marcar como pagado</span>
                         </button>
                       }
 

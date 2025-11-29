@@ -307,6 +307,10 @@ export class ProposalsListComponent implements OnInit {
       if (result?.confirmed) {
         try {
           await this.proposalsService.deleteProposal(proposal.id);
+
+          // Forzar recarga para asegurar actualización de estadísticas
+          await this.proposalsService.refresh();
+
           this.snackBar.open('Estimado eliminado exitosamente', 'Cerrar', { duration: 3000 });
           this.cdr.markForCheck();
         } catch (error) {
@@ -323,6 +327,10 @@ export class ProposalsListComponent implements OnInit {
   async changeProposalStatus(proposal: Proposal, newStatus: ProposalStatus) {
     try {
       await this.proposalsService.updateProposalStatus(proposal.id, newStatus);
+
+      // Forzar recarga de proposals para asegurar actualización de estadísticas
+      await this.proposalsService.refresh();
+
       this.snackBar.open('Estado actualizado exitosamente', 'Cerrar', { duration: 3000 });
       this.cdr.markForCheck();
     } catch (error) {

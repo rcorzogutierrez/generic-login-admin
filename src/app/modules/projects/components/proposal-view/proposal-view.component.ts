@@ -231,6 +231,7 @@ export class ProposalViewComponent implements OnInit {
       approved: 'Aprobado',
       rejected: 'Rechazado',
       converted_to_invoice: 'Facturado',
+      paid: 'Pagado',
       cancelled: 'Cancelado'
     };
     return labels[status] || status;
@@ -246,6 +247,7 @@ export class ProposalViewComponent implements OnInit {
       approved: 'badge-status-approved',
       rejected: 'badge-status-rejected',
       converted_to_invoice: 'badge-status-converted',
+      paid: 'badge-status-paid',
       cancelled: 'badge-status-cancelled'
     };
     return classes[status] || 'badge-status-draft';

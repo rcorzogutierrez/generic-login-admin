@@ -82,7 +82,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-medium text-slate-500 mb-1">Borradores</p>
-            <p class="text-2xl font-bold text-slate-600">{{ filteredStats().byStatus.draft }}</p>
+            <p class="text-2xl font-bold text-slate-600">{{ stats().byStatus.draft }}</p>
           </div>
           <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
             <mat-icon class="text-slate-600 !text-xl">edit</mat-icon>
@@ -96,7 +96,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-medium text-slate-500 mb-1">Enviados</p>
-            <p class="text-2xl font-bold text-amber-600">{{ filteredStats().byStatus.sent }}</p>
+            <p class="text-2xl font-bold text-amber-600">{{ stats().byStatus.sent }}</p>
           </div>
           <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
             <mat-icon class="text-amber-600 !text-xl">send</mat-icon>
@@ -110,7 +110,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-medium text-slate-500 mb-1">Aprobados</p>
-            <p class="text-2xl font-bold text-green-600">{{ filteredStats().byStatus.approved }}</p>
+            <p class="text-2xl font-bold text-green-600">{{ stats().byStatus.approved }}</p>
           </div>
           <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
             <mat-icon class="text-green-600 !text-xl">check_circle</mat-icon>
@@ -124,7 +124,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-medium text-slate-500 mb-1">Facturados</p>
-            <p class="text-2xl font-bold text-purple-600">{{ filteredStats().byStatus.converted_to_invoice }}</p>
+            <p class="text-2xl font-bold text-purple-600">{{ stats().byStatus.converted_to_invoice }}</p>
           </div>
           <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
             <mat-icon class="text-purple-600 !text-xl">receipt_long</mat-icon>
@@ -138,7 +138,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-medium text-slate-500 mb-1">Pagados</p>
-            <p class="text-2xl font-bold text-emerald-600">{{ filteredStats().byStatus.paid }}</p>
+            <p class="text-2xl font-bold text-emerald-600">{{ stats().byStatus.paid }}</p>
           </div>
           <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
             <mat-icon class="text-emerald-600 !text-xl">payments</mat-icon>
@@ -152,7 +152,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-medium text-slate-500 mb-1">Rechazados</p>
-            <p class="text-2xl font-bold text-red-600">{{ filteredStats().byStatus.rejected }}</p>
+            <p class="text-2xl font-bold text-red-600">{{ stats().byStatus.rejected }}</p>
           </div>
           <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
             <mat-icon class="text-red-600 !text-xl">cancel</mat-icon>
@@ -166,7 +166,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-medium text-slate-500 mb-1">Cancelados</p>
-            <p class="text-2xl font-bold text-orange-600">{{ filteredStats().byStatus.cancelled }}</p>
+            <p class="text-2xl font-bold text-orange-600">{{ stats().byStatus.cancelled }}</p>
           </div>
           <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
             <mat-icon class="text-orange-600 !text-xl">block</mat-icon>

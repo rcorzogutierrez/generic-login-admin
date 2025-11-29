@@ -123,6 +123,45 @@ export class ProposalsListComponent implements OnInit {
     return Math.ceil(total / perPage);
   });
 
+  // Estadísticas calculadas dinámicamente basadas en los proposals filtrados
+  filteredStats = computed(() => {
+    const proposals = this.filteredProposals();
+
+    const stats: ProposalStats = {
+      total: proposals.length,
+      byStatus: {
+        draft: proposals.filter(p => p.status === 'draft').length,
+        sent: proposals.filter(p => p.status === 'sent').length,
+        approved: proposals.filter(p => p.status === 'approved').length,
+        rejected: proposals.filter(p => p.status === 'rejected').length,
+        converted_to_invoice: proposals.filter(p => p.status === 'converted_to_invoice').length,
+        cancelled: proposals.filter(p => p.status === 'cancelled').length
+      },
+      totalValue: proposals.reduce((sum, p) => sum + (p.total || 0), 0),
+      averageValue: 0,
+      approvalRate: 0
+    };
+
+    // Calcular valor promedio
+    if (proposals.length > 0) {
+      stats.averageValue = stats.totalValue / proposals.length;
+    }
+
+    // Calcular tasa de aprobación
+    const sentOrApproved = proposals.filter(
+      p => ['sent', 'approved', 'converted_to_invoice'].includes(p.status)
+    ).length;
+
+    if (sentOrApproved > 0) {
+      const approved = proposals.filter(
+        p => ['approved', 'converted_to_invoice'].includes(p.status)
+      ).length;
+      stats.approvalRate = (approved / sentOrApproved) * 100;
+    }
+
+    return stats;
+  });
+
   // Configuración para el diálogo de eliminación
   private deleteDialogConfig: GenericModuleConfig = {
     collection: 'proposals',

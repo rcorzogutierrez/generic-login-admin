@@ -15,9 +15,9 @@
           <div>
             <h1 class="text-2xl font-bold text-slate-800 mb-1">Gestión de Estimados</h1>
             <p class="text-sm text-slate-500">
-              {{ stats().total }} estimados
-              @if (stats().byStatus.approved > 0) {
-                <span class="text-green-600 font-semibold"> • {{ stats().byStatus.approved }} aprobados</span>
+              {{ filteredStats().total }} estimados
+              @if (filteredStats().byStatus.approved > 0) {
+                <span class="text-green-600 font-semibold"> • {{ filteredStats().byStatus.approved }} aprobados</span>
               }
             </p>
           </div>
@@ -68,7 +68,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-slate-500 mb-1">Total</p>
-            <p class="text-3xl font-bold text-slate-800">{{ stats().total }}</p>
+            <p class="text-3xl font-bold text-slate-800">{{ filteredStats().total }}</p>
           </div>
           <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
             <mat-icon class="text-blue-600">description</mat-icon>
@@ -82,7 +82,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-slate-500 mb-1">Borradores</p>
-            <p class="text-3xl font-bold text-slate-600">{{ stats().byStatus.draft }}</p>
+            <p class="text-3xl font-bold text-slate-600">{{ filteredStats().byStatus.draft }}</p>
           </div>
           <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center">
             <mat-icon class="text-slate-600">edit</mat-icon>
@@ -96,7 +96,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-slate-500 mb-1">Enviados</p>
-            <p class="text-3xl font-bold text-amber-600">{{ stats().byStatus.sent }}</p>
+            <p class="text-3xl font-bold text-amber-600">{{ filteredStats().byStatus.sent }}</p>
           </div>
           <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
             <mat-icon class="text-amber-600">send</mat-icon>
@@ -110,7 +110,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-slate-500 mb-1">Aprobados</p>
-            <p class="text-3xl font-bold text-green-600">{{ stats().byStatus.approved }}</p>
+            <p class="text-3xl font-bold text-green-600">{{ filteredStats().byStatus.approved }}</p>
           </div>
           <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
             <mat-icon class="text-green-600">check_circle</mat-icon>
@@ -123,7 +123,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-slate-500 mb-1">Valor Total</p>
-            <p class="text-2xl font-bold text-blue-600">{{ formatCurrency(stats().totalValue) }}</p>
+            <p class="text-2xl font-bold text-blue-600">{{ formatCurrency(filteredStats().totalValue) }}</p>
           </div>
           <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
             <mat-icon class="text-blue-600">attach_money</mat-icon>

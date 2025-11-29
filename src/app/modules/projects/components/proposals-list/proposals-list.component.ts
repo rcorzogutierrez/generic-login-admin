@@ -23,7 +23,7 @@ import { ProposalsService } from '../../services/proposals.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
 // Models
-import { Proposal, ProposalFilters, ProposalSort, ProposalStatus } from '../../models';
+import { Proposal, ProposalFilters, ProposalSort, ProposalStatus, ProposalStats } from '../../models';
 
 // Shared Components
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';

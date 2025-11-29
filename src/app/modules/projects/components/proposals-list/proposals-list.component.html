@@ -63,12 +63,14 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
 
       <!-- Total -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-shadow"
+      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
+           [class.ring-2]="statusFilter() === 'all'"
+           [class.ring-blue-500]="statusFilter() === 'all'"
            (click)="filterByStatus('all')">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-medium text-slate-500 mb-1">Total</p>
-            <p class="text-2xl font-bold text-slate-800">{{ filteredStats().total }}</p>
+            <p class="text-2xl font-bold text-slate-800">{{ stats().total }}</p>
           </div>
           <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
             <mat-icon class="text-blue-600 !text-xl">description</mat-icon>
@@ -77,7 +79,9 @@
       </div>
 
       <!-- Borradores -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-shadow"
+      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
+           [class.ring-2]="statusFilter() === 'draft'"
+           [class.ring-slate-500]="statusFilter() === 'draft'"
            (click)="filterByStatus('draft')">
         <div class="flex items-center justify-between">
           <div>
@@ -91,7 +95,9 @@
       </div>
 
       <!-- Enviados -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-shadow"
+      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
+           [class.ring-2]="statusFilter() === 'sent'"
+           [class.ring-amber-500]="statusFilter() === 'sent'"
            (click)="filterByStatus('sent')">
         <div class="flex items-center justify-between">
           <div>
@@ -105,7 +111,9 @@
       </div>
 
       <!-- Aprobados -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-shadow"
+      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
+           [class.ring-2]="statusFilter() === 'approved'"
+           [class.ring-green-500]="statusFilter() === 'approved'"
            (click)="filterByStatus('approved')">
         <div class="flex items-center justify-between">
           <div>
@@ -119,7 +127,9 @@
       </div>
 
       <!-- Facturados -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-shadow"
+      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
+           [class.ring-2]="statusFilter() === 'converted_to_invoice'"
+           [class.ring-purple-500]="statusFilter() === 'converted_to_invoice'"
            (click)="filterByStatus('converted_to_invoice')">
         <div class="flex items-center justify-between">
           <div>
@@ -133,7 +143,9 @@
       </div>
 
       <!-- Pagados -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-shadow"
+      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
+           [class.ring-2]="statusFilter() === 'paid'"
+           [class.ring-emerald-500]="statusFilter() === 'paid'"
            (click)="filterByStatus('paid')">
         <div class="flex items-center justify-between">
           <div>
@@ -147,7 +159,9 @@
       </div>
 
       <!-- Rechazados -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-shadow"
+      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
+           [class.ring-2]="statusFilter() === 'rejected'"
+           [class.ring-red-500]="statusFilter() === 'rejected'"
            (click)="filterByStatus('rejected')">
         <div class="flex items-center justify-between">
           <div>
@@ -161,7 +175,9 @@
       </div>
 
       <!-- Cancelados -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-shadow"
+      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
+           [class.ring-2]="statusFilter() === 'cancelled'"
+           [class.ring-orange-500]="statusFilter() === 'cancelled'"
            (click)="filterByStatus('cancelled')">
         <div class="flex items-center justify-between">
           <div>

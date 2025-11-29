@@ -327,6 +327,15 @@ export class ProposalsListComponent implements OnInit {
    */
   async changeProposalStatus(proposal: Proposal, newStatus: ProposalStatus) {
     try {
+      // Validar que el proposal esté completo antes de enviarlo
+      if (proposal.status === 'draft' && newStatus === 'sent') {
+        const validation = this.validateProposalComplete(proposal);
+        if (!validation.isValid) {
+          this.snackBar.open(validation.message, 'Cerrar', { duration: 5000 });
+          return;
+        }
+      }
+
       await this.proposalsService.updateProposalStatus(proposal.id, newStatus);
 
       // Forzar recarga de proposals para asegurar actualización de estadísticas
@@ -338,6 +347,47 @@ export class ProposalsListComponent implements OnInit {
       console.error('Error cambiando estado del proposal:', error);
       this.snackBar.open('Error al cambiar el estado', 'Cerrar', { duration: 3000 });
     }
+  }
+
+  /**
+   * Validar que el proposal esté completo antes de enviarlo
+   */
+  private validateProposalComplete(proposal: Proposal): { isValid: boolean; message: string } {
+    const errors: string[] = [];
+
+    // Validar que tenga items incluidos
+    if (!proposal.includes || proposal.includes.length === 0) {
+      errors.push('Debe agregar al menos un item al estimado');
+    }
+
+    // Validar que tenga dirección del trabajo
+    if (!proposal.address || proposal.address.trim() === '') {
+      errors.push('Debe especificar la dirección del trabajo');
+    }
+
+    // Validar que tenga ciudad
+    if (!proposal.city || proposal.city.trim() === '') {
+      errors.push('Debe especificar la ciudad');
+    }
+
+    // Validar que tenga un total válido
+    if (!proposal.total || proposal.total <= 0) {
+      errors.push('El total debe ser mayor a $0');
+    }
+
+    // Validar que tenga fecha de validez
+    if (!proposal.validUntil) {
+      errors.push('Debe especificar la fecha de validez del estimado');
+    }
+
+    if (errors.length > 0) {
+      return {
+        isValid: false,
+        message: `No se puede enviar el estimado. Falta completar: ${errors.join(', ')}`
+      };
+    }
+
+    return { isValid: true, message: '' };
   }
 
   /**

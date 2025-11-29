@@ -52,6 +52,7 @@ export class ProposalsService {
       approved: 0,
       rejected: 0,
       converted_to_invoice: 0,
+      paid: 0,
       cancelled: 0
     },
     totalValue: 0,
@@ -591,6 +592,7 @@ export class ProposalsService {
         approved: proposals.filter(p => p.status === 'approved').length,
         rejected: proposals.filter(p => p.status === 'rejected').length,
         converted_to_invoice: proposals.filter(p => p.status === 'converted_to_invoice').length,
+        paid: proposals.filter(p => p.status === 'paid').length,
         cancelled: proposals.filter(p => p.status === 'cancelled').length
       },
       totalValue: proposals.reduce((sum, p) => sum + (p.total || 0), 0),
@@ -639,6 +641,7 @@ export class ProposalsService {
         approved: 0,
         rejected: 0,
         converted_to_invoice: 0,
+        paid: 0,
         cancelled: 0
       },
       totalValue: 0,

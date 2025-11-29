@@ -61,6 +61,7 @@ export type ProposalStatus =
   | 'approved'             // Aprobado por el cliente
   | 'rejected'             // Rechazado por el cliente
   | 'converted_to_invoice' // Convertido a factura
+  | 'paid'                 // Pagado (solo después de facturado)
   | 'cancelled';           // Cancelado
 
 /**

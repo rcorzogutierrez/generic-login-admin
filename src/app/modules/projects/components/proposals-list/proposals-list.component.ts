@@ -135,6 +135,7 @@ export class ProposalsListComponent implements OnInit {
         approved: proposals.filter(p => p.status === 'approved').length,
         rejected: proposals.filter(p => p.status === 'rejected').length,
         converted_to_invoice: proposals.filter(p => p.status === 'converted_to_invoice').length,
+        paid: proposals.filter(p => p.status === 'paid').length,
         cancelled: proposals.filter(p => p.status === 'cancelled').length
       },
       totalValue: proposals.reduce((sum, p) => sum + (p.total || 0), 0),
@@ -307,6 +308,10 @@ export class ProposalsListComponent implements OnInit {
       if (result?.confirmed) {
         try {
           await this.proposalsService.deleteProposal(proposal.id);
+
+          // Forzar recarga para asegurar actualización de estadísticas
+          await this.proposalsService.refresh();
+
           this.snackBar.open('Estimado eliminado exitosamente', 'Cerrar', { duration: 3000 });
           this.cdr.markForCheck();
         } catch (error) {
@@ -323,6 +328,10 @@ export class ProposalsListComponent implements OnInit {
   async changeProposalStatus(proposal: Proposal, newStatus: ProposalStatus) {
     try {
       await this.proposalsService.updateProposalStatus(proposal.id, newStatus);
+
+      // Forzar recarga de proposals para asegurar actualización de estadísticas
+      await this.proposalsService.refresh();
+
       this.snackBar.open('Estado actualizado exitosamente', 'Cerrar', { duration: 3000 });
       this.cdr.markForCheck();
     } catch (error) {
@@ -477,6 +486,7 @@ export class ProposalsListComponent implements OnInit {
       approved: 'Aprobado',
       rejected: 'Rechazado',
       converted_to_invoice: 'Facturado',
+      paid: 'Pagado',
       cancelled: 'Cancelado'
     };
     return labels[status] || status;
@@ -492,6 +502,7 @@ export class ProposalsListComponent implements OnInit {
       approved: 'badge-status-approved',
       rejected: 'badge-status-rejected',
       converted_to_invoice: 'badge-status-converted',
+      paid: 'badge-status-paid',
       cancelled: 'badge-status-cancelled'
     };
     return classes[status] || 'badge-status-draft';

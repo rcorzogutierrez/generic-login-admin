@@ -68,7 +68,11 @@
 .close-button {
   width: 36px !important;
   height: 36px !important;
-  line-height: 36px !important;
+  min-width: 36px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   color: #64748b !important;
   transition: all 0.2s ease;
 }
@@ -79,10 +83,10 @@
 }
 
 .close-button mat-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+  margin: 0 !important;
 }
 
 /* ============================================

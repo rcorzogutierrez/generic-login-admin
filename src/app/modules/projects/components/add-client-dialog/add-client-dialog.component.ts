@@ -290,15 +290,20 @@ export class AddClientDialogComponent implements OnInit {
   }
 
   getFieldWidth(field: FieldConfig): string {
+    // TEXTAREA y DICTIONARY siempre ocupan ancho completo (2 columnas)
+    if (field.type === FieldType.TEXTAREA || field.type === FieldType.DICTIONARY) {
+      return 'w-full';
+    }
+
+    // Respetar la configuración del campo si existe
     switch (field.formWidth) {
       case 'full':
-        return 'col-span-2';
+        return 'w-full';
       case 'half':
-        return 'col-span-2 md:col-span-1';
-      case 'third':
-        return 'col-span-2 md:col-span-1 lg:col-span-1';
+        return 'w-half';
       default:
-        return 'col-span-2 md:col-span-1';
+        // Por defecto, los campos ocupan 1 columna (mitad del ancho)
+        return 'w-half';
     }
   }
 }

@@ -288,11 +288,10 @@
           class="btn-save">
           @if (isLoading()) {
             <mat-spinner diameter="18" class="inline-spinner"></mat-spinner>
-            <span>Guardando...</span>
           } @else {
             <mat-icon>check</mat-icon>
-            <span>Guardar Cliente</span>
           }
+          <span>{{ isLoading() ? 'Guardando...' : 'Guardar Cliente' }}</span>
         </button>
       </div>
     </div>

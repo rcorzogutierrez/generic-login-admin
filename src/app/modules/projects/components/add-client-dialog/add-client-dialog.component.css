@@ -1,14 +1,750 @@
 /* add-client-dialog.component.css */
 
-.dialog-container {
-  @apply p-6;
-  min-width: 500px;
-  max-width: 600px;
+/* ============================================
+   DIALOG CONTAINER
+   ============================================ */
+
+.dialog-container-modern {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 85vh;
+  min-width: 600px;
+  max-width: 800px;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-@media (max-width: 640px) {
-  .dialog-container {
+/* ============================================
+   HEADER COMPACTO
+   ============================================ */
+
+.dialog-header-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.icon-container {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.3);
+}
+
+.icon-container mat-icon {
+  color: #ffffff;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+}
+
+.dialog-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.3;
+}
+
+.dialog-subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  font-weight: 400;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.close-button {
+  width: 36px !important;
+  height: 36px !important;
+  line-height: 36px !important;
+  color: #64748b !important;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  background: rgba(148, 163, 184, 0.1) !important;
+  color: #334155 !important;
+}
+
+.close-button mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  gap: 16px;
+}
+
+.loading-text {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+/* ============================================
+   FORM SCROLL CONTAINER
+   ============================================ */
+
+.form-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #ffffff;
+}
+
+.form-scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.form-scroll-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.form-scroll-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.form-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.form-content {
+  padding: 24px;
+}
+
+/* ============================================
+   FIELDS GRID
+   ============================================ */
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.field-wrapper {
+  min-width: 0;
+}
+
+.field-wrapper.w-full {
+  grid-column: span 2;
+}
+
+.field-wrapper.w-half {
+  grid-column: span 1;
+}
+
+/* ============================================
+   FIELD GROUP
+   ============================================ */
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.required-indicator {
+  color: #ef4444;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.help-text {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* ============================================
+   INPUT WRAPPER
+   ============================================ */
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  color: #94a3b8;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 12px;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  color: #94a3b8;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ============================================
+   INPUT FIELD
+   ============================================ */
+
+.input-field {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1e293b;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input-field.has-icon {
+  padding-left: 40px;
+}
+
+.input-field.has-currency {
+  padding-left: 28px;
+}
+
+.input-field:hover {
+  border-color: #cbd5e1;
+}
+
+.input-field:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: #ffffff;
+}
+
+.input-field.has-error {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.input-field.has-error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.input-field::placeholder {
+  color: #cbd5e1;
+}
+
+/* ============================================
+   TEXTAREA FIELD
+   ============================================ */
+
+.textarea-field {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1e293b;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  transition: all 0.2s ease;
+}
+
+.textarea-field:hover {
+  border-color: #cbd5e1;
+}
+
+.textarea-field:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.textarea-field.has-error {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.textarea-field.has-error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.textarea-field::placeholder {
+  color: #cbd5e1;
+}
+
+/* ============================================
+   SELECT FIELD
+   ============================================ */
+
+.select-field {
+  width: 100%;
+  padding: 10px 40px 10px 12px;
+  font-size: 14px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1e293b;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  transition: all 0.2s ease;
+}
+
+.select-field.has-icon {
+  padding-left: 40px;
+}
+
+.select-field:hover {
+  border-color: #cbd5e1;
+}
+
+.select-field:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.select-field.has-error {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.select-field.has-error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.select-field option {
+  padding: 8px;
+  background: #ffffff;
+  color: #1e293b;
+}
+
+/* ============================================
+   CHECKBOX
+   ============================================ */
+
+.checkbox-wrapper {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px 0;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #3b82f6;
+  border-radius: 4px;
+}
+
+.checkbox-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+  line-height: 1.4;
+}
+
+.checkbox-label:hover .checkbox-text {
+  color: #1e293b;
+}
+
+/* ============================================
+   MULTISELECT
+   ============================================ */
+
+.multiselect-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.multiselect-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: #ffffff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.multiselect-option:hover {
+  background: #f1f5f9;
+}
+
+/* ============================================
+   DICTIONARY FIELD
+   ============================================ */
+
+.dictionary-field {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field-group-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dictionary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.dictionary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dictionary-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.dictionary-input {
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1e293b;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.dictionary-input:hover {
+  border-color: #cbd5e1;
+}
+
+.dictionary-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dictionary-input::placeholder {
+  color: #cbd5e1;
+}
+
+/* ============================================
+   ERROR MESSAGE
+   ============================================ */
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #dc2626;
+  background: #fef2f2;
+  border-left: 3px solid #ef4444;
+  border-radius: 4px;
+  line-height: 1.4;
+}
+
+.error-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  color: #ef4444;
+}
+
+/* ============================================
+   DIALOG FOOTER
+   ============================================ */
+
+.dialog-footer {
+  padding: 16px 24px;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  box-shadow: 0 -4px 12px -4px rgba(0, 0, 0, 0.05);
+}
+
+.footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.btn-cancel {
+  min-height: 40px !important;
+  padding: 0 20px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  border-radius: 8px !important;
+  border: 1.5px solid #e2e8f0 !important;
+  color: #64748b !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-cancel:hover:not([disabled]) {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+.btn-cancel mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  line-height: 18px !important;
+}
+
+.btn-save {
+  min-height: 40px !important;
+  padding: 0 24px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px -2px rgba(59, 130, 246, 0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-save:hover:not([disabled]) {
+  box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+.btn-save:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+.btn-save mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  line-height: 18px !important;
+}
+
+.inline-spinner {
+  display: inline-block !important;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .dialog-container-modern {
     min-width: auto;
-    max-width: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .fields-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .field-wrapper.w-full,
+  .field-wrapper.w-half {
+    grid-column: span 1;
+  }
+
+  .dictionary-field {
+    grid-column: span 1;
+  }
+
+  .dictionary-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .dialog-header-compact {
+    padding: 16px 20px;
+  }
+
+  .form-content {
+    padding: 20px;
+  }
+
+  .dialog-footer {
+    padding: 12px 20px;
+  }
+
+  .footer-actions {
+    flex-direction: column-reverse;
+    width: 100%;
+  }
+
+  .btn-cancel,
+  .btn-save {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .icon-container {
+    width: 40px;
+    height: 40px;
+  }
+
+  .icon-container mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .dialog-title {
+    font-size: 18px;
+  }
+
+  .dialog-subtitle {
+    font-size: 12px;
+  }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.field-wrapper {
+  animation: fadeIn 0.3s ease-out backwards;
+}
+
+.field-wrapper:nth-child(1) { animation-delay: 0.05s; }
+.field-wrapper:nth-child(2) { animation-delay: 0.08s; }
+.field-wrapper:nth-child(3) { animation-delay: 0.11s; }
+.field-wrapper:nth-child(4) { animation-delay: 0.14s; }
+.field-wrapper:nth-child(5) { animation-delay: 0.17s; }
+.field-wrapper:nth-child(6) { animation-delay: 0.20s; }
+.field-wrapper:nth-child(7) { animation-delay: 0.23s; }
+.field-wrapper:nth-child(8) { animation-delay: 0.26s; }
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.input-field:focus-visible,
+.textarea-field:focus-visible,
+.select-field:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.checkbox-input:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

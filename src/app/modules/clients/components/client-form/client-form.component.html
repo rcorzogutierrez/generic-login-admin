@@ -161,6 +161,7 @@
                         [placeholder]="field.placeholder || ''"
                         [min]="field.validation.min ?? null"
                         [max]="field.validation.max ?? null"
+                        [step]="field.type === FieldType.CURRENCY ? '0.01' : '1'"
                         [readonly]="mode() === 'view'">
                     </div>
                     @if (field.helpText && !hasError(field.name)) {

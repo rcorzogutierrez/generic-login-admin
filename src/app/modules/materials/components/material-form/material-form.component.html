@@ -11,35 +11,35 @@
       </div>
     } @else {
 
-      <!-- ========== HEADER ========== -->
-      <div class="flex justify-between items-center px-8 py-6 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-t-2xl">
-        <div class="flex items-center gap-4">
+      <!-- ========== HEADER PROFESIONAL ========== -->
+      <div class="header-professional">
+        <div class="header-left">
           <button
-            mat-icon-button
-            class="!text-white !bg-white/10 hover:!bg-white/20 !border !border-white/20 transition-all"
+            type="button"
+            class="btn-back"
             (click)="onCancel()"
             [disabled]="isSaving()"
             aria-label="Volver a lista de materiales">
             <mat-icon>arrow_back</mat-icon>
           </button>
 
-          <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-xl">
-            <mat-icon class="!text-[28px]">
+          <div class="icon-badge">
+            <mat-icon>
               {{ mode() === 'create' ? 'add_circle' : (mode() === 'edit' ? 'edit' : 'visibility') }}
             </mat-icon>
           </div>
 
-          <div>
-            <h2 class="text-2xl font-bold mb-1">
+          <div class="header-content">
+            <h1 class="header-title">
               @switch (mode()) {
                 @case ('create') { Nuevo Material }
                 @case ('edit') { Editar Material }
                 @case ('view') { Ver Material }
               }
-            </h2>
-            <p class="text-green-100 text-sm">
+            </h1>
+            <p class="header-subtitle">
               @if (mode() === 'create') {
-                Completa la información del nuevo material
+                Complete la información del nuevo material
               } @else if (currentMaterial()) {
                 {{ currentMaterial()!.name }}
               }
@@ -49,8 +49,9 @@
 
         @if (mode() === 'view') {
           <button
-            mat-raised-button
-            class="!bg-white !text-green-600 font-semibold"
+            type="button"
+            mat-stroked-button
+            class="btn-edit"
             (click)="enableEdit()">
             <mat-icon>edit</mat-icon>
             Editar

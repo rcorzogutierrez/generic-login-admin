@@ -295,15 +295,13 @@ export class AddClientDialogComponent implements OnInit {
       return 'w-full';
     }
 
-    // Respetar la configuración del campo si existe
-    switch (field.formWidth) {
-      case 'full':
-        return 'w-full';
-      case 'half':
-        return 'w-half';
-      default:
-        // Por defecto, los campos ocupan 1 columna (mitad del ancho)
-        return 'w-half';
+    // MULTISELECT también puede ocupar ancho completo si tiene muchas opciones
+    if (field.type === FieldType.MULTISELECT && field.options && field.options.length > 4) {
+      return 'w-full';
     }
+
+    // Todos los demás campos ocupan 1 columna (mitad del ancho)
+    // Esto fuerza el layout de 2 columnas ignorando formWidth para hacer el dialog más compacto
+    return 'w-half';
   }
 }

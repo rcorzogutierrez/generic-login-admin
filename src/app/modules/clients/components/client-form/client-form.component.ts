@@ -605,6 +605,7 @@ export class ClientFormComponent implements OnInit {
 
   /**
    * Obtener ancho del campo en el formulario
+   * Respeta la configuración formWidth del usuario del builder
    */
   getFieldWidth(field: FieldConfig): string {
     switch (field.formWidth) {

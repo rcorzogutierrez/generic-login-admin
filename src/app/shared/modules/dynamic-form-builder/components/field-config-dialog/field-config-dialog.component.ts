@@ -559,6 +559,14 @@ export class FieldConfigDialogComponent implements OnInit {
   }
 
   /**
+   * Manejar cambio de checkbox para defaultValue
+   */
+  onDefaultValueCheckboxChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.fieldForm.patchValue({ defaultValue: target.checked });
+  }
+
+  /**
    * Procesar defaultValue según el tipo de campo
    */
   private processDefaultValue(fieldType: FieldType, defaultValue: any): any {

@@ -282,7 +282,20 @@ export class ClientFormComponent implements OnInit {
    */
   private getInitialValue(field: FieldConfig, client?: Client): any {
     if (!client) {
-      return field.defaultValue ?? this.getDefaultValueByType(field.type);
+      // Modo crear: usar defaultValue si existe y no es null/undefined
+      if (field.defaultValue !== null && field.defaultValue !== undefined) {
+        // Si es string vacío y el tipo no es TEXT/TEXTAREA, usar valor por defecto del tipo
+        if (field.defaultValue === '' &&
+            field.type !== FieldType.TEXT &&
+            field.type !== FieldType.TEXTAREA &&
+            field.type !== FieldType.EMAIL &&
+            field.type !== FieldType.PHONE &&
+            field.type !== FieldType.URL) {
+          return this.getDefaultValueByType(field.type);
+        }
+        return field.defaultValue;
+      }
+      return this.getDefaultValueByType(field.type);
     }
 
     // Buscar en campos por defecto
@@ -295,7 +308,11 @@ export class ClientFormComponent implements OnInit {
       return client.customFields[field.name];
     }
 
-    return field.defaultValue ?? this.getDefaultValueByType(field.type);
+    // Fallback: usar defaultValue o valor por defecto del tipo
+    if (field.defaultValue !== null && field.defaultValue !== undefined) {
+      return field.defaultValue;
+    }
+    return this.getDefaultValueByType(field.type);
   }
 
   /**

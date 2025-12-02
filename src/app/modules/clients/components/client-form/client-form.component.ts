@@ -588,18 +588,22 @@ export class ClientFormComponent implements OnInit {
 
   /**
    * Obtener ancho del campo en el formulario
+   * Forzamos grid de 2 columnas para formulario más compacto
    */
   getFieldWidth(field: FieldConfig): string {
-    switch (field.formWidth) {
-      case 'full':
-        return 'col-span-2';
-      case 'half':
-        return 'col-span-2 md:col-span-1';
-      case 'third':
-        return 'col-span-2 md:col-span-1 lg:col-span-1';
-      default:
-        return 'col-span-2 md:col-span-1';
+    // TEXTAREA y DICTIONARY siempre ocupan ancho completo (2 columnas)
+    if (field.type === FieldType.TEXTAREA || field.type === FieldType.DICTIONARY) {
+      return 'col-span-2';
     }
+
+    // MULTISELECT también puede ocupar ancho completo si tiene muchas opciones
+    if (field.type === FieldType.MULTISELECT && field.options && field.options.length > 4) {
+      return 'col-span-2';
+    }
+
+    // Todos los demás campos ocupan 1 columna (mitad del ancho)
+    // Esto fuerza el layout de 2 columnas ignorando formWidth para hacer el formulario más compacto
+    return 'col-span-2 md:col-span-1';
   }
 
   /**

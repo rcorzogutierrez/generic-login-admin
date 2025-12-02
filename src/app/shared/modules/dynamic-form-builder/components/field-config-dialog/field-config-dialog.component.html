@@ -313,7 +313,7 @@
                 id="defaultValue-checkbox"
                 class="w-5 h-5 mt-0.5 rounded border-2 border-purple-300 text-purple-600 focus:ring-2 focus:ring-purple-500"
                 [checked]="fieldForm.get('defaultValue')?.value === true"
-                (change)="fieldForm.patchValue({ defaultValue: $event.target.checked })">
+                (change)="onDefaultValueCheckboxChange($event)">
               <label for="defaultValue-checkbox" class="flex-1 cursor-pointer">
                 <span class="text-sm font-semibold text-purple-800">Marcado por defecto</span>
               </label>

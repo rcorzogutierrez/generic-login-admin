@@ -43,7 +43,7 @@ import { AppConfigService } from '../core/services/app-config.service';
 export class LoginComponent implements OnInit {
   // ✅ Inject pattern (Angular 20 best practice)
   readonly authService = inject(AuthService);
-  private appConfigService = inject(AppConfigService);
+  readonly appConfigService = inject(AppConfigService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);

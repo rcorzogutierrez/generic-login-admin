@@ -142,7 +142,7 @@ export class FieldConfigDialogComponent implements OnInit {
 
       // Configuración de formulario
       formWidth: [field?.formWidth || 'full'],
-      defaultValue: [field?.defaultValue || ''],
+      defaultValue: [this.getInitialDefaultValue(field)],
 
       // Configuración de grid
       showInGrid: [field?.gridConfig.showInGrid ?? true],
@@ -168,7 +168,72 @@ export class FieldConfigDialogComponent implements OnInit {
     // Watch type changes para actualizar validaciones sugeridas
     this.fieldForm.get('type')?.valueChanges.subscribe(type => {
       this.updateValidationSuggestions(type);
+      // Reset defaultValue cuando cambia el tipo
+      this.resetDefaultValueForType(type);
     });
+  }
+
+  /**
+   * Obtener el valor inicial para defaultValue según el tipo de campo
+   */
+  private getInitialDefaultValue(field?: FieldConfig): any {
+    if (!field) return '';
+
+    const defaultValue = field.defaultValue;
+
+    // Para checkbox, asegurar que sea booleano
+    if (field.type === FieldType.CHECKBOX) {
+      return defaultValue === true || defaultValue === 'true';
+    }
+
+    // Para multiselect, asegurar que sea array
+    if (field.type === FieldType.MULTISELECT) {
+      if (Array.isArray(defaultValue)) {
+        return defaultValue;
+      }
+      return defaultValue ? [defaultValue] : [];
+    }
+
+    // Para los demás tipos, retornar el valor tal cual
+    return defaultValue !== undefined && defaultValue !== null ? defaultValue : '';
+  }
+
+  /**
+   * Resetear defaultValue cuando cambia el tipo de campo
+   */
+  private resetDefaultValueForType(type: FieldType): void {
+    const currentDefault = this.fieldForm.get('defaultValue')?.value;
+
+    // Si ya hay un valor y es compatible, no resetear
+    switch (type) {
+      case FieldType.CHECKBOX:
+        // Convertir a booleano si no lo es
+        if (typeof currentDefault !== 'boolean') {
+          this.fieldForm.patchValue({ defaultValue: false });
+        }
+        break;
+
+      case FieldType.MULTISELECT:
+        // Convertir a array si no lo es
+        if (!Array.isArray(currentDefault)) {
+          this.fieldForm.patchValue({ defaultValue: [] });
+        }
+        break;
+
+      case FieldType.NUMBER:
+      case FieldType.CURRENCY:
+        // Limpiar si no es número válido
+        if (currentDefault && isNaN(Number(currentDefault))) {
+          this.fieldForm.patchValue({ defaultValue: null });
+        }
+        break;
+
+      default:
+        // Para texto y otros, mantener como string vacío si no hay valor
+        if (currentDefault === null || currentDefault === undefined) {
+          this.fieldForm.patchValue({ defaultValue: '' });
+        }
+    }
   }
 
   /**
@@ -347,6 +412,9 @@ export class FieldConfigDialogComponent implements OnInit {
         filterable: formValue.filterable
       };
 
+      // Procesar defaultValue según el tipo de campo
+      const processedDefaultValue = this.processDefaultValue(formValue.type, formValue.defaultValue);
+
       // Validar opciones para tipos que las requieren
       if (this.requiresOptions() && formValue.options.length === 0) {
         alert('Debes agregar al menos una opción para este tipo de campo');
@@ -364,7 +432,7 @@ export class FieldConfigDialogComponent implements OnInit {
           helpText: formValue.helpText?.trim() || '',
           validation,
           formWidth: formValue.formWidth,
-          defaultValue: formValue.defaultValue || '',
+          defaultValue: processedDefaultValue,
           gridConfig,
           isActive: formValue.isActive
         };
@@ -430,7 +498,7 @@ export class FieldConfigDialogComponent implements OnInit {
           helpText: formValue.helpText?.trim() || '',
           validation,
           formWidth: formValue.formWidth,
-          defaultValue: formValue.defaultValue || '',
+          defaultValue: processedDefaultValue,
           gridConfig,
           isActive: formValue.isActive,
           isSystem: false,
@@ -488,5 +556,47 @@ export class FieldConfigDialogComponent implements OnInit {
   isFieldInvalid(fieldName: string): boolean {
     const control = this.fieldForm.get(fieldName);
     return !!(control?.invalid && (control?.dirty || control?.touched));
+  }
+
+  /**
+   * Procesar defaultValue según el tipo de campo
+   */
+  private processDefaultValue(fieldType: FieldType, defaultValue: any): any {
+    switch (fieldType) {
+      case FieldType.CHECKBOX:
+        // Convertir a booleano
+        return defaultValue === true || defaultValue === 'true';
+
+      case FieldType.MULTISELECT:
+        // Asegurar que sea array
+        if (Array.isArray(defaultValue)) {
+          return defaultValue;
+        }
+        return defaultValue ? [defaultValue] : [];
+
+      case FieldType.NUMBER:
+      case FieldType.CURRENCY:
+        // Convertir a número o null
+        if (defaultValue === '' || defaultValue === null || defaultValue === undefined) {
+          return null;
+        }
+        const num = Number(defaultValue);
+        return isNaN(num) ? null : num;
+
+      case FieldType.DATE:
+      case FieldType.DATETIME:
+        // Retornar la fecha como string o vacío
+        return defaultValue || '';
+
+      case FieldType.SELECT:
+      case FieldType.TEXT:
+      case FieldType.EMAIL:
+      case FieldType.PHONE:
+      case FieldType.TEXTAREA:
+      case FieldType.URL:
+      default:
+        // Para texto y select, retornar como string
+        return defaultValue || '';
+    }
   }
 }

@@ -122,7 +122,7 @@
                         [min]="field.validation.min ?? null"
                         [max]="field.validation.max ?? null"
                         [readonly]="mode() === 'view'"
-                        [step]="field.type === FieldType.CURRENCY ? '0.01' : 'any'">
+                        [step]="field.type === FieldType.CURRENCY ? '0.01' : '1'">
                     </div>
                     @if (field.helpText && !hasError(field.name)) {
                       <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>

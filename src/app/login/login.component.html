@@ -1,0 +1,35 @@
+<div class="flex flex-col items-center gap-6 pt-12">
+  <!-- Cargador animado -->
+  <div
+    class="w-full max-w-md p-4 rounded-md shadow-md skeleton-loading"
+    [class.hidden]="!appConfigService.loading"
+  ></div>
+
+  <!-- Contenido del formulario -->
+  <div
+    class="w-full max-w-md p-6 bg-white rounded-md shadow-md"
+    [class.hidden]="appConfigService.loading"
+  >
+    <h1 class="text-2xl font-bold text-center text-gray-800">
+      Sistema de Gestión Empresarial
+    </h1>
+    <form
+      (ngSubmit)="onSubmit(email.value, password.value)"
+      class="mt-4 space-y-4"
+    >
+      <input
+        #email
+        type="email"
+        placeholder="Correo electrónico"
+        class="input-field w-full"
+      />
+      <input
+        #password
+        type="password"
+        placeholder="Contraseña"
+        class="input-field w-full"
+      />
+      <button class="btn-primary w-full" type="submit">Iniciar sesión</button>
+    </form>
+  </div>
+</div>

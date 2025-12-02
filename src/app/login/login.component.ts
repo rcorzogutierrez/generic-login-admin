@@ -10,7 +10,7 @@ import { AppConfigService } from './app-config.service';
 export class LoginComponent {
   constructor(
     private authService: AuthService,
-    private appConfigService: AppConfigService
+    public appConfigService: AppConfigService // Usa 'public' para acceso en el HTML
   ) {}
 
   onSubmit(email: string, password: string) {

@@ -13,9 +13,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
-import { UserDashboardService, UserDashboardData, DashboardAction, UserActivity } from './services/user-dashboard.service';
+import { UserDashboardService, UserDashboardData } from './services/user-dashboard.service';
 import { AppConfigService } from '../core/services/app-config.service';
-import { getPermissionIcon, getActionIcon, getRelativeTime, fromFirestoreTimestamp } from '../shared/utils';
+import { getPermissionIcon, fromFirestoreTimestamp } from '../shared/utils';
 
 /**
  * Acción rápida del dashboard
@@ -125,11 +125,6 @@ export class DashboardComponent implements OnInit {
    */
   keyMetrics = signal<KeyMetric[]>([]);
 
-  /**
-   * Actividades recientes del usuario
-   */
-  recentActivities = signal<UserActivity[]>([]);
-
   // ============================================
   // COMPUTED SIGNALS (Angular 20)
   // ============================================
@@ -157,16 +152,6 @@ export class DashboardComponent implements OnInit {
    * Utilidad compartida para obtener iconos de permisos
    */
   readonly getPermissionIcon = getPermissionIcon;
-
-  /**
-   * Utilidad compartida para obtener iconos de acciones/actividades
-   */
-  readonly getActionIcon = getActionIcon;
-
-  /**
-   * Utilidad compartida para obtener tiempo relativo
-   */
-  readonly getRelativeTime = getRelativeTime;
 
   // ============================================
   // LIFECYCLE
@@ -223,7 +208,7 @@ export class DashboardComponent implements OnInit {
    * Construye datos optimizados para la vista
    *
    * Procesa los datos del usuario y genera las estructuras necesarias
-   * para acciones rápidas, métricas clave y actividades recientes.
+   * para acciones rápidas y métricas clave.
    *
    * @param data - Datos del dashboard del usuario
    */
@@ -233,9 +218,6 @@ export class DashboardComponent implements OnInit {
 
     // Key Metrics - Solo 4 métricas esenciales
     this.keyMetrics.set(this.buildKeyMetrics(data));
-
-    // Recent Activities - Limitado a 4 últimas
-    this.recentActivities.set(data.recentActivity.slice(0, 4));
   }
 
   /**
@@ -422,52 +404,6 @@ export class DashboardComponent implements OnInit {
     return this.userDashboardService.getLastLoginInfo(
       dashboard.userInfo.lastLogin
     ).isRecent;
-  }
-
-  /**
-   * Formatea fecha de actividad
-   *
-   * Convierte un timestamp en fecha legible para mostrar en actividades.
-   *
-   * @param timestamp - Timestamp de Firestore o Date
-   * @returns Fecha formateada
-   */
-  formatActivityDate(timestamp: any): string {
-    return this.userDashboardService.formatDate(timestamp);
-  }
-
-  /**
-   * Obtiene el color del icono de actividad
-   *
-   * Determina el color que debe tener el icono según el tipo de actividad.
-   * Retorna valores compatibles con las clases CSS de Material.
-   *
-   * @param type - Tipo de actividad
-   * @returns Color del icono: '' (azul/primary), 'accent' (verde/success), 'warn' (ámbar/warning)
-   *
-   * @example
-   * ```typescript
-   * getActivityColor('login');              // 'accent' (verde)
-   * getActivityColor('logout');             // 'warn' (ámbar)
-   * getActivityColor('profile_updated');    // '' (azul)
-   * ```
-   */
-  getActivityColor(type: string): '' | 'accent' | 'warn' {
-    // Tipos que usan verde (success)
-    const successTypes = ['login', 'permission_granted', 'module_assigned', 'created'];
-
-    // Tipos que usan ámbar (warning)
-    const warningTypes = ['logout', 'permission_revoked', 'module_removed', 'status_changed'];
-
-    if (successTypes.includes(type)) {
-      return 'accent'; // Usará .activity-icon-success (verde)
-    }
-
-    if (warningTypes.includes(type)) {
-      return 'warn'; // Usará .activity-icon-warning (ámbar)
-    }
-
-    return ''; // Usará .activity-icon-primary (azul) por defecto
   }
 
   /**

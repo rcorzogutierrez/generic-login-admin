@@ -5,7 +5,7 @@
     <!-- HEADER CON LOGO Y TÍTULO DINÁMICOS -->
     <div class="text-center mb-8 animate-fadeInDown">
       <!-- ✅ Logo dinámico con skeleton -->
-      @if (appConfigService.loading()) {
+      @if (!appConfigService.isLoaded()) {
         <!-- Skeleton loader para logo -->
         <div class="mx-auto mb-6 animate-pulse">
           <div class="w-24 h-24 mx-auto rounded-xl bg-slate-200"></div>
@@ -29,7 +29,7 @@
       }
 
       <!-- ✅ Nombre dinámico con skeleton -->
-      @if (appConfigService.loading()) {
+      @if (!appConfigService.isLoaded()) {
         <div class="h-9 bg-slate-200 rounded-lg mx-auto mb-2 animate-pulse" style="width: 280px;"></div>
       } @else {
         <h1 class="text-3xl font-bold text-slate-800 mb-2">
@@ -38,7 +38,7 @@
       }
 
       <!-- ✅ Descripción dinámica con skeleton -->
-      @if (appConfigService.loading()) {
+      @if (!appConfigService.isLoaded()) {
         <div class="h-5 bg-slate-200 rounded-lg mx-auto animate-pulse" style="width: 220px;"></div>
       } @else {
         <p class="text-sm text-slate-600 font-medium">
@@ -183,7 +183,7 @@
 <!-- FOOTER CON EMAIL DINÁMICO -->
 <div class="text-center mt-6 animate-fadeInUp">
   <p class="text-sm text-slate-600 mb-2">¿Problemas de acceso?</p>
-  @if (appConfigService.loading()) {
+  @if (!appConfigService.isLoaded()) {
     <div class="h-5 bg-slate-200 rounded-lg mx-auto animate-pulse" style="width: 200px;"></div>
   } @else {
     <a

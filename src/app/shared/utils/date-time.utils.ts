@@ -11,8 +11,9 @@
  * Formatea una fecha en formato legible para el usuario
  *
  * Muestra tiempo relativo para fechas recientes y formato corto para fechas antiguas.
+ * Maneja automáticamente timestamps de Firestore.
  *
- * @param date - Fecha a formatear
+ * @param date - Fecha a formatear (puede ser Date o Firestore Timestamp)
  * @returns String formateado con el tiempo relativo o fecha
  *
  * @example
@@ -20,14 +21,27 @@
  * formatDate(new Date());                    // 'Hace pocos minutos'
  * formatDate(new Date(Date.now() - 3600000)); // 'Hace 1h'
  * formatDate(new Date('2024-01-15'));        // '15 Ene'
+ * formatDate(firestoreTimestamp);            // 'Hace 2h'
  * formatDate(null);                          // 'Nunca'
  * ```
  */
-export function formatDate(date: Date | null | undefined): string {
+export function formatDate(date: any): string {
   if (!date) return 'Nunca';
 
+  // Convertir Firestore Timestamp a Date si es necesario
+  let dateObj: Date;
+  if (typeof date.toDate === 'function') {
+    dateObj = date.toDate();
+  } else {
+    dateObj = new Date(date);
+  }
+
+  // Verificar que la fecha es válida
+  if (isNaN(dateObj.getTime())) {
+    return 'Nunca';
+  }
+
   const now = new Date();
-  const dateObj = new Date(date);
   const diffMs = now.getTime() - dateObj.getTime();
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
 
@@ -50,8 +64,9 @@ export function formatDate(date: Date | null | undefined): string {
  * Obtiene el tiempo relativo en formato compacto
  *
  * Útil para mostrar timestamps en listas o tablas donde el espacio es limitado.
+ * Maneja automáticamente timestamps de Firestore.
  *
- * @param date - Fecha para calcular tiempo relativo
+ * @param date - Fecha para calcular tiempo relativo (puede ser Date o Firestore Timestamp)
  * @returns String con tiempo relativo en formato compacto
  *
  * @example
@@ -60,14 +75,27 @@ export function formatDate(date: Date | null | undefined): string {
  * getRelativeTime(new Date(Date.now() - 300000));  // '5m'
  * getRelativeTime(new Date(Date.now() - 7200000)); // '2h'
  * getRelativeTime(new Date(Date.now() - 86400000)); // '1d'
+ * getRelativeTime(firestoreTimestamp);            // '2h'
  * getRelativeTime(null);                          // ''
  * ```
  */
-export function getRelativeTime(date: Date | null | undefined): string {
+export function getRelativeTime(date: any): string {
   if (!date) return '';
 
+  // Convertir Firestore Timestamp a Date si es necesario
+  let dateObj: Date;
+  if (typeof date.toDate === 'function') {
+    dateObj = date.toDate();
+  } else {
+    dateObj = new Date(date);
+  }
+
+  // Verificar que la fecha es válida
+  if (isNaN(dateObj.getTime())) {
+    return '';
+  }
+
   const now = new Date();
-  const dateObj = new Date(date);
   const diffMs = now.getTime() - dateObj.getTime();
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
 

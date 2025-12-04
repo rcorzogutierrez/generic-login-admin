@@ -10,15 +10,15 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatChipsModule } from '@angular/material/chips';
 import { Router } from '@angular/router';
 
-import { WorkersService, WorkersConfigService } from '../../services';
-import { Worker } from '../../models';
+import { WorkersService } from '../../services';
+import { Worker, WORKER_TYPE_LABELS, WorkerType } from '../../models';
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
 import { GenericDeleteMultipleDialogComponent } from '../../../../shared/components/generic-delete-multiple-dialog/generic-delete-multiple-dialog.component';
-import { createGenericConfig } from '../../config/workers.config';
 import { AuthService } from '../../../../core/services/auth.service';
-import { formatFieldValue, getFieldValue } from '../../../../shared/modules/dynamic-form-builder/utils';
+import { GenericModuleConfig } from '../../../../shared/models/generic-entity.interface';
 
 @Component({
   selector: 'app-workers-list',
@@ -32,7 +32,8 @@ import { formatFieldValue, getFieldValue } from '../../../../shared/modules/dyna
     MatTooltipModule,
     MatMenuModule,
     MatCheckboxModule,
-    MatDividerModule
+    MatDividerModule,
+    MatChipsModule
   ],
   templateUrl: './workers-list.component.html',
   styleUrl: './workers-list.component.css'
@@ -41,6 +42,7 @@ export class WorkersListComponent implements OnInit {
   searchTerm = signal<string>('');
   selectedWorkers = signal<string[]>([]);
   isLoading = false;
+  filterType = signal<WorkerType | 'all'>('all');
 
   // Paginación
   currentPage = signal<number>(0);
@@ -49,38 +51,35 @@ export class WorkersListComponent implements OnInit {
   // Math para templates
   Math = Math;
 
+  // Labels para tipos
+  workerTypeLabels = WORKER_TYPE_LABELS;
+
   workers = this.workersService.workers;
 
   // Workers filtrados
   filteredWorkers = computed(() => {
-    const workers = this.workers();
+    let workers = this.workers();
     const search = this.searchTerm().toLowerCase();
-    const fields = this.gridFields();
+    const typeFilter = this.filterType();
 
-    if (!search) return workers;
+    // Filtrar por tipo
+    if (typeFilter !== 'all') {
+      workers = workers.filter(w => w.workerType === typeFilter);
+    }
 
-    return workers.filter(worker => {
-      // Buscar en todos los campos visibles en el grid
-      for (const field of fields) {
-        const value = this.getFieldValue(worker, field.name);
+    // Filtrar por búsqueda
+    if (search) {
+      workers = workers.filter(worker => {
+        if (worker.fullName?.toLowerCase().includes(search)) return true;
+        if (worker.phone?.includes(search)) return true;
+        if (worker.idOrLicense?.toLowerCase().includes(search)) return true;
+        if (worker.companyName?.toLowerCase().includes(search)) return true;
+        if (worker.address?.toLowerCase().includes(search)) return true;
+        return false;
+      });
+    }
 
-        if (value !== null && value !== undefined) {
-          // Para campos tipo select/dictionary, usar el valor formateado (labels)
-          const formattedValue = this.formatFieldValue(value, field);
-          if (formattedValue.toLowerCase().includes(search)) {
-            return true;
-          }
-        }
-      }
-
-      // También buscar en campos por defecto que no estén en el grid
-      if (worker.name?.toLowerCase().includes(search)) return true;
-      if (worker.email?.toLowerCase().includes(search)) return true;
-      if (worker.position?.toLowerCase().includes(search)) return true;
-      if (worker.phone?.includes(search)) return true;
-
-      return false;
-    });
+    return workers;
   });
 
   // Workers paginados
@@ -100,18 +99,22 @@ export class WorkersListComponent implements OnInit {
     return Math.ceil(total / perPage);
   });
 
-  config = this.configService.config;
-  gridFields = computed(() => this.configService.getGridFields());
-
-  // Generic config for delete dialogs
-  genericConfig = computed(() => {
-    const workerConfig = this.config();
-    return workerConfig ? createGenericConfig(workerConfig) : null;
-  });
+  // Config para diálogos de eliminación
+  genericConfig: GenericModuleConfig = {
+    collection: 'workers',
+    entityName: 'Trabajador',
+    entityNamePlural: 'Trabajadores',
+    fields: [
+      { name: 'fullName', label: 'Nombre', showInGrid: true, showInDelete: true },
+      { name: 'phone', label: 'Teléfono', type: 'phone', showInGrid: true, showInDelete: true },
+      { name: 'companyName', label: 'Empresa', showInGrid: true, showInDelete: true }
+    ],
+    searchFields: ['fullName', 'phone', 'companyName'],
+    deleteDialogFieldsCount: 3
+  };
 
   constructor(
     private workersService: WorkersService,
-    private configService: WorkersConfigService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router,
@@ -120,23 +123,18 @@ export class WorkersListComponent implements OnInit {
 
   async ngOnInit() {
     this.isLoading = true;
-    await Promise.all([
-      this.configService.initialize(),
-      this.workersService.initialize()
-    ]);
-
-    // Cargar configuración de paginación
-    const config = this.config();
-    if (config && config.gridConfig) {
-      this.itemsPerPage.set(config.gridConfig.itemsPerPage || 25);
-    }
-
+    await this.workersService.initialize();
     this.isLoading = false;
   }
 
   onSearch(term: string) {
     this.searchTerm.set(term);
-    this.currentPage.set(0); // Reset a primera página al buscar
+    this.currentPage.set(0);
+  }
+
+  setFilterType(type: WorkerType | 'all') {
+    this.filterType.set(type);
+    this.currentPage.set(0);
   }
 
   goToPage(page: number) {
@@ -151,6 +149,10 @@ export class WorkersListComponent implements OnInit {
 
   editWorker(worker: Worker) {
     this.router.navigate(['/modules/workers', worker.id, 'edit']);
+  }
+
+  viewWorker(worker: Worker) {
+    this.router.navigate(['/modules/workers', worker.id]);
   }
 
   async toggleActive(worker: Worker) {
@@ -171,17 +173,11 @@ export class WorkersListComponent implements OnInit {
   }
 
   async deleteWorker(worker: Worker) {
-    const config = this.genericConfig();
-    if (!config) {
-      this.snackBar.open('Configuración no disponible', 'Cerrar', { duration: 3000 });
-      return;
-    }
-
     const dialogRef = this.dialog.open(GenericDeleteDialogComponent, {
       width: '600px',
       data: {
         entity: worker as any,
-        config: config
+        config: this.genericConfig
       }
     });
 
@@ -204,12 +200,6 @@ export class WorkersListComponent implements OnInit {
       return;
     }
 
-    const config = this.genericConfig();
-    if (!config) {
-      this.snackBar.open('Configuración no disponible', 'Cerrar', { duration: 3000 });
-      return;
-    }
-
     const selectedList = this.workers().filter(w => selectedIds.includes(w.id));
 
     const dialogRef = this.dialog.open(GenericDeleteMultipleDialogComponent, {
@@ -217,7 +207,7 @@ export class WorkersListComponent implements OnInit {
       data: {
         entities: selectedList as any[],
         count: selectedList.length,
-        config: config
+        config: this.genericConfig
       }
     });
 
@@ -275,13 +265,9 @@ export class WorkersListComponent implements OnInit {
     this.selectedWorkers.set([]);
   }
 
-  goToConfig() {
-    this.router.navigate(['/modules/workers/config']);
-  }
-
   async refreshData() {
     this.isLoading = true;
-    await this.workersService.initialize();
+    await this.workersService.forceReload();
     this.isLoading = false;
     this.snackBar.open('Datos actualizados', 'Cerrar', { duration: 2000 });
   }
@@ -290,9 +276,6 @@ export class WorkersListComponent implements OnInit {
     return worker.id;
   }
 
-  /**
-   * Helper methods to avoid arrow functions in templates
-   */
   getActiveWorkers(): Worker[] {
     return this.workers().filter(w => w.isActive);
   }
@@ -301,11 +284,17 @@ export class WorkersListComponent implements OnInit {
     return this.getActiveWorkers().length;
   }
 
-  getFilteredActiveWorkers(): Worker[] {
-    return this.filteredWorkers().filter(w => w.isActive);
+  getInternalCount(): number {
+    return this.workers().filter(w => w.workerType === 'internal').length;
   }
 
-  // Usar funciones compartidas de formateo
-  formatFieldValue = formatFieldValue;
-  getFieldValue = getFieldValue;
+  getContractorCount(): number {
+    return this.workers().filter(w => w.workerType === 'contractor').length;
+  }
+
+  getWorkerTypeBadgeClass(type: WorkerType): string {
+    return type === 'internal'
+      ? 'bg-blue-100 text-blue-700'
+      : 'bg-purple-100 text-purple-700';
+  }
 }

@@ -68,6 +68,15 @@
             <span>Trabajadores</span>
           </a>
         }
+        @if (hasModule('companies')) {
+          <a
+            class="nav-link"
+            routerLink="/modules/companies"
+            routerLinkActive="active">
+            <mat-icon>business</mat-icon>
+            <span>Empresas</span>
+          </a>
+        }
         @if (hasModule('projects')) {
           <a
             class="nav-link"

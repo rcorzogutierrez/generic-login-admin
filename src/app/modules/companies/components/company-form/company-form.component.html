@@ -1,0 +1,232 @@
+<!-- company-form.component.html -->
+
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
+  <div class="max-w-[900px] mx-auto p-5">
+
+    @if (isLoading()) {
+      <!-- Loading State -->
+      <div class="flex flex-col items-center justify-center py-16">
+        <div class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-sm text-slate-500 mt-4">Cargando formulario...</p>
+      </div>
+    } @else {
+
+      <!-- ========== HEADER PROFESIONAL ========== -->
+      <div class="header-professional">
+        <div class="header-left">
+          <button
+            type="button"
+            class="btn-back"
+            (click)="onCancel()"
+            [disabled]="isSaving()"
+            aria-label="Volver a lista de empresas">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+
+          <div class="icon-badge" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
+            <mat-icon>
+              {{ mode() === 'create' ? 'add_business' : (mode() === 'edit' ? 'edit' : 'business') }}
+            </mat-icon>
+          </div>
+
+          <div class="header-content">
+            <h1 class="header-title">
+              @switch (mode()) {
+                @case ('create') { Nueva Empresa }
+                @case ('edit') { Editar Empresa }
+                @case ('view') { Ver Empresa }
+              }
+            </h1>
+            <p class="header-subtitle">
+              @if (mode() === 'create') {
+                Complete la información de la nueva empresa subcontratista
+              } @else if (currentCompany()) {
+                {{ currentCompany()!.legalName }}
+              }
+            </p>
+          </div>
+        </div>
+
+        @if (mode() === 'view') {
+          <button
+            type="button"
+            mat-stroked-button
+            class="btn-edit"
+            (click)="enableEdit()">
+            <mat-icon>edit</mat-icon>
+            Editar
+          </button>
+        }
+      </div>
+
+      <!-- ========== FORMULARIO ========== -->
+      <form [formGroup]="companyForm" (ngSubmit)="onSubmit()" class="bg-white rounded-b-2xl shadow-lg">
+
+        <div class="px-8 py-8">
+
+          <!-- Grid de Campos -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Nombre Legal -->
+            <div class="md:col-span-2">
+              <div class="input-group flex flex-col gap-2">
+                <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                  <mat-icon class="label-icon !text-lg text-indigo-500">business</mat-icon>
+                  Nombre Legal
+                  <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="input-field"
+                  formControlName="legalName"
+                  placeholder="Ej: Construcciones ABC, S.A."
+                  [readonly]="mode() === 'view'">
+                <span class="text-xs text-slate-500">Nombre legal completo de la empresa</span>
+                @if (hasError('legalName')) {
+                  <div class="input-error">
+                    {{ getErrorMessage('legalName') }}
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Tax ID -->
+            <div>
+              <div class="input-group flex flex-col gap-2">
+                <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                  <mat-icon class="label-icon !text-lg text-indigo-500">badge</mat-icon>
+                  Tax ID
+                  <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="input-field font-mono"
+                  formControlName="taxId"
+                  placeholder="Ej: 12-3456789"
+                  [readonly]="mode() === 'view'">
+                <span class="text-xs text-slate-500">Número de identificación fiscal</span>
+                @if (hasError('taxId')) {
+                  <div class="input-error">
+                    {{ getErrorMessage('taxId') }}
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div>
+              <div class="input-group flex flex-col gap-2">
+                <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                  <mat-icon class="label-icon !text-lg text-indigo-500">email</mat-icon>
+                  Email
+                </label>
+                <input
+                  type="email"
+                  class="input-field"
+                  formControlName="email"
+                  placeholder="contacto@empresa.com"
+                  [readonly]="mode() === 'view'">
+                @if (hasError('email')) {
+                  <div class="input-error">
+                    {{ getErrorMessage('email') }}
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Teléfono -->
+            <div>
+              <div class="input-group flex flex-col gap-2">
+                <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                  <mat-icon class="label-icon !text-lg text-indigo-500">phone</mat-icon>
+                  Teléfono
+                </label>
+                <input
+                  type="tel"
+                  class="input-field"
+                  formControlName="phone"
+                  placeholder="+1 (555) 123-4567"
+                  [readonly]="mode() === 'view'">
+                @if (hasError('phone')) {
+                  <div class="input-error">
+                    {{ getErrorMessage('phone') }}
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Dirección -->
+            <div>
+              <div class="input-group flex flex-col gap-2">
+                <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                  <mat-icon class="label-icon !text-lg text-indigo-500">location_on</mat-icon>
+                  Dirección
+                </label>
+                <textarea
+                  class="input-field !h-auto py-3"
+                  formControlName="address"
+                  placeholder="Dirección completa de la empresa"
+                  rows="2"
+                  [readonly]="mode() === 'view'"></textarea>
+                @if (hasError('address')) {
+                  <div class="input-error">
+                    {{ getErrorMessage('address') }}
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Info de Fecha (solo en modo view/edit) -->
+            @if (mode() !== 'create' && currentCompany()) {
+              <div>
+                <div class="input-group flex flex-col gap-2">
+                  <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
+                    <mat-icon class="label-icon !text-lg text-slate-400">calendar_today</mat-icon>
+                    Fecha de Ingreso
+                  </label>
+                  <div class="px-4 py-3 bg-slate-50 rounded-xl border-2 border-slate-200 text-sm text-slate-600">
+                    {{ formatDate(currentCompany()!.createdAt) }}
+                  </div>
+                </div>
+              </div>
+            }
+
+          </div>
+
+        </div>
+
+        <!-- ========== ACCIONES ========== -->
+        @if (mode() !== 'view') {
+          <div class="px-8 py-6 bg-slate-50 rounded-b-2xl border-t border-slate-200 flex justify-end gap-3">
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="onCancel()"
+              [disabled]="isSaving()"
+              class="!border-slate-300 !text-slate-700 font-medium">
+              <mat-icon>close</mat-icon>
+              Cancelar
+            </button>
+
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="isSaving() || companyForm.invalid"
+              class="font-semibold !bg-indigo-600 hover:!bg-indigo-700">
+              @if (isSaving()) {
+                <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              } @else {
+                <mat-icon>save</mat-icon>
+              }
+              {{ mode() === 'create' ? 'Crear Empresa' : 'Guardar Cambios' }}
+            </button>
+          </div>
+        }
+
+      </form>
+
+    }
+
+  </div>
+</div>

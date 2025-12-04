@@ -53,6 +53,11 @@ export const routes: Routes = [
       import('./modules/workers/workers.routes').then(m => m.WORKERS_ROUTES),
   },
   {
+    path: 'modules/companies',
+    loadChildren: () =>
+      import('./modules/companies/companies.routes').then(m => m.COMPANIES_ROUTES),
+  },
+  {
     path: 'modules/projects',
     loadChildren: () =>
       import('./modules/projects/projects.routes').then(m => m.PROJECTS_ROUTES),

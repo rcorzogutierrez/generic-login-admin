@@ -142,7 +142,7 @@ type DialogMode = 'create' | 'edit';
           <div class="mt-6 p-3 bg-slate-50 rounded-lg text-xs text-slate-500">
             <p class="flex items-center gap-1">
               <mat-icon class="!text-sm">calendar_today</mat-icon>
-              Creada: {{ formatDate(data.company.createdAt) }}
+              Creada: {{ formatDate(data!.company!.createdAt) }}
             </p>
           </div>
         }

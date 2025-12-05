@@ -142,6 +142,17 @@
   font-size: 24px !important;
   width: 24px !important;
   height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Label icons en campos */
+.label-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle !important;
 }
 
 .section-title {

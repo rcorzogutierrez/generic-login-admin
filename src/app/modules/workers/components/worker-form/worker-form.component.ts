@@ -15,7 +15,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { WorkersService } from '../../services/workers.service';
 import { Worker, WorkerType, WORKER_TYPE_LABELS } from '../../models';
-import { CompaniesService } from '../../../companies/services/companies.service';
+import { CompaniesService } from '../../companies/services/companies.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CreateCompanyDialogComponent } from '../create-company-dialog/create-company-dialog.component';

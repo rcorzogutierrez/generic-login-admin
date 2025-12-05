@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +11,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { WorkersService } from '../../services';
 import { Worker, WORKER_TYPE_LABELS, WorkerType } from '../../models';
@@ -19,6 +19,7 @@ import { GenericDeleteDialogComponent } from '../../../../shared/components/gene
 import { GenericDeleteMultipleDialogComponent } from '../../../../shared/components/generic-delete-multiple-dialog/generic-delete-multiple-dialog.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { GenericModuleConfig } from '../../../../shared/models/generic-entity.interface';
+import { CompaniesListDialogComponent } from '../companies-list-dialog/companies-list-dialog.component';
 
 @Component({
   selector: 'app-workers-list',
@@ -33,7 +34,8 @@ import { GenericModuleConfig } from '../../../../shared/models/generic-entity.in
     MatMenuModule,
     MatCheckboxModule,
     MatDividerModule,
-    MatChipsModule
+    MatChipsModule,
+    MatDialogModule
   ],
   templateUrl: './workers-list.component.html',
   styleUrl: './workers-list.component.css'
@@ -118,6 +120,7 @@ export class WorkersListComponent implements OnInit {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService
   ) {}
 
@@ -296,5 +299,13 @@ export class WorkersListComponent implements OnInit {
     return type === 'internal'
       ? 'bg-blue-100 text-blue-700'
       : 'bg-purple-100 text-purple-700';
+  }
+
+  openCompaniesDialog() {
+    this.dialog.open(CompaniesListDialogComponent, {
+      width: '750px',
+      maxHeight: '90vh',
+      disableClose: false
+    });
   }
 }

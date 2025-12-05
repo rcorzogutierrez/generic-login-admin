@@ -1,7 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, Inject, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -9,10 +9,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { CompaniesService } from '../../companies/services/companies.service';
+import { Company } from '../../companies/models';
 import { AuthService } from '../../../../core/services/auth.service';
 
+export interface EditCompanyDialogData {
+  company: Company;
+}
+
 @Component({
-  selector: 'app-create-company-dialog',
+  selector: 'app-edit-company-dialog',
   standalone: true,
   imports: [
     CommonModule,
@@ -29,11 +34,11 @@ import { AuthService } from '../../../../core/services/auth.service';
       <div class="dialog-header">
         <div class="flex items-center gap-3">
           <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-white !text-2xl">add_business</mat-icon>
+            <mat-icon class="text-white !text-2xl">edit_note</mat-icon>
           </div>
           <div>
-            <h2 class="text-lg font-bold text-slate-800 m-0">Nueva Empresa</h2>
-            <p class="text-sm text-slate-500 m-0">Crear empresa subcontratista</p>
+            <h2 class="text-lg font-bold text-slate-800 m-0">Editar Empresa</h2>
+            <p class="text-sm text-slate-500 m-0">{{ data.company.legalName }}</p>
           </div>
         </div>
         <button mat-icon-button (click)="cancel()" class="!text-slate-400">
@@ -120,6 +125,14 @@ import { AuthService } from '../../../../core/services/auth.service';
           </div>
 
         </div>
+
+        <!-- Info de creación -->
+        <div class="mt-6 p-3 bg-slate-50 rounded-lg text-xs text-slate-500">
+          <p class="flex items-center gap-1">
+            <mat-icon class="!text-sm">calendar_today</mat-icon>
+            Creada: {{ formatDate(data.company.createdAt) }}
+          </p>
+        </div>
       </form>
 
       <!-- Footer -->
@@ -131,14 +144,14 @@ import { AuthService } from '../../../../core/services/auth.service';
           mat-raised-button
           color="primary"
           (click)="save()"
-          [disabled]="isSaving() || companyForm.invalid"
+          [disabled]="isSaving() || companyForm.invalid || !companyForm.dirty"
           class="!bg-indigo-600">
           @if (isSaving()) {
             <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
           } @else {
             <mat-icon>save</mat-icon>
           }
-          Crear Empresa
+          Guardar Cambios
         </button>
       </div>
     </div>
@@ -200,26 +213,29 @@ import { AuthService } from '../../../../core/services/auth.service';
     }
   `]
 })
-export class CreateCompanyDialogComponent {
+export class EditCompanyDialogComponent {
   private fb = inject(FormBuilder);
-  private dialogRef = inject(MatDialogRef<CreateCompanyDialogComponent>);
+  private dialogRef = inject(MatDialogRef<EditCompanyDialogComponent>);
   private companiesService = inject(CompaniesService);
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
 
   isSaving = signal(false);
 
-  companyForm: FormGroup = this.fb.group({
-    legalName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(200)]],
-    taxId: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-    email: ['', [Validators.email, Validators.maxLength(100)]],
-    phone: ['', [Validators.maxLength(20)]],
-    address: ['', [Validators.maxLength(300)]]
-  });
+  companyForm: FormGroup;
+
+  constructor(@Inject(MAT_DIALOG_DATA) public data: EditCompanyDialogData) {
+    this.companyForm = this.fb.group({
+      legalName: [data.company.legalName, [Validators.required, Validators.minLength(2), Validators.maxLength(200)]],
+      taxId: [data.company.taxId, [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      email: [data.company.email || '', [Validators.email, Validators.maxLength(100)]],
+      phone: [data.company.phone || '', [Validators.maxLength(20)]],
+      address: [data.company.address || '', [Validators.maxLength(300)]]
+    });
+  }
 
   async save() {
-    if (this.companyForm.invalid) {
-      this.companyForm.markAllAsTouched();
+    if (this.companyForm.invalid || !this.companyForm.dirty) {
       return;
     }
 
@@ -229,20 +245,21 @@ export class CreateCompanyDialogComponent {
       const currentUser = this.authService.authorizedUser();
       const currentUserUid = currentUser?.uid || '';
 
-      const result = await this.companiesService.createCompany(
+      const result = await this.companiesService.updateCompany(
+        this.data.company.id,
         this.companyForm.value,
         currentUserUid
       );
 
       if (result.success) {
-        this.snackBar.open('Empresa creada exitosamente', 'Cerrar', { duration: 3000 });
-        this.dialogRef.close({ companyId: result.data?.id });
+        this.snackBar.open('Empresa actualizada exitosamente', 'Cerrar', { duration: 3000 });
+        this.dialogRef.close({ updated: true });
       } else {
         this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
       }
     } catch (error) {
-      console.error('Error creando empresa:', error);
-      this.snackBar.open('Error al crear la empresa', 'Cerrar', { duration: 3000 });
+      console.error('Error actualizando empresa:', error);
+      this.snackBar.open('Error al actualizar la empresa', 'Cerrar', { duration: 3000 });
     } finally {
       this.isSaving.set(false);
     }
@@ -276,5 +293,14 @@ export class CreateCompanyDialogComponent {
     if (errors['maxlength']) return `Máximo ${errors['maxlength'].requiredLength} caracteres`;
 
     return 'Campo inválido';
+  }
+
+  formatDate(date: Date | undefined): string {
+    if (!date) return '-';
+    return new Date(date).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
   }
 }

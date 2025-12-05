@@ -12,8 +12,8 @@ import {
   addDocWithLogging as addDoc,
   updateDocWithLogging as updateDoc,
   deleteDocWithLogging as deleteDoc
-} from '../../../shared/utils/firebase-logger.utils';
-import { OperationResult } from '../../../shared/models';
+} from '../../../../shared/utils/firebase-logger.utils';
+import { OperationResult } from '../../../../shared/models';
 import { Company } from '../models';
 
 @Injectable({

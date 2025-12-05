@@ -38,6 +38,15 @@
           </button>
 
           <button
+            mat-stroked-button
+            (click)="openCompaniesDialog()"
+            [disabled]="isLoading"
+            class="flex items-center gap-2 !border-purple-300 !text-purple-700 hover:!bg-purple-50">
+            <mat-icon>business</mat-icon>
+            Empresas
+          </button>
+
+          <button
             mat-raised-button
             color="primary"
             (click)="createWorker()"

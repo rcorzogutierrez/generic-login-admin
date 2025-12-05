@@ -2,7 +2,7 @@
  * Modelos y tipos para el módulo de Companies (Empresas Subcontratistas)
  */
 
-import { GenericEntity } from '../../../shared/models/generic-entity.interface';
+import { GenericEntity } from '../../../../shared/models/generic-entity.interface';
 
 /**
  * Interfaz para Company (Empresa Subcontratista)

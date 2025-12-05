@@ -18,7 +18,7 @@ import { Worker, WorkerType, WORKER_TYPE_LABELS } from '../../models';
 import { CompaniesService } from '../../companies/services/companies.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AuthService } from '../../../../core/services/auth.service';
-import { CreateCompanyDialogComponent } from '../create-company-dialog/create-company-dialog.component';
+import { CompanyFormDialogComponent, CompanyFormDialogResult } from '../company-form-dialog/company-form-dialog.component';
 
 type FormMode = 'create' | 'edit' | 'view';
 
@@ -198,17 +198,16 @@ export class WorkerFormComponent implements OnInit {
   }
 
   openCreateCompanyDialog() {
-    const dialogRef = this.dialog.open(CreateCompanyDialogComponent, {
+    const dialogRef = this.dialog.open(CompanyFormDialogComponent, {
       width: '600px',
       disableClose: true
     });
 
-    dialogRef.afterClosed().subscribe(async (result) => {
+    dialogRef.afterClosed().subscribe(async (result: CompanyFormDialogResult | undefined) => {
       if (result?.companyId) {
         // Recargar empresas y seleccionar la nueva
         await this.companiesService.forceReload();
         this.workerForm.patchValue({ companyId: result.companyId });
-        this.snackBar.open('Empresa creada y seleccionada', 'Cerrar', { duration: 3000 });
         this.cdr.markForCheck();
       }
     });

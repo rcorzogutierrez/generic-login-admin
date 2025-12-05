@@ -15,8 +15,7 @@ import { Company } from '../../companies/models';
 import { WorkersService } from '../../services/workers.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { CreateCompanyDialogComponent } from '../create-company-dialog/create-company-dialog.component';
-import { EditCompanyDialogComponent } from '../edit-company-dialog/edit-company-dialog.component';
+import { CompanyFormDialogComponent, CompanyFormDialogData, CompanyFormDialogResult } from '../company-form-dialog/company-form-dialog.component';
 
 @Component({
   selector: 'app-companies-list-dialog',
@@ -330,30 +329,28 @@ export class CompaniesListDialogComponent implements OnInit {
   }
 
   createCompany() {
-    const dialogRef = this.dialog.open(CreateCompanyDialogComponent, {
+    const dialogRef = this.dialog.open(CompanyFormDialogComponent, {
       width: '600px',
       disableClose: true
     });
 
-    dialogRef.afterClosed().subscribe(async (result) => {
+    dialogRef.afterClosed().subscribe(async (result: CompanyFormDialogResult | undefined) => {
       if (result?.companyId) {
         await this.companiesService.forceReload();
-        this.snackBar.open('Empresa creada exitosamente', 'Cerrar', { duration: 3000 });
       }
     });
   }
 
   editCompany(company: Company) {
-    const dialogRef = this.dialog.open(EditCompanyDialogComponent, {
+    const dialogRef = this.dialog.open(CompanyFormDialogComponent, {
       width: '600px',
       disableClose: true,
-      data: { company }
+      data: { company } as CompanyFormDialogData
     });
 
-    dialogRef.afterClosed().subscribe(async (result) => {
+    dialogRef.afterClosed().subscribe(async (result: CompanyFormDialogResult | undefined) => {
       if (result?.updated) {
         await this.companiesService.forceReload();
-        this.snackBar.open('Empresa actualizada exitosamente', 'Cerrar', { duration: 3000 });
       }
     });
   }

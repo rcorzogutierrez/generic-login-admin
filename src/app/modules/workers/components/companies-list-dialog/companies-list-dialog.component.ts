@@ -108,7 +108,7 @@ import { EditCompanyDialogComponent } from '../edit-company-dialog/edit-company-
               <div class="company-card" [class.inactive]="!company.isActive">
                 <div class="flex items-start gap-4">
                   <div class="company-avatar">
-                    {{ company.legalName?.charAt(0)?.toUpperCase() || 'E' }}
+                    {{ company.legalName.charAt(0).toUpperCase() }}
                   </div>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
@@ -160,15 +160,17 @@ import { EditCompanyDialogComponent } from '../edit-company-dialog/edit-company-
                         <span>Agregar Trabajador</span>
                       </button>
                       <mat-divider></mat-divider>
-                      <button mat-menu-item (click)="toggleActive(company)">
-                        @if (company.isActive) {
+                      @if (company.isActive) {
+                        <button mat-menu-item (click)="toggleActive(company)">
                           <mat-icon class="text-orange-600">visibility_off</mat-icon>
                           <span>Inactivar</span>
-                        } @else {
+                        </button>
+                      } @else {
+                        <button mat-menu-item (click)="toggleActive(company)">
                           <mat-icon class="text-green-600">visibility</mat-icon>
                           <span>Activar</span>
-                        }
-                      </button>
+                        </button>
+                      }
                       <button mat-menu-item (click)="deleteCompany(company)" class="text-red-600">
                         <mat-icon class="text-red-600">delete</mat-icon>
                         <span>Eliminar</span>

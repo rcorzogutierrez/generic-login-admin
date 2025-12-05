@@ -13,7 +13,6 @@ import { ProposalsService } from '../../services/proposals.service';
 import { MaterialsService } from '../../../materials/services/materials.service';
 import { MaterialsConfigService } from '../../../materials/services/materials-config.service';
 import { WorkersService } from '../../../workers/services/workers.service';
-import { WorkersConfigService } from '../../../workers/services/workers-config.service';
 import { LanguageService } from '../../../../core/services/language.service';
 import { Material } from '../../../materials/models';
 import { Worker } from '../../../workers/models';
@@ -53,7 +52,6 @@ export class InvoiceEditDialogComponent implements OnInit {
   private materialsService = inject(MaterialsService);
   private materialsConfigService = inject(MaterialsConfigService);
   private workersService = inject(WorkersService);
-  private workersConfigService = inject(WorkersConfigService);
   private languageService = inject(LanguageService);
   private snackBar = inject(MatSnackBar);
   public data = inject<{ proposal: Proposal }>(MAT_DIALOG_DATA);
@@ -95,7 +93,6 @@ export class InvoiceEditDialogComponent implements OnInit {
       console.log('🔧 Inicializando servicios...');
       await Promise.all([
         this.materialsConfigService.initialize(),
-        this.workersConfigService.initialize(),
         this.materialsService.initialize(),
         this.workersService.initialize()
       ]);
@@ -551,27 +548,14 @@ export class InvoiceEditDialogComponent implements OnInit {
   }
 
   /**
-   * Obtener nombre del trabajador desde sus campos dinámicos
+   * Obtener nombre del trabajador
+   * El modelo Worker ahora tiene campos fijos (fullName)
    */
   getWorkerName(worker: Worker | undefined): string {
     if (!worker) return 'Sin nombre';
 
-    const fields = this.workersConfigService.getFieldsInUse();
-
-    // Buscar el campo de nombre
-    const nameField = fields.find(f =>
-      f.type === FieldType.TEXT ||
-      f.name === 'name' ||
-      f.name === 'nombre'
-    );
-
-    if (nameField) {
-      const value = getFieldValue(worker, nameField.name);
-      if (value) return String(value);
-    }
-
-    // Fallback a campos estándar
-    if (worker.name) return worker.name;
+    // El modelo Worker ahora tiene fullName como campo fijo
+    if (worker.fullName) return worker.fullName;
 
     return 'Sin nombre';
   }

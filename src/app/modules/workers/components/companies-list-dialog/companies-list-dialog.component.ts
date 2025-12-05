@@ -108,7 +108,7 @@ import { EditCompanyDialogComponent } from '../edit-company-dialog/edit-company-
               <div class="company-card" [class.inactive]="!company.isActive">
                 <div class="flex items-start gap-4">
                   <div class="company-avatar">
-                    {{ company.legalName.charAt(0).toUpperCase() }}
+                    {{ (company.legalName || 'E').charAt(0).toUpperCase() }}
                   </div>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">

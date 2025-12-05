@@ -208,13 +208,7 @@
                   Tipo
                 </th>
                 <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                  Empresa
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
                   Teléfono
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                  ID/Licencia
                 </th>
                 <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider w-32">
                   Estado
@@ -262,26 +256,9 @@
                     </span>
                   </td>
 
-                  <!-- Empresa -->
-                  <td class="px-4 py-3 text-sm text-slate-700">
-                    @if (worker.workerType === 'contractor' && worker.companyName) {
-                      <span class="flex items-center gap-1">
-                        <mat-icon class="!text-base text-purple-500">business</mat-icon>
-                        {{ worker.companyName }}
-                      </span>
-                    } @else {
-                      <span class="text-slate-400">-</span>
-                    }
-                  </td>
-
                   <!-- Teléfono -->
                   <td class="px-4 py-3 text-sm text-slate-700">
                     {{ worker.phone || '-' }}
-                  </td>
-
-                  <!-- ID/Licencia -->
-                  <td class="px-4 py-3 text-sm text-slate-700 font-mono">
-                    {{ worker.idOrLicense || '-' }}
                   </td>
 
                   <!-- Estado -->

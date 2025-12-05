@@ -5,7 +5,8 @@ import {
   query,
   orderBy,
   Timestamp,
-  doc
+  doc,
+  where
 } from 'firebase/firestore';
 import {
   getDocsWithLogging as getDocs,
@@ -14,7 +15,7 @@ import {
   deleteDocWithLogging as deleteDoc
 } from '../../../shared/utils/firebase-logger.utils';
 import { OperationResult } from '../../../shared/models';
-import { Worker } from '../models';
+import { Worker, WorkerType } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -32,10 +33,23 @@ export class WorkersService {
 
   public totalWorkers = computed(() => this.workersSignal().length);
 
+  // Filtrar por tipo
+  public internalWorkers = computed(() =>
+    this.workersSignal().filter(w => w.workerType === 'internal')
+  );
+
+  public contractorWorkers = computed(() =>
+    this.workersSignal().filter(w => w.workerType === 'contractor')
+  );
+
   async initialize(): Promise<void> {
     if (this.isInitialized) return;
     await this.loadWorkers();
     this.isInitialized = true;
+  }
+
+  async forceReload(): Promise<void> {
+    await this.loadWorkers();
   }
 
   private async loadWorkers(): Promise<void> {
@@ -195,9 +209,22 @@ export class WorkersService {
 
     const term = searchTerm.toLowerCase();
     return this.workersSignal().filter(worker =>
-      worker.name.toLowerCase().includes(term) ||
-      worker.email.toLowerCase().includes(term) ||
-      (worker.position && worker.position.toLowerCase().includes(term))
+      worker.fullName.toLowerCase().includes(term) ||
+      (worker.phone && worker.phone.includes(term)) ||
+      (worker.idOrLicense && worker.idOrLicense.toLowerCase().includes(term)) ||
+      (worker.companyName && worker.companyName.toLowerCase().includes(term))
     );
+  }
+
+  getWorkerById(workerId: string): Worker | undefined {
+    return this.workersSignal().find(w => w.id === workerId);
+  }
+
+  getWorkersByCompany(companyId: string): Worker[] {
+    return this.workersSignal().filter(w => w.companyId === companyId);
+  }
+
+  getWorkersByType(type: WorkerType): Worker[] {
+    return this.workersSignal().filter(w => w.workerType === type);
   }
 }

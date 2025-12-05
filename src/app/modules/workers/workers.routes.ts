@@ -17,16 +17,6 @@ export const WORKERS_ROUTES: Routes = [
           ),
         title: 'Gestión de Trabajadores'
       },
-      // Rutas específicas DEBEN ir antes de las rutas dinámicas (:id)
-      {
-        path: 'config',
-        loadComponent: () =>
-          import('./components/worker-config/worker-config.component').then(
-            m => m.WorkerConfigComponent
-          ),
-        canActivate: [roleGuard(['admin'])],
-        title: 'Configuración de Trabajadores'
-      },
       {
         path: 'new',
         loadComponent: () =>
@@ -35,7 +25,6 @@ export const WORKERS_ROUTES: Routes = [
           ),
         title: 'Nuevo Trabajador'
       },
-      // Rutas dinámicas van al final
       {
         path: ':id',
         loadComponent: () =>

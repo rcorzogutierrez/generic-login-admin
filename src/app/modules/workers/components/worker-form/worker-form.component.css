@@ -60,9 +60,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: linear-gradient(135deg, #f59e0b, #d97706);
   border-radius: 12px;
-  box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px -2px rgba(245, 158, 11, 0.3);
 }
 
 .icon-badge mat-icon {
@@ -100,16 +100,16 @@
   padding: 0 20px !important;
   font-size: 14px !important;
   font-weight: 600 !important;
-  border: 1.5px solid #3b82f6 !important;
-  color: #3b82f6 !important;
+  border: 1.5px solid #f59e0b !important;
+  color: #f59e0b !important;
   border-radius: 10px !important;
   transition: all 0.2s ease !important;
 }
 
 .btn-edit:hover {
-  background: #eff6ff !important;
-  border-color: #2563eb !important;
-  color: #2563eb !important;
+  background: #fffbeb !important;
+  border-color: #d97706 !important;
+  color: #d97706 !important;
 }
 
 .btn-edit mat-icon {
@@ -119,7 +119,183 @@
   margin-right: 6px !important;
 }
 
-/* Responsive header */
+/* ============================================
+   SECTION CARDS
+   ============================================ */
+.section-card {
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.section-icon {
+  color: #f59e0b;
+  font-size: 24px !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.section-content {
+  padding: 24px;
+}
+
+/* ============================================
+   RADIO CARDS (TIPO DE TRABAJADOR)
+   ============================================ */
+.radio-card {
+  display: block;
+  cursor: pointer;
+  flex: 1;
+  min-width: 200px;
+}
+
+.radio-card-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.radio-card:hover .radio-card-content {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.radio-card.selected .radio-card-content {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  box-shadow: 0 4px 12px -2px rgba(245, 158, 11, 0.2);
+}
+
+.radio-icon {
+  font-size: 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+  color: #94a3b8;
+  transition: color 0.2s;
+}
+
+.radio-card.selected .radio-icon {
+  color: #f59e0b;
+}
+
+.radio-label {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.radio-description {
+  display: block;
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* ============================================
+   COMPANY SELECTOR
+   ============================================ */
+.company-selector {
+  margin-top: 16px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+/* ============================================
+   INPUT FIELDS
+   ============================================ */
+.input-field {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  background: white;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.input-field:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.input-field:read-only {
+  background: #f8fafc;
+  color: #64748b;
+  cursor: default;
+}
+
+.input-field::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.input-error {
+  font-size: 12px;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+form {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
 @media (max-width: 768px) {
   .header-professional {
     padding: 20px 24px;
@@ -147,6 +323,14 @@
   .header-subtitle {
     font-size: 13px;
   }
+
+  .section-content {
+    padding: 16px;
+  }
+
+  .radio-card {
+    min-width: 100%;
+  }
 }
 
 @media (max-width: 640px) {
@@ -163,24 +347,6 @@
   .btn-edit {
     width: 100%;
     justify-content: center !important;
-  }
-}
-
-/* ============================================
-   ANIMACIONES
-   ============================================ */
-form {
-  animation: fadeInUp 0.3s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 

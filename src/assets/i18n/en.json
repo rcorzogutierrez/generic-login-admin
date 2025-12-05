@@ -1,4 +1,60 @@
 {
+  "workers": {
+    "title": "Workers Management",
+    "titleSingular": "Worker",
+    "newWorker": "New Worker",
+    "editWorker": "Edit Worker",
+    "viewWorker": "View Worker",
+    "fields": {
+      "fullName": "Full Name",
+      "idOrLicense": "ID or Driver's License",
+      "socialSecurity": "Social Security",
+      "address": "Address",
+      "phone": "Phone",
+      "workerType": "Worker Type",
+      "company": "Company"
+    },
+    "types": {
+      "internal": "Own Employee",
+      "contractor": "Contractor"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "messages": {
+      "created": "Worker created successfully",
+      "updated": "Worker updated successfully",
+      "deleted": "Worker deleted successfully",
+      "error": "Error processing worker"
+    }
+  },
+  "companies": {
+    "title": "Companies Management",
+    "titleSingular": "Company",
+    "newCompany": "New Company",
+    "editCompany": "Edit Company",
+    "viewCompany": "View Company",
+    "viewWorkers": "View Workers",
+    "fields": {
+      "legalName": "Legal Name",
+      "taxId": "Tax ID",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "createdAt": "Registration Date"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "messages": {
+      "created": "Company created successfully",
+      "updated": "Company updated successfully",
+      "deleted": "Company deleted successfully",
+      "error": "Error processing company"
+    }
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",

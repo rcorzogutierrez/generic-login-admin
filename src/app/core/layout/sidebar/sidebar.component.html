@@ -1,0 +1,149 @@
+<!-- src/app/core/layout/sidebar/sidebar.component.html -->
+
+<!-- Overlay para móvil -->
+@if (sidebarService.isMobile() && sidebarService.isMobileOpen()) {
+  <div
+    class="sidebar-overlay"
+    (click)="closeOverlay()">
+  </div>
+}
+
+<!-- Sidebar Container -->
+<aside
+  class="sidebar"
+  [class.collapsed]="sidebarService.isCollapsed() && !sidebarService.isMobile()"
+  [class.mobile]="sidebarService.isMobile()"
+  [class.mobile-open]="sidebarService.isMobileOpen()">
+
+  <!-- Header del Sidebar -->
+  <div class="sidebar-header">
+    <button
+      class="logo-button"
+      (click)="goToDashboard()"
+      [matTooltip]="sidebarService.isCollapsed() ? 'Ir al Dashboard' : ''"
+      matTooltipPosition="right">
+      <div
+        class="logo-icon"
+        [class.has-custom-logo]="logoUrl()"
+        [style.background]="logoUrl() ? logoBackgroundColor() : null">
+        @if (logoUrl()) {
+          <img [src]="logoUrl()" alt="Logo" />
+        } @else {
+          <mat-icon>business</mat-icon>
+        }
+      </div>
+    </button>
+
+    @if (!sidebarService.isCollapsed() || sidebarService.isMobile()) {
+      <div class="app-info">
+        <h1 class="app-name">{{ appName() || 'CRM System' }}</h1>
+        <span class="app-version">v2.0</span>
+      </div>
+    }
+
+    <!-- Botón cerrar en móvil -->
+    @if (sidebarService.isMobile()) {
+      <button class="close-button" (click)="closeOverlay()">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  </div>
+
+  <!-- Navegación -->
+  <nav class="sidebar-nav">
+    @for (group of filteredNavigation(); track trackByGroup($index, group)) {
+      <div class="nav-group">
+        <!-- Título del grupo (solo en modo expandido) -->
+        @if (!sidebarService.isCollapsed() || sidebarService.isMobile()) {
+          <div class="nav-group-title">
+            {{ group.title }}
+          </div>
+        } @else {
+          <div class="nav-group-divider"></div>
+        }
+
+        <!-- Items del grupo -->
+        @for (item of group.items; track trackByItem($index, item)) {
+          <a
+            class="nav-item"
+            [class.active]="isActive(item.route)"
+            [class.disabled]="item.disabled"
+            [class.has-children]="item.children && item.children.length > 0"
+            [matTooltip]="getTooltip(item)"
+            matTooltipPosition="right"
+            [matTooltipDisabled]="!sidebarService.isCollapsed() || sidebarService.isMobile()"
+            matRipple
+            [matRippleDisabled]="!!item.disabled"
+            (click)="navigateTo(item)">
+
+            <div class="nav-item-content">
+              <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+
+              @if (!sidebarService.isCollapsed() || sidebarService.isMobile()) {
+                <span class="nav-label">{{ item.label }}</span>
+
+                @if (item.badge) {
+                  <span
+                    class="nav-badge"
+                    [class.badge-primary]="item.badgeColor === 'primary'"
+                    [class.badge-accent]="item.badgeColor === 'accent'"
+                    [class.badge-warn]="item.badgeColor === 'warn'">
+                    {{ item.badge }}
+                  </span>
+                }
+
+                @if (item.children && item.children.length > 0) {
+                  <mat-icon class="expand-icon" [class.expanded]="isExpanded(item.id)">
+                    expand_more
+                  </mat-icon>
+                }
+              }
+            </div>
+
+            <!-- Indicador de activo -->
+            @if (isActive(item.route)) {
+              <div class="active-indicator"></div>
+            }
+          </a>
+
+          <!-- Submenú (children) -->
+          @if (item.children && item.children.length > 0 && isExpanded(item.id)) {
+            <div class="nav-submenu">
+              @for (child of item.children; track trackByItem($index, child)) {
+                <a
+                  class="nav-item nav-child"
+                  [class.active]="isActive(child.route)"
+                  [class.disabled]="child.disabled"
+                  matRipple
+                  [matRippleDisabled]="!!child.disabled"
+                  (click)="navigateTo(child)">
+                  <div class="nav-item-content">
+                    <mat-icon class="nav-icon">{{ child.icon }}</mat-icon>
+                    <span class="nav-label">{{ child.label }}</span>
+                  </div>
+                </a>
+              }
+            </div>
+          }
+        }
+      </div>
+    }
+  </nav>
+
+  <!-- Footer del Sidebar -->
+  <div class="sidebar-footer">
+    <button
+      class="toggle-button"
+      (click)="toggleSidebar()"
+      [matTooltip]="sidebarService.isCollapsed() ? 'Expandir (Ctrl+B)' : 'Colapsar (Ctrl+B)'"
+      matTooltipPosition="right"
+      matRipple>
+      <mat-icon>
+        {{ sidebarService.isCollapsed() ? 'chevron_right' : 'chevron_left' }}
+      </mat-icon>
+      @if (!sidebarService.isCollapsed() || sidebarService.isMobile()) {
+        <span>Colapsar menú</span>
+      }
+    </button>
+  </div>
+</aside>

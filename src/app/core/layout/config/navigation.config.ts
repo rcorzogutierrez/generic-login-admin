@@ -64,6 +64,14 @@ export const NAVIGATION_CONFIG: NavigationConfig = {
           route: '/modules/projects',
           module: 'projects',
           tooltip: 'Gestión de proyectos'
+        },
+        {
+          id: 'treasury',
+          label: 'Tesorería',
+          icon: 'account_balance_wallet',
+          route: '/modules/treasury',
+          module: 'treasury',
+          tooltip: 'Cobros y pagos'
         }
       ]
     },

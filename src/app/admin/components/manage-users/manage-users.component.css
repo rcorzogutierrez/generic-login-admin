@@ -1,0 +1,38 @@
+/* manage-users.component.css */
+
+/* Animación para filas de la tabla */
+tbody tr {
+  animation: fadeInRow 0.3s ease-out backwards;
+}
+
+tbody tr:nth-child(1) { animation-delay: 0.05s; }
+tbody tr:nth-child(2) { animation-delay: 0.1s; }
+tbody tr:nth-child(3) { animation-delay: 0.15s; }
+tbody tr:nth-child(4) { animation-delay: 0.2s; }
+tbody tr:nth-child(5) { animation-delay: 0.25s; }
+
+/* Animación para las tarjetas de stats */
+.card-corporate {
+  animation: slideInUp 0.4s ease-out backwards;
+}
+
+.card-corporate:nth-child(1) { animation-delay: 0.05s; }
+.card-corporate:nth-child(2) { animation-delay: 0.1s; }
+.card-corporate:nth-child(3) { animation-delay: 0.15s; }
+
+/* Mejora de accesibilidad para checkboxes */
+input[type="checkbox"]:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Evitar selección de texto en filas */
+tbody tr {
+  user-select: none;
+}
+
+/* Estilo para el indeterminate state del checkbox */
+input[type="checkbox"]:indeterminate {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}

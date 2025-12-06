@@ -90,6 +90,13 @@ export const routes: Routes = [
             title: 'Logs de Auditoría',
           },
           {
+            path: 'users',
+            loadComponent: () =>
+              import('./admin/components/manage-users/manage-users.component')
+                .then(m => m.ManageUsersComponent),
+            title: 'Gestión de Usuarios',
+          },
+          {
             path: 'config',
             loadComponent: () =>
               import('./admin/components/system-config/system-config.component')

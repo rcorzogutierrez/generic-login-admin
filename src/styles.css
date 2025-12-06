@@ -161,7 +161,11 @@
   .success-snackbar {
     --mdc-snackbar-container-color: #10b981 !important;
   }
-  
+
+  .warning-snackbar {
+    --mdc-snackbar-container-color: #f59e0b !important;
+  }
+
   .error-snackbar {
     --mdc-snackbar-container-color: #dc2626 !important;
   }

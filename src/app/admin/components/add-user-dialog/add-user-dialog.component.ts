@@ -102,6 +102,77 @@ export class AddUserDialogComponent implements OnInit {
     this.selectedTabIndex = event.index;
   }
 
+  /**
+   * Intenta avanzar al siguiente tab
+   * Si la validación falla, muestra los errores
+   */
+  attemptNextTab() {
+    if (this.canProceedToNextTab()) {
+      this.nextTab();
+    } else {
+      // Marcar campos del tab actual como touched para mostrar errores
+      this.markCurrentTabFieldsTouched();
+
+      // Mostrar mensaje de error específico
+      const errorMessage = this.getTabValidationError();
+      this.snackBar.open(errorMessage, 'Entendido', {
+        duration: 4000,
+        panelClass: ['warning-snackbar']
+      });
+    }
+  }
+
+  /**
+   * Obtiene el mensaje de error específico para el tab actual
+   */
+  private getTabValidationError(): string {
+    switch (this.selectedTabIndex) {
+      case 0: // Info básica
+        const errors: string[] = [];
+        if (this.userForm.get('email')?.invalid) {
+          if (this.userForm.get('email')?.hasError('required')) {
+            errors.push('Email');
+          } else if (this.userForm.get('email')?.hasError('email')) {
+            errors.push('Email válido');
+          }
+        }
+        if (this.userForm.get('displayName')?.invalid) {
+          errors.push('Nombre completo');
+        }
+        if (this.userForm.get('role')?.invalid) {
+          errors.push('Rol');
+        }
+        return errors.length > 0
+          ? `Campos requeridos: ${errors.join(', ')}`
+          : 'Complete todos los campos requeridos';
+      case 1: // Permisos
+        return 'Selecciona al menos un permiso para continuar';
+      case 2: // Módulos
+        return 'Selecciona al menos un módulo para continuar';
+      default:
+        return 'Complete los campos requeridos';
+    }
+  }
+
+  /**
+   * Marca los campos del tab actual como touched
+   */
+  private markCurrentTabFieldsTouched() {
+    switch (this.selectedTabIndex) {
+      case 0:
+        this.userForm.get('email')?.markAsTouched();
+        this.userForm.get('displayName')?.markAsTouched();
+        this.userForm.get('role')?.markAsTouched();
+        break;
+      case 1:
+        this.userForm.get('permissions')?.markAsTouched();
+        break;
+      case 2:
+        this.userForm.get('modules')?.markAsTouched();
+        break;
+    }
+  }
+
   nextTab() {
     if (this.selectedTabIndex < 2) {
       this.selectedTabIndex++;

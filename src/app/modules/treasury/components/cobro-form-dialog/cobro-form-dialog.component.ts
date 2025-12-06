@@ -4,19 +4,13 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Timestamp } from 'firebase/firestore';
 
 import { TreasuryService } from '../../services/treasury.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ProposalsService } from '../../../projects/services/proposals.service';
-import { Cobro, CreateCobroData, PAYMENT_METHOD_LABELS, PaymentMethod } from '../../models';
+import { Cobro, CreateCobroData, PaymentMethod } from '../../models';
 
 export interface CobroFormDialogData {
   cobro?: Cobro;
@@ -30,289 +24,317 @@ export interface CobroFormDialogData {
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
-    MatIconModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatIconModule
   ],
   template: `
     <div class="dialog-container">
       <!-- Header -->
-      <div class="dialog-header">
-        <div class="header-title">
-          <div class="icon-wrapper">
-            <mat-icon>{{ isEditMode ? 'edit' : 'savings' }}</mat-icon>
+      <div class="flex items-center justify-between p-6 border-b border-slate-200">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-white !text-2xl">{{ isEditMode ? 'edit' : 'savings' }}</mat-icon>
           </div>
           <div>
-            <h2>{{ isEditMode ? 'Editar Cobro' : 'Nuevo Cobro' }}</h2>
-            <p>{{ isEditMode ? 'Modifica los datos del cobro' : 'Registra un nuevo cobro de cliente' }}</p>
+            <h2 class="text-lg font-bold text-slate-800 m-0">
+              {{ isEditMode ? 'Editar Cobro' : 'Nuevo Cobro' }}
+            </h2>
+            <p class="text-sm text-slate-500 m-0">
+              {{ isEditMode ? 'Modifica los datos del cobro' : 'Registra un cobro de cliente' }}
+            </p>
           </div>
         </div>
-        <button mat-icon-button (click)="cancel()">
+        <button mat-icon-button (click)="cancel()" class="!text-slate-400">
           <mat-icon>close</mat-icon>
         </button>
       </div>
 
-      <!-- Form -->
-      <form [formGroup]="form" (ngSubmit)="save()" class="dialog-content">
-        <!-- Client & Proposal -->
-        <div class="form-section">
-          <h3><mat-icon>business</mat-icon> Cliente y Proyecto</h3>
+      <!-- Content -->
+      <form [formGroup]="form" (ngSubmit)="save()" class="p-6 overflow-y-auto max-h-[65vh]">
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Cliente</mat-label>
-            <mat-select formControlName="clientId" (selectionChange)="onClientChange($event.value)">
-              @for (client of clients(); track client.id) {
-                <mat-option [value]="client.id">{{ client.name }}</mat-option>
-              }
-            </mat-select>
-            @if (form.get('clientId')?.hasError('required') && form.get('clientId')?.touched) {
-              <mat-error>Selecciona un cliente</mat-error>
-            }
-          </mat-form-field>
+        <!-- Cliente y Proyecto -->
+        <div class="mb-6">
+          <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-4">
+            <mat-icon class="!text-lg text-emerald-500">business</mat-icon>
+            Cliente y Proyecto
+          </h3>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Proyecto / Factura</mat-label>
-            <mat-select formControlName="proposalId" (selectionChange)="onProposalChange($event.value)">
-              @for (proposal of filteredProposals(); track proposal.id) {
-                <mat-option [value]="proposal.id">
-                  {{ proposal.proposalNumber }} - {{ proposal.address }}
-                  ({{ proposal.total | currency:'USD':'symbol':'1.2-2' }})
-                </mat-option>
+          <div class="grid grid-cols-1 gap-4">
+            <!-- Cliente -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Cliente <span class="text-red-500">*</span>
+              </label>
+              <select
+                class="input-field"
+                formControlName="clientId"
+                (change)="onClientChange($event)">
+                <option value="">Seleccionar cliente...</option>
+                @for (client of clients(); track client.id) {
+                  <option [value]="client.id">{{ client.name }}</option>
+                }
+              </select>
+              @if (hasError('clientId')) {
+                <span class="text-xs text-red-500 mt-1">Selecciona un cliente</span>
               }
-            </mat-select>
-            @if (form.get('proposalId')?.hasError('required') && form.get('proposalId')?.touched) {
-              <mat-error>Selecciona un proyecto</mat-error>
-            }
-            @if (filteredProposals().length === 0 && form.get('clientId')?.value) {
-              <mat-hint class="warning-hint">No hay proyectos facturados para este cliente</mat-hint>
-            }
-          </mat-form-field>
-        </div>
+            </div>
 
-        <!-- Payment Details -->
-        <div class="form-section">
-          <h3><mat-icon>payments</mat-icon> Detalles del Pago</h3>
-
-          <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Monto</mat-label>
-              <span matPrefix>$ &nbsp;</span>
-              <input matInput type="number" formControlName="amount" placeholder="0.00">
-              @if (form.get('amount')?.hasError('required') && form.get('amount')?.touched) {
-                <mat-error>Ingresa el monto</mat-error>
+            <!-- Proyecto -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Proyecto / Factura <span class="text-red-500">*</span>
+              </label>
+              <select
+                class="input-field"
+                formControlName="proposalId"
+                (change)="onProposalChange($event)">
+                <option value="">Seleccionar proyecto...</option>
+                @for (proposal of filteredProposals(); track proposal.id) {
+                  <option [value]="proposal.id">
+                    {{ proposal.proposalNumber }} - {{ proposal.address }}
+                  </option>
+                }
+              </select>
+              @if (filteredProposals().length === 0 && form.get('clientId')?.value) {
+                <span class="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                  <mat-icon class="!text-sm">warning</mat-icon>
+                  No hay proyectos facturados para este cliente
+                </span>
               }
-              @if (form.get('amount')?.hasError('min')) {
-                <mat-error>El monto debe ser mayor a 0</mat-error>
+              @if (hasError('proposalId')) {
+                <span class="text-xs text-red-500 mt-1">Selecciona un proyecto</span>
               }
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Fecha</mat-label>
-              <input matInput [matDatepicker]="picker" formControlName="transactionDate">
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-              @if (form.get('transactionDate')?.hasError('required') && form.get('transactionDate')?.touched) {
-                <mat-error>Selecciona la fecha</mat-error>
-              }
-            </mat-form-field>
+            </div>
           </div>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Método de Pago</mat-label>
-            <mat-select formControlName="paymentMethod">
-              @for (method of paymentMethods; track method.value) {
-                <mat-option [value]="method.value">
-                  <mat-icon class="method-icon">{{ method.icon }}</mat-icon>
-                  {{ method.label }}
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
         </div>
 
-        <!-- Check/Transfer Details -->
+        <!-- Detalles del Pago -->
+        <div class="mb-6">
+          <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-4">
+            <mat-icon class="!text-lg text-emerald-500">payments</mat-icon>
+            Detalles del Pago
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Monto -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Monto <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                <input
+                  type="number"
+                  class="input-field pl-7"
+                  formControlName="amount"
+                  placeholder="0.00"
+                  step="0.01">
+              </div>
+              @if (hasError('amount')) {
+                <span class="text-xs text-red-500 mt-1">Ingresa un monto válido</span>
+              }
+            </div>
+
+            <!-- Fecha -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Fecha <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                class="input-field"
+                formControlName="transactionDate">
+              @if (hasError('transactionDate')) {
+                <span class="text-xs text-red-500 mt-1">Selecciona la fecha</span>
+              }
+            </div>
+
+            <!-- Método de pago -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Método de Pago
+              </label>
+              <div class="flex gap-3">
+                @for (method of paymentMethods; track method.value) {
+                  <label
+                    class="payment-option"
+                    [class.selected]="form.get('paymentMethod')?.value === method.value">
+                    <input
+                      type="radio"
+                      formControlName="paymentMethod"
+                      [value]="method.value"
+                      class="hidden">
+                    <mat-icon class="!text-xl">{{ method.icon }}</mat-icon>
+                    <span>{{ method.label }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datos del Cheque -->
         @if (form.get('paymentMethod')?.value === 'check') {
-          <div class="form-section">
-            <h3><mat-icon>money</mat-icon> Datos del Cheque</h3>
+          <div class="mb-6 p-4 bg-slate-50 rounded-xl">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-4">
+              <mat-icon class="!text-lg text-emerald-500">money</mat-icon>
+              Datos del Cheque
+            </h3>
 
-            <div class="form-row">
-              <mat-form-field appearance="outline">
-                <mat-label>Número de Cheque</mat-label>
-                <input matInput formControlName="checkNumber" placeholder="Ej: 001234">
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>Banco Emisor</mat-label>
-                <input matInput formControlName="bankName" placeholder="Ej: Bank of America">
-              </mat-form-field>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-600 mb-2">Número de Cheque</label>
+                <input
+                  type="text"
+                  class="input-field"
+                  formControlName="checkNumber"
+                  placeholder="Ej: 001234">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-600 mb-2">Banco Emisor</label>
+                <input
+                  type="text"
+                  class="input-field"
+                  formControlName="bankName"
+                  placeholder="Ej: Bank of America">
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-slate-600 mb-2">
+                  <mat-icon class="!text-sm align-middle mr-1">image</mat-icon>
+                  URL de imagen del cheque
+                </label>
+                <input
+                  type="url"
+                  class="input-field"
+                  formControlName="checkImageUrl"
+                  placeholder="https://...">
+                <span class="text-xs text-slate-400 mt-1">Opcional - pega la URL de la imagen</span>
+              </div>
             </div>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>URL de imagen del cheque</mat-label>
-              <input matInput formControlName="checkImageUrl" placeholder="https://...">
-              <mat-icon matSuffix>image</mat-icon>
-              <mat-hint>Pega la URL de la imagen del cheque (opcional)</mat-hint>
-            </mat-form-field>
           </div>
         }
 
+        <!-- Datos de Transferencia -->
         @if (form.get('paymentMethod')?.value === 'transfer') {
-          <div class="form-section">
-            <h3><mat-icon>account_balance</mat-icon> Datos de la Transferencia</h3>
+          <div class="mb-6 p-4 bg-slate-50 rounded-xl">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-4">
+              <mat-icon class="!text-lg text-emerald-500">account_balance</mat-icon>
+              Datos de la Transferencia
+            </h3>
 
-            <div class="form-row">
-              <mat-form-field appearance="outline">
-                <mat-label>Número de Referencia</mat-label>
-                <input matInput formControlName="referenceNumber" placeholder="Ej: REF123456">
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>Banco</mat-label>
-                <input matInput formControlName="bankName" placeholder="Ej: Chase">
-              </mat-form-field>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-600 mb-2">Número de Referencia</label>
+                <input
+                  type="text"
+                  class="input-field"
+                  formControlName="referenceNumber"
+                  placeholder="Ej: REF123456">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-600 mb-2">Banco</label>
+                <input
+                  type="text"
+                  class="input-field"
+                  formControlName="bankName"
+                  placeholder="Ej: Chase">
+              </div>
             </div>
           </div>
         }
 
-        <!-- Notes -->
-        <div class="form-section">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Notas (opcional)</mat-label>
-            <textarea matInput formControlName="notes" rows="2" placeholder="Observaciones adicionales..."></textarea>
-          </mat-form-field>
-        </div>
-
-        <!-- Actions -->
-        <div class="dialog-actions">
-          <button type="button" mat-stroked-button (click)="cancel()">
-            Cancelar
-          </button>
-          <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid || isSaving()">
-            @if (isSaving()) {
-              <mat-spinner diameter="20"></mat-spinner>
-            } @else {
-              <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
-              {{ isEditMode ? 'Guardar Cambios' : 'Registrar Cobro' }}
-            }
-          </button>
+        <!-- Notas -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            <mat-icon class="!text-sm align-middle mr-1 text-slate-400">notes</mat-icon>
+            Notas (opcional)
+          </label>
+          <textarea
+            class="input-field resize-none"
+            formControlName="notes"
+            rows="2"
+            placeholder="Observaciones adicionales..."></textarea>
         </div>
       </form>
+
+      <!-- Footer -->
+      <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
+        <button mat-stroked-button (click)="cancel()" [disabled]="isSaving()">
+          Cancelar
+        </button>
+        <button
+          mat-raised-button
+          (click)="save()"
+          [disabled]="form.invalid || isSaving()"
+          class="!bg-emerald-600 !text-white">
+          @if (isSaving()) {
+            <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+          } @else {
+            <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+          }
+          {{ isEditMode ? 'Guardar' : 'Registrar Cobro' }}
+        </button>
+      </div>
     </div>
   `,
   styles: [`
     .dialog-container {
       display: flex;
       flex-direction: column;
-      max-height: 90vh;
+      background: white;
+      border-radius: 1rem;
+      overflow: hidden;
+      min-width: 500px;
+      max-width: 600px;
     }
 
-    .dialog-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 1.5rem 1.5rem 1rem;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .header-title {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .icon-wrapper {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      mat-icon {
-        color: white;
-        font-size: 24px;
-        width: 24px;
-        height: 24px;
-      }
-    }
-
-    .header-title h2 {
-      margin: 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #1e293b;
-    }
-
-    .header-title p {
-      margin: 0.25rem 0 0;
-      font-size: 0.85rem;
-      color: #64748b;
-    }
-
-    .dialog-content {
-      padding: 1.5rem;
-      overflow-y: auto;
-      flex: 1;
-    }
-
-    .form-section {
-      margin-bottom: 1.5rem;
-
-      h3 {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin: 0 0 1rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: #475569;
-
-        mat-icon {
-          font-size: 18px;
-          width: 18px;
-          height: 18px;
-          color: #64748b;
-        }
-      }
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .full-width {
+    .input-field {
       width: 100%;
+      padding: 0.625rem 0.75rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+      outline: none;
+      background: white;
     }
 
-    .method-icon {
-      margin-right: 8px;
-      font-size: 18px;
-      vertical-align: middle;
+    .input-field:focus {
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
     }
 
-    .warning-hint {
-      color: #f59e0b;
+    .input-field::placeholder {
+      color: #94a3b8;
     }
 
-    .dialog-actions {
+    .payment-option {
       display: flex;
-      justify-content: flex-end;
-      gap: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid #e2e8f0;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #475569;
     }
 
-    @media (max-width: 600px) {
-      .form-row {
-        grid-template-columns: 1fr;
+    .payment-option:hover {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+    }
+
+    .payment-option.selected {
+      border-color: #10b981;
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    @media (max-width: 640px) {
+      .dialog-container {
+        min-width: auto;
+        width: 100%;
       }
     }
   `]
@@ -333,9 +355,9 @@ export class CobroFormDialogComponent implements OnInit {
   filteredProposals = signal<any[]>([]);
 
   paymentMethods = [
-    { value: 'check', label: PAYMENT_METHOD_LABELS.check, icon: 'money' },
-    { value: 'transfer', label: PAYMENT_METHOD_LABELS.transfer, icon: 'account_balance' },
-    { value: 'cash', label: PAYMENT_METHOD_LABELS.cash, icon: 'payments' }
+    { value: 'check', label: 'Cheque', icon: 'money' },
+    { value: 'transfer', label: 'Transferencia', icon: 'account_balance' },
+    { value: 'cash', label: 'Efectivo', icon: 'payments' }
   ];
 
   constructor(
@@ -347,13 +369,11 @@ export class CobroFormDialogComponent implements OnInit {
     this.isEditMode = !!this.data?.cobro;
     this.initForm();
 
-    // Initialize services
     await Promise.all([
       this.clientsService.initialize(),
       this.proposalsService.initialize()
     ]);
 
-    // If editing, populate form
     if (this.isEditMode && this.data.cobro) {
       this.populateForm(this.data.cobro);
     }
@@ -366,7 +386,7 @@ export class CobroFormDialogComponent implements OnInit {
       proposalId: ['', Validators.required],
       proposalNumber: [''],
       amount: [null, [Validators.required, Validators.min(0.01)]],
-      transactionDate: [new Date(), Validators.required],
+      transactionDate: [this.formatDateForInput(new Date()), Validators.required],
       paymentMethod: ['check', Validators.required],
       checkNumber: [''],
       bankName: [''],
@@ -376,14 +396,20 @@ export class CobroFormDialogComponent implements OnInit {
     });
   }
 
+  private formatDateForInput(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
   private populateForm(cobro: Cobro): void {
+    const transactionDate = cobro.transactionDate?.toDate?.() || new Date();
+
     this.form.patchValue({
       clientId: cobro.clientId,
       clientName: cobro.clientName,
       proposalId: cobro.proposalId,
       proposalNumber: cobro.proposalNumber,
       amount: cobro.amount,
-      transactionDate: cobro.transactionDate?.toDate() || new Date(),
+      transactionDate: this.formatDateForInput(transactionDate),
       paymentMethod: cobro.paymentMethod,
       checkNumber: cobro.checkNumber || '',
       bankName: cobro.bankName || '',
@@ -392,33 +418,43 @@ export class CobroFormDialogComponent implements OnInit {
       notes: cobro.notes || ''
     });
 
-    // Filter proposals for this client
     this.filterProposalsByClient(cobro.clientId);
   }
 
-  onClientChange(clientId: string): void {
+  onClientChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const clientId = select.value;
     const client = this.clients().find(c => c.id === clientId);
+
     if (client) {
       this.form.patchValue({ clientName: client.name });
     }
+
     this.filterProposalsByClient(clientId);
     this.form.patchValue({ proposalId: '', proposalNumber: '' });
   }
 
-  onProposalChange(proposalId: string): void {
+  onProposalChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const proposalId = select.value;
     const proposal = this.proposals().find(p => p.id === proposalId);
+
     if (proposal) {
       this.form.patchValue({ proposalNumber: proposal.proposalNumber });
     }
   }
 
   private filterProposalsByClient(clientId: string): void {
-    // Filter proposals by client and status (converted_to_invoice or paid)
     const filtered = this.proposals().filter(p =>
       p.ownerId === clientId &&
       (p.status === 'converted_to_invoice' || p.status === 'paid' || p.status === 'approved')
     );
     this.filteredProposals.set(filtered);
+  }
+
+  hasError(fieldName: string): boolean {
+    const control = this.form.get(fieldName);
+    return !!(control && control.invalid && control.touched);
   }
 
   async save(): Promise<void> {
@@ -437,7 +473,7 @@ export class CobroFormDialogComponent implements OnInit {
         proposalId: formValue.proposalId,
         proposalNumber: formValue.proposalNumber,
         amount: formValue.amount,
-        transactionDate: Timestamp.fromDate(formValue.transactionDate),
+        transactionDate: Timestamp.fromDate(new Date(formValue.transactionDate)),
         paymentMethod: formValue.paymentMethod as PaymentMethod,
         checkNumber: formValue.checkNumber || undefined,
         bankName: formValue.bankName || undefined,

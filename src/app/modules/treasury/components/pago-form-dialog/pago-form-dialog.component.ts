@@ -4,21 +4,13 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Timestamp } from 'firebase/firestore';
 
 import { TreasuryService } from '../../services/treasury.service';
 import { WorkersService } from '../../../workers/services/workers.service';
 import { ProposalsService } from '../../../projects/services/proposals.service';
-import { Pago, CreatePagoData, PAYMENT_METHOD_LABELS, PaymentMethod } from '../../models';
+import { Pago, CreatePagoData, PaymentMethod } from '../../models';
 
 export interface PagoFormDialogData {
   pago?: Pago;
@@ -32,398 +24,387 @@ export interface PagoFormDialogData {
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
-    MatIconModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatProgressSpinnerModule,
-    MatCheckboxModule,
-    MatChipsModule,
-    MatSnackBarModule
+    MatIconModule
   ],
   template: `
     <div class="dialog-container">
       <!-- Header -->
-      <div class="dialog-header">
-        <div class="header-title">
-          <div class="icon-wrapper">
-            <mat-icon>{{ isEditMode ? 'edit' : 'payments' }}</mat-icon>
+      <div class="flex items-center justify-between p-6 border-b border-slate-200">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-white !text-2xl">{{ isEditMode ? 'edit' : 'payments' }}</mat-icon>
           </div>
           <div>
-            <h2>{{ isEditMode ? 'Editar Pago' : 'Nuevo Pago' }}</h2>
-            <p>{{ isEditMode ? 'Modifica los datos del pago' : 'Registra un pago a trabajador' }}</p>
+            <h2 class="text-lg font-bold text-slate-800 m-0">
+              {{ isEditMode ? 'Editar Pago' : 'Nuevo Pago' }}
+            </h2>
+            <p class="text-sm text-slate-500 m-0">
+              {{ isEditMode ? 'Modifica los datos del pago' : 'Registra un pago a trabajador' }}
+            </p>
           </div>
         </div>
-        <button mat-icon-button (click)="cancel()">
+        <button mat-icon-button (click)="cancel()" class="!text-slate-400">
           <mat-icon>close</mat-icon>
         </button>
       </div>
 
-      <!-- Form -->
-      <form [formGroup]="form" (ngSubmit)="save()" class="dialog-content">
-        <!-- Worker Selection -->
-        <div class="form-section">
-          <h3><mat-icon>person</mat-icon> Trabajador</h3>
+      <!-- Content -->
+      <form [formGroup]="form" (ngSubmit)="save()" class="p-6 overflow-y-auto max-h-[65vh]">
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Trabajador</mat-label>
-            <mat-select formControlName="workerId" (selectionChange)="onWorkerChange($event.value)">
+        <!-- Trabajador -->
+        <div class="mb-6">
+          <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-4">
+            <mat-icon class="!text-lg text-red-500">person</mat-icon>
+            Trabajador
+          </h3>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+              Trabajador <span class="text-red-500">*</span>
+            </label>
+            <select
+              class="input-field"
+              formControlName="workerId"
+              (change)="onWorkerChange($event)">
+              <option value="">Seleccionar trabajador...</option>
               @for (worker of activeWorkers(); track worker.id) {
-                <mat-option [value]="worker.id">
-                  {{ worker.fullName }}
-                  @if (worker.companyName) {
-                    <span class="worker-company"> - {{ worker.companyName }}</span>
-                  }
-                </mat-option>
+                <option [value]="worker.id">
+                  {{ worker.fullName }}{{ worker.companyName ? ' - ' + worker.companyName : '' }}
+                </option>
               }
-            </mat-select>
-            @if (form.get('workerId')?.hasError('required') && form.get('workerId')?.touched) {
-              <mat-error>Selecciona un trabajador</mat-error>
+            </select>
+            @if (hasError('workerId')) {
+              <span class="text-xs text-red-500 mt-1">Selecciona un trabajador</span>
             }
-          </mat-form-field>
+          </div>
         </div>
 
-        <!-- Projects Selection -->
-        <div class="form-section">
-          <h3><mat-icon>assignment</mat-icon> Proyectos</h3>
-          <p class="section-hint">Selecciona uno o varios proyectos completados por este trabajador</p>
+        <!-- Proyectos -->
+        <div class="mb-6">
+          <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-3">
+            <mat-icon class="!text-lg text-red-500">assignment</mat-icon>
+            Proyectos
+          </h3>
+          <p class="text-xs text-slate-500 mb-3">Selecciona uno o varios proyectos completados</p>
 
-          <div class="projects-selection">
+          <div class="projects-container">
             @if (invoicedProposals().length === 0) {
-              <div class="no-projects">
-                <mat-icon>info</mat-icon>
+              <div class="flex items-center justify-center gap-2 p-6 text-slate-500">
+                <mat-icon class="!text-lg">info</mat-icon>
                 <span>No hay proyectos facturados disponibles</span>
               </div>
             } @else {
               @for (proposal of invoicedProposals(); track proposal.id) {
-                <div class="project-item"
-                     [class.selected]="isProjectSelected(proposal.id)"
-                     (click)="toggleProject(proposal)">
-                  <mat-checkbox
-                    [checked]="isProjectSelected(proposal.id)"
-                    (click)="$event.stopPropagation()">
-                  </mat-checkbox>
-                  <div class="project-info">
-                    <span class="project-number">{{ proposal.proposalNumber }}</span>
-                    <span class="project-address">{{ proposal.address }}</span>
-                    <span class="project-client">{{ proposal.ownerName }}</span>
+                <div
+                  class="project-item"
+                  [class.selected]="isProjectSelected(proposal.id)"
+                  (click)="toggleProject(proposal)">
+                  <div class="flex items-center gap-3 flex-1 min-w-0">
+                    <div class="checkbox-indicator" [class.checked]="isProjectSelected(proposal.id)">
+                      @if (isProjectSelected(proposal.id)) {
+                        <mat-icon class="!text-sm">check</mat-icon>
+                      }
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="font-semibold text-slate-800 text-sm">{{ proposal.proposalNumber }}</div>
+                      <div class="text-xs text-slate-500 truncate">{{ proposal.address }}</div>
+                      <div class="text-xs text-slate-400">{{ proposal.ownerName }}</div>
+                    </div>
                   </div>
-                  <span class="project-total">{{ proposal.total | currency:'USD':'symbol':'1.2-2' }}</span>
+                  <div class="text-sm font-semibold text-slate-600">
+                    {{ proposal.total | currency:'USD':'symbol':'1.2-2' }}
+                  </div>
                 </div>
               }
             }
           </div>
           @if (selectedProposalIds().length === 0 && form.touched) {
-            <mat-error class="projects-error">Selecciona al menos un proyecto</mat-error>
+            <span class="text-xs text-red-500 mt-2 block">Selecciona al menos un proyecto</span>
+          }
+          @if (selectedProposalIds().length > 0) {
+            <div class="mt-2 text-xs text-slate-500">
+              {{ selectedProposalIds().length }} proyecto(s) seleccionado(s)
+            </div>
           }
         </div>
 
-        <!-- Payment Details -->
-        <div class="form-section">
-          <h3><mat-icon>payments</mat-icon> Detalles del Pago</h3>
+        <!-- Detalles del Pago -->
+        <div class="mb-6">
+          <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-4">
+            <mat-icon class="!text-lg text-red-500">payments</mat-icon>
+            Detalles del Pago
+          </h3>
 
-          <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Monto</mat-label>
-              <span matPrefix>$ &nbsp;</span>
-              <input matInput type="number" formControlName="amount" placeholder="0.00">
-              @if (form.get('amount')?.hasError('required') && form.get('amount')?.touched) {
-                <mat-error>Ingresa el monto</mat-error>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Monto -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Monto <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                <input
+                  type="number"
+                  class="input-field pl-7"
+                  formControlName="amount"
+                  placeholder="0.00"
+                  step="0.01">
+              </div>
+              @if (hasError('amount')) {
+                <span class="text-xs text-red-500 mt-1">Ingresa un monto válido</span>
               }
-              @if (form.get('amount')?.hasError('min')) {
-                <mat-error>El monto debe ser mayor a 0</mat-error>
-              }
-            </mat-form-field>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Fecha</mat-label>
-              <input matInput [matDatepicker]="picker" formControlName="transactionDate">
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-              @if (form.get('transactionDate')?.hasError('required') && form.get('transactionDate')?.touched) {
-                <mat-error>Selecciona la fecha</mat-error>
+            <!-- Fecha -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Fecha <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                class="input-field"
+                formControlName="transactionDate">
+              @if (hasError('transactionDate')) {
+                <span class="text-xs text-red-500 mt-1">Selecciona la fecha</span>
               }
-            </mat-form-field>
+            </div>
+
+            <!-- Método de pago -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Método de Pago
+              </label>
+              <div class="flex gap-3">
+                @for (method of paymentMethods; track method.value) {
+                  <label
+                    class="payment-option"
+                    [class.selected]="form.get('paymentMethod')?.value === method.value">
+                    <input
+                      type="radio"
+                      formControlName="paymentMethod"
+                      [value]="method.value"
+                      class="hidden">
+                    <mat-icon class="!text-xl">{{ method.icon }}</mat-icon>
+                    <span>{{ method.label }}</span>
+                  </label>
+                }
+              </div>
+            </div>
           </div>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Método de Pago</mat-label>
-            <mat-select formControlName="paymentMethod">
-              @for (method of paymentMethods; track method.value) {
-                <mat-option [value]="method.value">
-                  <mat-icon class="method-icon">{{ method.icon }}</mat-icon>
-                  {{ method.label }}
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
         </div>
 
-        <!-- Check/Transfer Details -->
+        <!-- Datos del Cheque -->
         @if (form.get('paymentMethod')?.value === 'check') {
-          <div class="form-section">
-            <h3><mat-icon>money</mat-icon> Datos del Cheque</h3>
+          <div class="mb-6 p-4 bg-slate-50 rounded-xl">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-4">
+              <mat-icon class="!text-lg text-red-500">money</mat-icon>
+              Datos del Cheque
+            </h3>
 
-            <div class="form-row">
-              <mat-form-field appearance="outline">
-                <mat-label>Número de Cheque</mat-label>
-                <input matInput formControlName="checkNumber" placeholder="Ej: 001234">
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>Banco</mat-label>
-                <input matInput formControlName="bankName" placeholder="Ej: Bank of America">
-              </mat-form-field>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-600 mb-2">Número de Cheque</label>
+                <input
+                  type="text"
+                  class="input-field"
+                  formControlName="checkNumber"
+                  placeholder="Ej: 001234">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-600 mb-2">Banco</label>
+                <input
+                  type="text"
+                  class="input-field"
+                  formControlName="bankName"
+                  placeholder="Ej: Bank of America">
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-slate-600 mb-2">
+                  <mat-icon class="!text-sm align-middle mr-1">image</mat-icon>
+                  URL de imagen del cheque
+                </label>
+                <input
+                  type="url"
+                  class="input-field"
+                  formControlName="checkImageUrl"
+                  placeholder="https://...">
+                <span class="text-xs text-slate-400 mt-1">Opcional</span>
+              </div>
             </div>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>URL de imagen del cheque</mat-label>
-              <input matInput formControlName="checkImageUrl" placeholder="https://...">
-              <mat-icon matSuffix>image</mat-icon>
-              <mat-hint>Pega la URL de la imagen del cheque (opcional)</mat-hint>
-            </mat-form-field>
           </div>
         }
 
+        <!-- Datos de Transferencia -->
         @if (form.get('paymentMethod')?.value === 'transfer') {
-          <div class="form-section">
-            <h3><mat-icon>account_balance</mat-icon> Datos de la Transferencia</h3>
+          <div class="mb-6 p-4 bg-slate-50 rounded-xl">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-4">
+              <mat-icon class="!text-lg text-red-500">account_balance</mat-icon>
+              Datos de la Transferencia
+            </h3>
 
-            <div class="form-row">
-              <mat-form-field appearance="outline">
-                <mat-label>Número de Referencia</mat-label>
-                <input matInput formControlName="referenceNumber" placeholder="Ej: REF123456">
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>Banco</mat-label>
-                <input matInput formControlName="bankName" placeholder="Ej: Chase">
-              </mat-form-field>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-600 mb-2">Número de Referencia</label>
+                <input
+                  type="text"
+                  class="input-field"
+                  formControlName="referenceNumber"
+                  placeholder="Ej: REF123456">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-600 mb-2">Banco</label>
+                <input
+                  type="text"
+                  class="input-field"
+                  formControlName="bankName"
+                  placeholder="Ej: Chase">
+              </div>
             </div>
           </div>
         }
 
-        <!-- Notes -->
-        <div class="form-section">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Notas (opcional)</mat-label>
-            <textarea matInput formControlName="notes" rows="2" placeholder="Observaciones adicionales..."></textarea>
-          </mat-form-field>
-        </div>
-
-        <!-- Actions -->
-        <div class="dialog-actions">
-          <button type="button" mat-stroked-button (click)="cancel()">
-            Cancelar
-          </button>
-          <button type="submit" mat-raised-button color="accent"
-                  [disabled]="form.invalid || selectedProposalIds().length === 0 || isSaving()">
-            @if (isSaving()) {
-              <mat-spinner diameter="20"></mat-spinner>
-            } @else {
-              <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
-              {{ isEditMode ? 'Guardar Cambios' : 'Registrar Pago' }}
-            }
-          </button>
+        <!-- Notas -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            <mat-icon class="!text-sm align-middle mr-1 text-slate-400">notes</mat-icon>
+            Notas (opcional)
+          </label>
+          <textarea
+            class="input-field resize-none"
+            formControlName="notes"
+            rows="2"
+            placeholder="Observaciones adicionales..."></textarea>
         </div>
       </form>
+
+      <!-- Footer -->
+      <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
+        <button mat-stroked-button (click)="cancel()" [disabled]="isSaving()">
+          Cancelar
+        </button>
+        <button
+          mat-raised-button
+          (click)="save()"
+          [disabled]="form.invalid || selectedProposalIds().length === 0 || isSaving()"
+          class="!bg-red-600 !text-white">
+          @if (isSaving()) {
+            <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+          } @else {
+            <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+          }
+          {{ isEditMode ? 'Guardar' : 'Registrar Pago' }}
+        </button>
+      </div>
     </div>
   `,
   styles: [`
     .dialog-container {
       display: flex;
       flex-direction: column;
-      max-height: 90vh;
+      background: white;
+      border-radius: 1rem;
+      overflow: hidden;
+      min-width: 500px;
+      max-width: 600px;
     }
 
-    .dialog-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 1.5rem 1.5rem 1rem;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .header-title {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .icon-wrapper {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      mat-icon {
-        color: white;
-        font-size: 24px;
-        width: 24px;
-        height: 24px;
-      }
-    }
-
-    .header-title h2 {
-      margin: 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #1e293b;
-    }
-
-    .header-title p {
-      margin: 0.25rem 0 0;
-      font-size: 0.85rem;
-      color: #64748b;
-    }
-
-    .dialog-content {
-      padding: 1.5rem;
-      overflow-y: auto;
-      flex: 1;
-    }
-
-    .form-section {
-      margin-bottom: 1.5rem;
-
-      h3 {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin: 0 0 1rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: #475569;
-
-        mat-icon {
-          font-size: 18px;
-          width: 18px;
-          height: 18px;
-          color: #64748b;
-        }
-      }
-    }
-
-    .section-hint {
-      margin: -0.5rem 0 1rem;
-      font-size: 0.85rem;
-      color: #64748b;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .full-width {
+    .input-field {
       width: 100%;
+      padding: 0.625rem 0.75rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+      outline: none;
+      background: white;
     }
 
-    .worker-company {
-      color: #64748b;
-      font-size: 0.85rem;
+    .input-field:focus {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
     }
 
-    .projects-selection {
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      max-height: 200px;
+    .input-field::placeholder {
+      color: #94a3b8;
+    }
+
+    .payment-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #475569;
+    }
+
+    .payment-option:hover {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+    }
+
+    .payment-option.selected {
+      border-color: #ef4444;
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    .projects-container {
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      max-height: 180px;
       overflow-y: auto;
     }
 
     .project-item {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      justify-content: space-between;
+      gap: 0.75rem;
       padding: 0.75rem 1rem;
-      border-bottom: 1px solid #f1f5f9;
       cursor: pointer;
-      transition: background 0.2s;
-
-      &:last-child {
-        border-bottom: none;
-      }
-
-      &:hover {
-        background: #f8fafc;
-      }
-
-      &.selected {
-        background: #eff6ff;
-      }
+      transition: all 0.2s;
+      border-bottom: 1px solid #f1f5f9;
     }
 
-    .project-info {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
+    .project-item:last-child {
+      border-bottom: none;
     }
 
-    .project-number {
-      font-weight: 600;
-      color: #1e293b;
-      font-size: 0.9rem;
+    .project-item:hover {
+      background: #f8fafc;
     }
 
-    .project-address {
-      font-size: 0.8rem;
-      color: #64748b;
+    .project-item.selected {
+      background: #fef2f2;
     }
 
-    .project-client {
-      font-size: 0.75rem;
-      color: #94a3b8;
-    }
-
-    .project-total {
-      font-weight: 600;
-      color: #475569;
-      font-size: 0.9rem;
-    }
-
-    .no-projects {
+    .checkbox-indicator {
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 0.25rem;
+      border: 2px solid #cbd5e1;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
-      padding: 2rem;
-      color: #64748b;
-
-      mat-icon {
-        color: #94a3b8;
-      }
+      transition: all 0.2s;
+      flex-shrink: 0;
     }
 
-    .projects-error {
-      display: block;
-      margin-top: 0.5rem;
-      font-size: 0.75rem;
+    .checkbox-indicator.checked {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: white;
     }
 
-    .method-icon {
-      margin-right: 8px;
-      font-size: 18px;
-      vertical-align: middle;
-    }
-
-    .dialog-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid #e2e8f0;
-    }
-
-    @media (max-width: 600px) {
-      .form-row {
-        grid-template-columns: 1fr;
+    @media (max-width: 640px) {
+      .dialog-container {
+        min-width: auto;
+        width: 100%;
       }
     }
   `]
@@ -439,24 +420,21 @@ export class PagoFormDialogComponent implements OnInit {
   isEditMode = false;
   isSaving = signal<boolean>(false);
 
-  // Workers
   activeWorkers = this.workersService.activeWorkers;
 
-  // Proposals - only invoiced/completed ones
   invoicedProposals = computed(() =>
     this.proposalsService.proposals().filter(p =>
       p.status === 'converted_to_invoice' || p.status === 'paid' || p.status === 'approved'
     )
   );
 
-  // Selected projects
   selectedProposalIds = signal<string[]>([]);
   selectedProposalNumbers = signal<string[]>([]);
 
   paymentMethods = [
-    { value: 'check', label: PAYMENT_METHOD_LABELS.check, icon: 'money' },
-    { value: 'transfer', label: PAYMENT_METHOD_LABELS.transfer, icon: 'account_balance' },
-    { value: 'cash', label: PAYMENT_METHOD_LABELS.cash, icon: 'payments' }
+    { value: 'check', label: 'Cheque', icon: 'money' },
+    { value: 'transfer', label: 'Transferencia', icon: 'account_balance' },
+    { value: 'cash', label: 'Efectivo', icon: 'payments' }
   ];
 
   constructor(
@@ -468,13 +446,11 @@ export class PagoFormDialogComponent implements OnInit {
     this.isEditMode = !!this.data?.pago;
     this.initForm();
 
-    // Initialize services
     await Promise.all([
       this.workersService.initialize(),
       this.proposalsService.initialize()
     ]);
 
-    // If editing, populate form
     if (this.isEditMode && this.data.pago) {
       this.populateForm(this.data.pago);
     }
@@ -485,7 +461,7 @@ export class PagoFormDialogComponent implements OnInit {
       workerId: ['', Validators.required],
       workerName: [''],
       amount: [null, [Validators.required, Validators.min(0.01)]],
-      transactionDate: [new Date(), Validators.required],
+      transactionDate: [this.formatDateForInput(new Date()), Validators.required],
       paymentMethod: ['check', Validators.required],
       checkNumber: [''],
       bankName: [''],
@@ -495,12 +471,18 @@ export class PagoFormDialogComponent implements OnInit {
     });
   }
 
+  private formatDateForInput(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
   private populateForm(pago: Pago): void {
+    const transactionDate = pago.transactionDate?.toDate?.() || new Date();
+
     this.form.patchValue({
       workerId: pago.workerId,
       workerName: pago.workerName,
       amount: pago.amount,
-      transactionDate: pago.transactionDate?.toDate() || new Date(),
+      transactionDate: this.formatDateForInput(transactionDate),
       paymentMethod: pago.paymentMethod,
       checkNumber: pago.checkNumber || '',
       bankName: pago.bankName || '',
@@ -509,13 +491,15 @@ export class PagoFormDialogComponent implements OnInit {
       notes: pago.notes || ''
     });
 
-    // Set selected projects
     this.selectedProposalIds.set(pago.proposalIds || []);
     this.selectedProposalNumbers.set(pago.proposalNumbers || []);
   }
 
-  onWorkerChange(workerId: string): void {
+  onWorkerChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const workerId = select.value;
     const worker = this.activeWorkers().find(w => w.id === workerId);
+
     if (worker) {
       this.form.patchValue({ workerName: worker.fullName });
     }
@@ -530,14 +514,17 @@ export class PagoFormDialogComponent implements OnInit {
     const currentNumbers = this.selectedProposalNumbers();
 
     if (currentIds.includes(proposal.id)) {
-      // Remove
       this.selectedProposalIds.set(currentIds.filter(id => id !== proposal.id));
       this.selectedProposalNumbers.set(currentNumbers.filter(n => n !== proposal.proposalNumber));
     } else {
-      // Add
       this.selectedProposalIds.set([...currentIds, proposal.id]);
       this.selectedProposalNumbers.set([...currentNumbers, proposal.proposalNumber]);
     }
+  }
+
+  hasError(fieldName: string): boolean {
+    const control = this.form.get(fieldName);
+    return !!(control && control.invalid && control.touched);
   }
 
   async save(): Promise<void> {
@@ -556,7 +543,7 @@ export class PagoFormDialogComponent implements OnInit {
         proposalIds: this.selectedProposalIds(),
         proposalNumbers: this.selectedProposalNumbers(),
         amount: formValue.amount,
-        transactionDate: Timestamp.fromDate(formValue.transactionDate),
+        transactionDate: Timestamp.fromDate(new Date(formValue.transactionDate)),
         paymentMethod: formValue.paymentMethod as PaymentMethod,
         checkNumber: formValue.checkNumber || undefined,
         bankName: formValue.bankName || undefined,

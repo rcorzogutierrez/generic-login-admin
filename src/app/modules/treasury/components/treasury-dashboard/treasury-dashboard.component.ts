@@ -233,13 +233,13 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
       display: flex;
       align-items: center;
       justify-content: center;
+    }
 
-      mat-icon {
-        color: white;
-        font-size: 28px;
-        width: 28px;
-        height: 28px;
-      }
+    .icon-container mat-icon {
+      color: white;
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
     }
 
     h1 {
@@ -291,12 +291,12 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
       display: flex;
       align-items: center;
       justify-content: center;
+    }
 
-      mat-icon {
-        font-size: 24px;
-        width: 24px;
-        height: 24px;
-      }
+    .stat-icon mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
     }
 
     .stat-card.cobros .stat-icon {
@@ -389,13 +389,13 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
       display: flex;
       align-items: center;
       gap: 0.75rem;
+    }
 
-      h2 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #1e293b;
-      }
+    .section-title h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1e293b;
     }
 
     .cobros-icon {
@@ -425,15 +425,15 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
     /* Recent List */
     .recent-list {
       padding: 1rem 1.5rem 1.5rem;
+    }
 
-      h3 {
-        margin: 0 0 1rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
+    .recent-list h3 {
+      margin: 0 0 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .recent-item {
@@ -442,10 +442,10 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
       gap: 1rem;
       padding: 0.75rem 0;
       border-bottom: 1px solid #f1f5f9;
+    }
 
-      &:last-child {
-        border-bottom: none;
-      }
+    .recent-item:last-child {
+      border-bottom: none;
     }
 
     .item-icon {
@@ -455,22 +455,22 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
       display: flex;
       align-items: center;
       justify-content: center;
+    }
 
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-      }
+    .item-icon mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
 
-      &.cobros {
-        background: #dcfce7;
-        color: #16a34a;
-      }
+    .item-icon.cobros {
+      background: #dcfce7;
+      color: #16a34a;
+    }
 
-      &.pagos {
-        background: #fee2e2;
-        color: #dc2626;
-      }
+    .item-icon.pagos {
+      background: #fee2e2;
+      color: #dc2626;
     }
 
     .item-details {
@@ -491,14 +491,14 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
 
     .item-amount {
       font-weight: 600;
+    }
 
-      &.positive {
-        color: #16a34a;
-      }
+    .item-amount.positive {
+      color: #16a34a;
+    }
 
-      &.negative {
-        color: #dc2626;
-      }
+    .item-amount.negative {
+      color: #dc2626;
     }
 
     @media (max-width: 768px) {

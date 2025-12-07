@@ -254,13 +254,13 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
       display: flex;
       align-items: center;
       justify-content: center;
+    }
 
-      mat-icon {
-        color: white;
-        font-size: 24px;
-        width: 24px;
-        height: 24px;
-      }
+    .icon-container mat-icon {
+      color: white;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
     }
 
     h1 {
@@ -328,24 +328,24 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
       padding: 4rem 2rem;
       background: #f8fafc;
       border-radius: 16px;
+    }
 
-      mat-icon {
-        font-size: 64px;
-        width: 64px;
-        height: 64px;
-        color: #cbd5e1;
-        margin-bottom: 1rem;
-      }
+    .empty-state mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: #cbd5e1;
+      margin-bottom: 1rem;
+    }
 
-      h3 {
-        margin: 0 0 0.5rem;
-        color: #475569;
-      }
+    .empty-state h3 {
+      margin: 0 0 0.5rem;
+      color: #475569;
+    }
 
-      p {
-        color: #64748b;
-        margin-bottom: 1.5rem;
-      }
+    .empty-state p {
+      color: #64748b;
+      margin-bottom: 1.5rem;
     }
 
     .cobros-grid {
@@ -361,11 +361,11 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
       border: 1px solid #e2e8f0;
       overflow: hidden;
       transition: box-shadow 0.2s, transform 0.2s;
+    }
 
-      &:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-      }
+    .cobro-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
     }
 
     .card-header {
@@ -432,26 +432,26 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
       gap: 0.5rem;
       color: #475569;
       font-size: 0.9rem;
+    }
 
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-        color: #94a3b8;
-      }
+    .detail-row mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #94a3b8;
     }
 
     .notes-section {
       margin-top: 1rem;
       padding-top: 1rem;
       border-top: 1px solid #f1f5f9;
+    }
 
-      p {
-        margin: 0;
-        font-size: 0.85rem;
-        color: #64748b;
-        font-style: italic;
-      }
+    .notes-section p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #64748b;
+      font-style: italic;
     }
 
     .card-footer {
@@ -462,12 +462,12 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
       background: #f8fafc;
       color: #64748b;
       font-size: 0.8rem;
+    }
 
-      mat-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
-      }
+    .card-footer mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
     }
 
     .delete-option {
@@ -500,10 +500,10 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 
       .header-actions {
         width: 100%;
+      }
 
-        button {
-          width: 100%;
-        }
+      .header-actions button {
+        width: 100%;
       }
 
       .cobros-grid {

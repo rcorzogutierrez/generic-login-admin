@@ -188,7 +188,7 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
                     </div>
                     <div class="item-details">
                       <span class="item-title">{{ pago.workerName }}</span>
-                      <span class="item-subtitle">{{ pago.proposalNumbers?.join(', ') }}</span>
+                      <span class="item-subtitle">{{ pago.proposalNumbers.join(', ') }}</span>
                     </div>
                     <span class="item-amount negative">
                       -{{ pago.amount | currency:'USD':'symbol':'1.2-2' }}

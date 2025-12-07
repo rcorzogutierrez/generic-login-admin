@@ -156,7 +156,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
               <div class="card-body">
                 <div class="amount-section">
                   <span class="amount">{{ cobro.amount | currency:'USD':'symbol':'1.2-2' }}</span>
-                  <span class="date">{{ cobro.transactionDate?.toDate() | date:'dd/MM/yyyy' }}</span>
+                  <span class="date">{{ cobro.transactionDate.toDate() | date:'dd/MM/yyyy' }}</span>
                 </div>
 
                 <div class="details-section">

@@ -4,14 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -30,175 +24,193 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
     DatePipe,
     MatButtonModule,
     MatIconModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatTooltipModule,
     MatMenuModule,
-    MatChipsModule,
-    MatDividerModule,
-    MatProgressSpinnerModule,
+    MatTooltipModule,
     MatDialogModule,
     MatSnackBarModule
   ],
   template: `
-    <div class="pagos-list-container">
+    <div class="p-4 md:p-6 max-w-7xl mx-auto">
       <!-- Header -->
-      <div class="page-header">
-        <div class="header-left">
-          <button mat-icon-button (click)="goBack()" matTooltip="Volver">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div class="flex items-center gap-3">
+          <button
+            mat-icon-button
+            (click)="goBack()"
+            matTooltip="Volver"
+            class="!text-slate-500 hover:!bg-slate-100">
             <mat-icon>arrow_back</mat-icon>
           </button>
-          <div class="title-section">
-            <div class="icon-container">
-              <mat-icon>payments</mat-icon>
-            </div>
-            <div>
-              <h1>Pagos</h1>
-              <p class="subtitle">{{ filteredPagos().length }} registros</p>
-            </div>
+          <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-500/25">
+            <mat-icon class="text-white !text-2xl">payments</mat-icon>
+          </div>
+          <div>
+            <h1 class="text-xl md:text-2xl font-bold text-slate-800 m-0">Pagos</h1>
+            <p class="text-sm text-slate-500 m-0">{{ filteredPagos().length }} registros</p>
           </div>
         </div>
-        <div class="header-actions">
-          <button mat-raised-button color="accent" (click)="openFormDialog()">
-            <mat-icon>add</mat-icon>
-            Nuevo Pago
-          </button>
-        </div>
+        <button
+          mat-raised-button
+          (click)="openFormDialog()"
+          class="!bg-red-600 !text-white hover:!bg-red-700 !rounded-xl !px-6 !h-11">
+          <mat-icon class="mr-1">add</mat-icon>
+          Nuevo Pago
+        </button>
       </div>
 
       <!-- Filters -->
-      <div class="filters-section">
-        <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Buscar</mat-label>
-          <mat-icon matPrefix>search</mat-icon>
-          <input matInput [(ngModel)]="searchTerm" placeholder="Trabajador, proyecto, número de cheque...">
+      <div class="flex flex-col sm:flex-row gap-3 mb-4">
+        <div class="flex-1 relative">
+          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl">search</mat-icon>
+          <input
+            type="text"
+            [(ngModel)]="searchTermValue"
+            (ngModelChange)="searchTerm.set($event)"
+            placeholder="Buscar trabajador, proyecto, número de cheque..."
+            class="w-full pl-10 pr-4 py-2.5 border-2 border-slate-200 rounded-xl text-sm focus:border-red-500 focus:outline-none transition-colors bg-white">
           @if (searchTerm()) {
-            <button matSuffix mat-icon-button (click)="searchTerm.set('')">
-              <mat-icon>close</mat-icon>
+            <button
+              (click)="searchTerm.set(''); searchTermValue = ''"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <mat-icon class="!text-xl">close</mat-icon>
             </button>
           }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Método de pago</mat-label>
-          <mat-select [(ngModel)]="filterMethod">
-            <mat-option value="all">Todos</mat-option>
-            @for (method of paymentMethods; track method.value) {
-              <mat-option [value]="method.value">{{ method.label }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
+        </div>
+        <select
+          [(ngModel)]="filterMethodValue"
+          (ngModelChange)="filterMethod.set($event)"
+          class="px-4 py-2.5 border-2 border-slate-200 rounded-xl text-sm focus:border-red-500 focus:outline-none transition-colors bg-white min-w-[160px]">
+          <option value="all">Todos los métodos</option>
+          @for (method of paymentMethods; track method.value) {
+            <option [value]="method.value">{{ method.label }}</option>
+          }
+        </select>
       </div>
 
-      <!-- Stats Summary -->
-      <div class="summary-bar">
-        <div class="summary-item">
-          <span class="summary-label">Total:</span>
-          <span class="summary-value negative">{{ totalAmount() | currency:'USD':'symbol':'1.2-2' }}</span>
+      <!-- Summary Bar -->
+      <div class="flex flex-wrap gap-4 md:gap-8 p-4 bg-gradient-to-r from-slate-50 to-white rounded-xl border border-slate-100 mb-6">
+        <div class="flex items-center gap-2">
+          <span class="text-slate-500 text-sm">Total:</span>
+          <span class="font-bold text-red-600 text-lg">{{ totalAmount() | currency:'USD':'symbol':'1.2-2' }}</span>
         </div>
-        <div class="summary-item">
-          <span class="summary-label">Registros:</span>
-          <span class="summary-value">{{ filteredPagos().length }}</span>
+        <div class="flex items-center gap-2">
+          <span class="text-slate-500 text-sm">Registros:</span>
+          <span class="font-semibold text-slate-700">{{ filteredPagos().length }}</span>
         </div>
       </div>
 
       <!-- Loading -->
       @if (isLoading()) {
-        <div class="loading-container">
-          <mat-spinner diameter="48"></mat-spinner>
+        <div class="flex flex-col items-center justify-center py-16">
+          <div class="w-12 h-12 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
+          <p class="mt-4 text-slate-500">Cargando pagos...</p>
         </div>
       } @else if (filteredPagos().length === 0) {
         <!-- Empty State -->
-        <div class="empty-state">
-          <mat-icon>payments</mat-icon>
-          <h3>No hay pagos registrados</h3>
-          <p>Registra tu primer pago a trabajadores haciendo clic en el botón "Nuevo Pago"</p>
-          <button mat-raised-button color="accent" (click)="openFormDialog()">
-            <mat-icon>add</mat-icon>
+        <div class="flex flex-col items-center justify-center py-16 px-4 bg-slate-50 rounded-2xl">
+          <div class="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
+            <mat-icon class="!text-5xl text-slate-300">payments</mat-icon>
+          </div>
+          <h3 class="text-lg font-semibold text-slate-600 mb-2">No hay pagos registrados</h3>
+          <p class="text-slate-500 text-center mb-6">Registra tu primer pago a trabajadores haciendo clic en el botón "Nuevo Pago"</p>
+          <button
+            mat-raised-button
+            (click)="openFormDialog()"
+            class="!bg-red-600 !text-white hover:!bg-red-700 !rounded-xl !px-6">
+            <mat-icon class="mr-1">add</mat-icon>
             Registrar Pago
           </button>
         </div>
       } @else {
-        <!-- List -->
-        <div class="pagos-grid">
+        <!-- Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           @for (pago of paginatedPagos(); track pago.id) {
-            <div class="pago-card">
-              <div class="card-header">
-                <div class="payment-type">
-                  <div class="type-icon">
-                    <mat-icon>{{ getPaymentIcon(pago.paymentMethod) }}</mat-icon>
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg hover:border-slate-300 transition-all duration-200 group">
+              <!-- Card Header -->
+              <div class="flex items-center justify-between p-4 pb-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+                       [class]="getMethodBgClass(pago.paymentMethod)">
+                    <mat-icon [class]="getMethodIconClass(pago.paymentMethod)">{{ getPaymentIcon(pago.paymentMethod) }}</mat-icon>
                   </div>
-                  <mat-chip class="method-chip">{{ getPaymentLabel(pago.paymentMethod) }}</mat-chip>
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium">
+                    {{ getPaymentLabel(pago.paymentMethod) }}
+                  </span>
                 </div>
-                <button mat-icon-button [matMenuTriggerFor]="menu">
+                <button mat-icon-button [matMenuTriggerFor]="menu" class="!text-slate-400 group-hover:!text-slate-600">
                   <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #menu="matMenu">
                   <button mat-menu-item (click)="openFormDialog(pago)">
-                    <mat-icon>edit</mat-icon>
+                    <mat-icon class="text-slate-500">edit</mat-icon>
                     <span>Editar</span>
                   </button>
                   @if (pago.checkImageUrl) {
                     <button mat-menu-item (click)="viewImage(pago)">
-                      <mat-icon>image</mat-icon>
+                      <mat-icon class="text-slate-500">image</mat-icon>
                       <span>Ver imagen</span>
                     </button>
                   }
-                  <mat-divider></mat-divider>
-                  <button mat-menu-item class="delete-option" (click)="confirmDelete(pago)">
-                    <mat-icon>delete</mat-icon>
+                  <button mat-menu-item (click)="confirmDelete(pago)" class="!text-red-600">
+                    <mat-icon class="!text-red-600">delete</mat-icon>
                     <span>Eliminar</span>
                   </button>
                 </mat-menu>
               </div>
 
-              <div class="card-body">
-                <div class="amount-section">
-                  <span class="amount">{{ pago.amount | currency:'USD':'symbol':'1.2-2' }}</span>
-                  <span class="date">{{ pago.transactionDate.toDate() | date:'dd/MM/yyyy' }}</span>
+              <!-- Card Body -->
+              <div class="px-4 pb-4">
+                <!-- Amount & Date -->
+                <div class="flex items-baseline justify-between mb-4 pb-3 border-b border-slate-100">
+                  <span class="text-2xl font-bold text-red-600">{{ pago.amount | currency:'USD':'symbol':'1.2-2' }}</span>
+                  <span class="text-sm text-slate-500">{{ pago.transactionDate.toDate() | date:'dd/MM/yyyy' }}</span>
                 </div>
 
-                <div class="details-section">
-                  <div class="detail-row">
-                    <mat-icon>person</mat-icon>
-                    <span>{{ pago.workerName }}</span>
+                <!-- Details -->
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2 text-sm">
+                    <mat-icon class="!text-lg text-slate-400">person</mat-icon>
+                    <span class="text-slate-700 font-medium truncate">{{ pago.workerName }}</span>
                   </div>
-                  <div class="detail-row">
-                    <mat-icon>assignment</mat-icon>
-                    <span class="projects-list">{{ pago.proposalNumbers.join(', ') }}</span>
+                  <div class="flex items-start gap-2 text-sm">
+                    <mat-icon class="!text-lg text-slate-400 flex-shrink-0 mt-0.5">assignment</mat-icon>
+                    <span class="text-slate-600 break-words">{{ pago.proposalNumbers.join(', ') }}</span>
                   </div>
                   @if (pago.checkNumber) {
-                    <div class="detail-row">
-                      <mat-icon>tag</mat-icon>
-                      <span>Cheque #{{ pago.checkNumber }}</span>
+                    <div class="flex items-center gap-2 text-sm">
+                      <mat-icon class="!text-lg text-slate-400">tag</mat-icon>
+                      <span class="text-slate-600">Cheque #{{ pago.checkNumber }}</span>
                     </div>
                   }
                   @if (pago.bankName) {
-                    <div class="detail-row">
-                      <mat-icon>account_balance</mat-icon>
-                      <span>{{ pago.bankName }}</span>
+                    <div class="flex items-center gap-2 text-sm">
+                      <mat-icon class="!text-lg text-slate-400">account_balance</mat-icon>
+                      <span class="text-slate-600">{{ pago.bankName }}</span>
                     </div>
                   }
                   @if (pago.referenceNumber) {
-                    <div class="detail-row">
-                      <mat-icon>confirmation_number</mat-icon>
-                      <span>Ref: {{ pago.referenceNumber }}</span>
+                    <div class="flex items-center gap-2 text-sm">
+                      <mat-icon class="!text-lg text-slate-400">confirmation_number</mat-icon>
+                      <span class="text-slate-600">Ref: {{ pago.referenceNumber }}</span>
                     </div>
                   }
                 </div>
 
+                <!-- Notes -->
                 @if (pago.notes) {
-                  <div class="notes-section">
-                    <p>{{ pago.notes }}</p>
+                  <div class="mt-3 pt-3 border-t border-slate-100">
+                    <p class="text-sm text-slate-500 italic line-clamp-2">{{ pago.notes }}</p>
                   </div>
                 }
               </div>
 
+              <!-- Card Footer (Image indicator) -->
               @if (pago.checkImageUrl) {
-                <div class="card-footer">
-                  <mat-icon>image</mat-icon>
+                <div class="flex items-center gap-2 px-4 py-2.5 bg-slate-50 text-slate-500 text-xs cursor-pointer hover:bg-slate-100 transition-colors"
+                     (click)="viewImage(pago)">
+                  <mat-icon class="!text-base">image</mat-icon>
                   <span>Imagen adjunta</span>
+                  <mat-icon class="!text-base ml-auto">open_in_new</mat-icon>
                 </div>
               }
             </div>
@@ -207,12 +219,22 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 
         <!-- Pagination -->
         @if (totalPages() > 1) {
-          <div class="pagination">
-            <button mat-icon-button [disabled]="currentPage() === 0" (click)="currentPage.set(currentPage() - 1)">
+          <div class="flex items-center justify-center gap-3 mt-8">
+            <button
+              mat-icon-button
+              [disabled]="currentPage() === 0"
+              (click)="currentPage.set(currentPage() - 1)"
+              class="!border !border-slate-200 !rounded-xl disabled:!opacity-50">
               <mat-icon>chevron_left</mat-icon>
             </button>
-            <span class="page-info">{{ currentPage() + 1 }} / {{ totalPages() }}</span>
-            <button mat-icon-button [disabled]="currentPage() >= totalPages() - 1" (click)="currentPage.set(currentPage() + 1)">
+            <span class="text-sm text-slate-600 px-4">
+              Página {{ currentPage() + 1 }} de {{ totalPages() }}
+            </span>
+            <button
+              mat-icon-button
+              [disabled]="currentPage() >= totalPages() - 1"
+              (click)="currentPage.set(currentPage() + 1)"
+              class="!border !border-slate-200 !rounded-xl disabled:!opacity-50">
               <mat-icon>chevron_right</mat-icon>
             </button>
           </div>
@@ -221,302 +243,11 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
     </div>
   `,
   styles: [`
-    .pagos-list-container {
-      padding: 1.5rem;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .title-section {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .icon-container {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .icon-container mat-icon {
-      color: white;
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #1e293b;
-    }
-
-    .subtitle {
-      margin: 0;
-      color: #64748b;
-      font-size: 0.85rem;
-    }
-
-    .filters-section {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .search-field {
-      flex: 1;
-      min-width: 250px;
-    }
-
-    .filter-field {
-      min-width: 180px;
-    }
-
-    .summary-bar {
-      display: flex;
-      gap: 2rem;
-      padding: 1rem 1.5rem;
-      background: #f8fafc;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-    }
-
-    .summary-item {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-
-    .summary-label {
-      color: #64748b;
-      font-size: 0.9rem;
-    }
-
-    .summary-value {
-      font-weight: 600;
-      color: #1e293b;
-    }
-
-    .summary-value.negative {
-      color: #dc2626;
-    }
-
-    .loading-container {
-      display: flex;
-      justify-content: center;
-      padding: 4rem;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 4rem 2rem;
-      background: #f8fafc;
-      border-radius: 16px;
-    }
-
-    .empty-state mat-icon {
-      font-size: 64px;
-      width: 64px;
-      height: 64px;
-      color: #cbd5e1;
-      margin-bottom: 1rem;
-    }
-
-    .empty-state h3 {
-      margin: 0 0 0.5rem;
-      color: #475569;
-    }
-
-    .empty-state p {
-      color: #64748b;
-      margin-bottom: 1.5rem;
-    }
-
-    .pagos-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .pago-card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      border: 1px solid #e2e8f0;
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
       overflow: hidden;
-      transition: box-shadow 0.2s, transform 0.2s;
-    }
-
-    .pago-card:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      transform: translateY(-2px);
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 1rem 0.75rem;
-    }
-
-    .payment-type {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .type-icon {
-      width: 36px;
-      height: 36px;
-      background: #fee2e2;
-      color: #dc2626;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .method-chip {
-      font-size: 0.75rem;
-    }
-
-    .card-body {
-      padding: 0 1rem 1rem;
-    }
-
-    .amount-section {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 1rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid #f1f5f9;
-    }
-
-    .amount {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #dc2626;
-    }
-
-    .date {
-      font-size: 0.85rem;
-      color: #64748b;
-    }
-
-    .details-section {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .detail-row {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: #475569;
-      font-size: 0.9rem;
-    }
-
-    .detail-row mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      color: #94a3b8;
-    }
-
-    .projects-list {
-      word-break: break-word;
-    }
-
-    .notes-section {
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid #f1f5f9;
-    }
-
-    .notes-section p {
-      margin: 0;
-      font-size: 0.85rem;
-      color: #64748b;
-      font-style: italic;
-    }
-
-    .card-footer {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1rem;
-      background: #f8fafc;
-      color: #64748b;
-      font-size: 0.8rem;
-    }
-
-    .card-footer mat-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-    }
-
-    .delete-option {
-      color: #dc2626;
-    }
-
-    .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      margin-top: 2rem;
-    }
-
-    .page-info {
-      color: #64748b;
-      font-size: 0.9rem;
-    }
-
-    @media (max-width: 768px) {
-      .pagos-list-container {
-        padding: 1rem;
-      }
-
-      .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-      }
-
-      .header-actions {
-        width: 100%;
-      }
-
-      .header-actions button {
-        width: 100%;
-      }
-
-      .pagos-grid {
-        grid-template-columns: 1fr;
-      }
     }
   `]
 })
@@ -531,7 +262,9 @@ export class PagosListComponent implements OnInit {
   pagos = this.treasuryService.activePagos;
 
   searchTerm = signal<string>('');
+  searchTermValue = '';
   filterMethod = signal<string>('all');
+  filterMethodValue = 'all';
   currentPage = signal<number>(0);
   itemsPerPage = 12;
 
@@ -578,7 +311,6 @@ export class PagosListComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     await this.treasuryService.initialize();
 
-    // Check if we should open dialog
     this.route.queryParams.subscribe(params => {
       if (params['action'] === 'new') {
         this.openFormDialog();
@@ -592,6 +324,24 @@ export class PagosListComponent implements OnInit {
 
   getPaymentLabel(method: string): string {
     return PAYMENT_METHOD_LABELS[method as PaymentMethod] || method;
+  }
+
+  getMethodBgClass(method: string): string {
+    switch (method) {
+      case 'check': return 'bg-red-100';
+      case 'transfer': return 'bg-blue-100';
+      case 'cash': return 'bg-amber-100';
+      default: return 'bg-slate-100';
+    }
+  }
+
+  getMethodIconClass(method: string): string {
+    switch (method) {
+      case 'check': return '!text-red-600';
+      case 'transfer': return '!text-blue-600';
+      case 'cash': return '!text-amber-600';
+      default: return '!text-slate-600';
+    }
   }
 
   goBack(): void {

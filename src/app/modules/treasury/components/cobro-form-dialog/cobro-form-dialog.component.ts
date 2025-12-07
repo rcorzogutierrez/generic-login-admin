@@ -5,7 +5,9 @@ import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Timestamp } from 'firebase/firestore';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 
 import { TreasuryService } from '../../services/treasury.service';
 import { ClientsService } from '../../../clients/services/clients.service';
@@ -24,7 +26,8 @@ export interface CobroFormDialogData {
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatProgressBarModule
   ],
   template: `
     <div class="dialog-container">
@@ -197,17 +200,80 @@ export interface CobroFormDialogData {
                   formControlName="bankName"
                   placeholder="Ej: Bank of America">
               </div>
+
+              <!-- Image Upload Section -->
               <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-slate-600 mb-2">
-                  <mat-icon class="!text-sm align-middle mr-1">image</mat-icon>
-                  URL de imagen del cheque
+                  <mat-icon class="!text-sm align-middle mr-1">photo_camera</mat-icon>
+                  Imagen del Cheque
                 </label>
-                <input
-                  type="url"
-                  class="input-field"
-                  formControlName="checkImageUrl"
-                  placeholder="https://...">
-                <span class="text-xs text-slate-400 mt-1">Opcional - pega la URL de la imagen</span>
+
+                <!-- Upload Area -->
+                @if (!imagePreview() && !form.get('checkImageUrl')?.value) {
+                  <div class="upload-area">
+                    <div class="flex flex-col items-center gap-3">
+                      <mat-icon class="!text-4xl text-slate-300">cloud_upload</mat-icon>
+                      <p class="text-sm text-slate-500 text-center">
+                        Sube una imagen o toma una foto del cheque
+                      </p>
+                      <div class="flex gap-2">
+                        <label class="upload-btn">
+                          <mat-icon class="!text-lg mr-1">folder_open</mat-icon>
+                          Seleccionar archivo
+                          <input
+                            type="file"
+                            accept="image/*"
+                            (change)="onFileSelected($event)"
+                            class="hidden">
+                        </label>
+                        <label class="upload-btn camera">
+                          <mat-icon class="!text-lg mr-1">photo_camera</mat-icon>
+                          Tomar foto
+                          <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            (change)="onFileSelected($event)"
+                            class="hidden">
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                <!-- Image Preview -->
+                @if (imagePreview() || form.get('checkImageUrl')?.value) {
+                  <div class="image-preview-container">
+                    <img
+                      [src]="imagePreview() || form.get('checkImageUrl')?.value"
+                      alt="Preview del cheque"
+                      class="image-preview">
+                    <div class="preview-overlay">
+                      <button
+                        type="button"
+                        class="preview-btn view"
+                        (click)="viewFullImage()">
+                        <mat-icon>zoom_in</mat-icon>
+                      </button>
+                      <button
+                        type="button"
+                        class="preview-btn delete"
+                        (click)="removeImage()">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                    @if (uploadProgress() > 0 && uploadProgress() < 100) {
+                      <div class="upload-progress">
+                        <mat-progress-bar mode="determinate" [value]="uploadProgress()"></mat-progress-bar>
+                        <span class="text-xs text-white mt-1">{{ uploadProgress() }}%</span>
+                      </div>
+                    }
+                  </div>
+                }
+
+                <span class="text-xs text-slate-400 mt-2 block">
+                  Formatos: JPG, PNG, HEIC. Máximo 5MB
+                </span>
               </div>
             </div>
           </div>
@@ -264,7 +330,7 @@ export interface CobroFormDialogData {
         <button
           mat-raised-button
           (click)="save()"
-          [disabled]="form.invalid || isSaving()"
+          [disabled]="form.invalid || isSaving() || isUploading()"
           class="!bg-emerald-600 !text-white">
           @if (isSaving()) {
             <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
@@ -331,6 +397,117 @@ export interface CobroFormDialogData {
       color: #047857;
     }
 
+    /* Upload Area */
+    .upload-area {
+      border: 2px dashed #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      background: #fafafa;
+      transition: all 0.2s;
+    }
+
+    .upload-area:hover {
+      border-color: #10b981;
+      background: #f0fdf4;
+    }
+
+    .upload-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .upload-btn:hover {
+      border-color: #10b981;
+      color: #047857;
+    }
+
+    .upload-btn.camera {
+      background: #10b981;
+      border-color: #10b981;
+      color: white;
+    }
+
+    .upload-btn.camera:hover {
+      background: #059669;
+      border-color: #059669;
+    }
+
+    /* Image Preview */
+    .image-preview-container {
+      position: relative;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #f8fafc;
+    }
+
+    .image-preview {
+      width: 100%;
+      height: 200px;
+      object-fit: contain;
+      background: #f1f5f9;
+    }
+
+    .preview-overlay {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.5rem;
+    }
+
+    .preview-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .preview-btn.view {
+      background: rgba(255, 255, 255, 0.9);
+      color: #475569;
+    }
+
+    .preview-btn.view:hover {
+      background: white;
+      color: #1e293b;
+    }
+
+    .preview-btn.delete {
+      background: rgba(239, 68, 68, 0.9);
+      color: white;
+    }
+
+    .preview-btn.delete:hover {
+      background: #dc2626;
+    }
+
+    .upload-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     @media (max-width: 640px) {
       .dialog-container {
         min-width: auto;
@@ -345,10 +522,15 @@ export class CobroFormDialogComponent implements OnInit {
   private clientsService = inject(ClientsService);
   private proposalsService = inject(ProposalsService);
   private snackBar = inject(MatSnackBar);
+  private storage = getStorage();
 
   form!: FormGroup;
   isEditMode = false;
   isSaving = signal<boolean>(false);
+  isUploading = signal<boolean>(false);
+  uploadProgress = signal<number>(0);
+  imagePreview = signal<string | null>(null);
+  selectedFile = signal<File | null>(null);
 
   clients = this.clientsService.clients;
   proposals = this.proposalsService.proposals;
@@ -452,6 +634,96 @@ export class CobroFormDialogComponent implements OnInit {
     this.filteredProposals.set(filtered);
   }
 
+  // Image upload methods
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) return;
+
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      this.snackBar.open('El archivo debe ser una imagen', 'OK', { duration: 3000 });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.snackBar.open('La imagen no debe superar los 5MB', 'OK', { duration: 3000 });
+      return;
+    }
+
+    this.selectedFile.set(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.imagePreview.set(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    // Clear input so same file can be selected again
+    input.value = '';
+  }
+
+  async uploadImage(): Promise<string | null> {
+    const file = this.selectedFile();
+    if (!file) return this.form.get('checkImageUrl')?.value || null;
+
+    this.isUploading.set(true);
+    this.uploadProgress.set(0);
+
+    try {
+      const timestamp = Date.now();
+      const extension = file.name.split('.').pop();
+      const fileName = `cobro_${timestamp}.${extension}`;
+      const storageRef = ref(this.storage, `treasury/cobros/${fileName}`);
+
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      return new Promise((resolve, reject) => {
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            this.uploadProgress.set(Math.round(progress));
+          },
+          (error) => {
+            console.error('Error uploading image:', error);
+            this.isUploading.set(false);
+            reject(error);
+          },
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              this.isUploading.set(false);
+              resolve(downloadURL);
+            } catch (error) {
+              this.isUploading.set(false);
+              reject(error);
+            }
+          }
+        );
+      });
+    } catch (error) {
+      console.error('Error in uploadImage:', error);
+      this.isUploading.set(false);
+      return null;
+    }
+  }
+
+  removeImage(): void {
+    this.selectedFile.set(null);
+    this.imagePreview.set(null);
+    this.form.patchValue({ checkImageUrl: '' });
+  }
+
+  viewFullImage(): void {
+    const url = this.imagePreview() || this.form.get('checkImageUrl')?.value;
+    if (url) {
+      window.open(url, '_blank');
+    }
+  }
+
   hasError(fieldName: string): boolean {
     const control = this.form.get(fieldName);
     return !!(control && control.invalid && control.touched);
@@ -466,6 +738,15 @@ export class CobroFormDialogComponent implements OnInit {
     this.isSaving.set(true);
 
     try {
+      // Upload image first if there's a new one
+      let checkImageUrl = this.form.get('checkImageUrl')?.value;
+      if (this.selectedFile()) {
+        const uploadedUrl = await this.uploadImage();
+        if (uploadedUrl) {
+          checkImageUrl = uploadedUrl;
+        }
+      }
+
       const formValue = this.form.value;
       const cobroData: CreateCobroData = {
         clientId: formValue.clientId,
@@ -477,7 +758,7 @@ export class CobroFormDialogComponent implements OnInit {
         paymentMethod: formValue.paymentMethod as PaymentMethod,
         checkNumber: formValue.checkNumber || undefined,
         bankName: formValue.bankName || undefined,
-        checkImageUrl: formValue.checkImageUrl || undefined,
+        checkImageUrl: checkImageUrl || undefined,
         referenceNumber: formValue.referenceNumber || undefined,
         notes: formValue.notes || undefined
       };

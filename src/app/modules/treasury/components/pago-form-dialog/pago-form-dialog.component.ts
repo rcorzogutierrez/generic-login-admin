@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, inject, signal, computed, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -230,7 +230,7 @@ export interface PagoFormDialogData {
                 </label>
 
                 <!-- Upload Area -->
-                @if (!imagePreview() && !form.get('checkImageUrl')?.value) {
+                @if (!imagePreview() && !form.get('checkImageUrl')?.value && !showCamera()) {
                   <div class="upload-area">
                     <div class="flex flex-col items-center gap-3">
                       <mat-icon class="!text-4xl text-slate-300">cloud_upload</mat-icon>
@@ -247,23 +247,49 @@ export interface PagoFormDialogData {
                             (change)="onFileSelected($event)"
                             class="hidden">
                         </label>
-                        <label class="upload-btn camera">
+                        <button
+                          type="button"
+                          class="upload-btn camera"
+                          (click)="openCamera()">
                           <mat-icon class="!text-lg mr-1">photo_camera</mat-icon>
                           Tomar foto
-                          <input
-                            type="file"
-                            accept="image/*"
-                            capture="environment"
-                            (change)="onFileSelected($event)"
-                            class="hidden">
-                        </label>
+                        </button>
                       </div>
                     </div>
                   </div>
                 }
 
+                <!-- Camera View -->
+                @if (showCamera()) {
+                  <div class="camera-container">
+                    <video #videoElement autoplay playsinline class="camera-video"></video>
+                    <canvas #canvasElement class="hidden"></canvas>
+                    <div class="camera-controls">
+                      <button
+                        type="button"
+                        class="camera-btn cancel"
+                        (click)="closeCamera()">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                      <button
+                        type="button"
+                        class="camera-btn capture"
+                        (click)="capturePhoto()">
+                        <mat-icon>camera</mat-icon>
+                      </button>
+                    </div>
+                    @if (cameraError()) {
+                      <div class="camera-error">
+                        <mat-icon>videocam_off</mat-icon>
+                        <p>{{ cameraError() }}</p>
+                        <button type="button" class="text-sm underline" (click)="closeCamera()">Cerrar</button>
+                      </div>
+                    }
+                  </div>
+                }
+
                 <!-- Image Preview -->
-                @if (imagePreview() || form.get('checkImageUrl')?.value) {
+                @if ((imagePreview() || form.get('checkImageUrl')?.value) && !showCamera()) {
                   <div class="image-preview-container">
                     <img
                       [src]="imagePreview() || form.get('checkImageUrl')?.value"
@@ -511,6 +537,88 @@ export interface PagoFormDialogData {
       border-color: #dc2626;
     }
 
+    /* Camera */
+    .camera-container {
+      position: relative;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .camera-video {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+    }
+
+    .camera-controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    }
+
+    .camera-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .camera-btn.capture {
+      background: white;
+      color: #1e293b;
+    }
+
+    .camera-btn.capture:hover {
+      transform: scale(1.1);
+    }
+
+    .camera-btn.cancel {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .camera-btn.cancel:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .camera-error {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.9);
+      color: white;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .camera-error mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 0.5rem;
+      color: #ef4444;
+    }
+
+    .camera-error p {
+      margin: 0 0 1rem;
+      font-size: 0.875rem;
+    }
+
     /* Image Preview */
     .image-preview-container {
       position: relative;
@@ -586,13 +694,18 @@ export interface PagoFormDialogData {
     }
   `]
 })
-export class PagoFormDialogComponent implements OnInit {
+export class PagoFormDialogComponent implements OnInit, OnDestroy {
+  @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
+  @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
+
   private fb = inject(FormBuilder);
   private treasuryService = inject(TreasuryService);
   private workersService = inject(WorkersService);
   private proposalsService = inject(ProposalsService);
   private snackBar = inject(MatSnackBar);
   private storage = getStorage();
+
+  private mediaStream: MediaStream | null = null;
 
   form!: FormGroup;
   isEditMode = false;
@@ -601,6 +714,8 @@ export class PagoFormDialogComponent implements OnInit {
   uploadProgress = signal<number>(0);
   imagePreview = signal<string | null>(null);
   selectedFile = signal<File | null>(null);
+  showCamera = signal<boolean>(false);
+  cameraError = signal<string | null>(null);
 
   activeWorkers = this.workersService.activeWorkers;
 
@@ -636,6 +751,10 @@ export class PagoFormDialogComponent implements OnInit {
     if (this.isEditMode && this.data.pago) {
       this.populateForm(this.data.pago);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.closeCamera();
   }
 
   private initForm(): void {
@@ -704,14 +823,13 @@ export class PagoFormDialogComponent implements OnInit {
     }
   }
 
-  // Image upload methods
+  // File selection
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
 
     if (!file) return;
 
-    // Validate file
     if (!file.type.startsWith('image/')) {
       this.snackBar.open('El archivo debe ser una imagen', 'OK', { duration: 3000 });
       return;
@@ -723,18 +841,80 @@ export class PagoFormDialogComponent implements OnInit {
     }
 
     this.selectedFile.set(file);
+    this.createPreview(file);
+    input.value = '';
+  }
 
-    // Create preview
+  private createPreview(file: File): void {
     const reader = new FileReader();
     reader.onload = (e) => {
       this.imagePreview.set(e.target?.result as string);
     };
     reader.readAsDataURL(file);
-
-    // Clear input so same file can be selected again
-    input.value = '';
   }
 
+  // Camera methods
+  async openCamera(): Promise<void> {
+    this.showCamera.set(true);
+    this.cameraError.set(null);
+
+    try {
+      this.mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false
+      });
+
+      setTimeout(() => {
+        if (this.videoElement?.nativeElement) {
+          this.videoElement.nativeElement.srcObject = this.mediaStream;
+        }
+      }, 100);
+    } catch (error: any) {
+      console.error('Error accessing camera:', error);
+      if (error.name === 'NotAllowedError') {
+        this.cameraError.set('Permiso de cámara denegado. Por favor, permite el acceso a la cámara en tu navegador.');
+      } else if (error.name === 'NotFoundError') {
+        this.cameraError.set('No se encontró ninguna cámara en este dispositivo.');
+      } else {
+        this.cameraError.set('Error al acceder a la cámara. Intenta seleccionar un archivo.');
+      }
+    }
+  }
+
+  capturePhoto(): void {
+    if (!this.videoElement?.nativeElement || !this.canvasElement?.nativeElement) return;
+
+    const video = this.videoElement.nativeElement;
+    const canvas = this.canvasElement.nativeElement;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(video, 0, 0);
+
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const file = new File([blob], `check_${Date.now()}.jpg`, { type: 'image/jpeg' });
+          this.selectedFile.set(file);
+          this.imagePreview.set(canvas.toDataURL('image/jpeg'));
+          this.closeCamera();
+        }
+      }, 'image/jpeg', 0.9);
+    }
+  }
+
+  closeCamera(): void {
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach(track => track.stop());
+      this.mediaStream = null;
+    }
+    this.showCamera.set(false);
+    this.cameraError.set(null);
+  }
+
+  // Image upload
   async uploadImage(): Promise<string | null> {
     const file = this.selectedFile();
     if (!file) return this.form.get('checkImageUrl')?.value || null;
@@ -808,7 +988,6 @@ export class PagoFormDialogComponent implements OnInit {
     this.isSaving.set(true);
 
     try {
-      // Upload image first if there's a new one
       let checkImageUrl = this.form.get('checkImageUrl')?.value;
       if (this.selectedFile()) {
         const uploadedUrl = await this.uploadImage();
@@ -849,6 +1028,7 @@ export class PagoFormDialogComponent implements OnInit {
   }
 
   cancel(): void {
+    this.closeCamera();
     this.dialogRef.close();
   }
 }

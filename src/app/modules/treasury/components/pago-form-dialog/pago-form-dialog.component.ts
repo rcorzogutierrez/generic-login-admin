@@ -18,6 +18,14 @@ export interface PagoFormDialogData {
   pago?: Pago;
 }
 
+interface SelectedProposal {
+  id: string;
+  proposalNumber: string;
+  address: string;
+  ownerName: string;
+  total: number;
+}
+
 @Component({
   selector: 'app-pago-form-dialog',
   standalone: true,
@@ -82,52 +90,133 @@ export interface PagoFormDialogData {
           </div>
         </div>
 
-        <!-- Proyectos -->
+        <!-- Proyectos - Nuevo diseño con búsqueda y chips -->
         <div class="mb-6">
           <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-3">
             <mat-icon class="!text-lg text-red-500">assignment</mat-icon>
             Proyectos
           </h3>
-          <p class="text-xs text-slate-500 mb-3">Selecciona uno o varios proyectos completados</p>
 
-          <div class="projects-container">
-            @if (invoicedProposals().length === 0) {
-              <div class="flex items-center justify-center gap-2 p-6 text-slate-500">
-                <mat-icon class="!text-lg">info</mat-icon>
-                <span>No hay proyectos facturados disponibles</span>
-              </div>
-            } @else {
-              @for (proposal of invoicedProposals(); track proposal.id) {
-                <div
-                  class="project-item"
-                  [class.selected]="isProjectSelected(proposal.id)"
-                  (click)="toggleProject(proposal)">
-                  <div class="flex items-center gap-3 flex-1 min-w-0">
-                    <div class="checkbox-indicator" [class.checked]="isProjectSelected(proposal.id)">
-                      @if (isProjectSelected(proposal.id)) {
-                        <mat-icon class="!text-sm">check</mat-icon>
-                      }
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="font-semibold text-slate-800 text-sm">{{ proposal.proposalNumber }}</div>
-                      <div class="text-xs text-slate-500 truncate">{{ proposal.address }}</div>
-                      <div class="text-xs text-slate-400">{{ proposal.ownerName }}</div>
-                    </div>
+          <!-- Selected Projects as Chips -->
+          @if (selectedProposals().length > 0) {
+            <div class="selected-chips-container mb-3">
+              @for (proposal of selectedProposals(); track proposal.id) {
+                <div class="project-chip">
+                  <div class="chip-content">
+                    <span class="chip-number">{{ proposal.proposalNumber }}</span>
+                    <span class="chip-amount">{{ proposal.total | currency:'USD':'symbol':'1.0-0' }}</span>
                   </div>
-                  <div class="text-sm font-semibold text-slate-600">
-                    {{ proposal.total | currency:'USD':'symbol':'1.2-2' }}
-                  </div>
+                  <button
+                    type="button"
+                    class="chip-remove"
+                    (click)="removeProject(proposal.id)"
+                    title="Quitar proyecto">
+                    <mat-icon class="!text-sm">close</mat-icon>
+                  </button>
                 </div>
               }
+            </div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs text-slate-500">
+                {{ selectedProposals().length }} proyecto(s) • Total: {{ selectedTotal() | currency:'USD':'symbol':'1.2-2' }}
+              </span>
+              <button
+                type="button"
+                class="text-xs text-red-500 hover:text-red-700 font-medium"
+                (click)="clearAllProjects()">
+                Limpiar todo
+              </button>
+            </div>
+          }
+
+          <!-- Search Input -->
+          <div class="relative">
+            <div class="search-input-container">
+              <mat-icon class="search-icon">search</mat-icon>
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Buscar por número, dirección o cliente..."
+                [value]="searchTerm()"
+                (input)="onSearchChange($event)"
+                (focus)="showDropdown.set(true)">
+              @if (searchTerm()) {
+                <button
+                  type="button"
+                  class="clear-search"
+                  (click)="clearSearch()">
+                  <mat-icon class="!text-lg">close</mat-icon>
+                </button>
+              }
+            </div>
+
+            <!-- Dropdown Results -->
+            @if (showDropdown() && availableProposals().length > 0) {
+              <div class="search-dropdown">
+                <div class="dropdown-header">
+                  <span>{{ filteredProposals().length }} proyectos disponibles</span>
+                  @if (filteredProposals().length > 0 && filteredProposals().length <= 10) {
+                    <button
+                      type="button"
+                      class="add-all-btn"
+                      (click)="addAllFiltered()">
+                      Agregar todos
+                    </button>
+                  }
+                </div>
+                <div class="dropdown-list">
+                  @for (proposal of filteredProposals().slice(0, 50); track proposal.id) {
+                    <div
+                      class="dropdown-item"
+                      (click)="addProject(proposal)">
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2">
+                          <span class="font-semibold text-slate-800 text-sm">{{ proposal.proposalNumber }}</span>
+                          <span class="text-xs px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">
+                            {{ proposal.total | currency:'USD':'symbol':'1.0-0' }}
+                          </span>
+                        </div>
+                        <div class="text-xs text-slate-500 truncate">{{ proposal.address }}</div>
+                        <div class="text-xs text-slate-400">{{ proposal.ownerName }}</div>
+                      </div>
+                      <mat-icon class="text-slate-300 !text-lg">add_circle</mat-icon>
+                    </div>
+                  }
+                  @if (filteredProposals().length > 50) {
+                    <div class="dropdown-more">
+                      Mostrando 50 de {{ filteredProposals().length }} resultados. Refina tu búsqueda.
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (showDropdown() && availableProposals().length === 0) {
+              <div class="search-dropdown">
+                <div class="dropdown-empty">
+                  <mat-icon class="!text-3xl text-slate-300 mb-2">inventory_2</mat-icon>
+                  <p>No hay proyectos facturados disponibles</p>
+                </div>
+              </div>
+            }
+
+            @if (showDropdown() && availableProposals().length > 0 && filteredProposals().length === 0) {
+              <div class="search-dropdown">
+                <div class="dropdown-empty">
+                  <mat-icon class="!text-3xl text-slate-300 mb-2">search_off</mat-icon>
+                  <p>No se encontraron proyectos con "{{ searchTerm() }}"</p>
+                </div>
+              </div>
             }
           </div>
-          @if (selectedProposalIds().length === 0 && form.touched) {
-            <span class="text-xs text-red-500 mt-2 block">Selecciona al menos un proyecto</span>
+
+          <!-- Click outside to close -->
+          @if (showDropdown()) {
+            <div class="dropdown-backdrop" (click)="showDropdown.set(false)"></div>
           }
-          @if (selectedProposalIds().length > 0) {
-            <div class="mt-2 text-xs text-slate-500">
-              {{ selectedProposalIds().length }} proyecto(s) seleccionado(s)
-            </div>
+
+          @if (selectedProposals().length === 0 && form.touched) {
+            <span class="text-xs text-red-500 mt-2 block">Selecciona al menos un proyecto</span>
           }
         </div>
 
@@ -377,7 +466,7 @@ export interface PagoFormDialogData {
         <button
           mat-raised-button
           (click)="save()"
-          [disabled]="form.invalid || selectedProposalIds().length === 0 || isSaving() || isUploading()"
+          [disabled]="form.invalid || selectedProposals().length === 0 || isSaving() || isUploading()"
           class="!bg-red-600 !text-white">
           @if (isSaving()) {
             <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
@@ -444,53 +533,222 @@ export interface PagoFormDialogData {
       color: #b91c1c;
     }
 
-    .projects-container {
-      border: 2px solid #e2e8f0;
-      border-radius: 0.75rem;
-      overflow: hidden;
-      max-height: 180px;
-      overflow-y: auto;
+    /* Selected Chips */
+    .selected-chips-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
 
-    .project-item {
+    .project-chip {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
-      padding: 0.75rem 1rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      border-bottom: 1px solid #f1f5f9;
+      gap: 0.25rem;
+      padding: 0.375rem 0.5rem;
+      background: linear-gradient(135deg, #fef2f2, #fee2e2);
+      border: 1px solid #fecaca;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      animation: chipIn 0.2s ease-out;
     }
 
-    .project-item:last-child {
-      border-bottom: none;
+    @keyframes chipIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
-    .project-item:hover {
-      background: #f8fafc;
+    .chip-content {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
     }
 
-    .project-item.selected {
-      background: #fef2f2;
+    .chip-number {
+      font-weight: 600;
+      color: #b91c1c;
     }
 
-    .checkbox-indicator {
-      width: 1.25rem;
-      height: 1.25rem;
-      border-radius: 0.25rem;
-      border: 2px solid #cbd5e1;
+    .chip-amount {
+      color: #64748b;
+      font-size: 0.65rem;
+    }
+
+    .chip-remove {
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
-      flex-shrink: 0;
+      width: 1.25rem;
+      height: 1.25rem;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: all 0.15s;
     }
 
-    .checkbox-indicator.checked {
-      background: #ef4444;
+    .chip-remove:hover {
+      background: #fecaca;
+      color: #b91c1c;
+    }
+
+    /* Search Input */
+    .search-input-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.75rem;
+      color: #94a3b8;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.625rem 2.5rem 0.625rem 2.5rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+      outline: none;
+      background: white;
+    }
+
+    .search-input:focus {
       border-color: #ef4444;
-      color: white;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    .search-input::placeholder {
+      color: #94a3b8;
+    }
+
+    .clear-search {
+      position: absolute;
+      right: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      border: none;
+      background: #f1f5f9;
+      color: #64748b;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: all 0.15s;
+    }
+
+    .clear-search:hover {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+
+    /* Dropdown */
+    .search-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 0.25rem;
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      z-index: 50;
+      overflow: hidden;
+    }
+
+    .dropdown-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    .add-all-btn {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #ef4444;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.25rem;
+      transition: all 0.15s;
+    }
+
+    .add-all-btn:hover {
+      background: #fef2f2;
+    }
+
+    .dropdown-list {
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.625rem 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-item:hover {
+      background: #fef2f2;
+    }
+
+    .dropdown-item:hover mat-icon {
+      color: #ef4444;
+    }
+
+    .dropdown-more {
+      padding: 0.75rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #64748b;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .dropdown-empty {
+      padding: 1.5rem;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.875rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .dropdown-empty p {
+      margin: 0;
+    }
+
+    .dropdown-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
     }
 
     /* Upload Area */
@@ -717,16 +975,44 @@ export class PagoFormDialogComponent implements OnInit, OnDestroy {
   showCamera = signal<boolean>(false);
   cameraError = signal<string | null>(null);
 
+  // Search and selection
+  searchTerm = signal<string>('');
+  showDropdown = signal<boolean>(false);
+  selectedProposals = signal<SelectedProposal[]>([]);
+
   activeWorkers = this.workersService.activeWorkers;
 
+  // All invoiced proposals
   invoicedProposals = computed(() =>
     this.proposalsService.proposals().filter(p =>
       p.status === 'converted_to_invoice' || p.status === 'paid' || p.status === 'approved'
     )
   );
 
-  selectedProposalIds = signal<string[]>([]);
-  selectedProposalNumbers = signal<string[]>([]);
+  // Available proposals (not yet selected)
+  availableProposals = computed(() => {
+    const selectedIds = new Set(this.selectedProposals().map(p => p.id));
+    return this.invoicedProposals().filter(p => !selectedIds.has(p.id));
+  });
+
+  // Filtered by search term
+  filteredProposals = computed(() => {
+    const term = this.searchTerm().toLowerCase().trim();
+    const available = this.availableProposals();
+
+    if (!term) return available;
+
+    return available.filter(p =>
+      p.proposalNumber?.toLowerCase().includes(term) ||
+      p.address?.toLowerCase().includes(term) ||
+      p.ownerName?.toLowerCase().includes(term)
+    );
+  });
+
+  // Total of selected proposals
+  selectedTotal = computed(() =>
+    this.selectedProposals().reduce((sum, p) => sum + (p.total || 0), 0)
+  );
 
   paymentMethods = [
     { value: 'check', label: 'Cheque', icon: 'money' },
@@ -792,8 +1078,32 @@ export class PagoFormDialogComponent implements OnInit, OnDestroy {
       notes: pago.notes || ''
     });
 
-    this.selectedProposalIds.set(pago.proposalIds || []);
-    this.selectedProposalNumbers.set(pago.proposalNumbers || []);
+    // Populate selected proposals from existing pago
+    if (pago.proposalIds && pago.proposalIds.length > 0) {
+      const proposals: SelectedProposal[] = [];
+      pago.proposalIds.forEach((id, index) => {
+        const proposal = this.invoicedProposals().find(p => p.id === id);
+        if (proposal) {
+          proposals.push({
+            id: proposal.id,
+            proposalNumber: proposal.proposalNumber,
+            address: proposal.address,
+            ownerName: proposal.ownerName,
+            total: proposal.total
+          });
+        } else if (pago.proposalNumbers && pago.proposalNumbers[index]) {
+          // Fallback if proposal not found
+          proposals.push({
+            id,
+            proposalNumber: pago.proposalNumbers[index],
+            address: '',
+            ownerName: '',
+            total: 0
+          });
+        }
+      });
+      this.selectedProposals.set(proposals);
+    }
   }
 
   onWorkerChange(event: Event): void {
@@ -806,21 +1116,52 @@ export class PagoFormDialogComponent implements OnInit, OnDestroy {
     }
   }
 
-  isProjectSelected(proposalId: string): boolean {
-    return this.selectedProposalIds().includes(proposalId);
+  // Search methods
+  onSearchChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchTerm.set(value);
+    this.showDropdown.set(true);
   }
 
-  toggleProject(proposal: any): void {
-    const currentIds = this.selectedProposalIds();
-    const currentNumbers = this.selectedProposalNumbers();
+  clearSearch(): void {
+    this.searchTerm.set('');
+  }
 
-    if (currentIds.includes(proposal.id)) {
-      this.selectedProposalIds.set(currentIds.filter(id => id !== proposal.id));
-      this.selectedProposalNumbers.set(currentNumbers.filter(n => n !== proposal.proposalNumber));
-    } else {
-      this.selectedProposalIds.set([...currentIds, proposal.id]);
-      this.selectedProposalNumbers.set([...currentNumbers, proposal.proposalNumber]);
-    }
+  // Project selection methods
+  addProject(proposal: any): void {
+    const selected: SelectedProposal = {
+      id: proposal.id,
+      proposalNumber: proposal.proposalNumber,
+      address: proposal.address,
+      ownerName: proposal.ownerName,
+      total: proposal.total
+    };
+    this.selectedProposals.update(current => [...current, selected]);
+    this.searchTerm.set('');
+  }
+
+  removeProject(proposalId: string): void {
+    this.selectedProposals.update(current =>
+      current.filter(p => p.id !== proposalId)
+    );
+  }
+
+  clearAllProjects(): void {
+    this.selectedProposals.set([]);
+  }
+
+  addAllFiltered(): void {
+    const filtered = this.filteredProposals();
+    const newProposals: SelectedProposal[] = filtered.map(p => ({
+      id: p.id,
+      proposalNumber: p.proposalNumber,
+      address: p.address,
+      ownerName: p.ownerName,
+      total: p.total
+    }));
+    this.selectedProposals.update(current => [...current, ...newProposals]);
+    this.searchTerm.set('');
+    this.showDropdown.set(false);
   }
 
   // File selection
@@ -980,7 +1321,7 @@ export class PagoFormDialogComponent implements OnInit, OnDestroy {
   }
 
   async save(): Promise<void> {
-    if (this.form.invalid || this.selectedProposalIds().length === 0) {
+    if (this.form.invalid || this.selectedProposals().length === 0) {
       this.form.markAllAsTouched();
       return;
     }
@@ -997,11 +1338,13 @@ export class PagoFormDialogComponent implements OnInit, OnDestroy {
       }
 
       const formValue = this.form.value;
+      const selected = this.selectedProposals();
+
       const pagoData: CreatePagoData = {
         workerId: formValue.workerId,
         workerName: formValue.workerName,
-        proposalIds: this.selectedProposalIds(),
-        proposalNumbers: this.selectedProposalNumbers(),
+        proposalIds: selected.map(p => p.id),
+        proposalNumbers: selected.map(p => p.proposalNumber),
         amount: formValue.amount,
         transactionDate: Timestamp.fromDate(new Date(formValue.transactionDate)),
         paymentMethod: formValue.paymentMethod as PaymentMethod,

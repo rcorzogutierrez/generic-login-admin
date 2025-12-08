@@ -11,8 +11,12 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/
 
 import { TreasuryService } from '../../services/treasury.service';
 import { ClientsService } from '../../../clients/services/clients.service';
+import { ClientDataExtractorService } from '../../../clients/services/client-data-extractor.service';
+import { ClientConfigServiceRefactored } from '../../../clients/services/client-config-refactored.service';
 import { ProposalsService } from '../../../projects/services/proposals.service';
+import { ProposalConfigService } from '../../../projects/services/proposal-config.service';
 import { Cobro, CreateCobroData, PaymentMethod } from '../../models';
+import { Client } from '../../../clients/models';
 
 export interface CobroFormDialogData {
   cobro?: Cobro;
@@ -73,7 +77,7 @@ export interface CobroFormDialogData {
                 (change)="onClientChange($event)">
                 <option value="">Seleccionar cliente...</option>
                 @for (client of clients(); track client.id) {
-                  <option [value]="client.id">{{ client.name }}</option>
+                  <option [value]="client.id">{{ getClientName(client) }}</option>
                 }
               </select>
               @if (hasError('clientId')) {
@@ -631,7 +635,10 @@ export class CobroFormDialogComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private treasuryService = inject(TreasuryService);
   private clientsService = inject(ClientsService);
+  private clientDataExtractor = inject(ClientDataExtractorService);
+  private clientConfigService = inject(ClientConfigServiceRefactored);
   private proposalsService = inject(ProposalsService);
+  private proposalConfigService = inject(ProposalConfigService);
   private snackBar = inject(MatSnackBar);
   private storage = getStorage();
 
@@ -668,7 +675,9 @@ export class CobroFormDialogComponent implements OnInit, OnDestroy {
 
     await Promise.all([
       this.clientsService.initialize(),
-      this.proposalsService.initialize()
+      this.clientConfigService.initialize(),
+      this.proposalsService.initialize(),
+      this.proposalConfigService.initialize()
     ]);
 
     if (this.isEditMode && this.data.cobro) {
@@ -728,11 +737,21 @@ export class CobroFormDialogComponent implements OnInit, OnDestroy {
     const client = this.clients().find(c => c.id === clientId);
 
     if (client) {
-      this.form.patchValue({ clientName: client.name });
+      this.form.patchValue({ clientName: this.getClientName(client) });
     }
 
     this.filterProposalsByClient(clientId);
     this.form.patchValue({ proposalId: '', proposalNumber: '' });
+  }
+
+  /**
+   * Obtener nombre del cliente usando el mapeo de configuración dinámico
+   */
+  getClientName(client: Client | undefined): string {
+    if (!client) return 'Sin nombre';
+    const mapping = this.proposalConfigService.getClientFieldsMapping();
+    const value = this.clientDataExtractor.getFieldByName(client, mapping.name, 'name');
+    return value || 'Sin nombre';
   }
 
   onProposalChange(event: Event): void {

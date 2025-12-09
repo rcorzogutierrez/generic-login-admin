@@ -322,6 +322,15 @@ export class InvoiceEditDialogComponent implements OnInit {
       return false;
     }
 
+    // Validar que fecha inicio no sea mayor a fecha fin
+    const startDate = new Date(this.workStartDate);
+    const endDate = new Date(this.workEndDate);
+    if (startDate > endDate) {
+      console.log('  ❌ Fecha de inicio mayor a fecha de fin');
+      this.snackBar.open('La fecha de inicio no puede ser mayor a la fecha de finalización', 'Cerrar', { duration: 3000 });
+      return false;
+    }
+
     // Validar horas trabajadas (requeridas)
     if (this.workTime === null || this.workTime === undefined || this.workTime <= 0) {
       console.log('  ❌ Horas trabajadas inválidas:', this.workTime);

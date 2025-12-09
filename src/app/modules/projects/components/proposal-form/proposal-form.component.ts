@@ -452,6 +452,26 @@ export class ProposalFormComponent implements OnInit {
         const documentLanguage = proposal.language || 'es';
         this.languageService.setLanguage(documentLanguage);
 
+        // Detectar si la dirección del proyecto es la misma que la del cliente
+        const client = this.clients().find(c => c.id === proposal.ownerId);
+        if (client) {
+          const clientAddress = this.getClientAddress(client);
+          const clientCity = this.getClientCity(client);
+          const clientState = this.getClientState(client);
+          const clientZipCode = this.getClientZipCode(client);
+
+          // Comparar direcciones (ignorando espacios extra)
+          const addressMatches = proposal.address?.trim() === clientAddress?.trim();
+          const cityMatches = proposal.city?.trim() === clientCity?.trim();
+          const stateMatches = (proposal.state || '').trim() === (clientState || '').trim();
+          const zipMatches = (proposal.zipCode || '').trim() === (clientZipCode || '').trim();
+
+          // Si todas las partes coinciden, activar el checkbox
+          if (addressMatches && cityMatches && stateMatches && zipMatches && clientAddress) {
+            this.useSameAddress.set(true);
+          }
+        }
+
         // Cargar items incluidos - convertir de ProposalItem[] a IDs del catálogo
         const savedIncludeIds = new Set<string>();
         if (proposal.includes && proposal.includes.length > 0) {

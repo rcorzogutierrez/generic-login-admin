@@ -39,9 +39,13 @@ export interface Cobro {
   clientId: string;                  // ID del cliente
   clientName: string;                // Nombre denormalizado
 
-  // Project/Invoice reference
-  proposalId: string;                // Proyecto facturado relacionado
-  proposalNumber: string;            // Número de propuesta/factura denormalizado
+  // Project/Invoice references (one or more projects)
+  proposalIds: string[];             // Proyectos facturados relacionados
+  proposalNumbers: string[];         // Números de propuesta/factura denormalizados
+
+  // Legacy single fields (for backward compatibility)
+  proposalId?: string;               // @deprecated - usar proposalIds
+  proposalNumber?: string;           // @deprecated - usar proposalNumbers
 
   // Check-specific fields
   checkNumber?: string;              // Número de cheque (si aplica)

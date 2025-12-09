@@ -191,11 +191,20 @@ interface SelectedProposal {
               </div>
             }
 
-            @if (showDropdown() && availableProposals().length === 0) {
+            @if (showDropdown() && availableProposals().length === 0 && selectedWorkerId()) {
               <div class="search-dropdown">
                 <div class="dropdown-empty">
                   <mat-icon class="!text-3xl text-slate-300 mb-2">inventory_2</mat-icon>
-                  <p>No hay proyectos facturados disponibles</p>
+                  <p>No hay proyectos donde este trabajador haya participado</p>
+                </div>
+              </div>
+            }
+
+            @if (showDropdown() && !selectedWorkerId()) {
+              <div class="search-dropdown">
+                <div class="dropdown-empty">
+                  <mat-icon class="!text-3xl text-slate-300 mb-2">person_search</mat-icon>
+                  <p>Primero selecciona un trabajador</p>
                 </div>
               </div>
             }
@@ -979,6 +988,7 @@ export class PagoFormDialogComponent implements OnInit, OnDestroy {
   searchTerm = signal<string>('');
   showDropdown = signal<boolean>(false);
   selectedProposals = signal<SelectedProposal[]>([]);
+  selectedWorkerId = signal<string>('');
 
   activeWorkers = this.workersService.activeWorkers;
 
@@ -989,10 +999,20 @@ export class PagoFormDialogComponent implements OnInit, OnDestroy {
     )
   );
 
-  // Available proposals (not yet selected)
+  // Proposals where the selected worker participated
+  workerProposals = computed(() => {
+    const workerId = this.selectedWorkerId();
+    if (!workerId) return [];
+
+    return this.invoicedProposals().filter(p =>
+      p.workers?.some(w => w.id === workerId)
+    );
+  });
+
+  // Available proposals (not yet selected, filtered by worker)
   availableProposals = computed(() => {
     const selectedIds = new Set(this.selectedProposals().map(p => p.id));
-    return this.invoicedProposals().filter(p => !selectedIds.has(p.id));
+    return this.workerProposals().filter(p => !selectedIds.has(p.id));
   });
 
   // Filtered by search term
@@ -1065,6 +1085,9 @@ export class PagoFormDialogComponent implements OnInit, OnDestroy {
   private populateForm(pago: Pago): void {
     const transactionDate = pago.transactionDate?.toDate?.() || new Date();
 
+    // Set the selected worker ID first so workerProposals computed works
+    this.selectedWorkerId.set(pago.workerId);
+
     this.form.patchValue({
       workerId: pago.workerId,
       workerName: pago.workerName,
@@ -1110,6 +1133,13 @@ export class PagoFormDialogComponent implements OnInit, OnDestroy {
     const select = event.target as HTMLSelectElement;
     const workerId = select.value;
     const worker = this.activeWorkers().find(w => w.id === workerId);
+
+    // Update selected worker ID
+    this.selectedWorkerId.set(workerId);
+
+    // Clear selected proposals when worker changes
+    this.selectedProposals.set([]);
+    this.searchTerm.set('');
 
     if (worker) {
       this.form.patchValue({ workerName: worker.fullName });

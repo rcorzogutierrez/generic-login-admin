@@ -92,10 +92,65 @@ interface SelectedProposal {
 
         <!-- Proyectos - Nuevo diseño con búsqueda y chips -->
         <div class="mb-6">
-          <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-3">
-            <mat-icon class="!text-lg text-red-500">assignment</mat-icon>
-            Proyectos
-          </h3>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600">
+              <mat-icon class="!text-lg text-red-500">assignment</mat-icon>
+              Proyectos
+            </h3>
+
+            <!-- Date Range Filter -->
+            <div class="date-filter-container">
+              <button
+                type="button"
+                class="date-filter-btn"
+                (click)="toggleDateFilter()">
+                <mat-icon class="!text-sm">date_range</mat-icon>
+                <span>{{ getDateRangeLabel() }}</span>
+                <mat-icon class="!text-sm">{{ showDateFilter() ? 'expand_less' : 'expand_more' }}</mat-icon>
+              </button>
+
+              @if (showDateFilter()) {
+                <div class="date-filter-dropdown">
+                  <div class="date-filter-options">
+                    @for (option of dateRangeOptions; track option.value) {
+                      <button
+                        type="button"
+                        class="date-option"
+                        [class.active]="selectedDateRange() === option.value"
+                        (click)="selectDateRange(option.value)">
+                        {{ option.label }}
+                      </button>
+                    }
+                  </div>
+
+                  @if (selectedDateRange() === 'custom') {
+                    <div class="custom-date-inputs">
+                      <div class="date-input-group">
+                        <label>Desde</label>
+                        <input
+                          type="date"
+                          class="date-input"
+                          [value]="customStartDate()"
+                          (change)="onCustomStartDateChange($event)">
+                      </div>
+                      <div class="date-input-group">
+                        <label>Hasta</label>
+                        <input
+                          type="date"
+                          class="date-input"
+                          [value]="customEndDate()"
+                          (change)="onCustomEndDateChange($event)">
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+              @if (showDateFilter()) {
+                <div class="date-filter-backdrop" (click)="showDateFilter.set(false)"></div>
+              }
+            </div>
+          </div>
 
           <!-- Selected Projects as Chips -->
           @if (selectedProposals().length > 0) {
@@ -953,6 +1008,118 @@ interface SelectedProposal {
       align-items: center;
     }
 
+    /* Date Filter */
+    .date-filter-container {
+      position: relative;
+    }
+
+    .date-filter-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.375rem 0.625rem;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .date-filter-btn:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      color: #475569;
+    }
+
+    .date-filter-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 0.25rem;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      z-index: 60;
+      min-width: 180px;
+      overflow: hidden;
+    }
+
+    .date-filter-options {
+      padding: 0.375rem;
+    }
+
+    .date-option {
+      display: block;
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      background: none;
+      border: none;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      text-align: left;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .date-option:hover {
+      background: #f8fafc;
+      color: #1e293b;
+    }
+
+    .date-option.active {
+      background: #fef2f2;
+      color: #b91c1c;
+      font-weight: 500;
+    }
+
+    .custom-date-inputs {
+      padding: 0.75rem;
+      border-top: 1px solid #e2e8f0;
+      background: #f8fafc;
+    }
+
+    .date-input-group {
+      margin-bottom: 0.5rem;
+    }
+
+    .date-input-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .date-input-group label {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: #64748b;
+      margin-bottom: 0.25rem;
+    }
+
+    .date-input {
+      width: 100%;
+      padding: 0.375rem 0.5rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      outline: none;
+      transition: all 0.15s;
+    }
+
+    .date-input:focus {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
+    }
+
+    .date-filter-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+    }
+
     @media (max-width: 640px) {
       .dialog-container {
         min-width: auto;
@@ -990,7 +1157,64 @@ export class PagoFormDialogComponent implements OnInit, OnDestroy {
   selectedProposals = signal<SelectedProposal[]>([]);
   selectedWorkerId = signal<string>('');
 
+  // Date range filter
+  showDateFilter = signal<boolean>(false);
+  selectedDateRange = signal<string>('30days');
+  customStartDate = signal<string>('');
+  customEndDate = signal<string>('');
+
+  dateRangeOptions = [
+    { value: '7days', label: 'Últimos 7 días' },
+    { value: '30days', label: 'Últimos 30 días' },
+    { value: '90days', label: 'Últimos 90 días' },
+    { value: 'year', label: 'Este año' },
+    { value: 'all', label: 'Todo' },
+    { value: 'custom', label: 'Personalizado' }
+  ];
+
   activeWorkers = this.workersService.activeWorkers;
+
+  // Compute date range bounds
+  dateRangeBounds = computed(() => {
+    const range = this.selectedDateRange();
+    const now = new Date();
+    let startDate: Date | null = null;
+    let endDate: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+    switch (range) {
+      case '7days':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 7);
+        break;
+      case '30days':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 30);
+        break;
+      case '90days':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 90);
+        break;
+      case 'year':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        break;
+      case 'custom':
+        const customStart = this.customStartDate();
+        const customEnd = this.customEndDate();
+        if (customStart) startDate = new Date(customStart);
+        if (customEnd) endDate = new Date(customEnd + 'T23:59:59');
+        break;
+      case 'all':
+      default:
+        startDate = null;
+        break;
+    }
+
+    if (startDate) {
+      startDate.setHours(0, 0, 0, 0);
+    }
+
+    return { startDate, endDate };
+  });
 
   // All invoiced proposals
   invoicedProposals = computed(() =>
@@ -999,14 +1223,28 @@ export class PagoFormDialogComponent implements OnInit, OnDestroy {
     )
   );
 
-  // Proposals where the selected worker participated
+  // Proposals where the selected worker participated (filtered by date)
   workerProposals = computed(() => {
     const workerId = this.selectedWorkerId();
     if (!workerId) return [];
 
-    return this.invoicedProposals().filter(p =>
-      p.workers?.some(w => w.id === workerId)
-    );
+    const { startDate, endDate } = this.dateRangeBounds();
+
+    return this.invoicedProposals().filter(p => {
+      // Check worker participation
+      const hasWorker = p.workers?.some(w => w.id === workerId);
+      if (!hasWorker) return false;
+
+      // Check date range (using invoiceDate or updatedAt as fallback)
+      if (startDate) {
+        const proposalDate = p.invoiceDate?.toDate?.() || p.updatedAt?.toDate?.() || new Date();
+        if (proposalDate < startDate || proposalDate > endDate) {
+          return false;
+        }
+      }
+
+      return true;
+    });
   });
 
   // Available proposals (not yet selected, filtered by worker)
@@ -1144,6 +1382,51 @@ export class PagoFormDialogComponent implements OnInit, OnDestroy {
     if (worker) {
       this.form.patchValue({ workerName: worker.fullName });
     }
+  }
+
+  // Date filter methods
+  toggleDateFilter(): void {
+    this.showDateFilter.update(v => !v);
+  }
+
+  selectDateRange(value: string): void {
+    this.selectedDateRange.set(value);
+    // Clear selected proposals when date range changes (except custom which needs user input)
+    if (value !== 'custom') {
+      this.selectedProposals.set([]);
+      this.showDateFilter.set(false);
+    }
+  }
+
+  getDateRangeLabel(): string {
+    const range = this.selectedDateRange();
+    if (range === 'custom') {
+      const start = this.customStartDate();
+      const end = this.customEndDate();
+      if (start && end) {
+        return `${this.formatShortDate(start)} - ${this.formatShortDate(end)}`;
+      }
+      return 'Personalizado';
+    }
+    const option = this.dateRangeOptions.find(o => o.value === range);
+    return option?.label || 'Últimos 30 días';
+  }
+
+  private formatShortDate(dateStr: string): string {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('es', { day: '2-digit', month: 'short' });
+  }
+
+  onCustomStartDateChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.customStartDate.set(value);
+    this.selectedProposals.set([]);
+  }
+
+  onCustomEndDateChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.customEndDate.set(value);
+    this.selectedProposals.set([]);
   }
 
   // Search methods

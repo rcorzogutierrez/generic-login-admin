@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, inject, signal, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, inject, signal, computed, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -20,6 +20,14 @@ import { Client } from '../../../clients/models';
 
 export interface CobroFormDialogData {
   cobro?: Cobro;
+}
+
+interface SelectedProposal {
+  id: string;
+  proposalNumber: string;
+  address: string;
+  ownerName: string;
+  total: number;
 }
 
 @Component({
@@ -58,67 +66,170 @@ export interface CobroFormDialogData {
       <!-- Content -->
       <form [formGroup]="form" (ngSubmit)="save()" class="p-6 overflow-y-auto max-h-[65vh]">
 
-        <!-- Cliente y Proyecto -->
+        <!-- Cliente -->
         <div class="mb-6">
           <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-4">
             <mat-icon class="!text-lg text-emerald-500">business</mat-icon>
-            Cliente y Proyecto
+            Cliente
           </h3>
 
-          <div class="grid grid-cols-1 gap-4">
-            <!-- Cliente -->
-            <div>
-              <label class="block text-sm font-semibold text-slate-700 mb-2">
-                Cliente <span class="text-red-500">*</span>
-              </label>
-              <select
-                class="input-field"
-                formControlName="clientId"
-                (change)="onClientChange($event)">
-                <option value="">Seleccionar cliente...</option>
-                @for (client of clients(); track client.id) {
-                  <option [value]="client.id">{{ getClientName(client) }}</option>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+              Cliente <span class="text-red-500">*</span>
+            </label>
+            <select
+              class="input-field"
+              formControlName="clientId"
+              (change)="onClientChange($event)">
+              <option value="">Seleccionar cliente...</option>
+              @for (client of clients(); track client.id) {
+                <option [value]="client.id">{{ getClientName(client) }}</option>
+              }
+            </select>
+            @if (hasError('clientId')) {
+              <span class="text-xs text-red-500 mt-1">Selecciona un cliente</span>
+            }
+          </div>
+        </div>
+
+        <!-- Proyectos / Facturas - Con búsqueda y chips -->
+        <div class="mb-6">
+          <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-3">
+            <mat-icon class="!text-lg text-emerald-500">receipt_long</mat-icon>
+            Facturas
+          </h3>
+
+          @if (!form.get('clientId')?.value) {
+            <div class="empty-state">
+              <mat-icon class="!text-3xl text-slate-300 mb-2">person_search</mat-icon>
+              <p>Selecciona un cliente primero</p>
+            </div>
+          } @else {
+            <!-- Selected Projects as Chips -->
+            @if (selectedProposals().length > 0) {
+              <div class="selected-chips-container mb-3">
+                @for (proposal of selectedProposals(); track proposal.id) {
+                  <div class="project-chip">
+                    <div class="chip-content">
+                      <span class="chip-number">{{ proposal.proposalNumber }}</span>
+                      <span class="chip-amount">{{ proposal.total | currency:'USD':'symbol':'1.0-0' }}</span>
+                    </div>
+                    <button
+                      type="button"
+                      class="chip-remove"
+                      (click)="removeProject(proposal.id)"
+                      title="Quitar factura">
+                      <mat-icon class="!text-sm">close</mat-icon>
+                    </button>
+                  </div>
                 }
-              </select>
-              @if (hasError('clientId')) {
-                <span class="text-xs text-red-500 mt-1">Selecciona un cliente</span>
+              </div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs text-slate-500">
+                  {{ selectedProposals().length }} factura(s) • Total: {{ selectedTotal() | currency:'USD':'symbol':'1.2-2' }}
+                </span>
+                <button
+                  type="button"
+                  class="text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                  (click)="clearAllProjects()">
+                  Limpiar todo
+                </button>
+              </div>
+            }
+
+            <!-- Search Input -->
+            <div class="relative">
+              <div class="search-input-container">
+                <mat-icon class="search-icon">search</mat-icon>
+                <input
+                  type="text"
+                  class="search-input"
+                  placeholder="Buscar factura por número o dirección..."
+                  [value]="searchTerm()"
+                  (input)="onSearchChange($event)"
+                  (focus)="showDropdown.set(true)">
+                @if (searchTerm()) {
+                  <button
+                    type="button"
+                    class="clear-search"
+                    (click)="clearSearch()">
+                    <mat-icon class="!text-lg">close</mat-icon>
+                  </button>
+                }
+              </div>
+
+              <!-- Dropdown Results -->
+              @if (showDropdown() && clientProposals().length > 0) {
+                <div class="search-dropdown">
+                  <div class="dropdown-header">
+                    <span>{{ filteredProposals().length }} facturas disponibles</span>
+                    @if (filteredProposals().length > 0 && filteredProposals().length <= 10) {
+                      <button
+                        type="button"
+                        class="add-all-btn"
+                        (click)="addAllFiltered()">
+                        Agregar todas
+                      </button>
+                    }
+                  </div>
+                  <div class="dropdown-list">
+                    @for (proposal of filteredProposals().slice(0, 50); track proposal.id) {
+                      <div
+                        class="dropdown-item"
+                        (click)="addProject(proposal)">
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-center gap-2">
+                            <span class="font-semibold text-slate-800 text-sm">{{ proposal.proposalNumber }}</span>
+                            <span class="text-xs px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">
+                              {{ proposal.total | currency:'USD':'symbol':'1.0-0' }}
+                            </span>
+                          </div>
+                          <div class="text-xs text-slate-500 truncate">{{ proposal.address }}</div>
+                        </div>
+                        <mat-icon class="text-slate-300 !text-lg">add_circle</mat-icon>
+                      </div>
+                    }
+                    @if (filteredProposals().length > 50) {
+                      <div class="dropdown-more">
+                        Mostrando 50 de {{ filteredProposals().length }} resultados. Refina tu búsqueda.
+                      </div>
+                    }
+                    @if (filteredProposals().length === 0) {
+                      <div class="dropdown-empty">
+                        <mat-icon class="!text-3xl text-slate-300 mb-2">search_off</mat-icon>
+                        <p>No se encontraron facturas con "{{ searchTerm() }}"</p>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (showDropdown() && clientProposals().length === 0) {
+                <div class="search-dropdown">
+                  <div class="dropdown-empty">
+                    <mat-icon class="!text-3xl text-slate-300 mb-2">inventory_2</mat-icon>
+                    <p>No hay facturas disponibles para este cliente</p>
+                  </div>
+                </div>
               }
             </div>
 
-            <!-- Proyecto -->
-            <div>
-              <label class="block text-sm font-semibold text-slate-700 mb-2">
-                Proyecto / Factura <span class="text-red-500">*</span>
-              </label>
-              <select
-                class="input-field"
-                formControlName="proposalId"
-                (change)="onProposalChange($event)">
-                <option value="">Seleccionar proyecto...</option>
-                @for (proposal of filteredProposals(); track proposal.id) {
-                  <option [value]="proposal.id">
-                    {{ proposal.proposalNumber }} - {{ proposal.address }}
-                  </option>
-                }
-              </select>
-              @if (filteredProposals().length === 0 && form.get('clientId')?.value) {
-                <span class="text-xs text-amber-600 mt-1 flex items-center gap-1">
-                  <mat-icon class="!text-sm">warning</mat-icon>
-                  No hay proyectos facturados para este cliente
-                </span>
-              }
-              @if (hasError('proposalId')) {
-                <span class="text-xs text-red-500 mt-1">Selecciona un proyecto</span>
-              }
-            </div>
-          </div>
+            <!-- Click outside to close -->
+            @if (showDropdown()) {
+              <div class="dropdown-backdrop" (click)="showDropdown.set(false)"></div>
+            }
+
+            @if (selectedProposals().length === 0 && form.touched) {
+              <span class="text-xs text-red-500 mt-2 block">Selecciona al menos una factura</span>
+            }
+          }
         </div>
 
         <!-- Detalles del Pago -->
         <div class="mb-6">
           <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-4">
             <mat-icon class="!text-lg text-emerald-500">payments</mat-icon>
-            Detalles del Pago
+            Detalles del Cobro
           </h3>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -360,7 +471,7 @@ export interface CobroFormDialogData {
         <button
           mat-raised-button
           (click)="save()"
-          [disabled]="form.invalid || isSaving() || isUploading()"
+          [disabled]="form.invalid || selectedProposals().length === 0 || isSaving() || isUploading()"
           class="!bg-emerald-600 !text-white">
           @if (isSaving()) {
             <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
@@ -425,6 +536,241 @@ export interface CobroFormDialogData {
       border-color: #10b981;
       background: #ecfdf5;
       color: #047857;
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      border: 2px dashed #e2e8f0;
+      border-radius: 0.75rem;
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+
+    .empty-state p {
+      margin: 0;
+    }
+
+    /* Selected Chips */
+    .selected-chips-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .project-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.375rem 0.5rem;
+      background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+      border: 1px solid #a7f3d0;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      animation: chipIn 0.2s ease-out;
+    }
+
+    @keyframes chipIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .chip-content {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .chip-number {
+      font-weight: 600;
+      color: #047857;
+    }
+
+    .chip-amount {
+      color: #64748b;
+      font-size: 0.65rem;
+    }
+
+    .chip-remove {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.25rem;
+      height: 1.25rem;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: all 0.15s;
+    }
+
+    .chip-remove:hover {
+      background: #a7f3d0;
+      color: #047857;
+    }
+
+    /* Search Input */
+    .search-input-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.75rem;
+      color: #94a3b8;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.625rem 2.5rem 0.625rem 2.5rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+      outline: none;
+      background: white;
+    }
+
+    .search-input:focus {
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .search-input::placeholder {
+      color: #94a3b8;
+    }
+
+    .clear-search {
+      position: absolute;
+      right: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      border: none;
+      background: #f1f5f9;
+      color: #64748b;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: all 0.15s;
+    }
+
+    .clear-search:hover {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+
+    /* Dropdown */
+    .search-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 0.25rem;
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      z-index: 50;
+      overflow: hidden;
+    }
+
+    .dropdown-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    .add-all-btn {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #10b981;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.25rem;
+      transition: all 0.15s;
+    }
+
+    .add-all-btn:hover {
+      background: #ecfdf5;
+    }
+
+    .dropdown-list {
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.625rem 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-item:hover {
+      background: #ecfdf5;
+    }
+
+    .dropdown-item:hover mat-icon {
+      color: #10b981;
+    }
+
+    .dropdown-more {
+      padding: 0.75rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #64748b;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .dropdown-empty {
+      padding: 1.5rem;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.875rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .dropdown-empty p {
+      margin: 0;
+    }
+
+    .dropdown-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
     }
 
     /* Upload Area */
@@ -654,9 +1000,49 @@ export class CobroFormDialogComponent implements OnInit, OnDestroy {
   showCamera = signal<boolean>(false);
   cameraError = signal<string | null>(null);
 
+  // Search and selection
+  searchTerm = signal<string>('');
+  showDropdown = signal<boolean>(false);
+  selectedProposals = signal<SelectedProposal[]>([]);
+  selectedClientId = signal<string>('');
+
   clients = this.clientsService.clients;
   proposals = this.proposalsService.proposals;
-  filteredProposals = signal<any[]>([]);
+
+  // All invoiced proposals for the selected client
+  clientProposals = computed(() => {
+    const clientId = this.selectedClientId();
+    if (!clientId) return [];
+
+    return this.proposals().filter(p =>
+      p.ownerId === clientId &&
+      (p.status === 'converted_to_invoice' || p.status === 'paid' || p.status === 'approved')
+    );
+  });
+
+  // Available proposals (not yet selected)
+  availableProposals = computed(() => {
+    const selectedIds = new Set(this.selectedProposals().map(p => p.id));
+    return this.clientProposals().filter(p => !selectedIds.has(p.id));
+  });
+
+  // Filtered by search term
+  filteredProposals = computed(() => {
+    const term = this.searchTerm().toLowerCase().trim();
+    const available = this.availableProposals();
+
+    if (!term) return available;
+
+    return available.filter(p =>
+      p.proposalNumber?.toLowerCase().includes(term) ||
+      p.address?.toLowerCase().includes(term)
+    );
+  });
+
+  // Total of selected proposals
+  selectedTotal = computed(() =>
+    this.selectedProposals().reduce((sum, p) => sum + (p.total || 0), 0)
+  );
 
   paymentMethods = [
     { value: 'check', label: 'Cheque', icon: 'money' },
@@ -693,8 +1079,6 @@ export class CobroFormDialogComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       clientId: ['', Validators.required],
       clientName: [''],
-      proposalId: ['', Validators.required],
-      proposalNumber: [''],
       amount: [null, [Validators.required, Validators.min(0.01)]],
       transactionDate: [this.formatDateForInput(new Date()), Validators.required],
       paymentMethod: ['check', Validators.required],
@@ -716,8 +1100,6 @@ export class CobroFormDialogComponent implements OnInit, OnDestroy {
     this.form.patchValue({
       clientId: cobro.clientId,
       clientName: cobro.clientName,
-      proposalId: cobro.proposalId,
-      proposalNumber: cobro.proposalNumber,
       amount: cobro.amount,
       transactionDate: this.formatDateForInput(transactionDate),
       paymentMethod: cobro.paymentMethod,
@@ -728,7 +1110,39 @@ export class CobroFormDialogComponent implements OnInit, OnDestroy {
       notes: cobro.notes || ''
     });
 
-    this.filterProposalsByClient(cobro.clientId);
+    // Set the selected client
+    this.selectedClientId.set(cobro.clientId);
+
+    // Populate selected proposals from existing cobro
+    // Support both new array format and legacy single fields
+    const proposalIds = cobro.proposalIds || (cobro.proposalId ? [cobro.proposalId] : []);
+    const proposalNumbers = cobro.proposalNumbers || (cobro.proposalNumber ? [cobro.proposalNumber] : []);
+
+    if (proposalIds.length > 0) {
+      const proposals: SelectedProposal[] = [];
+      proposalIds.forEach((id, index) => {
+        const proposal = this.proposals().find(p => p.id === id);
+        if (proposal) {
+          proposals.push({
+            id: proposal.id,
+            proposalNumber: proposal.proposalNumber,
+            address: proposal.address,
+            ownerName: proposal.ownerName,
+            total: proposal.total
+          });
+        } else if (proposalNumbers[index]) {
+          // Fallback if proposal not found
+          proposals.push({
+            id,
+            proposalNumber: proposalNumbers[index],
+            address: '',
+            ownerName: '',
+            total: 0
+          });
+        }
+      });
+      this.selectedProposals.set(proposals);
+    }
   }
 
   onClientChange(event: Event): void {
@@ -740,8 +1154,10 @@ export class CobroFormDialogComponent implements OnInit, OnDestroy {
       this.form.patchValue({ clientName: this.getClientName(client) });
     }
 
-    this.filterProposalsByClient(clientId);
-    this.form.patchValue({ proposalId: '', proposalNumber: '' });
+    // Update selected client and clear selected proposals
+    this.selectedClientId.set(clientId);
+    this.selectedProposals.set([]);
+    this.searchTerm.set('');
   }
 
   /**
@@ -754,22 +1170,52 @@ export class CobroFormDialogComponent implements OnInit, OnDestroy {
     return value || 'Sin nombre';
   }
 
-  onProposalChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const proposalId = select.value;
-    const proposal = this.proposals().find(p => p.id === proposalId);
-
-    if (proposal) {
-      this.form.patchValue({ proposalNumber: proposal.proposalNumber });
-    }
+  // Search methods
+  onSearchChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchTerm.set(value);
+    this.showDropdown.set(true);
   }
 
-  private filterProposalsByClient(clientId: string): void {
-    const filtered = this.proposals().filter(p =>
-      p.ownerId === clientId &&
-      (p.status === 'converted_to_invoice' || p.status === 'paid' || p.status === 'approved')
+  clearSearch(): void {
+    this.searchTerm.set('');
+  }
+
+  // Project selection methods
+  addProject(proposal: any): void {
+    const selected: SelectedProposal = {
+      id: proposal.id,
+      proposalNumber: proposal.proposalNumber,
+      address: proposal.address,
+      ownerName: proposal.ownerName,
+      total: proposal.total
+    };
+    this.selectedProposals.update(current => [...current, selected]);
+    this.searchTerm.set('');
+  }
+
+  removeProject(proposalId: string): void {
+    this.selectedProposals.update(current =>
+      current.filter(p => p.id !== proposalId)
     );
-    this.filteredProposals.set(filtered);
+  }
+
+  clearAllProjects(): void {
+    this.selectedProposals.set([]);
+  }
+
+  addAllFiltered(): void {
+    const filtered = this.filteredProposals();
+    const newProposals: SelectedProposal[] = filtered.map(p => ({
+      id: p.id,
+      proposalNumber: p.proposalNumber,
+      address: p.address,
+      ownerName: p.ownerName,
+      total: p.total
+    }));
+    this.selectedProposals.update(current => [...current, ...newProposals]);
+    this.searchTerm.set('');
+    this.showDropdown.set(false);
   }
 
   // File selection
@@ -930,7 +1376,7 @@ export class CobroFormDialogComponent implements OnInit, OnDestroy {
   }
 
   async save(): Promise<void> {
-    if (this.form.invalid) {
+    if (this.form.invalid || this.selectedProposals().length === 0) {
       this.form.markAllAsTouched();
       return;
     }
@@ -947,11 +1393,13 @@ export class CobroFormDialogComponent implements OnInit, OnDestroy {
       }
 
       const formValue = this.form.value;
+      const selected = this.selectedProposals();
+
       const cobroData: CreateCobroData = {
         clientId: formValue.clientId,
         clientName: formValue.clientName,
-        proposalId: formValue.proposalId,
-        proposalNumber: formValue.proposalNumber,
+        proposalIds: selected.map(p => p.id),
+        proposalNumbers: selected.map(p => p.proposalNumber),
         amount: formValue.amount,
         transactionDate: Timestamp.fromDate(new Date(formValue.transactionDate)),
         paymentMethod: formValue.paymentMethod as PaymentMethod,

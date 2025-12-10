@@ -30,8 +30,8 @@ export interface ModuleFormDialogData {
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b border-slate-200">
         <div class="flex items-center gap-3">
-          <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-white !text-2xl">{{ isEditMode ? 'edit' : 'extension' }}</mat-icon>
+          <div class="header-icon-box">
+            <mat-icon class="header-icon">{{ isEditMode ? 'edit' : 'extension' }}</mat-icon>
           </div>
           <div>
             <h2 class="text-lg font-bold text-slate-800 m-0">
@@ -52,9 +52,9 @@ export interface ModuleFormDialogData {
 
         <!-- Información Básica -->
         <div class="mb-6">
-          <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-4">
-            <mat-icon class="!text-lg text-purple-500">info</mat-icon>
-            Información Básica
+          <h3 class="section-title">
+            <mat-icon class="section-icon">info</mat-icon>
+            <span>Información Básica</span>
           </h3>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -128,9 +128,9 @@ export interface ModuleFormDialogData {
 
         <!-- Icono -->
         <div class="mb-6">
-          <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-4">
-            <mat-icon class="!text-lg text-purple-500">emoji_symbols</mat-icon>
-            Icono del Módulo
+          <h3 class="section-title">
+            <mat-icon class="section-icon">emoji_symbols</mat-icon>
+            <span>Icono del Módulo</span>
           </h3>
 
           <div class="flex gap-4 items-start mb-4">
@@ -181,9 +181,9 @@ export interface ModuleFormDialogData {
 
         <!-- Configuración -->
         <div class="mb-6">
-          <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-600 mb-4">
-            <mat-icon class="!text-lg text-purple-500">settings</mat-icon>
-            Configuración
+          <h3 class="section-title">
+            <mat-icon class="section-icon">settings</mat-icon>
+            <span>Configuración</span>
           </h3>
 
           <!-- Ruta -->
@@ -241,14 +241,62 @@ export interface ModuleFormDialogData {
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+      width: 100%;
+    }
+
     .dialog-container {
       display: flex;
       flex-direction: column;
       background: white;
-      border-radius: 1rem;
       overflow: hidden;
-      min-width: 500px;
-      max-width: 600px;
+      width: 100%;
+    }
+
+    /* Fix mat-icon vertical alignment */
+    mat-icon {
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+    }
+
+    /* Header Icon */
+    .header-icon-box {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .header-icon {
+      font-size: 24px !important;
+      width: 24px !important;
+      height: 24px !important;
+      color: white;
+    }
+
+    /* Section Title */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #475569;
+      margin: 0 0 16px 0;
+    }
+
+    .section-icon {
+      font-size: 18px !important;
+      width: 18px !important;
+      height: 18px !important;
+      color: #a855f7;
     }
 
     .input-field {
@@ -383,7 +431,6 @@ export interface ModuleFormDialogData {
 
     @media (max-width: 640px) {
       .dialog-container {
-        min-width: auto;
         width: 100%;
       }
     }

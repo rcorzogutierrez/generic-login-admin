@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, inject, signal, computed, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, inject, signal, computed, ElementRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -975,8 +975,9 @@ interface SelectedProposal {
   `]
 })
 export class CobroFormDialogComponent implements OnInit, OnDestroy {
-  @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
-  @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
+  // ✅ MODERNIZADO: Signal-based viewChild en lugar de @ViewChild
+  videoElement = viewChild<ElementRef<HTMLVideoElement>>('videoElement');
+  canvasElement = viewChild<ElementRef<HTMLCanvasElement>>('canvasElement');
 
   private fb = inject(FormBuilder);
   private treasuryService = inject(TreasuryService);
@@ -1261,8 +1262,9 @@ export class CobroFormDialogComponent implements OnInit, OnDestroy {
 
       // Wait for view to update
       setTimeout(() => {
-        if (this.videoElement?.nativeElement) {
-          this.videoElement.nativeElement.srcObject = this.mediaStream;
+        const video = this.videoElement();
+        if (video?.nativeElement) {
+          video.nativeElement.srcObject = this.mediaStream;
         }
       }, 100);
     } catch (error: any) {
@@ -1278,10 +1280,12 @@ export class CobroFormDialogComponent implements OnInit, OnDestroy {
   }
 
   capturePhoto(): void {
-    if (!this.videoElement?.nativeElement || !this.canvasElement?.nativeElement) return;
+    const videoRef = this.videoElement();
+    const canvasRef = this.canvasElement();
+    if (!videoRef?.nativeElement || !canvasRef?.nativeElement) return;
 
-    const video = this.videoElement.nativeElement;
-    const canvas = this.canvasElement.nativeElement;
+    const video = videoRef.nativeElement;
+    const canvas = canvasRef.nativeElement;
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;

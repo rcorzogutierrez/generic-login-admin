@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 
 export type SupportedLanguage = 'es' | 'en';
 
@@ -8,8 +8,16 @@ export type SupportedLanguage = 'es' | 'en';
   providedIn: 'root'
 })
 export class LanguageService {
-  private currentLanguageSubject = new BehaviorSubject<SupportedLanguage>('es');
-  public currentLanguage$: Observable<SupportedLanguage> = this.currentLanguageSubject.asObservable();
+  // ✅ MODERNIZADO: Signal en lugar de BehaviorSubject
+  private _currentLanguage = signal<SupportedLanguage>('es');
+
+  // Readonly signal para acceso externo
+  readonly currentLanguage = this._currentLanguage.asReadonly();
+
+  // Computed signals para formato localizado
+  readonly currentLocale = computed(() =>
+    this._currentLanguage() === 'es' ? 'es-MX' : 'en-US'
+  );
 
   constructor(private translate: TranslateService) {
     this.translate.setDefaultLang('es');
@@ -21,7 +29,7 @@ export class LanguageService {
    */
   setLanguage(lang: SupportedLanguage): void {
     this.translate.use(lang);
-    this.currentLanguageSubject.next(lang);
+    this._currentLanguage.set(lang);
     // Opcional: guardar preferencia en localStorage
     localStorage.setItem('preferredLanguage', lang);
   }
@@ -30,7 +38,7 @@ export class LanguageService {
    * Obtiene el idioma actual
    */
   getCurrentLanguage(): SupportedLanguage {
-    return this.currentLanguageSubject.value;
+    return this._currentLanguage();
   }
 
   /**

@@ -3,12 +3,13 @@
 > **Sistema integral de gestión empresarial** para administrar clientes, proyectos, estimados, trabajadores y materiales - construido con Angular 20 y Firebase.
 
 [![Claude Code](https://img.shields.io/badge/Powered%20by-Claude%20Code-orange?style=for-the-badge&logo=claude&logoColor=orange)](https://claude.ai/code)
+[![GitHub Copilot](https://img.shields.io/badge/Supported%20by-GitHub%20Copilot-6e40c9?style=for-the-badge&logo=githubcopilot&logoColor=white)](https://github.com/features/copilot)
 [![TypeScript](https://img.shields.io/badge/Built%20with-TypeScript-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 ![Angular](https://img.shields.io/badge/Framework-Angular_20-red?logo=angular&logoColor=white&style=for-the-badge)
 ![Firebase](https://img.shields.io/badge/Backend-Firebase-ffca28?logo=firebase&logoColor=white&style=for-the-badge)
 ![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 ![Angular Material](https://img.shields.io/badge/UI-Angular_Material-C3002F?style=for-the-badge&logo=angular&logoColor=white)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](https://opensource.org/licenses/MIT)
 
 ---
 

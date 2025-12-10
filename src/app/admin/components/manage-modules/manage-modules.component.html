@@ -109,29 +109,14 @@
 
         <!-- List Header -->
         <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-          <div class="flex items-center gap-2 text-xs text-slate-500">
-            <mat-icon class="!text-sm text-purple-500">drag_indicator</mat-icon>
-            <span>Arrastra para reordenar</span>
-          </div>
+          <span class="text-xs text-slate-500 font-medium">Módulos del sistema</span>
           <span class="text-xs text-slate-500">{{ modules.length }} módulo(s)</span>
         </div>
 
-        <!-- Drag & Drop List -->
-        <div
-          cdkDropList
-          (cdkDropListDropped)="onModuleDrop($event)"
-          class="module-list">
-
+        <!-- Module List -->
+        <div class="module-list">
           @for (module of modules; track trackByModuleId($index, module)) {
-            <div
-              cdkDrag
-              class="module-row group"
-              [class.inactive]="!module.isActive">
-
-              <!-- Drag Handle -->
-              <div cdkDragHandle class="drag-handle">
-                <mat-icon>drag_indicator</mat-icon>
-              </div>
+            <div class="module-row group" [class.inactive]="!module.isActive">
 
               <!-- Icon -->
               <div class="module-icon" [class.inactive]="!module.isActive">

@@ -84,38 +84,6 @@
 }
 
 /* ============================================
-   DRAG HANDLE
-   ============================================ */
-.drag-handle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  color: #cbd5e1;
-  cursor: grab;
-  border-radius: 4px;
-  transition: all 0.15s;
-  flex-shrink: 0;
-}
-
-.drag-handle:hover {
-  color: #94a3b8;
-  background: #f1f5f9;
-}
-
-.drag-handle:active {
-  cursor: grabbing;
-  color: #8b5cf6;
-}
-
-.drag-handle mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-/* ============================================
    MODULE ICON (Compact)
    ============================================ */
 .module-icon {
@@ -182,27 +150,6 @@
 
 .meta-info code {
   font-family: 'SF Mono', Monaco, monospace;
-}
-
-/* ============================================
-   DRAG & DROP (CDK)
-   ============================================ */
-.cdk-drag-preview {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  border-radius: 0.5rem;
-  background: white;
-}
-
-.cdk-drag-animating {
-  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.cdk-drag-placeholder {
-  opacity: 0;
-}
-
-.module-list.cdk-drop-list-dragging .module-row:not(.cdk-drag-placeholder) {
-  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ============================================
@@ -274,14 +221,12 @@
    ============================================ */
 @media (prefers-reduced-motion: reduce) {
   .module-row,
-  .cdk-drag-animating,
   .animate-spin {
     animation: none !important;
     transition: none !important;
   }
 }
 
-.drag-handle:focus-visible,
 button:focus-visible {
   outline: 2px solid #8b5cf6;
   outline-offset: 2px;

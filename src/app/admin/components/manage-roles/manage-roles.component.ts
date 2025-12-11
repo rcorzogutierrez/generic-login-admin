@@ -268,6 +268,27 @@ export class ManageRolesComponent implements OnInit {
   }
 
   /**
+   * Cuenta de roles activos
+   */
+  getActiveRolesCount(): number {
+    return this.roles.filter(r => r.isActive).length;
+  }
+
+  /**
+   * Cuenta de roles del sistema
+   */
+  getSystemRolesCount(): number {
+    return this.roles.filter(r => r.isSystemRole).length;
+  }
+
+  /**
+   * Total de asignaciones de usuarios a roles
+   */
+  getTotalUsersCount(): number {
+    return this.roles.reduce((sum, r) => sum + (r.userCount || 0), 0);
+  }
+
+  /**
    * Toggle de permiso
    */
   togglePermission(permission: string) {

@@ -122,9 +122,6 @@
                     <h3 class="text-sm font-bold text-slate-800 truncate">
                       {{ role.label }}
                     </h3>
-                    @if (role.isSystemRole) {
-                      <span class="badge-sm system">Sistema</span>
-                    }
                     @if (!role.isActive) {
                       <span class="badge-sm inactive">Inactivo</span>
                     }
@@ -361,13 +358,23 @@
 
       <!-- Actions -->
       <div class="footer-actions flex items-center gap-3">
-        <button
-          mat-button
-          (click)="goBack()"
-          [disabled]="isLoading"
-          class="cancel-button-modern text-slate-500 font-medium px-5 py-2 rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all">
-          Cerrar
-        </button>
+        @if (viewMode === 'list') {
+          <button
+            mat-button
+            (click)="goBack()"
+            [disabled]="isLoading"
+            class="cancel-button-modern text-slate-500 font-medium px-5 py-2 rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all">
+            Cerrar
+          </button>
+        } @else {
+          <button
+            mat-button
+            (click)="backToList()"
+            [disabled]="isLoading"
+            class="cancel-button-modern text-slate-500 font-medium px-5 py-2 rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all">
+            Cancelar
+          </button>
+        }
 
         @if (viewMode !== 'list') {
           <button

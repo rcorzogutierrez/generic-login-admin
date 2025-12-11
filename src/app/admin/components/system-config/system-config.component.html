@@ -86,7 +86,7 @@
               <h2 class="card-title">Información Básica</h2>
             </div>
 
-            <form [formGroup]="configForm" class="space-y-5">
+            <form [formGroup]="configForm" class="space-y-4">
 
               <!-- Nombre de la aplicación -->
               <div class="form-group">
@@ -94,19 +94,21 @@
                   <mat-icon>label</mat-icon>
                   Nombre de la Aplicación *
                 </label>
-                <mat-form-field class="w-full" appearance="outline">
+                <div class="input-wrapper">
                   <input
-                    matInput
+                    type="text"
                     formControlName="appName"
                     placeholder="Ej: Mi Sistema Admin"
                     maxlength="50"
-                    aria-describedby="appName-help">
-                  <mat-hint align="end">{{ configForm.get('appName')?.value?.length || 0 }}/50</mat-hint>
-                  @if (isFieldInvalid('appName')) {
-                    <mat-error>{{ getErrorMessage('appName') }}</mat-error>
-                  }
-                </mat-form-field>
-                <p id="appName-help" class="form-hint">
+                    class="form-input"
+                    [class.error]="isFieldInvalid('appName')"
+                  />
+                  <span class="char-count">{{ configForm.get('appName')?.value?.length || 0 }}/50</span>
+                </div>
+                @if (isFieldInvalid('appName')) {
+                  <p class="error-text">{{ getErrorMessage('appName') }}</p>
+                }
+                <p class="form-hint">
                   <mat-icon>info_outline</mat-icon>
                   Este nombre aparecerá en el login, navbar y título del navegador
                 </p>
@@ -118,20 +120,21 @@
                   <mat-icon>description</mat-icon>
                   Descripción de la Aplicación
                 </label>
-                <mat-form-field class="w-full" appearance="outline">
+                <div class="input-wrapper">
                   <textarea
-                    matInput
                     formControlName="appDescription"
                     placeholder="Ej: Sistema de autenticación y gestión de usuarios"
                     rows="2"
                     maxlength="200"
-                    aria-describedby="appDescription-help"></textarea>
-                  <mat-hint align="end">{{ configForm.get('appDescription')?.value?.length || 0 }}/200</mat-hint>
-                  @if (isFieldInvalid('appDescription')) {
-                    <mat-error>{{ getErrorMessage('appDescription') }}</mat-error>
-                  }
-                </mat-form-field>
-                <p id="appDescription-help" class="form-hint">
+                    class="form-input"
+                    [class.error]="isFieldInvalid('appDescription')"
+                  ></textarea>
+                  <span class="char-count textarea">{{ configForm.get('appDescription')?.value?.length || 0 }}/200</span>
+                </div>
+                @if (isFieldInvalid('appDescription')) {
+                  <p class="error-text">{{ getErrorMessage('appDescription') }}</p>
+                }
+                <p class="form-hint">
                   <mat-icon>info_outline</mat-icon>
                   Se mostrará en la pantalla de login
                 </p>
@@ -143,18 +146,17 @@
                   <mat-icon>email</mat-icon>
                   Email de Contacto del Administrador *
                 </label>
-                <mat-form-field class="w-full" appearance="outline">
-                  <input
-                    matInput
-                    type="email"
-                    formControlName="adminContactEmail"
-                    placeholder="admin@empresa.com"
-                    aria-describedby="adminContactEmail-help">
-                  @if (isFieldInvalid('adminContactEmail')) {
-                    <mat-error>{{ getErrorMessage('adminContactEmail') }}</mat-error>
-                  }
-                </mat-form-field>
-                <p id="adminContactEmail-help" class="form-hint">
+                <input
+                  type="email"
+                  formControlName="adminContactEmail"
+                  placeholder="admin@empresa.com"
+                  class="form-input"
+                  [class.error]="isFieldInvalid('adminContactEmail')"
+                />
+                @if (isFieldInvalid('adminContactEmail')) {
+                  <p class="error-text">{{ getErrorMessage('adminContactEmail') }}</p>
+                }
+                <p class="form-hint">
                   <mat-icon>info_outline</mat-icon>
                   Email para soporte y contacto del sistema
                 </p>
@@ -166,19 +168,21 @@
                   <mat-icon>text_fields</mat-icon>
                   Texto del Footer
                 </label>
-                <mat-form-field class="w-full" appearance="outline">
+                <div class="input-wrapper">
                   <input
-                    matInput
+                    type="text"
                     formControlName="footerText"
                     placeholder="Ej: © 2025 Mi Empresa. Todos los derechos reservados."
                     maxlength="100"
-                    aria-describedby="footerText-help">
-                  <mat-hint align="end">{{ configForm.get('footerText')?.value?.length || 0 }}/100</mat-hint>
-                  @if (isFieldInvalid('footerText')) {
-                    <mat-error>{{ getErrorMessage('footerText') }}</mat-error>
-                  }
-                </mat-form-field>
-                <p id="footerText-help" class="form-hint">
+                    class="form-input"
+                    [class.error]="isFieldInvalid('footerText')"
+                  />
+                  <span class="char-count">{{ configForm.get('footerText')?.value?.length || 0 }}/100</span>
+                </div>
+                @if (isFieldInvalid('footerText')) {
+                  <p class="error-text">{{ getErrorMessage('footerText') }}</p>
+                }
+                <p class="form-hint">
                   <mat-icon>info_outline</mat-icon>
                   Se mostrará en el footer del dashboard
                 </p>
@@ -189,8 +193,8 @@
             <!-- Botones de acción -->
             <div class="card-actions">
               <button
-                mat-button
-                class="cancel-btn"
+                type="button"
+                class="btn-cancel"
                 (click)="goBack()"
                 [disabled]="isSaving()">
                 <mat-icon>close</mat-icon>
@@ -198,12 +202,12 @@
               </button>
 
               <button
-                mat-flat-button
-                class="save-btn"
+                type="button"
+                class="btn-save"
                 (click)="saveConfiguration()"
                 [disabled]="configForm.invalid || isSaving()">
                 @if (isSaving()) {
-                  <mat-spinner diameter="18" class="mr-2"></mat-spinner>
+                  <mat-spinner diameter="18"></mat-spinner>
                 } @else {
                   <mat-icon>save</mat-icon>
                 }
@@ -238,12 +242,11 @@
                     </div>
                     <div class="logo-overlay">
                       <button
-                        mat-icon-button
-                        class="!text-white"
+                        type="button"
+                        class="logo-delete-btn"
                         (click)="removeLogo()"
                         [disabled]="isUploadingLogo()"
-                        matTooltip="Eliminar logo"
-                        aria-label="Eliminar logo">
+                        title="Eliminar logo">
                         <mat-icon>delete</mat-icon>
                       </button>
                     </div>
@@ -270,10 +273,10 @@
                     </p>
                   </div>
                   <button
-                    mat-icon-button
+                    type="button"
+                    class="file-close-btn"
                     (click)="selectedLogoFile.set(null); logoPreviewUrl.set(currentConfig()?.logoUrl || '')"
-                    class="!text-blue-600"
-                    aria-label="Cancelar archivo seleccionado">
+                    title="Cancelar archivo seleccionado">
                     <mat-icon>close</mat-icon>
                   </button>
                 </div>
@@ -291,8 +294,8 @@
                     [disabled]="isUploadingLogo()"
                   />
                   <button
-                    mat-stroked-button
-                    class="w-full upload-btn"
+                    type="button"
+                    class="btn-upload w-full"
                     [disabled]="isUploadingLogo()"
                     (click)="triggerFileInput(fileInput)">
                     <mat-icon>upload_file</mat-icon>
@@ -302,12 +305,12 @@
 
                 @if (selectedLogoFile()) {
                   <button
-                    mat-flat-button
-                    class="w-full save-btn"
+                    type="button"
+                    class="btn-save w-full"
                     (click)="uploadLogo()"
                     [disabled]="isUploadingLogo()">
                     @if (isUploadingLogo()) {
-                      <mat-spinner diameter="18" class="mr-2"></mat-spinner>
+                      <mat-spinner diameter="18"></mat-spinner>
                     } @else {
                       <mat-icon>cloud_upload</mat-icon>
                     }
@@ -317,8 +320,8 @@
 
                 @if (logoPreviewUrl() && !selectedLogoFile()) {
                   <button
-                    mat-button
-                    class="w-full delete-btn"
+                    type="button"
+                    class="btn-delete w-full"
                     (click)="removeLogo()"
                     [disabled]="isUploadingLogo()">
                     <mat-icon>delete</mat-icon>
@@ -343,7 +346,7 @@
                       [class.selected]="logoBackgroundColor() === color.value"
                       [style.background]="color.value === 'transparent' ? 'repeating-conic-gradient(#e2e8f0 0% 25%, white 0% 50%) 50% / 10px 10px' : color.value"
                       (click)="onColorChange(color.value)"
-                      [matTooltip]="color.name">
+                      [title]="color.name">
 
                       @if (logoBackgroundColor() === color.value) {
                         <mat-icon

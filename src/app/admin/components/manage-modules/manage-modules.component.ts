@@ -125,9 +125,11 @@ export class ManageModulesComponent implements OnInit {
    */
   addModule() {
     const dialogRef = this.dialog.open(ModuleFormDialogComponent, {
-      width: '700px',
+      width: '600px',
       maxWidth: '90vw',
+      maxHeight: '90vh',
       disableClose: true,
+      panelClass: 'module-dialog-no-scroll',
       data: { mode: 'create' }
     });
 
@@ -143,9 +145,11 @@ export class ManageModulesComponent implements OnInit {
    */
   editModule(module: SystemModule) {
     const dialogRef = this.dialog.open(ModuleFormDialogComponent, {
-      width: '700px',
+      width: '600px',
       maxWidth: '90vw',
+      maxHeight: '90vh',
       disableClose: true,
+      panelClass: 'module-dialog-no-scroll',
       data: { mode: 'edit', module }
     });
 

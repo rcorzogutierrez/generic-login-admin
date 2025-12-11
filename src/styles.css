@@ -881,6 +881,11 @@ mat-icon {
     @apply w-full justify-center !important;
   }
 }
+/* ========== DIALOG SIN SCROLL EXTERNO ========== */
+.module-dialog-no-scroll .mat-mdc-dialog-surface {
+  overflow: hidden !important;
+}
+
 /* ========== ACCESSIBILITY - SCREEN READER ONLY ========== */
 .sr-only {
   position: absolute;

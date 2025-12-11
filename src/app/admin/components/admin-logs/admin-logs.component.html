@@ -1,94 +1,96 @@
-<!-- admin-logs.component.html - REFACTORIZADO CON TAILWIND + MATERIAL -->
+<!-- admin-logs.component.html - REDISEÑADO COMPACTO -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[1400px] mx-auto p-5">
-    
-    <!-- ============================================
-         HEADER
-         ============================================ -->
-    <header class="page-header">
-      <div class="flex items-center justify-between gap-5 flex-wrap">
-        
+  <div class="max-w-[1200px] mx-auto p-5">
+
+    <!-- HEADER COMPACTO -->
+    <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+
         <!-- Left Section -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
           <button
             mat-icon-button
-            class="icon-btn"
+            class="!bg-slate-100 hover:!bg-slate-200"
             (click)="goBack()"
-            matTooltip="Volver al panel de admin"
-            aria-label="Volver al panel de admin">
+            matTooltip="Volver al panel de admin">
             <mat-icon>arrow_back</mat-icon>
           </button>
-          <div class="header-icon-container">
+
+          <div class="header-icon-box">
             <mat-icon>history</mat-icon>
           </div>
+
           <div>
-            <h1 class="text-2xl font-bold text-slate-800 mb-1">Logs de Auditoría</h1>
-            <p class="text-sm text-slate-600 flex items-center gap-2 font-medium">
-              <span class="status-dot"></span>
-              Monitoreo en tiempo real del sistema
-            </p>
+            <h1 class="text-lg font-bold text-slate-800">Logs de Auditoría</h1>
+            <p class="text-xs text-slate-500">Monitoreo del sistema en tiempo real</p>
           </div>
         </div>
-        
+
+        <!-- Stats Inline -->
+        <div class="hidden md:flex items-center gap-3">
+          <div class="stat-chip">
+            <span class="stat-value">{{ logs.length }}</span>
+            <span class="stat-label">Registros</span>
+          </div>
+          <div class="stat-chip page">
+            <span class="stat-value">{{ currentPage }}</span>
+            <span class="stat-label">Página</span>
+          </div>
+        </div>
+
         <!-- Right Section -->
-        <div class="flex items-center gap-3 flex-wrap">     
-          <!-- Refresh Button -->
-          <button mat-icon-button
-                  class="icon-btn"
-                  (click)="refreshLogs()"
-                  [disabled]="isLoading"
-                  matTooltip="Actualizar logs"
-                  aria-label="Actualizar logs del sistema">
-            <mat-icon [class.spinning]="isLoading">refresh</mat-icon>
+        <div class="flex items-center gap-2">
+          <button
+            mat-icon-button
+            class="!bg-slate-100 hover:!bg-slate-200"
+            (click)="refreshLogs()"
+            [disabled]="isLoading"
+            matTooltip="Actualizar logs">
+            <mat-icon [class.animate-spin]="isLoading">refresh</mat-icon>
           </button>
 
-          <!-- Delete Logs Button -->
-          <button mat-icon-button
-                  class="icon-btn !border-red-200 !text-red-600 hover:!bg-red-50 hover:!border-red-500"
-                  (click)="openDeleteLogsDialog()"
-                  [disabled]="isLoading"
-                  matTooltip="Eliminar logs del sistema"
-                  aria-label="Eliminar logs del sistema">
+          <button
+            mat-icon-button
+            class="!bg-red-50 hover:!bg-red-100 !text-red-600"
+            (click)="openDeleteLogsDialog()"
+            [disabled]="isLoading"
+            matTooltip="Eliminar logs">
             <mat-icon>delete_sweep</mat-icon>
           </button>
 
-          <!-- Export Button -->
-          <button mat-raised-button 
-                  color="primary"
-                  class="!h-10 !px-5 !rounded-xl !text-sm !font-semibold"
-                  (click)="exportLogs()"
-                  [disabled]="isLoading">
-            <mat-icon class="!mr-2">download</mat-icon>
+          <button
+            mat-raised-button
+            class="!bg-amber-500 !text-white"
+            (click)="exportLogs()"
+            [disabled]="isLoading">
+            <mat-icon>download</mat-icon>
             Exportar
           </button>
         </div>
       </div>
     </header>
 
-    <!-- ============================================
-         FILTROS Y BÚSQUEDA
-         ============================================ -->
-    <section class="bg-white rounded-2xl p-5 mb-6 border border-slate-200 shadow-soft">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        
+    <!-- FILTROS -->
+    <section class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm">
+      <div class="flex flex-wrap items-center gap-4">
+
         <!-- Search Box -->
-        <div class="relative">
-          <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</mat-icon>
-          <input 
-            type="text" 
-            class="w-full h-12 pl-12 pr-4 border-2 border-slate-200 rounded-xl text-sm font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+        <div class="flex-1 min-w-[200px] relative">
+          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl">search</mat-icon>
+          <input
+            type="text"
+            class="w-full h-10 pl-10 pr-4 border border-slate-200 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
             placeholder="Buscar por usuario, acción o ID..."
             [(ngModel)]="searchTerm"
             (input)="onSearch()"
             [disabled]="isLoading">
         </div>
 
-        <!-- Filter by Action -->
-        <div class="relative">
-          <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10">filter_list</mat-icon>
-          <select 
-            class="w-full h-12 pl-12 pr-10 border-2 border-slate-200 rounded-xl text-sm font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all appearance-none bg-white cursor-pointer"
-            style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 24 24%27 stroke=%27%2364748b%27%3E%3Cpath stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M19 9l-7 7-7-7%27%3E%3C/path%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px;"
+        <!-- Action Filter -->
+        <div class="relative min-w-[180px]">
+          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl z-10">filter_list</mat-icon>
+          <select
+            class="w-full h-10 pl-10 pr-8 border border-slate-200 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none transition-all appearance-none bg-white cursor-pointer"
             [(ngModel)]="selectedAction"
             (change)="onActionFilterChange()"
             [disabled]="isLoading">
@@ -97,136 +99,106 @@
               <option [value]="action">{{ getActionName(action) }}</option>
             }
           </select>
+          <mat-icon class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">expand_more</mat-icon>
         </div>
-      </div>
 
-      <!-- Info de filtros activos -->
-      @if (hasActiveFilters()) {
-        <div class="flex items-center gap-2 mt-4 px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-800 font-medium">
-          <mat-icon class="!text-lg text-blue-600">info</mat-icon>
-          <span class="flex-1">Filtros activos aplicados</span>
-          <button mat-button 
-                  class="!h-8 !px-3 !rounded-lg !text-xs !font-semibold !text-blue-600"
-                  (click)="clearFilters()"
-                  [disabled]="isLoading">
+        <!-- Clear Filters -->
+        @if (hasActiveFilters()) {
+          <button class="text-sm font-medium text-amber-600 hover:bg-amber-50 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
+                  (click)="clearFilters()">
+            <mat-icon class="!text-lg">close</mat-icon>
             Limpiar filtros
           </button>
-        </div>
-      }
+        }
+      </div>
     </section>
 
-    <!-- ============================================
-         TABLA DE LOGS
-         ============================================ -->
-    <section class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-soft">
-      
+    <!-- TABLA DE LOGS -->
+    <section class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+
       @if (isLoading && logs.length === 0) {
-        <!-- Loading inicial -->
-        <div class="empty-state">
-          <mat-spinner diameter="40"></mat-spinner>
-          <p class="mt-4 text-slate-600 font-medium">Cargando logs de auditoría...</p>
+        <div class="p-12 text-center">
+          <mat-spinner diameter="36" class="mx-auto mb-3"></mat-spinner>
+          <p class="text-sm text-slate-500">Cargando logs de auditoría...</p>
         </div>
-      } 
-      
+      }
+
       @else if (logs.length === 0) {
-        <!-- Estado vacío -->
-        <div class="empty-state">
-          <mat-icon class="!text-6xl text-slate-300 mb-4">history_toggle_off</mat-icon>
-          <h3 class="text-lg font-semibold text-slate-800 mb-2">No hay logs disponibles</h3>
-          <p class="text-sm text-slate-600">No se encontraron registros con los filtros aplicados</p>
+        <div class="p-12 text-center">
+          <mat-icon class="!text-5xl text-slate-300 mb-3">history_toggle_off</mat-icon>
+          <h3 class="text-base font-semibold text-slate-600 mb-1">No hay logs disponibles</h3>
+          <p class="text-sm text-slate-500 mb-4">No se encontraron registros con los filtros aplicados</p>
           @if (hasActiveFilters()) {
-            <button mat-raised-button 
-                    color="primary"
-                    class="!h-10 !px-5 !rounded-xl !text-sm !font-semibold !mt-6"
-                    (click)="clearFilters()">
+            <button mat-raised-button class="!bg-amber-500 !text-white" (click)="clearFilters()">
               Limpiar Filtros
             </button>
           }
         </div>
-      } 
-      
+      }
+
       @else {
-        <!-- Tabla con logs -->
         <div class="overflow-x-auto">
-          <table class="w-full" role="table" aria-label="Tabla de logs de auditoría">
-            <caption class="sr-only">Registros de auditoría del sistema con acciones, usuarios, fechas y detalles</caption>
-            <thead class="bg-slate-50">
+          <table class="w-full" role="table">
+            <thead class="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Acción</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Usuario</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Fecha y Hora</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">IP</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Detalles</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Acción</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Usuario</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Fecha</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">IP</th>
+                <th class="px-4 py-3 w-24"></th>
               </tr>
             </thead>
             <tbody>
               @for (log of logs; track log.id) {
-                <tr class="border-t border-slate-100 hover:bg-slate-50 transition-colors logs-table-row">
-                  
+                <tr class="log-row">
                   <!-- Acción -->
-                  <td class="px-6 py-5">
-                    <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 flex items-center justify-center flex-shrink-0">
-                        <mat-icon class="!text-[26px] !w-[26px] !h-[26px]"
-                                  [ngClass]="{
-                                    'text-green-600': getActionBadgeClass(log.action) === 'badge-success',
-                                    'text-red-600': getActionBadgeClass(log.action) === 'badge-error',
-                                    'text-amber-600': getActionBadgeClass(log.action) === 'badge-warning',
-                                    'text-blue-600': getActionBadgeClass(log.action) === 'badge-info',
-                                    'text-slate-600': getActionBadgeClass(log.action) === 'badge-default'
-                                  }">
-                          {{ getActionIcon(log.action) }}
-                        </mat-icon>
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                      <div class="action-icon-wrapper"
+                           [class.success]="getActionBadgeClass(log.action) === 'badge-success'"
+                           [class.error]="getActionBadgeClass(log.action) === 'badge-error'"
+                           [class.warning]="getActionBadgeClass(log.action) === 'badge-warning'"
+                           [class.info]="getActionBadgeClass(log.action) === 'badge-info'">
+                        <mat-icon>{{ getActionIcon(log.action) }}</mat-icon>
                       </div>
-                      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase border"
-                            [ngClass]="{
-                              'bg-emerald-100 text-emerald-800 border-emerald-200': getActionBadgeClass(log.action) === 'badge-success',
-                              'bg-red-100 text-red-800 border-red-200': getActionBadgeClass(log.action) === 'badge-error',
-                              'bg-amber-100 text-amber-800 border-amber-200': getActionBadgeClass(log.action) === 'badge-warning',
-                              'bg-blue-100 text-blue-800 border-blue-200': getActionBadgeClass(log.action) === 'badge-info',
-                              'bg-slate-100 text-slate-700 border-slate-200': getActionBadgeClass(log.action) === 'badge-default'
-                            }">
+                      <span class="action-badge"
+                            [class.success]="getActionBadgeClass(log.action) === 'badge-success'"
+                            [class.error]="getActionBadgeClass(log.action) === 'badge-error'"
+                            [class.warning]="getActionBadgeClass(log.action) === 'badge-warning'"
+                            [class.info]="getActionBadgeClass(log.action) === 'badge-info'">
                         {{ getActionName(log.action) }}
                       </span>
                     </div>
                   </td>
 
                   <!-- Usuario -->
-                  <td class="px-6 py-5">
-                    <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-                           [style.background]="getUserColor(log.performedByEmail)">
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                      <div class="user-avatar-sm" [style.background-color]="getUserColor(log.performedByEmail)">
                         {{ getUserInitials(log.performedByEmail) }}
                       </div>
-                      <div>
-                        <div class="font-medium text-sm text-slate-800">{{ log.performedByEmail }}</div>
-                        <div class="text-xs text-slate-500 font-mono">ID: {{ log.performedBy }}</div>
+                      <div class="min-w-0">
+                        <div class="text-sm font-medium text-slate-800 truncate">{{ log.performedByEmail }}</div>
+                        <div class="text-xs text-slate-400 font-mono truncate">{{ log.performedBy }}</div>
                       </div>
                     </div>
                   </td>
 
                   <!-- Fecha -->
-                  <td class="px-6 py-5">
-                    <div class="flex flex-col gap-0.5">
-                      <span class="font-semibold text-sm text-slate-800">{{ formatDateTime(log.timestamp) }}</span>
-                      <span class="text-xs text-slate-500">{{ getRelativeTime(log.timestamp) }} atrás</span>
-                    </div>
+                  <td class="px-4 py-3">
+                    <div class="text-sm text-slate-700">{{ formatDateTime(log.timestamp) }}</div>
+                    <div class="text-xs text-slate-400">{{ getRelativeTime(log.timestamp) }}</div>
                   </td>
 
                   <!-- IP -->
-                  <td class="px-6 py-5">
-                    <span class="inline-block px-3 py-1.5 bg-slate-100 border border-slate-300 rounded-lg font-mono text-xs text-slate-700 font-semibold">
-                      {{ log.ip }}
-                    </span>
+                  <td class="px-4 py-3">
+                    <span class="ip-badge">{{ log.ip }}</span>
                   </td>
 
                   <!-- Detalles -->
-                  <td class="px-6 py-5 text-center">
-                    <button mat-button 
-                            class="!h-9 !px-4 !rounded-lg !text-sm !font-semibold !text-blue-600 hover:!bg-blue-50"
-                            (click)="viewLogDetails(log)">
-                      Ver detalles
-                      <mat-icon class="!ml-1 !text-lg">arrow_forward</mat-icon>
+                  <td class="px-4 py-3">
+                    <button class="details-btn" (click)="viewLogDetails(log)">
+                      <mat-icon>visibility</mat-icon>
                     </button>
                   </td>
                 </tr>
@@ -236,40 +208,42 @@
         </div>
 
         <!-- Paginación -->
-        <div class="flex flex-col gap-4 px-6 py-5 border-t border-slate-200 bg-slate-50">
-          <div class="flex items-center justify-center gap-2 text-sm text-slate-600 font-medium">
-            <span>Mostrando página <strong class="text-slate-800">{{ currentPage }}</strong></span>
-            <span class="text-slate-400">•</span>
-            <span><strong class="text-slate-800">{{ logs.length }}</strong> registros</span>
-          </div>
+        <div class="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/50">
+          <span class="text-sm text-slate-500">
+            Página {{ currentPage }} · {{ logs.length }} registros
+          </span>
 
-          <div class="flex items-center justify-center gap-3">
-            <button mat-stroked-button
-                    class="!h-10 !px-5 !rounded-xl !border-2 !text-sm !font-semibold"
-                    (click)="previousPage()"
-                    [disabled]="currentPage === 1 || isLoadingMore">
-              <mat-icon class="!mr-2">chevron_left</mat-icon>
-              Anterior
+          <div class="flex items-center gap-2">
+            <button
+              mat-icon-button
+              class="!w-8 !h-8"
+              (click)="previousPage()"
+              [disabled]="currentPage === 1 || isLoadingMore"
+              matTooltip="Página anterior">
+              <mat-icon>chevron_left</mat-icon>
             </button>
 
-            <div class="flex items-center justify-center min-w-[48px] h-12 bg-blue-500 rounded-xl shadow-[0_4px_12px_rgba(59,130,246,0.25)]">
-              <span class="text-lg font-bold text-white">{{ currentPage }}</span>
-            </div>
+            <span class="px-3 py-1 bg-amber-500 text-white text-sm font-bold rounded-lg">
+              {{ currentPage }}
+            </span>
 
-            <button mat-stroked-button
-                    class="!h-10 !px-5 !rounded-xl !border-2 !text-sm !font-semibold"
-                    (click)="nextPage()"
-                    [disabled]="!hasMorePages || isLoadingMore">
-              Siguiente
-              <mat-icon class="!ml-2">chevron_right</mat-icon>
+            <button
+              mat-icon-button
+              class="!w-8 !h-8"
+              (click)="nextPage()"
+              [disabled]="!hasMorePages || isLoadingMore"
+              matTooltip="Página siguiente">
+              <mat-icon>chevron_right</mat-icon>
             </button>
           </div>
 
           @if (isLoadingMore) {
-            <div class="flex items-center justify-center gap-3 px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-600 font-semibold">
-              <mat-spinner diameter="20"></mat-spinner>
-              <span>Cargando más logs...</span>
+            <div class="flex items-center gap-2 text-sm text-amber-600">
+              <mat-spinner diameter="16"></mat-spinner>
+              <span>Cargando...</span>
             </div>
+          } @else {
+            <div class="w-24"></div>
           }
         </div>
       }

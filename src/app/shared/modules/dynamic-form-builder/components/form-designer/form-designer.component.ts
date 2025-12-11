@@ -1,6 +1,6 @@
 // src/app/shared/modules/dynamic-form-builder/components/form-designer/form-designer.component.ts
 
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, signal, computed, inject, input, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, input, output, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
@@ -53,18 +53,20 @@ export class FormDesignerComponent {
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 
-  // Inyectar el servicio de configuración dinámicamente
-  @Input({ required: true }) configService!: ModuleConfigBaseService<any>;
+  // ✅ MODERNIZADO: Signal inputs en lugar de @Input()
+  // Servicio de configuración inyectado dinámicamente
+  configService = input.required<ModuleConfigBaseService<any>>();
 
   // Nombre del módulo para personalizar textos (ej: 'clientes', 'productos')
-  @Input() moduleName: string = 'registros';
+  moduleName = input<string>('registros');
 
-  // Convert to signal inputs for reactivity
+  // Signal inputs para reactividad
   fields = input<FieldConfig[]>([]);
   layout = input<FormLayoutConfig | undefined>();
 
-  @Output() layoutChange = new EventEmitter<FormLayoutConfig>();
-  @Output() fieldAdded = new EventEmitter<void>();
+  // ✅ MODERNIZADO: Signal outputs en lugar de @Output()
+  layoutChange = output<FormLayoutConfig>();
+  fieldAdded = output<void>();
 
   // Configuration signals
   columns = signal<2 | 3 | 4>(3);
@@ -514,8 +516,8 @@ export class FormDesignerComponent {
       maxHeight: '90vh',
       data: {
         mode: 'create',
-        configService: this.configService,
-        moduleName: this.moduleName
+        configService: this.configService(),
+        moduleName: this.moduleName()
       },
       disableClose: false
     });
@@ -539,8 +541,8 @@ export class FormDesignerComponent {
       data: {
         mode: 'edit',
         field: field,
-        configService: this.configService,
-        moduleName: this.moduleName
+        configService: this.configService(),
+        moduleName: this.moduleName()
       },
       disableClose: false
     });
@@ -564,7 +566,7 @@ export class FormDesignerComponent {
     }
 
     try {
-      await this.configService.deleteField(field.id);
+      await this.configService().deleteField(field.id);
 
       // Remover del grid si está posicionado
       const cellKey = Array.from(this.gridFieldPositions().entries())

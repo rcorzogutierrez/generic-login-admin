@@ -3,12 +3,13 @@
 > **Sistema integral de gestión empresarial** para administrar clientes, proyectos, estimados, trabajadores y materiales - construido con Angular 20 y Firebase.
 
 [![Claude Code](https://img.shields.io/badge/Powered%20by-Claude%20Code-orange?style=for-the-badge&logo=claude&logoColor=orange)](https://claude.ai/code)
+[![GitHub Copilot](https://img.shields.io/badge/Supported%20by-GitHub%20Copilot-6e40c9?style=for-the-badge&logo=githubcopilot&logoColor=white)](https://github.com/features/copilot)
 [![TypeScript](https://img.shields.io/badge/Built%20with-TypeScript-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 ![Angular](https://img.shields.io/badge/Framework-Angular_20-red?logo=angular&logoColor=white&style=for-the-badge)
 ![Firebase](https://img.shields.io/badge/Backend-Firebase-ffca28?logo=firebase&logoColor=white&style=for-the-badge)
 ![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 ![Angular Material](https://img.shields.io/badge/UI-Angular_Material-C3002F?style=for-the-badge&logo=angular&logoColor=white)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](https://opensource.org/licenses/MIT)
 
 ---
 
@@ -30,7 +31,7 @@
 
 ## 🎯 Descripción General
 
-**Business Management System** es una aplicación web empresarial moderna diseñada para pequeñas y medianas empresas que necesitan gestionar eficientemente sus operaciones diarias. A pesar del nombre del repositorio ("generic-login-admin"), este es un **sistema CRM/ERP completo** que incluye:
+**Business Management System** es una aplicación web empresarial moderna diseñada para pequeñas y medianas empresas que necesitan gestionar eficientemente sus operaciones diarias. Este es un **sistema CRM/ERP completo** que incluye:
 
 - 🤝 **Gestión de Clientes**: CRM con campos totalmente personalizables
 - 📊 **Propuestas y Estimados**: Creación de presupuestos profesionales con conversión a facturas
@@ -114,6 +115,24 @@ Este sistema está diseñado para empresas de:
 - **Campos Dinámicos Opcionales**: categoría, stock, proveedor, fecha de expiración, etc.
 - **Uso en Proyectos**: Registra materiales usados en facturas
 - **Control de Inventario**: (configurable según necesidades)
+
+### 💰 Tesorería y Finanzas
+
+- **Gestión de Cobros (Cuentas por Cobrar)**
+  - Registro de pagos recibidos de clientes
+  - Seguimiento de facturas pendientes de cobro
+  - Estados: Pendiente, Parcial, Pagado, Vencido
+  - Vinculación con propuestas y facturas
+- **Gestión de Pagos (Cuentas por Pagar)**
+  - Control de pagos a proveedores y trabajadores
+  - Registro de gastos operativos
+  - Categorización de pagos
+  - Seguimiento de fechas de vencimiento
+- **Dashboard Financiero**
+  - Resumen de cobros y pagos del período
+  - Análisis de flujo de caja
+  - Estadísticas en tiempo real
+- **Reportes Financieros**: Visualización de ingresos, egresos y balance
 
 ### 🔐 Control de Acceso Basado en Roles (RBAC)
 
@@ -237,7 +256,9 @@ Este sistema está diseñado para empresas de:
 │   ├── clients/             # CRM - Gestión de clientes
 │   ├── projects/            # Propuestas y estimados
 │   ├── workers/             # Gestión de trabajadores
-│   └── materials/           # Gestión de materiales
+│   ├── materials/           # Gestión de materiales
+│   ├── treasury/            # Tesorería y finanzas
+│   └── user-modules/        # Vista de módulos asignados al usuario
 └── shared/                  # Código compartido
     ├── components/          # Componentes reutilizables
     ├── services/            # Servicios genéricos
@@ -265,6 +286,8 @@ Este sistema está diseñado para empresas de:
 ├── catalog_items             # Catálogo de items
 ├── workers                   # Trabajadores
 ├── materials                 # Materiales
+├── cobros                    # Cobros (cuentas por cobrar)
+├── pagos                     # Pagos (cuentas por pagar)
 ├── roles                     # Roles personalizados
 ├── system_modules            # Módulos del sistema
 ├── system_config             # Configuración global (doc único)
@@ -292,8 +315,8 @@ Asegúrate de tener instalado:
 #### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/rcorzogutierrez/generic-login-admin.git
-cd generic-login-admin
+git clone https://github.com/rcorzogutierrez/Business-Management-System.git
+cd Business-Management-System
 ```
 
 #### 2. Instalar dependencias
@@ -463,7 +486,34 @@ Usa el email y contraseña que creaste en Firebase Authentication.
 - **Editar material**: Modificar información
 - **Configuración**: Panel admin para campos personalizados
 
-### 6. Administración
+### 6. Tesorería
+
+**Ruta**: `/modules/treasury`
+
+- **Dashboard Financiero**: Resumen de cobros, pagos y flujo de caja
+- **Gestión de Cobros**: 
+  - Listar cobros con filtros por estado, fecha y cliente
+  - Registrar nuevos cobros vinculados a facturas
+  - Marcar cobros como pagados o parcialmente pagados
+  - Seguimiento de facturas vencidas
+- **Gestión de Pagos**:
+  - Listar pagos con filtros por categoría y fecha
+  - Registrar pagos a proveedores y trabajadores
+  - Categorización de gastos (operativos, materiales, nómina, etc.)
+  - Control de pagos pendientes
+- **Reportes**: Análisis de ingresos, egresos y balance del período
+
+### 7. Módulos del Usuario
+
+**Ruta**: `/user-modules`
+
+- **Vista Centralizada**: Acceso a todos los módulos asignados al usuario actual
+- **Vista Grid o Lista**: Dos modos de visualización
+- **Búsqueda de Módulos**: Encuentra rápidamente el módulo que necesitas
+- **Información de Acceso**: Solo muestra módulos activos y autorizados para el usuario
+- **Navegación Rápida**: Acceso directo desde cualquier parte del sistema
+
+### 8. Administración
 
 **Ruta**: `/admin` (solo para usuarios con rol `admin`)
 
@@ -526,6 +576,20 @@ service cloud.firestore {
 
     // Materiales
     match /materials/{materialId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    // Cobros (Treasury)
+    match /cobros/{cobroId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    // Pagos (Treasury)
+    match /pagos/{pagoId} {
       allow read: if isAuthenticated();
       allow create, update: if isAuthenticated();
       allow delete: if isAdmin();
@@ -623,7 +687,7 @@ O directamente en Firestore:
 ng build --configuration production
 ```
 
-Los archivos compilados estarán en `dist/generic-login-admin/`
+Los archivos compilados estarán en `dist/Business-Management-System/`
 
 ### Opción 1: Firebase Hosting
 
@@ -643,7 +707,7 @@ Los archivos compilados estarán en `dist/generic-login-admin/`
    ```
 
    - Selecciona el proyecto de Firebase
-   - Public directory: `dist/generic-login-admin/browser`
+   - Public directory: `dist/Business-Management-System/browser`
    - Configure as single-page app: **Yes**
    - Set up automatic builds with GitHub: (opcional)
 
@@ -666,7 +730,7 @@ Los archivos compilados estarán en `dist/generic-login-admin/`
 
 ### Opción 3: Netlify
 
-1. Arrastra la carpeta `dist/generic-login-admin/browser` a [Netlify Drop](https://app.netlify.com/drop)
+1. Arrastra la carpeta `dist/Business-Management-System/browser` a [Netlify Drop](https://app.netlify.com/drop)
 2. O conecta tu repositorio de GitHub para despliegues automáticos
 
 ### Opción 4: Otros Servicios
@@ -777,7 +841,7 @@ Usa prefijos descriptivos:
 - La búsqueda en campos dinámicos puede ser lenta con >10,000 registros
 - Algunos navegadores antiguos pueden tener problemas con CSS Grid
 
-Revisa los [Issues](https://github.com/rcorzogutierrez/generic-login-admin/issues) para más detalles.
+Revisa los [Issues](https://github.com/rcorzogutierrez/Business-Management-System/issues) para más detalles.
 
 ---
 
@@ -824,18 +888,18 @@ vender copias del Software...
 
 Si tienes preguntas, problemas o sugerencias:
 
-- 🐛 **Reportar un bug**: [Abrir Issue](https://github.com/rcorzogutierrez/generic-login-admin/issues/new?template=bug_report.md)
-- 💡 **Solicitar feature**: [Abrir Issue](https://github.com/rcorzogutierrez/generic-login-admin/issues/new?template=feature_request.md)
+- 🐛 **Reportar un bug**: [Abrir Issue](https://github.com/rcorzogutierrez/Business-Management-System/issues/new?template=bug_report.md)
+- 💡 **Solicitar feature**: [Abrir Issue](https://github.com/rcorzogutierrez/Business-Management-System/issues/new?template=feature_request.md)
 - 📧 **Email**: (pendiente configurar)
-- 💬 **Discusiones**: [GitHub Discussions](https://github.com/rcorzogutierrez/generic-login-admin/discussions)
+- 💬 **Discusiones**: [GitHub Discussions](https://github.com/rcorzogutierrez/Business-Management-System/discussions)
 
 ---
 
 ## 📊 Estado del Proyecto
 
-![GitHub last commit](https://img.shields.io/github/last-commit/rcorzogutierrez/generic-login-admin)
-![GitHub issues](https://img.shields.io/github/issues/rcorzogutierrez/generic-login-admin)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/rcorzogutierrez/generic-login-admin)
+![GitHub last commit](https://img.shields.io/github/last-commit/rcorzogutierrez/Business-Management-System)
+![GitHub issues](https://img.shields.io/github/issues/rcorzogutierrez/Business-Management-System)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/rcorzogutierrez/Business-Management-System)
 
 ---
 

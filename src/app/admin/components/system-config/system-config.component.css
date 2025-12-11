@@ -1,100 +1,839 @@
 /* src/app/admin/components/system-config/system-config.component.css */
 
 /* ============================================
-   ESTILOS ÚNICOS DEL SYSTEM CONFIG
-   TODO LO DEMÁS USA TAILWIND + MATERIAL GLOBAL
+   HOST
    ============================================ */
-
-/* Host */
 :host {
-    display: block;
-    min-height: 100vh;
+  display: block;
+  min-height: 100vh;
+}
+
+/* ============================================
+   HEADER COMPACTO
+   ============================================ */
+.header-icon-box {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.header-icon-box mat-icon {
+  color: white;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   STAT CHIPS
+   ============================================ */
+.stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #f1f5f9;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.stat-chip.logo {
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  border-color: #e9d5ff;
+}
+
+.stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================
+   REFRESH BUTTON
+   ============================================ */
+.refresh-btn {
+  background: #f1f5f9 !important;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: #e2e8f0 !important;
+}
+
+.refresh-btn mat-icon {
+  color: #64748b;
+}
+
+/* ============================================
+   CONFIG CARDS
+   ============================================ */
+.config-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 20px;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.preview-card {
+  position: sticky;
+  top: 5rem;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-icon mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-icon.blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.card-icon.purple {
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+}
+
+.card-icon.green {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* ============================================
+   FORM STYLES - TAILWIND
+   ============================================ */
+.form-group {
+  margin-bottom: 4px;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.form-label mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #6366f1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #1e293b;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.form-input::placeholder {
+  color: #94a3b8;
+}
+
+.form-input:hover {
+  border-color: #cbd5e1;
+}
+
+.form-input:focus {
+  background: white;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-input.error {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.form-input.error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+textarea.form-input {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.char-count {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.char-count.textarea {
+  top: auto;
+  bottom: 10px;
+  transform: none;
+}
+
+.error-text {
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.form-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 6px;
+}
+
+.form-hint mat-icon {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   CARD ACTIONS
+   ============================================ */
+.card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* ============================================
+   BUTTONS - TAILWIND
+   ============================================ */
+.btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-cancel mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.btn-save:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-save mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-upload {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-upload:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.btn-upload:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-upload mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #dc2626;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.btn-delete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-delete mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   LOGO SECTION
+   ============================================ */
+.logo-preview-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 2px dashed #cbd5e1;
+}
+
+.logo-preview-box {
+  width: 100px;
+  height: 100px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.logo-placeholder {
+  width: 100px;
+  height: 100px;
+  background: #e2e8f0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-placeholder mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: #94a3b8;
+}
+
+.logo-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+}
+
+.group:hover .logo-overlay {
+  opacity: 1;
+}
+
+.logo-delete-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.logo-delete-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.logo-delete-btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   FILE INFO BOX
+   ============================================ */
+.file-info-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+}
+
+.file-info-box > mat-icon {
+  color: #2563eb;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.file-close-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #2563eb;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.file-close-btn:hover {
+  background: #dbeafe;
+}
+
+.file-close-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   COLOR SECTION
+   ============================================ */
+.color-section {
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.color-btn {
+  position: relative;
+  height: 44px;
+  border-radius: 10px;
+  border: 2px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-btn:hover {
+  transform: scale(1.05);
+}
+
+.color-btn.selected {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+}
+
+.check-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  color: #8b5cf6;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.check-icon.dark {
+  color: white;
+}
+
+.color-picker {
+  width: 50px;
+  height: 44px;
+  border-radius: 10px;
+  border: 2px solid #e2e8f0;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.color-input {
+  flex: 1;
+  height: 44px;
+  padding: 0 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: monospace;
+  transition: border-color 0.2s ease;
+  background: #f8fafc;
+}
+
+.color-input:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  background: white;
+}
+
+/* ============================================
+   SPECS BOX
+   ============================================ */
+.specs-box {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.specs-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 8px;
+}
+
+.specs-title mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.specs-list {
+  font-size: 11px;
+  color: #a16207;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.specs-list li {
+  margin-bottom: 2px;
+}
+
+/* ============================================
+   PREVIEW SECTION
+   ============================================ */
+.preview-section {
+  margin-bottom: 4px;
+}
+
+.preview-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.preview-navbar {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.preview-logo-sm {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.preview-logo-sm.default {
+  background: #3b82f6;
+}
+
+.preview-logo-sm.default mat-icon {
+  color: white;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.preview-login {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border-radius: 10px;
+  padding: 16px;
+  border: 1px solid #cbd5e1;
+}
+
+.preview-login-card {
+  background: white;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.preview-logo-lg {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.preview-logo-lg.default {
+  background: #3b82f6;
+}
+
+.preview-logo-lg.default mat-icon {
+  color: white;
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.preview-footer {
+  background: #1e293b;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.preview-contact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #eff6ff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1px solid #bfdbfe;
+}
+
+.preview-contact mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: #2563eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-  
-  /* ============================================
-     ANIMACIONES DE ENTRADA
-     ============================================ */
-  .bg-white {
-    animation: fadeInUp 0.4s ease-out;
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+  .preview-card {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .config-card {
+    padding: 16px;
   }
 
-  /* Reutiliza fadeInUp de styles.css */
-
-  /* ============================================
-     LOGO PREVIEW ANIMATIONS
-     ============================================ */
-  img[alt="Logo preview"],
-  img[alt="Logo"] {
-    animation: fadeInScale 0.3s ease-out;
+  .card-actions {
+    flex-direction: column;
+    gap: 8px;
   }
 
-  /* Reutiliza fadeInScale de styles.css */
-
-  /* ============================================
-     FILE INPUT CUSTOMIZATION
-     ============================================ */
-  input[type="file"] {
-    display: none;
-  }
-  
-  /* ============================================
-     MATERIAL FORM FIELD OVERRIDES
-     ============================================ */
-  ::ng-deep .mat-mdc-form-field {
+  .card-actions button {
     width: 100%;
   }
-  
-  ::ng-deep .mat-mdc-text-field-wrapper {
-    border-radius: 12px !important;
+
+  .color-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
-  
-  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
-    margin-top: 4px;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
-  
-  /* ============================================
-     STICKY PREVIEW CARD
-     ============================================ */
-  .sticky {
-    position: sticky;
-    top: 6rem;
-  }
-  
-  /* ============================================
-     HOVER EFFECTS
-     ============================================ */
-  .group:hover .group-hover\:opacity-100 {
-    opacity: 1;
-  }
-  
-  /* ============================================
-     RESPONSIVE
-     ============================================ */
-  @media (max-width: 1024px) {
-    .sticky {
-      position: static;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .page-header {
-      padding: 1rem;
-    }
-  
-    .bg-white {
-      padding: 1.5rem;
-    }
-  }
-  
-  /* ============================================
-     ACCESIBILIDAD
-     ============================================ */
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
+}

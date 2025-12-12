@@ -1,34 +1,32 @@
 <!-- business-info.component.html -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[1400px] mx-auto p-5">
+  <div class="max-w-[1200px] mx-auto p-5">
 
     <!-- ============================================
-         HEADER
+         HEADER COMPACTO
          ============================================ -->
-    <header class="page-header">
-      <div class="flex items-center justify-between gap-5 flex-wrap">
+    <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
 
         <!-- Left Section -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
           <button
-            mat-icon-button
-            class="icon-btn"
+            type="button"
+            class="back-btn"
             (click)="goBack()"
-            matTooltip="Volver"
-            aria-label="Volver">
+            title="Volver">
             <mat-icon>arrow_back</mat-icon>
           </button>
 
-          <div class="header-icon-container">
+          <div class="header-icon-box">
             <mat-icon>business</mat-icon>
           </div>
 
           <div>
-            <h1 class="text-2xl font-bold text-slate-800 mb-1">Información de Empresa</h1>
-            <p class="text-sm text-slate-600 flex items-center gap-2 font-medium">
-              <span class="status-dot"></span>
+            <h1 class="text-lg font-bold text-slate-800">Información de Empresa</h1>
+            <p class="text-xs text-slate-500">
               @if (businessExists()) {
-                Gestiona la información completa de tu empresa
+                Gestiona la información de tu empresa
               } @else {
                 Configura la información de tu empresa
               }
@@ -36,12 +34,24 @@
           </div>
         </div>
 
+        <!-- Stats Inline -->
+        <div class="hidden md:flex items-center gap-3">
+          <div class="stat-chip">
+            <span class="stat-value">5</span>
+            <span class="stat-label">Secciones</span>
+          </div>
+          <div class="stat-chip" [class.active]="editMode()">
+            <span class="stat-value">{{ editMode() ? 'Sí' : 'No' }}</span>
+            <span class="stat-label">Editando</span>
+          </div>
+        </div>
+
         <!-- Right Section - Action Buttons -->
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
           @if (!editMode() && businessExists()) {
             <button
-              mat-raised-button
-              color="primary"
+              type="button"
+              class="btn-primary"
               (click)="enableEditMode()">
               <mat-icon>edit</mat-icon>
               Editar
@@ -50,7 +60,8 @@
 
           @if (editMode()) {
             <button
-              mat-button
+              type="button"
+              class="btn-cancel"
               (click)="cancelEdit()"
               [disabled]="saving()">
               <mat-icon>close</mat-icon>
@@ -58,16 +69,16 @@
             </button>
 
             <button
-              mat-raised-button
-              color="primary"
+              type="button"
+              class="btn-save"
               (click)="onSubmit()"
               [disabled]="saving() || businessForm.invalid">
               @if (saving()) {
-                <mat-spinner diameter="20" class="mr-2"></mat-spinner>
+                <mat-spinner diameter="18"></mat-spinner>
               } @else {
                 <mat-icon>save</mat-icon>
               }
-              {{ saving() ? 'Guardando...' : 'Guardar Cambios' }}
+              {{ saving() ? 'Guardando...' : 'Guardar' }}
             </button>
           }
         </div>
@@ -78,9 +89,9 @@
          LOADING STATE
          ============================================ -->
     @if (loading()) {
-      <div class="empty-state">
-        <mat-spinner diameter="50"></mat-spinner>
-        <p class="mt-4 text-slate-600 font-medium">Cargando información...</p>
+      <div class="flex flex-col items-center justify-center py-16">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p class="mt-4 text-sm text-slate-600">Cargando información...</p>
       </div>
     }
 
@@ -88,112 +99,124 @@
          MAIN CONTENT
          ============================================ -->
     @if (!loading()) {
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
         <!-- ============================================
              LEFT COLUMN - FORMULARIO CON TABS (2/3 width)
              ============================================ -->
         <section class="lg:col-span-2">
-          <div class="bg-white rounded-2xl border border-slate-200 shadow-soft overflow-hidden">
+          <div class="form-card">
 
             <!-- Upload Progress Bar -->
             @if (uploadProgress() > 0 && uploadProgress() < 100) {
-              <mat-progress-bar mode="determinate" [value]="uploadProgress()"></mat-progress-bar>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="uploadProgress()"></div>
+              </div>
             }
 
             <!-- Tabs -->
-            <mat-tab-group class="business-tabs" animationDuration="300ms">
+            <mat-tab-group class="business-tabs" animationDuration="200ms">
 
               <!-- ==========================================
                    TAB 1: INFORMACIÓN GENERAL
                    ========================================== -->
               <mat-tab>
                 <ng-template mat-tab-label>
-                  <span class="tab-label">General</span>
+                  <div class="tab-label-content">
+                    <mat-icon class="tab-icon">info</mat-icon>
+                    <span class="tab-text">General</span>
+                  </div>
                 </ng-template>
 
                 <div class="tab-content">
-                  <form [formGroup]="businessForm">
-                    <div class="space-y-6">
+                  <form [formGroup]="businessForm" class="space-y-4">
 
-                      <!-- Nombre Comercial -->
-                      <div class="space-y-2">
-                        <label class="input-label-modern">
-                          <mat-icon class="!text-lg text-blue-500">store</mat-icon>
-                          Nombre Comercial *
-                        </label>
-                        <mat-form-field appearance="outline" class="w-full">
-                          <input
-                            matInput
-                            formControlName="businessName"
-                            placeholder="Ej: Mi Empresa"
-                            maxlength="100">
-                          <mat-hint align="end">{{ businessForm.get('businessName')?.value?.length || 0 }}/100</mat-hint>
-                          @if (isFieldInvalid('businessName')) {
-                            <mat-error>{{ getErrorMessage('businessName') }}</mat-error>
-                          }
-                        </mat-form-field>
+                    <!-- Nombre Comercial -->
+                    <div class="form-group">
+                      <label class="form-label">
+                        <mat-icon>store</mat-icon>
+                        Nombre Comercial *
+                      </label>
+                      <div class="input-wrapper">
+                        <input
+                          type="text"
+                          formControlName="businessName"
+                          placeholder="Ej: Mi Empresa"
+                          maxlength="100"
+                          class="form-input"
+                          [class.error]="isFieldInvalid('businessName')"
+                        />
+                        <span class="char-count">{{ businessForm.get('businessName')?.value?.length || 0 }}/100</span>
                       </div>
-
-                      <!-- Razón Social -->
-                      <div class="space-y-2">
-                        <label class="input-label-modern">
-                          <mat-icon class="!text-lg text-blue-500">gavel</mat-icon>
-                          Razón Social / Nombre Legal
-                        </label>
-                        <mat-form-field appearance="outline" class="w-full">
-                          <input
-                            matInput
-                            formControlName="legalName"
-                            placeholder="Ej: Mi Empresa S.A."
-                            maxlength="150">
-                          <mat-hint align="end">{{ businessForm.get('legalName')?.value?.length || 0 }}/150</mat-hint>
-                          @if (isFieldInvalid('legalName')) {
-                            <mat-error>{{ getErrorMessage('legalName') }}</mat-error>
-                          }
-                        </mat-form-field>
-                      </div>
-
-                      <!-- RIF / Tax ID -->
-                      <div class="space-y-2">
-                        <label class="input-label-modern">
-                          <mat-icon class="!text-lg text-blue-500">badge</mat-icon>
-                          RIF / Tax ID / NIT
-                        </label>
-                        <mat-form-field appearance="outline" class="w-full">
-                          <input
-                            matInput
-                            formControlName="taxId"
-                            placeholder="Ej: J-12345678-9"
-                            maxlength="30">
-                          @if (isFieldInvalid('taxId')) {
-                            <mat-error>{{ getErrorMessage('taxId') }}</mat-error>
-                          }
-                        </mat-form-field>
-                      </div>
-
-                      <!-- Descripción -->
-                      <div class="space-y-2">
-                        <label class="input-label-modern">
-                          <mat-icon class="!text-lg text-blue-500">description</mat-icon>
-                          Descripción de la Empresa
-                        </label>
-                        <mat-form-field appearance="outline" class="w-full">
-                          <textarea
-                            matInput
-                            formControlName="description"
-                            placeholder="Breve descripción de tu empresa..."
-                            rows="4"
-                            maxlength="500"></textarea>
-                          <mat-hint align="end">{{ businessForm.get('description')?.value?.length || 0 }}/500</mat-hint>
-                        </mat-form-field>
-                        <p class="text-xs text-slate-500 flex items-center gap-1.5">
-                          <mat-icon class="!text-sm">info_outline</mat-icon>
-                          Opcional: información adicional sobre tu empresa
-                        </p>
-                      </div>
-
+                      @if (isFieldInvalid('businessName')) {
+                        <p class="error-text">{{ getErrorMessage('businessName') }}</p>
+                      }
                     </div>
+
+                    <!-- Razón Social -->
+                    <div class="form-group">
+                      <label class="form-label">
+                        <mat-icon>gavel</mat-icon>
+                        Razón Social / Nombre Legal
+                      </label>
+                      <div class="input-wrapper">
+                        <input
+                          type="text"
+                          formControlName="legalName"
+                          placeholder="Ej: Mi Empresa S.A."
+                          maxlength="150"
+                          class="form-input"
+                          [class.error]="isFieldInvalid('legalName')"
+                        />
+                        <span class="char-count">{{ businessForm.get('legalName')?.value?.length || 0 }}/150</span>
+                      </div>
+                      @if (isFieldInvalid('legalName')) {
+                        <p class="error-text">{{ getErrorMessage('legalName') }}</p>
+                      }
+                    </div>
+
+                    <!-- RIF / Tax ID -->
+                    <div class="form-group">
+                      <label class="form-label">
+                        <mat-icon>badge</mat-icon>
+                        RIF / Tax ID / NIT
+                      </label>
+                      <input
+                        type="text"
+                        formControlName="taxId"
+                        placeholder="Ej: J-12345678-9"
+                        maxlength="30"
+                        class="form-input"
+                        [class.error]="isFieldInvalid('taxId')"
+                      />
+                      @if (isFieldInvalid('taxId')) {
+                        <p class="error-text">{{ getErrorMessage('taxId') }}</p>
+                      }
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="form-group">
+                      <label class="form-label">
+                        <mat-icon>description</mat-icon>
+                        Descripción de la Empresa
+                      </label>
+                      <div class="input-wrapper">
+                        <textarea
+                          formControlName="description"
+                          placeholder="Breve descripción de tu empresa..."
+                          rows="3"
+                          maxlength="500"
+                          class="form-input"
+                          [class.error]="isFieldInvalid('description')"
+                        ></textarea>
+                        <span class="char-count textarea">{{ businessForm.get('description')?.value?.length || 0 }}/500</span>
+                      </div>
+                      <p class="form-hint">
+                        <mat-icon>info_outline</mat-icon>
+                        Opcional: información adicional sobre tu empresa
+                      </p>
+                    </div>
+
                   </form>
                 </div>
               </mat-tab>
@@ -203,153 +226,132 @@
                    ========================================== -->
               <mat-tab>
                 <ng-template mat-tab-label>
-                  <span class="tab-label">Contacto</span>
+                  <div class="tab-label-content">
+                    <mat-icon class="tab-icon">contacts</mat-icon>
+                    <span class="tab-text">Contacto</span>
+                  </div>
                 </ng-template>
 
                 <div class="tab-content">
-                  <form [formGroup]="businessForm">
-                    <div class="space-y-6">
+                  <form [formGroup]="businessForm" class="space-y-5">
 
-                      <!-- Emails (dinámicos) -->
-                      <div class="space-y-4">
-                        <div class="flex items-center justify-between mb-2">
-                          <label class="input-label-modern">
-                            <mat-icon class="!text-lg text-green-500">email</mat-icon>
-                            Emails de Contacto *
-                          </label>
-                          @if (editMode()) {
-                            <button
-                              mat-mini-fab
-                              color="primary"
-                              (click)="addEmail()"
-                              matTooltip="Agregar email"
-                              type="button">
-                              <mat-icon>add</mat-icon>
-                            </button>
-                          }
-                        </div>
-
-                        <div formArrayName="emails" class="space-y-4">
-                          @for (emailGroup of emails.controls; track $index) {
-                            <div [formGroupName]="$index" class="flex gap-3 items-start">
-                              <div class="flex-shrink-0" style="width: 140px;">
-                                <mat-form-field appearance="outline" class="w-full">
-                                  <input
-                                    matInput
-                                    formControlName="label"
-                                    placeholder="Principal"
-                                    maxlength="30">
-                                </mat-form-field>
-                              </div>
-                              <div class="flex-1 min-w-0">
-                                <mat-form-field appearance="outline" class="w-full">
-                                  <input
-                                    matInput
-                                    type="email"
-                                    formControlName="value"
-                                    placeholder="email@empresa.com">
-                                  @if (emailGroup.get('value')?.invalid && emailGroup.get('value')?.touched) {
-                                    <mat-error>Email inválido</mat-error>
-                                  }
-                                </mat-form-field>
-                              </div>
-                              @if (editMode() && emails.length > 1) {
-                                <div class="flex-shrink-0 flex items-center pt-2">
-                                  <button
-                                    mat-icon-button
-                                    color="warn"
-                                    (click)="removeEmail($index)"
-                                    matTooltip="Eliminar email"
-                                    type="button">
-                                    <mat-icon>delete</mat-icon>
-                                  </button>
-                                </div>
-                              }
-                            </div>
-                          }
-                        </div>
-                      </div>
-
-                      <!-- Teléfonos (dinámicos) -->
-                      <div class="space-y-4">
-                        <div class="flex items-center justify-between mb-2">
-                          <label class="input-label-modern">
-                            <mat-icon class="!text-lg text-green-500">phone</mat-icon>
-                            Teléfonos de Contacto
-                          </label>
-                          @if (editMode()) {
-                            <button
-                              mat-mini-fab
-                              color="primary"
-                              (click)="addPhone()"
-                              matTooltip="Agregar teléfono"
-                              type="button">
-                              <mat-icon>add</mat-icon>
-                            </button>
-                          }
-                        </div>
-
-                        <div formArrayName="phones" class="space-y-4">
-                          @for (phoneGroup of phones.controls; track $index) {
-                            <div [formGroupName]="$index" class="flex gap-3 items-start">
-                              <div class="flex-shrink-0" style="width: 140px;">
-                                <mat-form-field appearance="outline" class="w-full">
-                                  <input
-                                    matInput
-                                    formControlName="label"
-                                    placeholder="Oficina"
-                                    maxlength="30">
-                                </mat-form-field>
-                              </div>
-                              <div class="flex-1 min-w-0">
-                                <mat-form-field appearance="outline" class="w-full">
-                                  <input
-                                    matInput
-                                    type="tel"
-                                    formControlName="value"
-                                    placeholder="+58 212 1234567"
-                                    maxlength="20">
-                                  @if (phoneGroup.get('value')?.invalid && phoneGroup.get('value')?.touched) {
-                                    <mat-error>Teléfono inválido (mín. 7 caracteres)</mat-error>
-                                  }
-                                </mat-form-field>
-                              </div>
-                              @if (editMode() && phones.length > 1) {
-                                <div class="flex-shrink-0 flex items-center pt-2">
-                                  <button
-                                    mat-icon-button
-                                    color="warn"
-                                    (click)="removePhone($index)"
-                                    matTooltip="Eliminar teléfono"
-                                    type="button">
-                                    <mat-icon>delete</mat-icon>
-                                  </button>
-                                </div>
-                              }
-                            </div>
-                          }
-                        </div>
-                      </div>
-
-                      <!-- Website -->
-                      <div class="space-y-2">
-                        <label class="input-label-modern">
-                          <mat-icon class="!text-lg text-green-500">language</mat-icon>
-                          Sitio Web
+                    <!-- Emails (dinámicos) -->
+                    <div class="dynamic-section">
+                      <div class="section-header">
+                        <label class="form-label green">
+                          <mat-icon>email</mat-icon>
+                          Emails de Contacto *
                         </label>
-                        <mat-form-field appearance="outline" class="w-full">
-                          <input
-                            matInput
-                            type="url"
-                            formControlName="website"
-                            placeholder="https://www.empresa.com">
-                          @if (isFieldInvalid('website')) {
-                            <mat-error>{{ getErrorMessage('website') }}</mat-error>
-                          }
-                        </mat-form-field>
+                        @if (editMode()) {
+                          <button
+                            type="button"
+                            class="add-btn"
+                            (click)="addEmail()"
+                            title="Agregar email">
+                            <mat-icon>add</mat-icon>
+                          </button>
+                        }
                       </div>
 
+                      <div formArrayName="emails" class="space-y-3">
+                        @for (emailGroup of emails.controls; track $index) {
+                          <div [formGroupName]="$index" class="dynamic-row">
+                            <input
+                              type="text"
+                              formControlName="label"
+                              placeholder="Etiqueta"
+                              maxlength="30"
+                              class="form-input label-input"
+                            />
+                            <input
+                              type="email"
+                              formControlName="value"
+                              placeholder="email@empresa.com"
+                              class="form-input flex-1"
+                              [class.error]="emailGroup.get('value')?.invalid && emailGroup.get('value')?.touched"
+                            />
+                            @if (editMode() && emails.length > 1) {
+                              <button
+                                type="button"
+                                class="remove-btn"
+                                (click)="removeEmail($index)"
+                                title="Eliminar email">
+                                <mat-icon>delete</mat-icon>
+                              </button>
+                            }
+                          </div>
+                        }
+                      </div>
                     </div>
+
+                    <!-- Teléfonos (dinámicos) -->
+                    <div class="dynamic-section">
+                      <div class="section-header">
+                        <label class="form-label green">
+                          <mat-icon>phone</mat-icon>
+                          Teléfonos de Contacto
+                        </label>
+                        @if (editMode()) {
+                          <button
+                            type="button"
+                            class="add-btn"
+                            (click)="addPhone()"
+                            title="Agregar teléfono">
+                            <mat-icon>add</mat-icon>
+                          </button>
+                        }
+                      </div>
+
+                      <div formArrayName="phones" class="space-y-3">
+                        @for (phoneGroup of phones.controls; track $index) {
+                          <div [formGroupName]="$index" class="dynamic-row">
+                            <input
+                              type="text"
+                              formControlName="label"
+                              placeholder="Etiqueta"
+                              maxlength="30"
+                              class="form-input label-input"
+                            />
+                            <input
+                              type="tel"
+                              formControlName="value"
+                              placeholder="+58 212 1234567"
+                              maxlength="20"
+                              class="form-input flex-1"
+                              [class.error]="phoneGroup.get('value')?.invalid && phoneGroup.get('value')?.touched"
+                            />
+                            @if (editMode() && phones.length > 1) {
+                              <button
+                                type="button"
+                                class="remove-btn"
+                                (click)="removePhone($index)"
+                                title="Eliminar teléfono">
+                                <mat-icon>delete</mat-icon>
+                              </button>
+                            }
+                          </div>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Website -->
+                    <div class="form-group">
+                      <label class="form-label green">
+                        <mat-icon>language</mat-icon>
+                        Sitio Web
+                      </label>
+                      <input
+                        type="url"
+                        formControlName="website"
+                        placeholder="https://www.empresa.com"
+                        class="form-input"
+                        [class.error]="isFieldInvalid('website')"
+                      />
+                      @if (isFieldInvalid('website')) {
+                        <p class="error-text">{{ getErrorMessage('website') }}</p>
+                      }
+                    </div>
+
                   </form>
                 </div>
               </mat-tab>
@@ -359,107 +361,113 @@
                    ========================================== -->
               <mat-tab>
                 <ng-template mat-tab-label>
-                  <span class="tab-label">Dirección</span>
+                  <div class="tab-label-content">
+                    <mat-icon class="tab-icon">location_on</mat-icon>
+                    <span class="tab-text">Dirección</span>
+                  </div>
                 </ng-template>
 
                 <div class="tab-content">
                   <form [formGroup]="businessForm">
-                    <div formGroupName="address">
-                      <div class="space-y-6">
+                    <div formGroupName="address" class="space-y-4">
 
-                        <!-- Calle -->
-                        <div class="space-y-2">
-                          <label class="input-label-modern">
-                            <mat-icon class="!text-lg text-purple-500">home</mat-icon>
-                            Calle y Número
-                          </label>
-                          <mat-form-field appearance="outline" class="w-full">
-                            <input
-                              matInput
-                              formControlName="street"
-                              placeholder="Ej: Av. Principal, Edif. Torre, Piso 5"
-                              maxlength="200">
-                            @if (isFieldInvalid('street', 'address')) {
-                              <mat-error>{{ getErrorMessage('street', 'address') }}</mat-error>
-                            }
-                          </mat-form-field>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <!-- Ciudad -->
-                          <div class="space-y-2">
-                            <label class="input-label-modern">
-                              <mat-icon class="!text-lg text-purple-500">location_city</mat-icon>
-                              Ciudad
-                            </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                              <input
-                                matInput
-                                formControlName="city"
-                                placeholder="Ej: Caracas"
-                                maxlength="100">
-                              @if (isFieldInvalid('city', 'address')) {
-                                <mat-error>{{ getErrorMessage('city', 'address') }}</mat-error>
-                              }
-                            </mat-form-field>
-                          </div>
-
-                          <!-- Estado/Provincia -->
-                          <div class="space-y-2">
-                            <label class="input-label-modern">
-                              <mat-icon class="!text-lg text-purple-500">map</mat-icon>
-                              Estado / Provincia
-                            </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                              <input
-                                matInput
-                                formControlName="state"
-                                placeholder="Ej: Distrito Capital"
-                                maxlength="100">
-                              @if (isFieldInvalid('state', 'address')) {
-                                <mat-error>{{ getErrorMessage('state', 'address') }}</mat-error>
-                              }
-                            </mat-form-field>
-                          </div>
-
-                          <!-- Código Postal -->
-                          <div class="space-y-2">
-                            <label class="input-label-modern">
-                              <mat-icon class="!text-lg text-purple-500">markunread_mailbox</mat-icon>
-                              Código Postal
-                            </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                              <input
-                                matInput
-                                formControlName="zipCode"
-                                placeholder="Ej: 1050"
-                                maxlength="20">
-                              @if (isFieldInvalid('zipCode', 'address')) {
-                                <mat-error>{{ getErrorMessage('zipCode', 'address') }}</mat-error>
-                              }
-                            </mat-form-field>
-                          </div>
-
-                          <!-- País -->
-                          <div class="space-y-2">
-                            <label class="input-label-modern">
-                              <mat-icon class="!text-lg text-purple-500">public</mat-icon>
-                              País
-                            </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                              <input
-                                matInput
-                                formControlName="country"
-                                placeholder="Ej: Venezuela"
-                                maxlength="100">
-                              @if (isFieldInvalid('country', 'address')) {
-                                <mat-error>{{ getErrorMessage('country', 'address') }}</mat-error>
-                              }
-                            </mat-form-field>
-                          </div>
-                        </div>
-
+                      <!-- Calle -->
+                      <div class="form-group">
+                        <label class="form-label purple">
+                          <mat-icon>home</mat-icon>
+                          Calle y Número
+                        </label>
+                        <input
+                          type="text"
+                          formControlName="street"
+                          placeholder="Ej: Av. Principal, Edif. Torre, Piso 5"
+                          maxlength="200"
+                          class="form-input"
+                          [class.error]="isFieldInvalid('street', 'address')"
+                        />
+                        @if (isFieldInvalid('street', 'address')) {
+                          <p class="error-text">{{ getErrorMessage('street', 'address') }}</p>
+                        }
                       </div>
+
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Ciudad -->
+                        <div class="form-group">
+                          <label class="form-label purple">
+                            <mat-icon>location_city</mat-icon>
+                            Ciudad
+                          </label>
+                          <input
+                            type="text"
+                            formControlName="city"
+                            placeholder="Ej: Caracas"
+                            maxlength="100"
+                            class="form-input"
+                            [class.error]="isFieldInvalid('city', 'address')"
+                          />
+                          @if (isFieldInvalid('city', 'address')) {
+                            <p class="error-text">{{ getErrorMessage('city', 'address') }}</p>
+                          }
+                        </div>
+
+                        <!-- Estado/Provincia -->
+                        <div class="form-group">
+                          <label class="form-label purple">
+                            <mat-icon>map</mat-icon>
+                            Estado / Provincia
+                          </label>
+                          <input
+                            type="text"
+                            formControlName="state"
+                            placeholder="Ej: Distrito Capital"
+                            maxlength="100"
+                            class="form-input"
+                            [class.error]="isFieldInvalid('state', 'address')"
+                          />
+                          @if (isFieldInvalid('state', 'address')) {
+                            <p class="error-text">{{ getErrorMessage('state', 'address') }}</p>
+                          }
+                        </div>
+
+                        <!-- Código Postal -->
+                        <div class="form-group">
+                          <label class="form-label purple">
+                            <mat-icon>markunread_mailbox</mat-icon>
+                            Código Postal
+                          </label>
+                          <input
+                            type="text"
+                            formControlName="zipCode"
+                            placeholder="Ej: 1050"
+                            maxlength="20"
+                            class="form-input"
+                            [class.error]="isFieldInvalid('zipCode', 'address')"
+                          />
+                          @if (isFieldInvalid('zipCode', 'address')) {
+                            <p class="error-text">{{ getErrorMessage('zipCode', 'address') }}</p>
+                          }
+                        </div>
+
+                        <!-- País -->
+                        <div class="form-group">
+                          <label class="form-label purple">
+                            <mat-icon>public</mat-icon>
+                            País
+                          </label>
+                          <input
+                            type="text"
+                            formControlName="country"
+                            placeholder="Ej: Venezuela"
+                            maxlength="100"
+                            class="form-input"
+                            [class.error]="isFieldInvalid('country', 'address')"
+                          />
+                          @if (isFieldInvalid('country', 'address')) {
+                            <p class="error-text">{{ getErrorMessage('country', 'address') }}</p>
+                          }
+                        </div>
+                      </div>
+
                     </div>
                   </form>
                 </div>
@@ -470,134 +478,131 @@
                    ========================================== -->
               <mat-tab>
                 <ng-template mat-tab-label>
-                  <span class="tab-label">Branding</span>
+                  <div class="tab-label-content">
+                    <mat-icon class="tab-icon">palette</mat-icon>
+                    <span class="tab-text">Branding</span>
+                  </div>
                 </ng-template>
 
                 <div class="tab-content">
-                  <form [formGroup]="businessForm">
+                  <form [formGroup]="businessForm" class="space-y-6">
 
                     <!-- Logo Section -->
-                    <div class="mb-8">
-                      <h3 class="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                        <mat-icon class="!text-lg text-amber-500">image</mat-icon>
+                    <div class="branding-section">
+                      <h3 class="section-title amber">
+                        <mat-icon>image</mat-icon>
                         Logo de la Empresa
                       </h3>
 
                       <!-- Logo Preview -->
-                      <div class="flex flex-col items-center gap-4 p-6 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 mb-4">
+                      <div class="logo-preview-zone">
                         @if (logoPreview()) {
                           <div class="relative group">
-                            <div class="w-40 h-40 rounded-xl shadow-md flex items-center justify-center overflow-hidden bg-white">
+                            <div class="logo-preview-box">
                               <img
                                 [src]="logoPreview()"
                                 alt="Logo preview"
-                                class="w-full h-full object-contain p-4">
+                                class="w-full h-full object-contain p-3"
+                              />
                             </div>
                             @if (editMode()) {
-                              <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+                              <div class="logo-overlay">
                                 <button
-                                  mat-icon-button
-                                  class="!text-white"
+                                  type="button"
+                                  class="logo-delete-btn"
                                   (click)="logoPreview.set(''); selectedLogoFile.set(null)"
-                                  matTooltip="Eliminar logo"
-                                  aria-label="Eliminar logo">
+                                  title="Eliminar logo">
                                   <mat-icon>delete</mat-icon>
                                 </button>
                               </div>
                             }
                           </div>
                         } @else {
-                          <div class="w-40 h-40 bg-slate-200 rounded-xl flex items-center justify-center">
-                            <mat-icon class="!text-6xl text-slate-400">image</mat-icon>
+                          <div class="logo-placeholder">
+                            <mat-icon>image</mat-icon>
                           </div>
                         }
-
-                        <p class="text-sm text-slate-600 font-medium text-center">
+                        <p class="text-xs text-slate-500 font-medium mt-2">
                           {{ logoPreview() ? 'Logo actual' : 'Sin logo' }}
                         </p>
                       </div>
 
                       <!-- Upload Button -->
                       @if (editMode()) {
-                        <div class="flex flex-col gap-3">
+                        <div class="mt-4">
                           <input
                             type="file"
                             #logoInput
                             accept="image/*"
                             (change)="onLogoSelected($event)"
-                            class="hidden">
+                            class="hidden"
+                          />
                           <button
-                            mat-raised-button
-                            color="accent"
-                            (click)="logoInput.click()"
-                            class="w-full">
+                            type="button"
+                            class="btn-upload w-full"
+                            (click)="logoInput.click()">
                             <mat-icon>cloud_upload</mat-icon>
                             {{ logoPreview() ? 'Cambiar Logo' : 'Subir Logo' }}
                           </button>
-                          <p class="text-xs text-slate-500 text-center">
+                          <p class="text-xs text-slate-500 text-center mt-2">
                             Formatos: JPG, PNG, SVG • Máx. 5MB
                           </p>
                         </div>
                       }
 
-                      <!-- Hidden field -->
                       <input type="hidden" formControlName="logoUrl">
                     </div>
 
-                    <mat-divider class="my-8"></mat-divider>
+                    <div class="section-divider"></div>
 
                     <!-- Colors Section -->
-                    <div>
-                      <h3 class="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                        <mat-icon class="!text-lg text-amber-500">color_lens</mat-icon>
+                    <div class="branding-section">
+                      <h3 class="section-title amber">
+                        <mat-icon>color_lens</mat-icon>
                         Colores Corporativos
                       </h3>
 
-                      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <!-- Color Primario -->
-                        <div class="space-y-3">
-                          <label class="input-label-modern">
-                            Color Primario
-                          </label>
-                          <div class="flex items-center gap-3">
+                        <div class="color-picker-group">
+                          <label class="form-label">Color Primario</label>
+                          <div class="color-picker-row">
                             <input
                               type="color"
                               formControlName="primaryColor"
-                              class="w-16 h-16 rounded-lg border-2 border-slate-300 cursor-pointer">
-                            <div class="flex-1">
-                              <input
-                                matInput
-                                formControlName="primaryColor"
-                                placeholder="#3b82f6"
-                                class="w-full px-3 py-2 border border-slate-300 rounded-lg">
-                            </div>
+                              class="color-picker"
+                            />
+                            <input
+                              type="text"
+                              formControlName="primaryColor"
+                              placeholder="#3b82f6"
+                              class="color-input"
+                            />
                           </div>
-                          <p class="text-xs text-slate-500 flex items-center gap-1.5">
-                            <mat-icon class="!text-sm">info_outline</mat-icon>
+                          <p class="form-hint">
+                            <mat-icon>info_outline</mat-icon>
                             Color principal de tu marca
                           </p>
                         </div>
 
                         <!-- Color Secundario -->
-                        <div class="space-y-3">
-                          <label class="input-label-modern">
-                            Color Secundario
-                          </label>
-                          <div class="flex items-center gap-3">
+                        <div class="color-picker-group">
+                          <label class="form-label">Color Secundario</label>
+                          <div class="color-picker-row">
                             <input
                               type="color"
                               formControlName="secondaryColor"
-                              class="w-16 h-16 rounded-lg border-2 border-slate-300 cursor-pointer">
-                            <div class="flex-1">
-                              <input
-                                matInput
-                                formControlName="secondaryColor"
-                                placeholder="#8b5cf6"
-                                class="w-full px-3 py-2 border border-slate-300 rounded-lg">
-                            </div>
+                              class="color-picker"
+                            />
+                            <input
+                              type="text"
+                              formControlName="secondaryColor"
+                              placeholder="#8b5cf6"
+                              class="color-input"
+                            />
                           </div>
-                          <p class="text-xs text-slate-500 flex items-center gap-1.5">
-                            <mat-icon class="!text-sm">info_outline</mat-icon>
+                          <p class="form-hint">
+                            <mat-icon>info_outline</mat-icon>
                             Color complementario
                           </p>
                         </div>
@@ -613,87 +618,88 @@
                    ========================================== -->
               <mat-tab>
                 <ng-template mat-tab-label>
-                  <span class="tab-label">Redes</span>
+                  <div class="tab-label-content">
+                    <mat-icon class="tab-icon">share</mat-icon>
+                    <span class="tab-text">Redes</span>
+                  </div>
                 </ng-template>
 
                 <div class="tab-content">
                   <form [formGroup]="businessForm">
-                    <div formGroupName="socialMedia">
-                      <div class="space-y-6">
+                    <div formGroupName="socialMedia" class="space-y-4">
 
-                        <!-- Facebook -->
-                        <div class="space-y-2">
-                          <label class="input-label-modern">
-                            <mat-icon class="!text-lg text-[#1877F2]">facebook</mat-icon>
-                            Facebook
-                          </label>
-                          <mat-form-field appearance="outline" class="w-full">
-                            <input
-                              matInput
-                              type="url"
-                              formControlName="facebook"
-                              placeholder="https://www.facebook.com/tuempresa">
-                            @if (isFieldInvalid('facebook', 'socialMedia')) {
-                              <mat-error>{{ getErrorMessage('facebook', 'socialMedia') }}</mat-error>
-                            }
-                          </mat-form-field>
-                        </div>
-
-                        <!-- Instagram -->
-                        <div class="space-y-2">
-                          <label class="input-label-modern">
-                            <mat-icon class="!text-lg text-[#E4405F]">camera_alt</mat-icon>
-                            Instagram
-                          </label>
-                          <mat-form-field appearance="outline" class="w-full">
-                            <input
-                              matInput
-                              type="url"
-                              formControlName="instagram"
-                              placeholder="https://www.instagram.com/tuempresa">
-                            @if (isFieldInvalid('instagram', 'socialMedia')) {
-                              <mat-error>{{ getErrorMessage('instagram', 'socialMedia') }}</mat-error>
-                            }
-                          </mat-form-field>
-                        </div>
-
-                        <!-- Twitter -->
-                        <div class="space-y-2">
-                          <label class="input-label-modern">
-                            <mat-icon class="!text-lg text-[#1DA1F2]">tag</mat-icon>
-                            Twitter / X
-                          </label>
-                          <mat-form-field appearance="outline" class="w-full">
-                            <input
-                              matInput
-                              type="url"
-                              formControlName="twitter"
-                              placeholder="https://www.twitter.com/tuempresa">
-                            @if (isFieldInvalid('twitter', 'socialMedia')) {
-                              <mat-error>{{ getErrorMessage('twitter', 'socialMedia') }}</mat-error>
-                            }
-                          </mat-form-field>
-                        </div>
-
-                        <!-- LinkedIn -->
-                        <div class="space-y-2">
-                          <label class="input-label-modern">
-                            <mat-icon class="!text-lg text-[#0A66C2]">work</mat-icon>
-                            LinkedIn
-                          </label>
-                          <mat-form-field appearance="outline" class="w-full">
-                            <input
-                              matInput
-                              type="url"
-                              formControlName="linkedin"
-                              placeholder="https://www.linkedin.com/company/tuempresa">
-                            @if (isFieldInvalid('linkedin', 'socialMedia')) {
-                              <mat-error>{{ getErrorMessage('linkedin', 'socialMedia') }}</mat-error>
-                            }
-                          </mat-form-field>
-                        </div>
-
+                      <!-- Facebook -->
+                      <div class="form-group">
+                        <label class="form-label social facebook">
+                          <mat-icon>facebook</mat-icon>
+                          Facebook
+                        </label>
+                        <input
+                          type="url"
+                          formControlName="facebook"
+                          placeholder="https://www.facebook.com/tuempresa"
+                          class="form-input"
+                          [class.error]="isFieldInvalid('facebook', 'socialMedia')"
+                        />
+                        @if (isFieldInvalid('facebook', 'socialMedia')) {
+                          <p class="error-text">{{ getErrorMessage('facebook', 'socialMedia') }}</p>
+                        }
                       </div>
+
+                      <!-- Instagram -->
+                      <div class="form-group">
+                        <label class="form-label social instagram">
+                          <mat-icon>camera_alt</mat-icon>
+                          Instagram
+                        </label>
+                        <input
+                          type="url"
+                          formControlName="instagram"
+                          placeholder="https://www.instagram.com/tuempresa"
+                          class="form-input"
+                          [class.error]="isFieldInvalid('instagram', 'socialMedia')"
+                        />
+                        @if (isFieldInvalid('instagram', 'socialMedia')) {
+                          <p class="error-text">{{ getErrorMessage('instagram', 'socialMedia') }}</p>
+                        }
+                      </div>
+
+                      <!-- Twitter -->
+                      <div class="form-group">
+                        <label class="form-label social twitter">
+                          <mat-icon>tag</mat-icon>
+                          Twitter / X
+                        </label>
+                        <input
+                          type="url"
+                          formControlName="twitter"
+                          placeholder="https://www.twitter.com/tuempresa"
+                          class="form-input"
+                          [class.error]="isFieldInvalid('twitter', 'socialMedia')"
+                        />
+                        @if (isFieldInvalid('twitter', 'socialMedia')) {
+                          <p class="error-text">{{ getErrorMessage('twitter', 'socialMedia') }}</p>
+                        }
+                      </div>
+
+                      <!-- LinkedIn -->
+                      <div class="form-group">
+                        <label class="form-label social linkedin">
+                          <mat-icon>work</mat-icon>
+                          LinkedIn
+                        </label>
+                        <input
+                          type="url"
+                          formControlName="linkedin"
+                          placeholder="https://www.linkedin.com/company/tuempresa"
+                          class="form-input"
+                          [class.error]="isFieldInvalid('linkedin', 'socialMedia')"
+                        />
+                        @if (isFieldInvalid('linkedin', 'socialMedia')) {
+                          <p class="error-text">{{ getErrorMessage('linkedin', 'socialMedia') }}</p>
+                        }
+                      </div>
+
                     </div>
                   </form>
                 </div>
@@ -710,45 +716,48 @@
         <section class="lg:col-span-1">
 
           <!-- CARD: VISTA PREVIA -->
-          <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft sticky top-24">
-            <div class="flex items-center gap-3 mb-6">
-              <mat-icon class="text-cyan-500 !text-2xl">preview</mat-icon>
-              <h2 class="text-xl font-bold text-slate-800">Vista Previa</h2>
+          <div class="preview-card">
+            <div class="card-header">
+              <div class="card-icon cyan">
+                <mat-icon>preview</mat-icon>
+              </div>
+              <h2 class="card-title">Vista Previa</h2>
             </div>
 
-            <div class="space-y-6">
+            <div class="space-y-4">
 
               <!-- Preview: Logo -->
-              <div class="space-y-2">
-                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Logo</p>
-                <div class="bg-slate-50 rounded-xl p-6 border border-slate-200 flex justify-center">
+              <div class="preview-section">
+                <p class="preview-label">Logo</p>
+                <div class="preview-logo-container">
                   @if (logoPreview()) {
-                    <div class="w-24 h-24 rounded-lg flex items-center justify-center overflow-hidden bg-white shadow-md">
+                    <div class="preview-logo">
                       <img
                         [src]="logoPreview()"
                         alt="Logo preview"
-                        class="w-full h-full object-contain p-2">
+                        class="w-full h-full object-contain p-2"
+                      />
                     </div>
                   } @else {
-                    <div class="w-24 h-24 bg-slate-200 rounded-lg flex items-center justify-center">
-                      <mat-icon class="!text-4xl text-slate-400">image</mat-icon>
+                    <div class="preview-logo empty">
+                      <mat-icon>image</mat-icon>
                     </div>
                   }
                 </div>
               </div>
 
               <!-- Preview: Información -->
-              <div class="space-y-2">
-                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Información</p>
-                <div class="bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl p-6 border border-slate-300 space-y-3">
-                  <h3 class="text-lg font-bold text-slate-800 text-center">
+              <div class="preview-section">
+                <p class="preview-label">Información</p>
+                <div class="preview-info">
+                  <h3 class="preview-business-name">
                     {{ businessForm.get('businessName')?.value || 'Nombre de Empresa' }}
                   </h3>
-                  <p class="text-xs text-slate-600 text-center">
+                  <p class="preview-legal-name">
                     {{ businessForm.get('legalName')?.value || 'Razón Social' }}
                   </p>
                   @if (businessForm.get('description')?.value) {
-                    <p class="text-xs text-slate-500 text-center leading-relaxed">
+                    <p class="preview-description">
                       {{ businessForm.get('description')?.value }}
                     </p>
                   }
@@ -756,35 +765,27 @@
               </div>
 
               <!-- Preview: Contacto -->
-              <div class="space-y-2">
-                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Contacto</p>
-                <div class="bg-blue-50 rounded-xl p-4 border border-blue-200 space-y-2">
+              <div class="preview-section">
+                <p class="preview-label">Contacto</p>
+                <div class="preview-contact">
                   @for (emailGroup of emails.controls; track $index) {
                     @if (emailGroup.get('value')?.value) {
-                      <div class="flex items-start gap-2">
-                        <mat-icon class="!text-base text-blue-600 mt-0.5">email</mat-icon>
-                        <div class="flex-1">
-                          <p class="text-xs font-semibold text-blue-700">
-                            {{ emailGroup.get('label')?.value || 'Email' }}
-                          </p>
-                          <p class="text-xs font-medium text-blue-900">
-                            {{ emailGroup.get('value')?.value }}
-                          </p>
+                      <div class="contact-item">
+                        <mat-icon>email</mat-icon>
+                        <div>
+                          <span class="contact-label">{{ emailGroup.get('label')?.value || 'Email' }}</span>
+                          <span class="contact-value">{{ emailGroup.get('value')?.value }}</span>
                         </div>
                       </div>
                     }
                   }
                   @for (phoneGroup of phones.controls; track $index) {
                     @if (phoneGroup.get('value')?.value) {
-                      <div class="flex items-start gap-2">
-                        <mat-icon class="!text-base text-blue-600 mt-0.5">phone</mat-icon>
-                        <div class="flex-1">
-                          <p class="text-xs font-semibold text-blue-700">
-                            {{ phoneGroup.get('label')?.value || 'Teléfono' }}
-                          </p>
-                          <p class="text-xs font-medium text-blue-900">
-                            {{ phoneGroup.get('value')?.value }}
-                          </p>
+                      <div class="contact-item">
+                        <mat-icon>phone</mat-icon>
+                        <div>
+                          <span class="contact-label">{{ phoneGroup.get('label')?.value || 'Teléfono' }}</span>
+                          <span class="contact-value">{{ phoneGroup.get('value')?.value }}</span>
                         </div>
                       </div>
                     }
@@ -793,26 +794,22 @@
               </div>
 
               <!-- Preview: Colores -->
-              <div class="space-y-2">
-                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Colores Corporativos</p>
-                <div class="flex gap-3">
-                  <div class="flex-1 space-y-2">
+              <div class="preview-section">
+                <p class="preview-label">Colores</p>
+                <div class="preview-colors">
+                  <div class="color-preview">
                     <div
-                      class="w-full h-16 rounded-xl border-2 border-slate-200"
+                      class="color-box"
                       [style.background]="businessForm.get('primaryColor')?.value || '#3b82f6'">
                     </div>
-                    <p class="text-xs text-slate-600 text-center font-mono">
-                      {{ businessForm.get('primaryColor')?.value || '#3b82f6' }}
-                    </p>
+                    <span class="color-value">{{ businessForm.get('primaryColor')?.value || '#3b82f6' }}</span>
                   </div>
-                  <div class="flex-1 space-y-2">
+                  <div class="color-preview">
                     <div
-                      class="w-full h-16 rounded-xl border-2 border-slate-200"
+                      class="color-box"
                       [style.background]="businessForm.get('secondaryColor')?.value || '#8b5cf6'">
                     </div>
-                    <p class="text-xs text-slate-600 text-center font-mono">
-                      {{ businessForm.get('secondaryColor')?.value || '#8b5cf6' }}
-                    </p>
+                    <span class="color-value">{{ businessForm.get('secondaryColor')?.value || '#8b5cf6' }}</span>
                   </div>
                 </div>
               </div>

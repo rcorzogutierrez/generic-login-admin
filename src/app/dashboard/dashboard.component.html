@@ -1,43 +1,53 @@
-<!-- dashboard.component.html - REFACTORIZADO CON TAILWIND + MATERIAL -->
-<div class="max-w-[1400px] mx-auto p-5">
-  
+<!-- dashboard.component.html - DISEÑO COMPACTO CON TAILWIND -->
+<div class="dashboard-container">
+
   <!-- ============================================
-       HEADER - USANDO CLASES GLOBALES
+       HEADER COMPACTO
        ============================================ -->
-  <header class="page-header">
-    <div class="flex items-center justify-between gap-5 flex-wrap">
-      
+  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
+
       <!-- Left Section -->
-      <div class="flex items-center gap-4">
-        <div class="header-icon-container">
+      <div class="flex items-center gap-3">
+        <div class="header-icon-box">
           <mat-icon>dashboard</mat-icon>
         </div>
         <div>
-          <h1 class="text-2xl font-bold text-slate-800 mb-1">¡Bienvenido de nuevo! 👋</h1>
+          <h1 class="text-lg font-bold text-slate-800">¡Bienvenido de nuevo!</h1>
           @if (!loading() && userDashboard()) {
-            <p class="text-sm text-slate-600 flex items-center gap-2 font-medium">
+            <p class="text-xs text-slate-500 flex items-center gap-1.5">
               <span class="status-dot" [class.recent]="isRecentSession()"></span>
               Última sesión: {{ getLastSession() }}
             </p>
+          } @else {
+            <p class="text-xs text-slate-500">Cargando información...</p>
           }
         </div>
       </div>
-      
-      <!-- Right Section -->
-      <div class="flex items-center gap-3 flex-wrap">
-      
-        <!-- Action Buttons -->
-        <button mat-icon-button
-                class="icon-btn"
-                [matBadge]="getNotificationCount()"
-                [matBadgeHidden]="getNotificationCount() === 0"
-                matBadgeColor="warn"
-                matTooltip="Notificaciones"
-                aria-label="Ver notificaciones"
-                (click)="goToNotifications()">
+
+      <!-- Right Section - Stats & Actions -->
+      <div class="hidden md:flex items-center gap-3">
+        @if (!loading() && userDashboard()) {
+          <div class="stat-chip">
+            <span class="stat-value">{{ userDashboard()!.userStats.totalPermissions }}</span>
+            <span class="stat-label">Permisos</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-value">{{ userDashboard()!.userStats.totalModules }}</span>
+            <span class="stat-label">Módulos</span>
+          </div>
+        }
+
+        <!-- Notification Button -->
+        <button type="button"
+                class="notification-btn"
+                (click)="goToNotifications()"
+                title="Notificaciones">
           <mat-icon>notifications</mat-icon>
-        </button>        
-       
+          @if (getNotificationCount() > 0) {
+            <span class="notification-badge">{{ getNotificationCount() }}</span>
+          }
+        </button>
       </div>
     </div>
   </header>
@@ -47,8 +57,8 @@
        ============================================ -->
   @if (loading()) {
     <div class="empty-state">
-      <mat-spinner diameter="50"></mat-spinner>
-      <p class="mt-4 text-slate-600 font-medium">Cargando tu dashboard...</p>
+      <mat-spinner diameter="40"></mat-spinner>
+      <p class="mt-3 text-sm text-slate-600 font-medium">Cargando tu dashboard...</p>
     </div>
   }
 
@@ -57,10 +67,12 @@
        ============================================ -->
   @if (error() && !loading()) {
     <div class="empty-state">
-      <mat-icon class="text-red-500 text-5xl mb-4">error_outline</mat-icon>
-      <h3 class="text-lg font-semibold text-slate-800 mb-2">Error al cargar</h3>
-      <p class="text-slate-600 mb-6">{{ error() }}</p>
-      <button mat-raised-button color="primary" (click)="refreshData()">
+      <div class="error-icon-box">
+        <mat-icon>error_outline</mat-icon>
+      </div>
+      <h3 class="text-base font-semibold text-slate-800 mt-4 mb-2">Error al cargar</h3>
+      <p class="text-sm text-slate-600 mb-5">{{ error() }}</p>
+      <button type="button" class="btn-primary" (click)="refreshData()">
         <mat-icon>refresh</mat-icon>
         Reintentar
       </button>
@@ -71,80 +83,82 @@
        DASHBOARD CONTENT
        ============================================ -->
   @if (!loading() && !error() && userDashboard()) {
-    <div>
+    <div class="animate-fadeInUp">
 
-    <!-- ============================================
-         QUICK ACTIONS - CON TAILWIND
-         ============================================ -->
-    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      @for (action of quickActions(); track action.id) {
-        <div class="card-corporate cursor-pointer group relative"
-             (click)="executeQuickAction(action)">
+      <!-- ============================================
+           QUICK ACTIONS
+           ============================================ -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        @for (action of quickActions(); track action.id; let i = $index) {
+          <div class="action-card"
+               [style.animation-delay]="(i * 0.05) + 's'"
+               (click)="executeQuickAction(action)">
 
-          <!-- Gradient top bar on hover -->
-          <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-t-2xl"></div>
+            <!-- Icon -->
+            <div class="action-icon-box">
+              <mat-icon>{{ action.icon }}</mat-icon>
+              @if (action.badge) {
+                <span class="action-badge">{{ action.badge }}</span>
+              }
+            </div>
 
-          <!-- Icon -->
-          <div class="header-icon-container mb-4 relative">
-            <mat-icon>{{ action.icon }}</mat-icon>
-            @if (action.badge) {
-              <span class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-lg border-2 border-white min-w-[22px] text-center">
-                {{ action.badge }}
-              </span>
-            }
+            <!-- Content -->
+            <div class="action-content">
+              <h3 class="action-title">{{ action.title }}</h3>
+              <p class="action-description">{{ action.description }}</p>
+            </div>
+
+            <!-- Arrow -->
+            <mat-icon class="action-arrow">chevron_right</mat-icon>
+          </div>
+        }
+      </section>
+
+      <!-- ============================================
+           PANEL DE CONTROL
+           ============================================ -->
+      @defer (on viewport) {
+        <section class="content-card mb-6">
+          <div class="card-header">
+            <div class="card-icon cyan">
+              <mat-icon>insights</mat-icon>
+            </div>
+            <div>
+              <h2 class="card-title">Tu Panel de Control</h2>
+              <p class="card-subtitle">Resumen de tu cuenta y accesos</p>
+            </div>
           </div>
 
-          <!-- Content -->
-          <h3 class="text-base font-semibold text-slate-800 mb-1.5">{{ action.title }}</h3>
-          <p class="text-sm text-slate-600 leading-snug">{{ action.description }}</p>
-        </div>
-      }
-    </section>
-
-    <!-- ============================================
-         PANEL DE CONTROL - ANCHO COMPLETO
-         ✅ MODERNIZADO: @defer para lazy loading
-         ============================================ -->
-    @defer (on viewport) {
-      <section class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft mb-8">
-          <h2 class="flex items-center gap-2.5 text-xl font-bold text-slate-800 mb-6">
-            <mat-icon class="text-blue-500">dashboard</mat-icon>
-            Tu Panel de Control
-          </h2>
-
           <!-- Key Metrics Grid -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
             @for (metric of keyMetrics(); track metric.label) {
-              <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 hover:bg-white hover:border-blue-500 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
-                <div class="flex items-center gap-2 text-xs text-slate-600 uppercase font-semibold mb-2.5 tracking-wider">
-                  <mat-icon class="!text-base text-blue-500">{{ metric.icon }}</mat-icon>
-                  {{ metric.label }}
+              <div class="metric-card">
+                <div class="metric-header">
+                  <mat-icon class="metric-icon">{{ metric.icon }}</mat-icon>
+                  <span class="metric-label">{{ metric.label }}</span>
                 </div>
-                <div class="text-3xl font-bold text-slate-800 mb-1.5 leading-none">
-                  {{ metric.value }}
-                </div>
-                <div class="text-xs text-green-600 font-semibold">
-                  {{ metric.change }}
-                </div>
+                <div class="metric-value">{{ metric.value }}</div>
+                <div class="metric-change">{{ metric.change }}</div>
               </div>
             }
           </div>
 
           <!-- Permisos Section -->
-          <div class="mb-8">
-            <h3 class="flex items-center gap-2 text-base font-semibold text-slate-800 mb-3.5">
-              <mat-icon class="!text-xl text-blue-500">verified</mat-icon>
+          <div class="mb-5">
+            <h3 class="section-title">
+              <mat-icon>verified</mat-icon>
               Tus Permisos
             </h3>
-            <div class="flex flex-wrap gap-2.5">
+            <div class="flex flex-wrap gap-2">
               @for (permission of userDashboard()!.userInfo.permissions; track permission) {
-                <div class="bg-slate-50 px-4 py-2.5 rounded-lg text-sm text-slate-700 border border-slate-200 flex items-center gap-1.5 font-medium hover:bg-white hover:border-blue-500 hover:-translate-y-0.5 transition-all duration-200">
-                  <mat-icon class="!text-lg text-blue-500">{{ getPermissionIcon(permission) }}</mat-icon>
+                <div class="tag-item">
+                  <mat-icon>{{ getPermissionIcon(permission) }}</mat-icon>
                   {{ getPermissionLabel(permission) }}
                 </div>
               }
               @if (userDashboard()!.userInfo.permissions.length === 0) {
-                <div class="bg-amber-50 text-amber-700 px-4 py-2.5 rounded-lg text-sm font-medium border border-amber-200">
+                <div class="tag-item warning">
+                  <mat-icon>warning</mat-icon>
                   Sin permisos asignados
                 </div>
               }
@@ -153,60 +167,86 @@
 
           <!-- Módulos Section -->
           <div>
-            <h3 class="flex items-center gap-2 text-base font-semibold text-slate-800 mb-3.5">
-              <mat-icon class="!text-xl text-blue-500">apps</mat-icon>
+            <h3 class="section-title">
+              <mat-icon>apps</mat-icon>
               Módulos Activos
             </h3>
-            <div class="flex flex-wrap gap-2.5">
+            <div class="flex flex-wrap gap-2">
               @for (module of userDashboard()!.userInfo.modules; track module) {
-                <div class="bg-slate-50 px-4 py-2.5 rounded-lg text-sm text-slate-700 border border-slate-200 flex items-center gap-1.5 font-medium hover:bg-white hover:border-blue-500 hover:-translate-y-0.5 transition-all duration-200">
-                  <mat-icon class="!text-lg text-blue-500">dashboard</mat-icon>
+                <div class="tag-item">
+                  <mat-icon>dashboard</mat-icon>
                   {{ module }}
                 </div>
               }
               @if (userDashboard()!.userInfo.modules.length === 0) {
-                <div class="bg-amber-50 text-amber-700 px-4 py-2.5 rounded-lg text-sm font-medium border border-amber-200">
+                <div class="tag-item warning">
+                  <mat-icon>warning</mat-icon>
                   Sin módulos asignados
                 </div>
               }
             </div>
           </div>
         </section>
-    } @placeholder {
-      <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft mb-8 animate-pulse">
-        <div class="h-6 bg-slate-200 rounded w-48 mb-6"></div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="h-24 bg-slate-100 rounded-xl"></div>
-          <div class="h-24 bg-slate-100 rounded-xl"></div>
+      } @placeholder {
+        <div class="content-card mb-6 animate-pulse">
+          <div class="h-5 bg-slate-200 rounded w-40 mb-5"></div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="h-20 bg-slate-100 rounded-xl"></div>
+            <div class="h-20 bg-slate-100 rounded-xl"></div>
+          </div>
         </div>
-      </div>
-    }
+      }
 
-    <!-- ============================================
-         INSIGHTS - INFORMACIÓN CONTEXTUAL
-         ✅ MODERNIZADO: @defer para lazy loading
-         ============================================ -->
-    @defer (on viewport) {
-      <section class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft">
-        <!-- Contact Info -->
-        <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
-          <h4 class="flex items-center gap-2 text-base font-semibold text-slate-800 mb-4">
-            <mat-icon class="!text-xl text-blue-500">email</mat-icon>
-            Contacto
-          </h4>
-          <p class="text-sm text-slate-700 mb-2">
-            <strong class="font-semibold text-slate-800">Email:</strong> {{ userDashboard()!.userInfo.email }}
+      <!-- ============================================
+           CONTACTO INFO
+           ============================================ -->
+      @defer (on viewport) {
+        <section class="content-card">
+          <div class="card-header">
+            <div class="card-icon green">
+              <mat-icon>contact_mail</mat-icon>
+            </div>
+            <div>
+              <h2 class="card-title">Información de Contacto</h2>
+              <p class="card-subtitle">Datos de tu cuenta</p>
+            </div>
+          </div>
+
+          <div class="contact-info">
+            <div class="contact-item">
+              <mat-icon>email</mat-icon>
+              <div>
+                <span class="contact-label">Email</span>
+                <span class="contact-value">{{ userDashboard()!.userInfo.email }}</span>
+              </div>
+            </div>
+            <div class="contact-item">
+              <mat-icon>badge</mat-icon>
+              <div>
+                <span class="contact-label">Rol</span>
+                <span class="contact-value capitalize">{{ userDashboard()!.userInfo.role }}</span>
+              </div>
+            </div>
+            <div class="contact-item">
+              <mat-icon>schedule</mat-icon>
+              <div>
+                <span class="contact-label">Miembro desde</span>
+                <span class="contact-value">{{ formatDaysSince(userDashboard()!.userStats.daysSinceCreation) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="help-text">
+            <mat-icon>help_outline</mat-icon>
+            ¿Necesitas ayuda? Contacta al administrador del sistema o revisa la documentación.
           </p>
-          <p class="text-xs text-slate-500 leading-relaxed mt-4 pt-4 border-t border-slate-200">
-            ¿Necesitas ayuda? Contacta al administrador del sistema o revisa la documentación en el panel de configuración.
-          </p>
+        </section>
+      } @placeholder {
+        <div class="content-card animate-pulse">
+          <div class="h-5 bg-slate-200 rounded w-48 mb-5"></div>
+          <div class="h-28 bg-slate-100 rounded-xl"></div>
         </div>
-      </section>
-    } @placeholder {
-      <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-soft animate-pulse">
-        <div class="h-32 bg-slate-100 rounded-xl"></div>
-      </div>
-    }
+      }
 
     </div>
   }

@@ -1,16 +1,8 @@
 // src/app/dashboard/dashboard.component.ts
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
 import { UserDashboardService, UserDashboardData } from './services/user-dashboard.service';
@@ -56,16 +48,8 @@ interface KeyMetric {
   standalone: true,
   imports: [
     CommonModule,
-    MatToolbarModule,
-    MatButtonModule,
     MatIconModule,
-    MatCardModule,
-    MatMenuModule,
-    MatChipsModule,
     MatProgressSpinnerModule,
-    MatBadgeModule,
-    MatTooltipModule,
-    MatDividerModule,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
@@ -333,7 +317,7 @@ export class DashboardComponent implements OnInit {
    * formatDaysSince(400); // "1 años"
    * ```
    */
-  private formatDaysSince(days: number): string {
+  formatDaysSince(days: number): string {
     if (days === 0) return 'Hoy';
     if (days === 1) return '1 día';
     if (days < 30) return `${days} días`;

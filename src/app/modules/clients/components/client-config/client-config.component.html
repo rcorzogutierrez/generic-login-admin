@@ -1,74 +1,77 @@
-<!-- src/app/modules/clients/components/client-config/client-config.component.html -->
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[1400px] mx-auto p-5">
+<!-- client-config.component.html - DISEÑO COMPACTO -->
+<div class="config-container">
 
-    <!-- HEADER -->
-    <header class="page-header">
-      <div class="flex items-center justify-between gap-5 flex-wrap">
+  <!-- ============================================
+       HEADER COMPACTO
+       ============================================ -->
+  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
 
-        <!-- Left Section -->
-        <div class="flex items-center gap-4">
-          <button
-            mat-icon-button
-            class="icon-btn"
-            (click)="goBack()"
-            matTooltip="Volver a clientes"
-            aria-label="Volver a clientes">
-            <mat-icon>arrow_back</mat-icon>
-          </button>
+      <!-- Left Section -->
+      <div class="flex items-center gap-3">
+        <button type="button"
+                class="back-btn"
+                (click)="goBack()"
+                title="Volver a clientes">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
 
-          <div class="header-icon-container" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
-            <mat-icon>settings</mat-icon>
-          </div>
+        <div class="header-icon-box">
+          <mat-icon>settings</mat-icon>
+        </div>
 
-          <div>
-            <h1 class="text-2xl font-bold text-slate-800 mb-1">Configuración del Módulo</h1>
-            <p class="text-sm text-slate-600 flex items-center gap-2 font-medium">
-              <span class="status-dot"></span>
-              Administra campos personalizados y configuración
-            </p>
+        <div>
+          <h1 class="text-lg font-bold text-slate-800">Configuración del Módulo</h1>
+          <p class="text-xs text-slate-500">
+            Administra campos personalizados y diseño del formulario
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Section -->
+      <div class="flex items-center gap-2">
+        <div class="hidden md:flex items-center gap-2">
+          <div class="stat-chip">
+            <span class="stat-value">{{ fields.length }}</span>
+            <span class="stat-label">Campos</span>
           </div>
         </div>
 
-        <!-- Right Section -->
-        <div class="flex items-center gap-3">
-          <button
-            mat-icon-button
-            class="icon-btn"
-            (click)="loadConfig()"
-            [disabled]="isLoading"
-            matTooltip="Recargar configuración"
-            aria-label="Recargar configuración">
-            <mat-icon>refresh</mat-icon>
-          </button>
-        </div>
+        <button type="button"
+                class="icon-btn"
+                (click)="loadConfig()"
+                [disabled]="isLoading"
+                title="Recargar">
+          <mat-icon [class.animate-spin]="isLoading">refresh</mat-icon>
+        </button>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <!-- LOADING STATE -->
-    @if (isLoading && fields.length === 0) {
-      <div class="empty-state">
-        <mat-spinner diameter="50"></mat-spinner>
-        <p class="mt-4 text-slate-600 font-medium">Cargando configuración...</p>
-      </div>
-    }
+  <!-- ============================================
+       LOADING STATE
+       ============================================ -->
+  @if (isLoading && fields.length === 0) {
+    <div class="empty-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p class="mt-3 text-sm text-slate-600">Cargando configuración...</p>
+    </div>
+  }
 
-    <!-- MAIN CONTENT -->
-    @if (!isLoading || fields.length > 0) {
+  <!-- ============================================
+       FORM DESIGNER
+       ============================================ -->
+  @if (!isLoading || fields.length > 0) {
+    <section class="animate-fadeInUp">
+      <app-form-designer
+        [fields]="fields"
+        [layout]="formLayout"
+        [configService]="configService"
+        [moduleName]="'clientes'"
+        (layoutChange)="onLayoutChange($event)"
+        (fieldAdded)="onFieldAdded()">
+      </app-form-designer>
+    </section>
+  }
 
-      <!-- DISEÑADOR DE FORMULARIO -->
-      <section class="mt-6">
-        <app-form-designer
-          [fields]="fields"
-          [layout]="formLayout"
-          [configService]="configService"
-          [moduleName]="'clientes'"
-          (layoutChange)="onLayoutChange($event)"
-          (fieldAdded)="onFieldAdded()">
-        </app-form-designer>
-      </section>
-
-    }
-
-  </div>
 </div>

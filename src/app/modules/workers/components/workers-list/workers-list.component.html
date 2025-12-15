@@ -1,359 +1,323 @@
-<!-- workers-list.component.html -->
+<!-- workers-list.component.html - DISEÑO COMPACTO -->
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[1600px] mx-auto p-5">
+<div class="workers-container">
 
-    <!-- ========== HEADER ========== -->
-    <header class="page-header">
-      <div class="flex items-center justify-between gap-5 flex-wrap">
+  <!-- ========== HEADER COMPACTO ========== -->
+  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
 
-        <!-- Título e Icono -->
-        <div class="flex items-center gap-4">
-          <div class="header-icon-container" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-            <mat-icon>engineering</mat-icon>
-          </div>
-          <div>
-            <h1 class="text-2xl font-bold text-slate-800 mb-1">Gestión de Trabajadores</h1>
-            <p class="text-sm text-slate-500">
-              {{ workers().length }} trabajadores
-              @if (getActiveWorkersCount() > 0) {
-                <span class="text-green-600 font-semibold"> • {{ getActiveWorkersCount() }} activos</span>
-              }
-              <span class="text-blue-600 font-medium ml-2">{{ getInternalCount() }} propios</span>
-              <span class="text-purple-600 font-medium ml-1">• {{ getContractorCount() }} subcontratados</span>
-            </p>
-          </div>
+      <!-- Left: Icon + Title + Stats -->
+      <div class="flex items-center gap-4">
+        <div class="header-icon-box amber">
+          <mat-icon>engineering</mat-icon>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-800">Gestión de Trabajadores</h1>
+          <p class="text-xs text-slate-500">Control y administración de personal</p>
         </div>
 
-        <!-- Acciones del Header -->
-        <div class="flex items-center gap-3">
-          <button
-            mat-icon-button
-            class="icon-btn"
-            (click)="refreshData()"
-            [disabled]="isLoading"
-            matTooltip="Actualizar"
-            aria-label="Actualizar lista de trabajadores">
-            <mat-icon>refresh</mat-icon>
-          </button>
-
-          <button
-            mat-stroked-button
-            (click)="openCompaniesDialog()"
-            [disabled]="isLoading"
-            class="flex items-center gap-2 !border-purple-300 !text-purple-700 hover:!bg-purple-50">
-            <mat-icon>business</mat-icon>
-            Empresas
-          </button>
-
-          <button
-            mat-raised-button
-            color="primary"
-            (click)="createWorker()"
-            [disabled]="isLoading"
-            class="flex items-center gap-2">
-            <mat-icon>add</mat-icon>
-            Nuevo Trabajador
-          </button>
+        <!-- Stats inline -->
+        <div class="flex items-center gap-2 ml-2">
+          <div class="stat-chip slate">
+            <span class="stat-value">{{ workers().length }}</span>
+            <span class="stat-label">Total</span>
+          </div>
+          <div class="stat-chip green">
+            <span class="stat-value">{{ getActiveWorkersCount() }}</span>
+            <span class="stat-label">Activos</span>
+          </div>
+          <div class="stat-chip blue">
+            <span class="stat-value">{{ getInternalCount() }}</span>
+            <span class="stat-label">Propios</span>
+          </div>
+          <div class="stat-chip purple">
+            <span class="stat-value">{{ getContractorCount() }}</span>
+            <span class="stat-label">Subcontrat.</span>
+          </div>
         </div>
-
       </div>
-    </header>
 
-    <!-- ========== FILTROS Y BÚSQUEDA ========== -->
-    <div class="card-modern mb-6">
-      <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
-        <!-- Búsqueda -->
-        <div class="flex items-center gap-4 flex-1 w-full md:w-auto">
-          <mat-icon class="text-slate-400">search</mat-icon>
-          <input
-            type="text"
-            placeholder="Buscar por nombre, teléfono, ID, empresa..."
-            [ngModel]="searchTerm()"
-            (ngModelChange)="onSearch($event)"
-            class="flex-1 px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-medium
-                   focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none transition-all
-                   placeholder:text-slate-400">
+      <!-- Right: Actions -->
+      <div class="flex items-center gap-2">
+        <button type="button"
+                class="icon-btn"
+                (click)="refreshData()"
+                [disabled]="isLoading"
+                title="Actualizar">
+          <mat-icon>refresh</mat-icon>
+        </button>
 
-          @if (searchTerm()) {
-            <button
-              mat-icon-button
-              (click)="onSearch('')"
-              matTooltip="Limpiar búsqueda"
-              aria-label="Limpiar búsqueda">
-              <mat-icon>close</mat-icon>
-            </button>
-          }
-        </div>
+        <button type="button"
+                class="btn-secondary"
+                (click)="openCompaniesDialog()"
+                [disabled]="isLoading">
+          <mat-icon>business</mat-icon>
+          <span>Empresas</span>
+        </button>
 
-        <!-- Filtro por tipo -->
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="text-sm text-slate-500 font-medium">Filtrar:</span>
-          <button
-            mat-stroked-button
-            [class.!bg-slate-800]="filterType() === 'all'"
-            [class.!text-white]="filterType() === 'all'"
-            (click)="setFilterType('all')"
-            class="!rounded-full !min-w-0 !px-4 text-sm">
-            Todos
+        <button type="button"
+                class="btn-primary"
+                (click)="createWorker()"
+                [disabled]="isLoading">
+          <mat-icon>add</mat-icon>
+          <span>Nuevo Trabajador</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ========== FILTROS Y BÚSQUEDA ========== -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 mb-4 animate-fadeIn" style="animation-delay: 0.1s">
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-3">
+      <!-- Búsqueda -->
+      <div class="flex items-center gap-3 flex-1 w-full md:w-auto">
+        <mat-icon class="text-slate-400 text-lg">search</mat-icon>
+        <input
+          type="text"
+          placeholder="Buscar por nombre, teléfono, ID, empresa..."
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearch($event)"
+          class="search-input">
+
+        @if (searchTerm()) {
+          <button type="button"
+                  class="icon-btn-sm"
+                  (click)="onSearch('')"
+                  title="Limpiar búsqueda">
+            <mat-icon>close</mat-icon>
           </button>
-          <button
-            mat-stroked-button
-            [class.!bg-blue-600]="filterType() === 'internal'"
-            [class.!text-white]="filterType() === 'internal'"
-            (click)="setFilterType('internal')"
-            class="!rounded-full !min-w-0 !px-4 text-sm">
-            <mat-icon class="!text-base mr-1">person</mat-icon>
-            Propios
-          </button>
-          <button
-            mat-stroked-button
-            [class.!bg-purple-600]="filterType() === 'contractor'"
-            [class.!text-white]="filterType() === 'contractor'"
-            (click)="setFilterType('contractor')"
-            class="!rounded-full !min-w-0 !px-4 text-sm">
-            <mat-icon class="!text-base mr-1">groups</mat-icon>
-            Subcontratados
-          </button>
-        </div>
+        }
+      </div>
+
+      <!-- Filtro por tipo -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-xs text-slate-500 font-medium">Filtrar:</span>
+        <button type="button"
+                class="filter-btn"
+                [class.active]="filterType() === 'all'"
+                (click)="setFilterType('all')">
+          Todos
+        </button>
+        <button type="button"
+                class="filter-btn blue"
+                [class.active]="filterType() === 'internal'"
+                (click)="setFilterType('internal')">
+          <mat-icon>person</mat-icon>
+          Propios
+        </button>
+        <button type="button"
+                class="filter-btn purple"
+                [class.active]="filterType() === 'contractor'"
+                (click)="setFilterType('contractor')">
+          <mat-icon>groups</mat-icon>
+          Subcontratados
+        </button>
       </div>
     </div>
+  </div>
 
-    <!-- ========== BARRA DE ACCIONES MASIVAS ========== -->
-    @if (selectedWorkers().length > 0) {
-      <div class="bg-amber-50 border-2 border-amber-200 rounded-xl p-4 mb-6 flex items-center justify-between animate-fadeIn">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center">
-            <mat-icon class="text-white !text-xl">check_circle</mat-icon>
-          </div>
-          <div>
-            <p class="text-sm font-bold text-amber-900">
-              {{ selectedWorkers().length }} trabajador(es) seleccionado(s)
-            </p>
-            <p class="text-xs text-amber-700">
-              Puedes realizar acciones sobre los elementos seleccionados
-            </p>
-          </div>
+  <!-- ========== BARRA DE ACCIONES MASIVAS ========== -->
+  @if (selectedWorkers().length > 0) {
+    <div class="bulk-actions-bar animate-fadeIn">
+      <div class="flex items-center gap-3">
+        <div class="bulk-icon">
+          <mat-icon>check_circle</mat-icon>
         </div>
-
-        <div class="flex items-center gap-2">
-          <button
-            mat-button
-            (click)="clearSelection()"
-            class="text-amber-700 font-medium">
-            <mat-icon>close</mat-icon>
-            Cancelar selección
-          </button>
-
-          <button
-            mat-raised-button
-            (click)="deleteSelectedWorkers()"
-            class="!bg-red-500 !text-white hover:!bg-red-600 font-semibold">
-            <mat-icon>delete</mat-icon>
-            Eliminar seleccionados
-          </button>
+        <div>
+          <p class="text-sm font-bold text-amber-900">
+            {{ selectedWorkers().length }} trabajador(es) seleccionado(s)
+          </p>
+          <p class="text-xs text-amber-700">
+            Acciones disponibles para los elementos seleccionados
+          </p>
         </div>
       </div>
-    }
 
-    <!-- ========== TABLA DE TRABAJADORES ========== -->
-    <div class="card-modern">
+      <div class="flex items-center gap-2">
+        <button type="button"
+                class="btn-cancel-sm"
+                (click)="clearSelection()">
+          <mat-icon>close</mat-icon>
+          <span>Cancelar</span>
+        </button>
 
-      @if (isLoading) {
-        <!-- Loading State -->
-        <div class="flex flex-col items-center justify-center py-16">
-          <div class="w-10 h-10 border-4 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
-          <p class="text-sm text-slate-500 mt-4">Cargando trabajadores...</p>
-        </div>
-      } @else if (paginatedWorkers().length === 0) {
-        <!-- Empty State -->
-        <div class="empty-state">
+        <button type="button"
+                class="btn-danger"
+                (click)="deleteSelectedWorkers()">
+          <mat-icon>delete</mat-icon>
+          <span>Eliminar</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ========== TABLA DE TRABAJADORES ========== -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-fadeIn" style="animation-delay: 0.2s">
+
+    @if (isLoading) {
+      <!-- Loading State -->
+      <div class="flex flex-col items-center justify-center py-12">
+        <div class="loading-spinner"></div>
+        <p class="text-sm text-slate-500 mt-3">Cargando trabajadores...</p>
+      </div>
+    } @else if (paginatedWorkers().length === 0) {
+      <!-- Empty State -->
+      <div class="empty-state">
+        <div class="empty-state-icon amber">
           <mat-icon>engineering</mat-icon>
-          <h3>No hay trabajadores</h3>
-          <p>{{ searchTerm() || filterType() !== 'all' ? 'No se encontraron trabajadores con esos criterios' : 'Comienza agregando tu primer trabajador' }}</p>
-          @if (!searchTerm() && filterType() === 'all') {
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="createWorker()"
-              class="empty-state-button">
-              <mat-icon>add</mat-icon>
-              Crear Primer Trabajador
-            </button>
-          }
         </div>
-      } @else {
-        <!-- Tabla -->
-        <div class="overflow-x-auto">
-          <table class="w-full" role="table" aria-label="Tabla de trabajadores">
-            <caption class="sr-only">Listado de trabajadores con su información, estado y acciones disponibles</caption>
+        <h3>No hay trabajadores</h3>
+        <p>{{ searchTerm() || filterType() !== 'all' ? 'No se encontraron trabajadores con esos criterios' : 'Comienza agregando tu primer trabajador' }}</p>
+        @if (!searchTerm() && filterType() === 'all') {
+          <button type="button"
+                  class="btn-primary mt-4"
+                  (click)="createWorker()">
+            <mat-icon>add</mat-icon>
+            <span>Crear Primer Trabajador</span>
+          </button>
+        }
+      </div>
+    } @else {
+      <!-- Tabla -->
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="w-12">
+                <input
+                  type="checkbox"
+                  [checked]="isAllSelected()"
+                  [indeterminate]="isIndeterminate()"
+                  (change)="toggleSelectAll()"
+                  class="table-checkbox">
+              </th>
+              <th>Nombre</th>
+              <th class="w-32">Tipo</th>
+              <th>Teléfono</th>
+              <th class="w-24">Estado</th>
+              <th class="w-16 text-right">Acciones</th>
+            </tr>
+          </thead>
 
-            <!-- Header -->
-            <thead class="bg-slate-50 border-b-2 border-slate-200">
-              <tr>
-                <!-- Checkbox -->
-                <th class="px-4 py-3 text-left w-12">
-                  <input
-                    type="checkbox"
-                    [checked]="isAllSelected()"
-                    [indeterminate]="isIndeterminate()"
-                    (change)="toggleSelectAll()"
-                    class="w-4 h-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500">
-                </th>
-
-                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                  Nombre
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                  Tipo
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                  Teléfono
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider w-32">
-                  Estado
-                </th>
-                <th class="px-4 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider w-24">
-                  Acciones
-                </th>
-              </tr>
-            </thead>
-
-            <!-- Body -->
-            <tbody class="divide-y divide-slate-200">
-              @for (worker of paginatedWorkers(); track worker.id) {
-                <tr
-                  class="hover:bg-slate-50 transition-colors cursor-pointer"
-                  [class.bg-amber-50]="isSelected(worker.id)"
+          <tbody>
+            @for (worker of paginatedWorkers(); track worker.id; let i = $index) {
+              <tr [class.selected]="isSelected(worker.id)"
+                  [style.animation-delay]="(i * 0.03) + 's'"
                   (click)="viewWorker(worker)">
 
-                  <!-- Checkbox -->
-                  <td class="px-4 py-3" (click)="$event.stopPropagation()">
-                    <input
-                      type="checkbox"
-                      [checked]="isSelected(worker.id)"
-                      (change)="toggleSelection(worker.id)"
-                      class="w-4 h-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500">
-                  </td>
+                <td (click)="$event.stopPropagation()">
+                  <input
+                    type="checkbox"
+                    [checked]="isSelected(worker.id)"
+                    (change)="toggleSelection(worker.id)"
+                    class="table-checkbox">
+                </td>
 
-                  <!-- Nombre -->
-                  <td class="px-4 py-3">
-                    <div class="flex items-center gap-3">
-                      <div class="w-9 h-9 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
-                        <span class="text-white font-bold text-sm">{{ (worker.fullName || 'T').charAt(0).toUpperCase() }}</span>
-                      </div>
-                      <span class="text-sm font-semibold text-slate-800">{{ worker.fullName }}</span>
+                <!-- Nombre con avatar -->
+                <td>
+                  <div class="flex items-center gap-3">
+                    <div class="worker-avatar">
+                      <span>{{ (worker.fullName || 'T').charAt(0).toUpperCase() }}</span>
                     </div>
-                  </td>
+                    <span class="font-semibold text-slate-800">{{ worker.fullName }}</span>
+                  </div>
+                </td>
 
-                  <!-- Tipo -->
-                  <td class="px-4 py-3">
-                    <span
-                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
-                      [ngClass]="getWorkerTypeBadgeClass(worker.workerType)">
-                      <mat-icon class="!text-sm">{{ worker.workerType === 'internal' ? 'person' : 'groups' }}</mat-icon>
-                      {{ workerTypeLabels[worker.workerType] }}
+                <!-- Tipo -->
+                <td>
+                  <span class="type-badge" [class]="worker.workerType">
+                    <mat-icon>{{ worker.workerType === 'internal' ? 'person' : 'groups' }}</mat-icon>
+                    {{ workerTypeLabels[worker.workerType] }}
+                  </span>
+                </td>
+
+                <!-- Teléfono -->
+                <td>{{ worker.phone || '-' }}</td>
+
+                <!-- Estado -->
+                <td>
+                  @if (worker.isActive) {
+                    <span class="status-badge active">
+                      <mat-icon>check_circle</mat-icon>
+                      Activo
                     </span>
-                  </td>
+                  } @else {
+                    <span class="status-badge inactive">
+                      <mat-icon>cancel</mat-icon>
+                      Inactivo
+                    </span>
+                  }
+                </td>
 
-                  <!-- Teléfono -->
-                  <td class="px-4 py-3 text-sm text-slate-700">
-                    {{ worker.phone || '-' }}
-                  </td>
+                <!-- Acciones -->
+                <td class="text-right" (click)="$event.stopPropagation()">
+                  <button type="button"
+                          class="icon-btn-sm"
+                          [matMenuTriggerFor]="menu"
+                          title="Opciones">
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
 
-                  <!-- Estado -->
-                  <td class="px-4 py-3">
-                    @if (worker.isActive) {
-                      <span class="badge-status-active">
-                        <mat-icon class="!text-xs">check_circle</mat-icon>
-                        Activo
-                      </span>
-                    } @else {
-                      <span class="badge-status-inactive">
-                        <mat-icon class="!text-xs">cancel</mat-icon>
-                        Inactivo
-                      </span>
-                    }
-                  </td>
-
-                  <!-- Acciones -->
-                  <td class="px-4 py-3 text-right" (click)="$event.stopPropagation()">
-                    <button
-                      mat-icon-button
-                      [matMenuTriggerFor]="menu"
-                      (click)="$event.stopPropagation()"
-                      aria-label="Abrir menú de opciones del trabajador">
-                      <mat-icon>more_vert</mat-icon>
+                  <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="editWorker(worker)">
+                      <mat-icon>edit</mat-icon>
+                      <span>Editar</span>
                     </button>
+                    <button mat-menu-item (click)="toggleActive(worker)">
+                      @if (worker.isActive) {
+                        <mat-icon class="text-orange-600">visibility_off</mat-icon>
+                        <span>Inactivar</span>
+                      } @else {
+                        <mat-icon class="text-green-600">visibility</mat-icon>
+                        <span>Activar</span>
+                      }
+                    </button>
+                    <mat-divider></mat-divider>
+                    <button mat-menu-item (click)="deleteWorker(worker)" class="text-red-600">
+                      <mat-icon class="text-red-600">delete</mat-icon>
+                      <span>Eliminar</span>
+                    </button>
+                  </mat-menu>
+                </td>
 
-                    <mat-menu #menu="matMenu">
-                      <button mat-menu-item (click)="editWorker(worker)">
-                        <mat-icon>edit</mat-icon>
-                        <span>Editar</span>
-                      </button>
-                      <button mat-menu-item (click)="toggleActive(worker)">
-                        @if (worker.isActive) {
-                          <mat-icon class="text-orange-600">visibility_off</mat-icon>
-                        } @else {
-                          <mat-icon class="text-green-600">visibility</mat-icon>
-                        }
-                        @if (worker.isActive) {
-                          <span>Inactivar</span>
-                        } @else {
-                          <span>Activar</span>
-                        }
-                      </button>
-                      <mat-divider></mat-divider>
-                      <button mat-menu-item (click)="deleteWorker(worker)" class="text-red-600">
-                        <mat-icon class="text-red-600">delete</mat-icon>
-                        <span>Eliminar</span>
-                      </button>
-                    </mat-menu>
-                  </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
 
-                </tr>
-              }
-            </tbody>
+      <!-- Paginación -->
+      @if (totalPages() > 1) {
+        <div class="pagination-bar">
+          <span class="text-xs text-slate-600">
+            {{ (currentPage() * itemsPerPage()) + 1 }}-{{ Math.min((currentPage() + 1) * itemsPerPage(), filteredWorkers().length) }}
+            de {{ filteredWorkers().length }}
+          </span>
 
-          </table>
-        </div>
+          <div class="flex items-center gap-1">
+            <button type="button"
+                    class="pagination-btn"
+                    (click)="goToPage(currentPage() - 1)"
+                    [disabled]="currentPage() === 0">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
 
-        <!-- ========== PAGINACIÓN ========== -->
-        @if (totalPages() > 1) {
-          <div class="flex items-center justify-between px-4 py-4 border-t border-slate-200">
-            <div class="text-sm text-slate-600">
-              Mostrando {{ (currentPage() * itemsPerPage()) + 1 }} a
-              {{ Math.min((currentPage() + 1) * itemsPerPage(), filteredWorkers().length) }}
-              de {{ filteredWorkers().length }} trabajadores
-            </div>
+            <span class="text-xs font-medium text-slate-700 px-2">
+              {{ currentPage() + 1 }} / {{ totalPages() }}
+            </span>
 
-            <div class="flex items-center gap-2">
-              <button
-                mat-icon-button
-                (click)="goToPage(currentPage() - 1)"
-                [disabled]="currentPage() === 0"
-                aria-label="Página anterior">
-                <mat-icon>chevron_left</mat-icon>
-              </button>
-
-              <span class="text-sm font-medium text-slate-700">
-                Página {{ currentPage() + 1 }} de {{ totalPages() }}
-              </span>
-
-              <button
-                mat-icon-button
-                (click)="goToPage(currentPage() + 1)"
-                [disabled]="currentPage() >= totalPages() - 1"
-                aria-label="Página siguiente">
-                <mat-icon>chevron_right</mat-icon>
-              </button>
-            </div>
+            <button type="button"
+                    class="pagination-btn"
+                    (click)="goToPage(currentPage() + 1)"
+                    [disabled]="currentPage() >= totalPages() - 1">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
           </div>
-        }
-
+        </div>
       }
-
-    </div>
+    }
 
   </div>
+
 </div>

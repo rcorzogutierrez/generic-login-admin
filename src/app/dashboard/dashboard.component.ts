@@ -234,18 +234,6 @@ export class DashboardComponent implements OnInit {
       });
     }
 
-    if (data.userInfo.modules.length > 0) {
-      actions.push({
-        id: 'modules',
-        title: 'Mis Módulos',
-        description: `${data.userInfo.modules.length} módulos activos`,
-        icon: 'apps',
-        route: '/modules',
-        badge: data.userInfo.modules.length.toString(),
-        color: 'accent'
-      });
-    }
-
     actions.push({
       id: 'reports',
       title: 'Reportes',

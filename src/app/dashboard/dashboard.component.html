@@ -118,7 +118,7 @@
            PANEL DE CONTROL
            ============================================ -->
       @defer (on viewport) {
-        <section class="content-card mb-6">
+        <section class="content-card">
           <div class="card-header">
             <div class="card-icon cyan">
               <mat-icon>insights</mat-icon>
@@ -188,63 +188,12 @@
           </div>
         </section>
       } @placeholder {
-        <div class="content-card mb-6 animate-pulse">
+        <div class="content-card animate-pulse">
           <div class="h-5 bg-slate-200 rounded w-40 mb-5"></div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div class="h-20 bg-slate-100 rounded-xl"></div>
             <div class="h-20 bg-slate-100 rounded-xl"></div>
           </div>
-        </div>
-      }
-
-      <!-- ============================================
-           CONTACTO INFO
-           ============================================ -->
-      @defer (on viewport) {
-        <section class="content-card">
-          <div class="card-header">
-            <div class="card-icon green">
-              <mat-icon>contact_mail</mat-icon>
-            </div>
-            <div>
-              <h2 class="card-title">Información de Contacto</h2>
-              <p class="card-subtitle">Datos de tu cuenta</p>
-            </div>
-          </div>
-
-          <div class="contact-info">
-            <div class="contact-item">
-              <mat-icon>email</mat-icon>
-              <div>
-                <span class="contact-label">Email</span>
-                <span class="contact-value">{{ userDashboard()!.userInfo.email }}</span>
-              </div>
-            </div>
-            <div class="contact-item">
-              <mat-icon>badge</mat-icon>
-              <div>
-                <span class="contact-label">Rol</span>
-                <span class="contact-value capitalize">{{ userDashboard()!.userInfo.role }}</span>
-              </div>
-            </div>
-            <div class="contact-item">
-              <mat-icon>schedule</mat-icon>
-              <div>
-                <span class="contact-label">Miembro desde</span>
-                <span class="contact-value">{{ formatDaysSince(userDashboard()!.userStats.daysSinceCreation) }}</span>
-              </div>
-            </div>
-          </div>
-
-          <p class="help-text">
-            <mat-icon>help_outline</mat-icon>
-            ¿Necesitas ayuda? Contacta al administrador del sistema o revisa la documentación.
-          </p>
-        </section>
-      } @placeholder {
-        <div class="content-card animate-pulse">
-          <div class="h-5 bg-slate-200 rounded w-48 mb-5"></div>
-          <div class="h-28 bg-slate-100 rounded-xl"></div>
         </div>
       }
 

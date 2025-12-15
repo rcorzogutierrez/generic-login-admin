@@ -346,7 +346,7 @@ export class ClientConfigComponent implements OnInit {
    * Vuelve a la lista de clientes
    */
   goBack() {
-    this.router.navigate(['/clients']);
+    this.router.navigate(['/modules/clients']);
   }
 
   /**

@@ -1,116 +1,262 @@
-/* form-designer.component.css */
+/* form-designer.component.css - DISEÑO COMPACTO */
 
 /* ============================================
-   DESIGN TOKENS - CSS VARIABLES
-   ============================================
-   Centraliza colores y valores para fácil mantenimiento
-   y posible implementación de temas futuros
-*/
+   CSS VARIABLES
+   ============================================ */
 :host {
-  /* Colores principales */
   --primary-purple: #8b5cf6;
   --primary-purple-dark: #7c3aed;
   --primary-purple-light: #a78bfa;
-
-  /* Colores de texto */
   --text-primary: #1e293b;
   --text-secondary: #475569;
   --text-tertiary: #64748b;
   --text-muted: #94a3b8;
-
-  /* Colores de fondo */
   --bg-white: #ffffff;
   --bg-gray-50: #f8fafc;
   --bg-gray-100: #f1f5f9;
-
-  /* Bordes */
   --border-gray: #e2e8f0;
   --border-gray-dark: #cbd5e1;
-
-  /* Colores de estado */
   --success-green: #10b981;
   --warning-yellow: #f59e0b;
   --warning-bg: #fef3c7;
   --warning-text: #92400e;
   --warning-border: #fde68a;
   --error-red: #ef4444;
-
-  /* Sombras */
   --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
   --shadow-purple: 0 4px 12px rgba(139, 92, 246, 0.3);
-
-  /* Border radius */
   --radius-lg: 16px;
   --radius-md: 12px;
   --radius-sm: 10px;
-
-  /* Transiciones */
   --transition-base: all 0.2s ease;
 }
-
-/* ============================================
-   PATRONES DE USO - GUÍA RÁPIDA
-   ============================================
-
-   MATERIAL COMPONENTS:
-   - mat-raised-button, mat-icon, mat-button-toggle-group
-   - mat-chip, mat-divider, matTooltip
-   → Mantener como componentes de Material
-
-   TAILWIND UTILITIES:
-   - flex, grid, gap-*, p-*, m-*
-   - text-*, font-*, bg-*, border-*
-   → Para layouts simples y espaciado
-
-   CSS PERSONALIZADO:
-   - Estados hover/active complejos
-   - Animaciones y transiciones
-   - Componentes específicos del form designer
-   → Usar variables CSS definidas arriba
-*/
 
 /* ============================================
    FORM DESIGNER CONTAINER
    ============================================ */
 .form-designer {
-  min-height: 600px;
+  min-height: 400px;
 }
 
 /* ============================================
-   HEADER
+   SECTION CARD (estilo compacto)
+   ============================================ */
+.section-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-gray);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ============================================
+   SECTION HEADER (estilo compacto)
+   ============================================ */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.section-icon-box {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-purple-dark) 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-purple);
+  flex-shrink: 0;
+}
+
+.section-icon-box mat-icon {
+  color: white;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.section-icon-box.green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.section-icon-box.blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.section-title-group {
+  flex: 1;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.section-subtitle {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin: 2px 0 0 0;
+}
+
+/* ============================================
+   HEADER (controles de configuración)
    ============================================ */
 .designer-header {
   background: var(--bg-white);
-  padding: 24px;
+  padding: 16px;
   border-radius: var(--radius-lg);
-  border: 2px solid var(--border-gray);
+  border: 1px solid var(--border-gray);
   box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
 }
 
 .config-group {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .config-label {
   display: flex;
   align-items: center;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-/* Material Button Toggle Overrides
-   Nota: :host ::ng-deep es la forma correcta de hacer overrides en Angular
-   Los !important son necesarios para sobrescribir estilos de Material
-*/
+.config-label mat-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin-right: 6px;
+  color: var(--primary-purple);
+}
+
+/* ============================================
+   BUTTON STYLES (estilo compacto)
+   ============================================ */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-purple-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-base);
+  box-shadow: var(--shadow-purple);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--bg-white);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-gray);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--bg-gray-50);
+  border-color: var(--border-gray-dark);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--bg-white);
+  color: var(--error-red);
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-danger mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.unsaved-badge {
+  padding: 2px 8px;
+  background: #fff7ed;
+  color: #ea580c;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 10px;
+  border: 1px solid #fed7aa;
+}
+
+/* Material Button Toggle Overrides */
 :host ::ng-deep .columns-toggle .mat-button-toggle,
 :host ::ng-deep .spacing-toggle .mat-button-toggle {
-  border-radius: var(--radius-sm) !important;
-  border: 2px solid var(--border-gray) !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--border-gray) !important;
   font-weight: 600 !important;
+  font-size: 12px !important;
   transition: var(--transition-base) !important;
 }
 
@@ -127,50 +273,56 @@
   border-color: var(--primary-purple-light) !important;
 }
 
+:host ::ng-deep .mat-button-toggle-label-content {
+  padding: 0 10px !important;
+  line-height: 32px !important;
+}
+
 /* ============================================
    FIELDS PALETTE
    ============================================ */
 .fields-palette {
   background: var(--bg-white);
-  padding: 24px;
+  padding: 16px;
   border-radius: var(--radius-lg);
-  border: 2px solid var(--border-gray);
+  border: 1px solid var(--border-gray);
   box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
 }
 
 .palette-header {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .palette-title {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 18px;
+  gap: 10px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 8px 0;
+  margin: 0 0 4px 0;
 }
 
 .palette-title mat-icon {
-  font-size: 24px !important;
-  width: 24px !important;
-  height: 24px !important;
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
   color: var(--primary-purple);
 }
 
 .palette-subtitle {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-tertiary);
   margin: 0;
 }
 
 .palette-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
-  min-height: 120px;
-  padding: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  min-height: 100px;
+  padding: 14px;
   background: linear-gradient(135deg, var(--bg-gray-50) 0%, var(--bg-gray-100) 100%);
   border-radius: var(--radius-md);
   border: 2px dashed var(--border-gray-dark);
@@ -180,21 +332,21 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   background: var(--bg-white);
-  padding: 16px 12px;
+  padding: 12px 10px;
   border-radius: var(--radius-md);
-  border: 2px solid var(--border-gray);
+  border: 1px solid var(--border-gray);
   cursor: grab;
   transition: var(--transition-base);
   position: relative;
-  min-height: 140px;
+  min-height: 110px;
   justify-content: center;
 }
 
 .palette-field:hover {
   border-color: var(--primary-purple-light);
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
   transform: translateY(-2px);
 }
 
@@ -202,20 +354,17 @@
   cursor: grabbing;
 }
 
-/* Botones de edición y eliminación en campos
-   Nota: !important necesario para sobrescribir estilos de mat-icon-button
-*/
 .palette-field-edit {
   position: absolute !important;
   top: 4px !important;
   right: 4px !important;
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
   opacity: 0;
   transition: opacity 0.2s ease;
   background: var(--bg-white) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
   border-radius: 50% !important;
   display: flex !important;
   align-items: center !important;
@@ -225,9 +374,9 @@
 }
 
 .palette-field-edit mat-icon {
-  font-size: 18px !important;
-  width: 18px !important;
-  height: 18px !important;
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
   color: var(--primary-purple) !important;
 }
 
@@ -238,14 +387,14 @@
 .palette-field-delete {
   position: absolute !important;
   top: 4px !important;
-  right: 40px !important;
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
+  right: 36px !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
   opacity: 0;
   transition: opacity 0.2s ease;
   background: var(--bg-white) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
   border-radius: 50% !important;
   display: flex !important;
   align-items: center !important;
@@ -255,9 +404,9 @@
 }
 
 .palette-field-delete mat-icon {
-  font-size: 18px !important;
-  width: 18px !important;
-  height: 18px !important;
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
   color: var(--error-red) !important;
 }
 
@@ -267,34 +416,33 @@
 
 .palette-field-delete:hover {
   background: rgba(239, 68, 68, 0.1) !important;
-  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3) !important;
 }
 
 .field-mini-icon {
-  width: 52px;
-  height: 52px;
+  width: 42px;
+  height: 42px;
   background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-dark));
-  border-radius: var(--radius-md);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  box-shadow: var(--shadow-purple);
   flex-shrink: 0;
 }
 
 .field-mini-icon mat-icon {
-  font-size: 26px !important;
-  width: 26px !important;
-  height: 26px !important;
+  font-size: 22px !important;
+  width: 22px !important;
+  height: 22px !important;
   color: white;
 }
 
 .field-mini-label {
-  font-size: 12.5px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-primary);
   text-align: center;
-  line-height: 1.4;
+  line-height: 1.3;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -304,9 +452,9 @@
 }
 
 .field-mini-chip {
-  font-size: 10px !important;
-  height: 20px !important;
-  padding: 0 8px !important;
+  font-size: 9px !important;
+  height: 18px !important;
+  padding: 0 6px !important;
   background: var(--bg-gray-100) !important;
   color: var(--text-tertiary) !important;
   font-weight: 600 !important;
@@ -318,7 +466,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 30px;
 }
 
 /* ============================================
@@ -326,47 +474,48 @@
    ============================================ */
 .grid-designer {
   background: var(--bg-white);
-  padding: 24px;
+  padding: 16px;
   border-radius: var(--radius-lg);
-  border: 2px solid var(--border-gray);
+  border: 1px solid var(--border-gray);
   box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
 }
 
 .grid-header {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .grid-title {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 18px;
+  gap: 10px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 8px 0;
+  margin: 0 0 4px 0;
 }
 
 .grid-title mat-icon {
-  font-size: 24px !important;
-  width: 24px !important;
-  height: 24px !important;
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
   color: var(--primary-purple);
 }
 
 .grid-subtitle {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-tertiary);
   margin: 0;
 }
 
 .form-grid {
   display: grid;
-  gap: 16px;
-  padding: 24px;
+  gap: 12px;
+  padding: 16px;
   background: linear-gradient(135deg, var(--bg-gray-50) 0%, var(--bg-gray-100) 100%);
-  border-radius: var(--radius-lg);
-  border: 3px dashed var(--border-gray-dark);
-  min-height: 400px;
+  border-radius: var(--radius-md);
+  border: 2px dashed var(--border-gray-dark);
+  min-height: 300px;
 }
 
 .form-grid.grid-cols-2 {
@@ -382,27 +531,27 @@
 }
 
 .form-grid.spacing-compact {
-  gap: 8px;
-  padding: 16px;
+  gap: 6px;
+  padding: 12px;
 }
 
 .form-grid.spacing-normal {
-  gap: 16px;
-  padding: 24px;
+  gap: 12px;
+  padding: 16px;
 }
 
 .form-grid.spacing-spacious {
-  gap: 24px;
-  padding: 32px;
+  gap: 20px;
+  padding: 24px;
 }
 
 .grid-cell {
-  min-height: 100px;
+  min-height: 80px;
   background: var(--bg-white);
   border: 2px dashed var(--border-gray);
-  border-radius: var(--radius-md);
-  padding: 12px;
-  transition: all 0.3s ease;
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -434,24 +583,24 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  gap: 8px;
-  opacity: 0.5;
+  gap: 6px;
+  opacity: 0.4;
   transition: opacity 0.2s ease;
 }
 
 .grid-cell:hover .drop-zone {
-  opacity: 1;
+  opacity: 0.8;
 }
 
 .drop-zone-icon {
-  font-size: 32px !important;
-  width: 32px !important;
-  height: 32px !important;
+  font-size: 28px !important;
+  width: 28px !important;
+  height: 28px !important;
   color: var(--border-gray-dark);
 }
 
 .drop-zone-text {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
   font-weight: 600;
 }
@@ -462,13 +611,13 @@
 .placed-field {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
-  padding: 10px;
+  padding: 8px;
   background: linear-gradient(135deg, var(--bg-white) 0%, var(--bg-gray-50) 100%);
   border: 2px solid var(--primary-purple);
   border-radius: var(--radius-sm);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 4px 10px rgba(139, 92, 246, 0.15);
   cursor: grab;
 }
 
@@ -477,10 +626,10 @@
 }
 
 .placed-field-icon {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-dark));
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -488,9 +637,9 @@
 }
 
 .placed-field-icon mat-icon {
-  font-size: 22px !important;
-  width: 22px !important;
-  height: 22px !important;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
   color: white;
 }
 
@@ -500,26 +649,26 @@
 }
 
 .placed-field-label {
-  font-size: 13.5px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 .placed-field-type {
-  font-size: 10.5px;
+  font-size: 10px;
   color: var(--text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   line-height: 1.2;
 }
 
 .placed-field-actions {
   display: flex;
-  gap: 4px;
+  gap: 2px;
   flex-shrink: 0;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -532,9 +681,9 @@
 .placed-field-edit,
 .placed-field-remove,
 .placed-field-delete {
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
   transition: all 0.2s ease;
   border-radius: 50% !important;
   display: flex !important;
@@ -543,15 +692,15 @@
   padding: 0 !important;
   line-height: 1 !important;
   background: var(--bg-white) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
 }
 
 .placed-field-edit mat-icon,
 .placed-field-remove mat-icon,
 .placed-field-delete mat-icon {
-  font-size: 18px !important;
-  width: 18px !important;
-  height: 18px !important;
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
 }
 
 .placed-field-edit {
@@ -559,8 +708,7 @@
 }
 
 .placed-field-edit:hover {
-  background: rgba(139, 92, 246, 0.15) !important;
-  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.3) !important;
+  background: rgba(139, 92, 246, 0.1) !important;
 }
 
 .placed-field-remove {
@@ -568,8 +716,7 @@
 }
 
 .placed-field-remove:hover {
-  background: rgba(100, 116, 139, 0.15) !important;
-  box-shadow: 0 3px 10px rgba(100, 116, 139, 0.3) !important;
+  background: rgba(100, 116, 139, 0.1) !important;
 }
 
 .placed-field-delete {
@@ -577,121 +724,7 @@
 }
 
 .placed-field-delete:hover {
-  background: rgba(239, 68, 68, 0.15) !important;
-  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3) !important;
-}
-
-/* ============================================
-   BUTTONS CONFIGURATION
-   ============================================ */
-.buttons-config {
-  background: var(--bg-white);
-  padding: 24px;
-  border-radius: var(--radius-lg);
-  border: 2px solid var(--border-gray);
-  box-shadow: var(--shadow-sm);
-}
-
-.buttons-header {
-  margin-bottom: 20px;
-}
-
-.buttons-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 8px 0;
-}
-
-.buttons-title mat-icon {
-  font-size: 24px !important;
-  width: 24px !important;
-  height: 24px !important;
-  color: var(--primary-purple);
-}
-
-.buttons-subtitle {
-  font-size: 13px;
-  color: var(--text-tertiary);
-  margin: 0;
-}
-
-.buttons-controls {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-  margin-bottom: 24px;
-}
-
-.buttons-preview {
-  padding: 24px;
-  background: linear-gradient(135deg, var(--bg-gray-50) 0%, var(--bg-gray-100) 100%);
-  border-radius: var(--radius-md);
-  border: 2px dashed var(--border-gray-dark);
-}
-
-.buttons-container {
-  display: flex;
-  gap: 12px;
-}
-
-.buttons-container.justify-start {
-  justify-content: flex-start;
-}
-
-.buttons-container.justify-center {
-  justify-content: center;
-}
-
-.buttons-container.justify-end {
-  justify-content: flex-end;
-}
-
-.buttons-container.flex-col {
-  flex-direction: column;
-  align-items: stretch;
-}
-
-.buttons-container.flex-row {
-  flex-direction: row;
-}
-
-/* ============================================
-   DRAG & DROP CDK SPECIFIC
-   ============================================ */
-.cdk-drag-preview {
-  box-shadow: 0 15px 50px rgba(139, 92, 246, 0.3), 0 5px 15px rgba(0, 0, 0, 0.1) !important;
-  border: 3px solid var(--primary-purple) !important;
-  opacity: 0.95 !important;
-  transform: rotate(3deg);
-}
-
-.cdk-drag-animating {
-  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.cdk-drag-placeholder {
-  opacity: 0.3;
-}
-
-/* ============================================
-   RESPONSIVE
-   ============================================ */
-@media (max-width: 768px) {
-  .palette-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  .buttons-controls {
-    flex-direction: column;
-  }
+  background: rgba(239, 68, 68, 0.1) !important;
 }
 
 /* ============================================
@@ -699,35 +732,36 @@
    ============================================ */
 .preview-section {
   background: var(--bg-white);
-  padding: 24px;
+  padding: 16px;
   border-radius: var(--radius-lg);
-  border: 2px solid var(--border-gray);
+  border: 1px solid var(--border-gray);
   box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
 }
 
 .preview-header {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .preview-title {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 18px;
+  gap: 10px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 8px 0;
+  margin: 0 0 4px 0;
 }
 
 .preview-title mat-icon {
-  font-size: 24px !important;
-  width: 24px !important;
-  height: 24px !important;
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
   color: var(--success-green);
 }
 
 .preview-subtitle {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-tertiary);
   margin: 0;
 }
@@ -735,42 +769,42 @@
 .preview-warning {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: 6px;
+  padding: 6px 12px;
   background: var(--warning-bg);
   color: var(--warning-text);
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
-  border: 2px solid var(--warning-border);
+  border: 1px solid var(--warning-border);
 }
 
 .preview-warning mat-icon {
-  font-size: 20px !important;
-  width: 20px !important;
-  height: 20px !important;
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
   color: var(--warning-yellow);
 }
 
 .preview-container {
-  padding: 24px;
+  padding: 16px;
   background: linear-gradient(135deg, var(--bg-gray-50) 0%, var(--bg-gray-100) 100%);
   border-radius: var(--radius-md);
   border: 2px dashed var(--border-gray-dark);
 }
 
 .preview-form-wrapper {
-  max-width: 1000px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 32px;
+  padding: 20px;
   background: var(--bg-white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .preview-form-grid {
   display: grid;
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
 .preview-form-grid.grid-cols-1 {
@@ -798,64 +832,64 @@
 }
 
 .preview-form-grid.gap-3 {
-  gap: 12px;
+  gap: 10px;
 }
 
 .preview-form-grid.gap-6 {
-  gap: 24px;
+  gap: 16px;
 }
 
 .preview-form-grid.gap-8 {
-  gap: 32px;
+  gap: 24px;
 }
 
 .preview-field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .preview-field-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  gap: 6px;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-secondary);
 }
 
 .preview-field-icon {
-  font-size: 18px !important;
-  width: 18px !important;
-  height: 18px !important;
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
   color: var(--primary-purple);
 }
 
 .preview-field-input {
   width: 100%;
-  height: 48px;
-  padding: 0 16px;
-  font-size: 15px;
+  height: 38px;
+  padding: 0 12px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--text-muted);
   background: var(--bg-gray-50);
-  border: 2px solid var(--border-gray);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-gray);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   transition: var(--transition-base);
 }
 
 .preview-field-help {
-  font-size: 12px;
+  font-size: 10px;
   color: var(--text-tertiary);
 }
 
 .preview-buttons {
   display: flex;
-  gap: 12px;
-  padding-top: 24px;
-  border-top: 2px solid var(--border-gray);
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-gray);
 }
 
 .preview-buttons.justify-start {
@@ -881,7 +915,132 @@
 
 .preview-button {
   pointer-events: none;
-  opacity: 0.8;
+  opacity: 0.7;
+}
+
+/* ============================================
+   BUTTONS CONFIGURATION
+   ============================================ */
+.buttons-config {
+  background: var(--bg-white);
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-gray);
+  box-shadow: var(--shadow-sm);
+}
+
+.buttons-header {
+  margin-bottom: 14px;
+}
+
+.buttons-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+}
+
+.buttons-title mat-icon {
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+  color: var(--primary-purple);
+}
+
+.buttons-subtitle {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.buttons-controls {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.buttons-preview {
+  padding: 16px;
+  background: linear-gradient(135deg, var(--bg-gray-50) 0%, var(--bg-gray-100) 100%);
+  border-radius: var(--radius-md);
+  border: 2px dashed var(--border-gray-dark);
+}
+
+.buttons-container {
+  display: flex;
+  gap: 10px;
+}
+
+.buttons-container.justify-start {
+  justify-content: flex-start;
+}
+
+.buttons-container.justify-center {
+  justify-content: center;
+}
+
+.buttons-container.justify-end {
+  justify-content: flex-end;
+}
+
+.buttons-container.flex-col {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.buttons-container.flex-row {
+  flex-direction: row;
+}
+
+/* ============================================
+   DIVIDER OVERRIDE
+   ============================================ */
+:host ::ng-deep mat-divider {
+  margin: 16px 0 !important;
+}
+
+/* ============================================
+   DRAG & DROP CDK
+   ============================================ */
+.cdk-drag-preview {
+  box-shadow: 0 12px 30px rgba(139, 92, 246, 0.25), 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+  border: 2px solid var(--primary-purple) !important;
+  opacity: 0.95 !important;
+  transform: rotate(2deg);
+}
+
+.cdk-drag-animating {
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .palette-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .buttons-controls {
+    flex-direction: column;
+  }
+
+  .designer-header .flex {
+    flex-direction: column;
+    gap: 12px;
+  }
 }
 
 /* ============================================

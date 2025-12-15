@@ -4,7 +4,6 @@ import { LoginComponent } from './auth/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { AccessDeniedComponent } from './shared/access-denied.component';
 import { AdminPanelComponent } from './admin/admin-panel.component';
-import { UserModulesComponent } from './modules/user-modules/user-modules.component';
 import { LayoutComponent } from './core/layout/layout.component';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
@@ -46,8 +45,8 @@ export const routes: Routes = [
       },
       {
         path: 'modules',
-        component: UserModulesComponent,
-        title: 'Mis Módulos'
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
       },
 
       // RUTAS DE MÓDULOS DINÁMICOS

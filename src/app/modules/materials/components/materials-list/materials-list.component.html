@@ -1,307 +1,267 @@
-<!-- materials-list.component.html -->
+<!-- materials-list.component.html - DISEÑO COMPACTO -->
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[1600px] mx-auto p-5">
+<div class="materials-container">
 
-    <!-- ========== HEADER ========== -->
-    <header class="page-header">
-      <div class="flex items-center justify-between gap-5 flex-wrap">
+  <!-- ========== HEADER COMPACTO ========== -->
+  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
 
-        <!-- Título e Icono -->
-        <div class="flex items-center gap-4">
-          <div class="header-icon-container" style="background: linear-gradient(135deg, #10b981, #059669);">
-            <mat-icon>inventory_2</mat-icon>
-          </div>
-          <div>
-            <h1 class="text-2xl font-bold text-slate-800 mb-1">Gestión de Materiales</h1>
-            <p class="text-sm text-slate-500">
-              {{ materials().length }} materiales
-              @if (getActiveMaterialsCount() > 0) {
-                <span class="text-green-600 font-semibold"> • {{ getActiveMaterialsCount() }} activos</span>
-              }
-            </p>
-          </div>
-        </div>
-
-        <!-- Acciones del Header -->
-        <div class="flex items-center gap-3">
-          <button
-            mat-icon-button
-            class="icon-btn"
-            (click)="refreshData()"
-            [disabled]="isLoading"
-            matTooltip="Actualizar"
-            aria-label="Actualizar lista de materiales">
-            <mat-icon>refresh</mat-icon>
-          </button>
-
-          <button
-            mat-icon-button
-            class="icon-btn"
-            (click)="goToConfig()"
-            matTooltip="Configurar módulo"
-            aria-label="Configurar módulo de materiales">
-            <mat-icon>settings</mat-icon>
-          </button>
-
-          <button
-            mat-raised-button
-            color="primary"
-            (click)="createMaterial()"
-            [disabled]="isLoading"
-            class="flex items-center gap-2">
-            <mat-icon>add</mat-icon>
-            Nuevo Material
-          </button>
-        </div>
-
-      </div>
-    </header>
-
-    <!-- ========== BÚSQUEDA ========== -->
-    <div class="card-modern mb-6">
+      <!-- Left: Icon + Title + Stats -->
       <div class="flex items-center gap-4">
-        <mat-icon class="text-slate-400">search</mat-icon>
-        <input
-          type="text"
-          placeholder="Buscar por nombre, código o descripción..."
-          [ngModel]="searchTerm()"
-          (ngModelChange)="onSearch($event)"
-          class="flex-1 px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-medium
-                 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all
-                 placeholder:text-slate-400">
+        <div class="header-icon-box green">
+          <mat-icon>inventory_2</mat-icon>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-800">Gestión de Materiales</h1>
+          <p class="text-xs text-slate-500">Control y seguimiento de inventario</p>
+        </div>
 
-        @if (searchTerm()) {
-          <button
-            mat-icon-button
-            (click)="onSearch('')"
-            matTooltip="Limpiar búsqueda"
-            aria-label="Limpiar búsqueda">
-            <mat-icon>close</mat-icon>
+        <!-- Stats inline -->
+        <div class="flex items-center gap-2 ml-2">
+          <div class="stat-chip slate">
+            <span class="stat-value">{{ materials().length }}</span>
+            <span class="stat-label">Total</span>
+          </div>
+          <div class="stat-chip green">
+            <span class="stat-value">{{ getActiveMaterialsCount() }}</span>
+            <span class="stat-label">Activos</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Actions -->
+      <div class="flex items-center gap-2">
+        <button type="button"
+                class="icon-btn"
+                (click)="refreshData()"
+                [disabled]="isLoading"
+                title="Actualizar">
+          <mat-icon>refresh</mat-icon>
+        </button>
+
+        <button type="button"
+                class="icon-btn"
+                (click)="goToConfig()"
+                title="Configurar módulo">
+          <mat-icon>settings</mat-icon>
+        </button>
+
+        <button type="button"
+                class="btn-primary"
+                (click)="createMaterial()"
+                [disabled]="isLoading">
+          <mat-icon>add</mat-icon>
+          <span>Nuevo Material</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ========== BÚSQUEDA ========== -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 mb-4 animate-fadeIn" style="animation-delay: 0.1s">
+    <div class="flex items-center gap-3">
+      <mat-icon class="text-slate-400 text-lg">search</mat-icon>
+      <input
+        type="text"
+        placeholder="Buscar por nombre, código o descripción..."
+        [ngModel]="searchTerm()"
+        (ngModelChange)="onSearch($event)"
+        class="search-input">
+
+      @if (searchTerm()) {
+        <button type="button"
+                class="icon-btn-sm"
+                (click)="onSearch('')"
+                title="Limpiar búsqueda">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- ========== BARRA DE ACCIONES MASIVAS ========== -->
+  @if (selectedMaterials().length > 0) {
+    <div class="bulk-actions-bar animate-fadeIn">
+      <div class="flex items-center gap-3">
+        <div class="bulk-icon">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-blue-900">
+            {{ selectedMaterials().length }} material(es) seleccionado(s)
+          </p>
+          <p class="text-xs text-blue-700">
+            Acciones disponibles para los elementos seleccionados
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button type="button"
+                class="btn-cancel-sm"
+                (click)="clearSelection()">
+          <mat-icon>close</mat-icon>
+          <span>Cancelar</span>
+        </button>
+
+        <button type="button"
+                class="btn-danger"
+                (click)="deleteSelectedMaterials()">
+          <mat-icon>delete</mat-icon>
+          <span>Eliminar</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ========== TABLA DE MATERIALES ========== -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-fadeIn" style="animation-delay: 0.2s">
+
+    @if (isLoading) {
+      <!-- Loading State -->
+      <div class="flex flex-col items-center justify-center py-12">
+        <div class="loading-spinner"></div>
+        <p class="text-sm text-slate-500 mt-3">Cargando materiales...</p>
+      </div>
+    } @else if (paginatedMaterials().length === 0) {
+      <!-- Empty State -->
+      <div class="empty-state">
+        <div class="empty-state-icon green">
+          <mat-icon>inventory_2</mat-icon>
+        </div>
+        <h3>No hay materiales</h3>
+        <p>{{ searchTerm() ? 'No se encontraron materiales con esos criterios' : 'Comienza agregando tu primer material' }}</p>
+        @if (!searchTerm()) {
+          <button type="button"
+                  class="btn-primary mt-4"
+                  (click)="createMaterial()">
+            <mat-icon>add</mat-icon>
+            <span>Crear Primer Material</span>
           </button>
         }
       </div>
-    </div>
+    } @else {
+      <!-- Tabla -->
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="w-12">
+                <input
+                  type="checkbox"
+                  [checked]="isAllSelected()"
+                  [indeterminate]="isIndeterminate()"
+                  (change)="toggleSelectAll()"
+                  class="table-checkbox">
+              </th>
 
-    <!-- ========== BARRA DE ACCIONES MASIVAS ========== -->
-    @if (selectedMaterials().length > 0) {
-      <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-6 flex items-center justify-between animate-fadeIn">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-            <mat-icon class="text-white !text-xl">check_circle</mat-icon>
-          </div>
-          <div>
-            <p class="text-sm font-bold text-blue-900">
-              {{ selectedMaterials().length }} material(es) seleccionado(s)
-            </p>
-            <p class="text-xs text-blue-700">
-              Puedes realizar acciones sobre los elementos seleccionados
-            </p>
-          </div>
-        </div>
+              @for (field of gridFields(); track field.id) {
+                <th [style.width]="field.gridConfig.gridWidth || 'auto'">
+                  {{ field.label }}
+                </th>
+              }
 
-        <div class="flex items-center gap-2">
-          <button
-            mat-button
-            (click)="clearSelection()"
-            class="text-blue-700 font-medium">
-            <mat-icon>close</mat-icon>
-            Cancelar selección
-          </button>
+              <th class="w-24">Estado</th>
+              <th class="w-16 text-right">Acciones</th>
+            </tr>
+          </thead>
 
-          <button
-            mat-raised-button
-            (click)="deleteSelectedMaterials()"
-            class="!bg-red-500 !text-white hover:!bg-red-600 font-semibold">
-            <mat-icon>delete</mat-icon>
-            Eliminar seleccionados
-          </button>
-        </div>
-      </div>
-    }
-
-    <!-- ========== TABLA DE MATERIALES ========== -->
-    <div class="card-modern">
-
-      @if (isLoading) {
-        <!-- Loading State -->
-        <div class="flex flex-col items-center justify-center py-16">
-          <div class="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
-          <p class="text-sm text-slate-500 mt-4">Cargando materiales...</p>
-        </div>
-      } @else if (paginatedMaterials().length === 0) {
-        <!-- Empty State -->
-        <div class="empty-state">
-          <mat-icon>inventory_2</mat-icon>
-          <h3>No hay materiales</h3>
-          <p>{{ searchTerm() ? 'No se encontraron materiales con esos criterios de búsqueda' : 'Comienza agregando tu primer material' }}</p>
-          @if (!searchTerm()) {
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="createMaterial()"
-              class="empty-state-button">
-              <mat-icon>add</mat-icon>
-              Crear Primer Material
-            </button>
-          }
-        </div>
-      } @else {
-        <!-- Tabla -->
-        <div class="overflow-x-auto">
-          <table class="w-full" role="table" aria-label="Tabla de materiales">
-            <caption class="sr-only">Listado de materiales con su información, estado y acciones disponibles</caption>
-
-            <!-- Header -->
-            <thead class="bg-slate-50 border-b-2 border-slate-200">
-              <tr>
-                <!-- Checkbox -->
-                <th class="px-4 py-3 text-left w-12">
+          <tbody>
+            @for (material of paginatedMaterials(); track material.id; let i = $index) {
+              <tr [class.selected]="isSelected(material.id)" [style.animation-delay]="(i * 0.03) + 's'">
+                <td (click)="$event.stopPropagation()">
                   <input
                     type="checkbox"
-                    [checked]="isAllSelected()"
-                    [indeterminate]="isIndeterminate()"
-                    (change)="toggleSelectAll()"
-                    class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-                </th>
+                    [checked]="isSelected(material.id)"
+                    (change)="toggleSelection(material.id)"
+                    class="table-checkbox">
+                </td>
 
-                <!-- Columnas Dinámicas -->
                 @for (field of gridFields(); track field.id) {
-                  <th
-                    class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider"
-                    [style.width]="field.gridConfig.gridWidth || 'auto'">
-                    <div class="flex items-center gap-2">
-                      <span>{{ field.label }}</span>
-                    </div>
-                  </th>
+                  <td>{{ formatFieldValue(getFieldValue(material, field.name), field) }}</td>
                 }
 
-                <!-- Estado -->
-                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider w-32">
-                  Estado
-                </th>
-                <th class="px-4 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider w-24">
-                  Acciones
-                </th>
-              </tr>
-            </thead>
-
-            <!-- Body -->
-            <tbody class="divide-y divide-slate-200">
-              @for (material of paginatedMaterials(); track material.id) {
-                <tr
-                  class="hover:bg-slate-50 transition-colors"
-                  [class.bg-blue-50]="isSelected(material.id)">
-
-                  <!-- Checkbox -->
-                  <td class="px-4 py-3" (click)="$event.stopPropagation()">
-                    <input
-                      type="checkbox"
-                      [checked]="isSelected(material.id)"
-                      (change)="toggleSelection(material.id)"
-                      class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-                  </td>
-
-                  <!-- Columnas Dinámicas -->
-                  @for (field of gridFields(); track field.id) {
-                    <td class="px-4 py-3 text-sm text-slate-700">
-                      {{ formatFieldValue(getFieldValue(material, field.name), field) }}
-                    </td>
+                <td>
+                  @if (material.isActive) {
+                    <span class="status-badge active">
+                      <mat-icon>check_circle</mat-icon>
+                      Activo
+                    </span>
+                  } @else {
+                    <span class="status-badge inactive">
+                      <mat-icon>cancel</mat-icon>
+                      Inactivo
+                    </span>
                   }
+                </td>
 
-                  <!-- Estado -->
-                  <td class="px-4 py-3">
-                    @if (material.isActive) {
-                      <span class="badge-status-active">
-                        <mat-icon class="!text-xs">check_circle</mat-icon>
-                        Activo
-                      </span>
-                    } @else {
-                      <span class="badge-status-inactive">
-                        <mat-icon class="!text-xs">cancel</mat-icon>
-                        Inactivo
-                      </span>
-                    }
-                  </td>
+                <td class="text-right" (click)="$event.stopPropagation()">
+                  <button type="button"
+                          class="icon-btn-sm"
+                          [matMenuTriggerFor]="menu"
+                          title="Opciones">
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
 
-                  <!-- Acciones -->
-                  <td class="px-4 py-3 text-right" (click)="$event.stopPropagation()">
-                    <button
-                      mat-icon-button
-                      [matMenuTriggerFor]="menu"
-                      (click)="$event.stopPropagation()"
-                      aria-label="Abrir menú de opciones del material">
-                      <mat-icon>more_vert</mat-icon>
+                  <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="editMaterial(material)">
+                      <mat-icon>edit</mat-icon>
+                      <span>Editar</span>
                     </button>
+                    <button mat-menu-item (click)="toggleActive(material)">
+                      @if (material.isActive) {
+                        <mat-icon class="text-orange-600">visibility_off</mat-icon>
+                        <span>Inactivar</span>
+                      } @else {
+                        <mat-icon class="text-green-600">visibility</mat-icon>
+                        <span>Activar</span>
+                      }
+                    </button>
+                    <mat-divider></mat-divider>
+                    <button mat-menu-item (click)="deleteMaterial(material)" class="text-red-600">
+                      <mat-icon class="text-red-600">delete</mat-icon>
+                      <span>Eliminar</span>
+                    </button>
+                  </mat-menu>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
 
-                    <mat-menu #menu="matMenu">
-                      <button mat-menu-item (click)="editMaterial(material)">
-                        <mat-icon>edit</mat-icon>
-                        <span>Editar</span>
-                      </button>
-                      <button mat-menu-item (click)="toggleActive(material)">
-                        @if (material.isActive) {
-                          <mat-icon class="text-orange-600">visibility_off</mat-icon>
-                        } @else {
-                          <mat-icon class="text-green-600">visibility</mat-icon>
-                        }
-                        @if (material.isActive) {
-                          <span>Inactivar</span>
-                        } @else {
-                          <span>Activar</span>
-                        }
-                      </button>
-                      <mat-divider></mat-divider>
-                      <button mat-menu-item (click)="deleteMaterial(material)" class="text-red-600">
-                        <mat-icon class="text-red-600">delete</mat-icon>
-                        <span>Eliminar</span>
-                      </button>
-                    </mat-menu>
-                  </td>
+      <!-- Paginación -->
+      @if (totalPages() > 1) {
+        <div class="pagination-bar">
+          <span class="text-xs text-slate-600">
+            {{ (currentPage() * itemsPerPage()) + 1 }}-{{ Math.min((currentPage() + 1) * itemsPerPage(), filteredMaterials().length) }}
+            de {{ filteredMaterials().length }}
+          </span>
 
-                </tr>
-              }
-            </tbody>
+          <div class="flex items-center gap-1">
+            <button type="button"
+                    class="pagination-btn"
+                    (click)="goToPage(currentPage() - 1)"
+                    [disabled]="currentPage() === 0">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
 
-          </table>
-        </div>
+            <span class="text-xs font-medium text-slate-700 px-2">
+              {{ currentPage() + 1 }} / {{ totalPages() }}
+            </span>
 
-        <!-- ========== PAGINACIÓN ========== -->
-        @if (totalPages() > 1) {
-          <div class="flex items-center justify-between px-4 py-4 border-t border-slate-200">
-            <div class="text-sm text-slate-600">
-              Mostrando {{ (currentPage() * itemsPerPage()) + 1 }} a
-              {{ Math.min((currentPage() + 1) * itemsPerPage(), filteredMaterials().length) }}
-              de {{ filteredMaterials().length }} materiales
-            </div>
-
-            <div class="flex items-center gap-2">
-              <button
-                mat-icon-button
-                (click)="goToPage(currentPage() - 1)"
-                [disabled]="currentPage() === 0"
-                aria-label="Página anterior">
-                <mat-icon>chevron_left</mat-icon>
-              </button>
-
-              <span class="text-sm font-medium text-slate-700">
-                Página {{ currentPage() + 1 }} de {{ totalPages() }}
-              </span>
-
-              <button
-                mat-icon-button
-                (click)="goToPage(currentPage() + 1)"
-                [disabled]="currentPage() >= totalPages() - 1"
-                aria-label="Página siguiente">
-                <mat-icon>chevron_right</mat-icon>
-              </button>
-            </div>
+            <button type="button"
+                    class="pagination-btn"
+                    (click)="goToPage(currentPage() + 1)"
+                    [disabled]="currentPage() >= totalPages() - 1">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
           </div>
-        }
-
+        </div>
       }
-
-    </div>
+    }
 
   </div>
+
 </div>

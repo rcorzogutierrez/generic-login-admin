@@ -5,18 +5,13 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
-// Material imports
-import { MatButtonModule } from '@angular/material/button';
+// Material imports (solo los necesarios)
 import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // Services
 import { ClientsService } from '../../services/clients.service';
@@ -40,17 +35,12 @@ import { formatFieldValue, getFieldValue } from '../../../../shared/modules/dyna
   imports: [
     CommonModule,
     FormsModule,
-    MatButtonModule,
     MatIconModule,
-    MatTooltipModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatMenuModule,
-    MatBadgeModule,
-    MatChipsModule,
     MatDividerModule,
     MatDialogModule,
-    MatCheckboxModule
   ],
   templateUrl: './clients-list.component.html',
   styleUrl: './clients-list.component.css',

@@ -1,43 +1,43 @@
-<!-- worker-form.component.html -->
+<!-- worker-form.component.html - DISEÑO COMPACTO -->
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[900px] mx-auto p-5">
+<div class="form-container">
 
-    @if (isLoading()) {
-      <!-- Loading State -->
-      <div class="flex flex-col items-center justify-center py-16">
-        <div class="w-10 h-10 border-4 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-sm text-slate-500 mt-4">Cargando formulario...</p>
-      </div>
-    } @else {
+  @if (isLoading()) {
+    <!-- Loading State -->
+    <div class="flex flex-col items-center justify-center py-16">
+      <div class="loading-spinner"></div>
+      <p class="text-sm text-slate-500 mt-3">Cargando formulario...</p>
+    </div>
+  } @else {
 
-      <!-- ========== HEADER PROFESIONAL ========== -->
-      <div class="header-professional">
-        <div class="header-left">
-          <button
-            type="button"
-            class="btn-back"
-            (click)="onCancel()"
-            [disabled]="isSaving()"
-            aria-label="Volver a lista de trabajadores">
+    <!-- ========== HEADER COMPACTO ========== -->
+    <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+
+        <div class="flex items-center gap-3">
+          <button type="button"
+                  class="back-btn"
+                  (click)="onCancel()"
+                  [disabled]="isSaving()"
+                  title="Volver a trabajadores">
             <mat-icon>arrow_back</mat-icon>
           </button>
 
-          <div class="icon-badge">
+          <div class="header-icon-box amber">
             <mat-icon>
               {{ mode() === 'create' ? 'person_add' : (mode() === 'edit' ? 'edit' : 'visibility') }}
             </mat-icon>
           </div>
 
-          <div class="header-content">
-            <h1 class="header-title">
+          <div>
+            <h1 class="text-lg font-bold text-slate-800">
               @switch (mode()) {
                 @case ('create') { Nuevo Trabajador }
                 @case ('edit') { Editar Trabajador }
                 @case ('view') { Ver Trabajador }
               }
             </h1>
-            <p class="header-subtitle">
+            <p class="text-xs text-slate-500">
               @if (mode() === 'create') {
                 Complete la información del nuevo trabajador
               } @else if (currentWorker()) {
@@ -48,262 +48,245 @@
         </div>
 
         @if (mode() === 'view') {
-          <button
-            type="button"
-            mat-stroked-button
-            class="btn-edit"
-            (click)="enableEdit()">
+          <button type="button"
+                  class="btn-secondary"
+                  (click)="enableEdit()">
             <mat-icon>edit</mat-icon>
-            Editar
+            <span>Editar</span>
           </button>
         }
+
+      </div>
+    </header>
+
+    <!-- ========== FORMULARIO ========== -->
+    <form [formGroup]="workerForm" (ngSubmit)="onSubmit()" class="animate-fadeIn" style="animation-delay: 0.1s">
+
+      <!-- ========== SECCIÓN: TIPO DE TRABAJADOR ========== -->
+      <div class="section-card mb-4">
+        <div class="section-header">
+          <div class="section-icon-box">
+            <mat-icon>badge</mat-icon>
+          </div>
+          <div class="section-title-group">
+            <h3 class="section-title">Tipo de Trabajador</h3>
+            <p class="section-subtitle">Selecciona el tipo de contratación</p>
+          </div>
+        </div>
+
+        <div class="section-content">
+          <!-- Radio cards para tipo -->
+          <div class="flex gap-4 flex-wrap">
+            <label class="radio-card" [class.selected]="workerForm.get('workerType')?.value === 'internal'">
+              <input
+                type="radio"
+                formControlName="workerType"
+                value="internal"
+                class="hidden">
+              <div class="radio-card-content">
+                <mat-icon class="radio-icon">person</mat-icon>
+                <div>
+                  <span class="radio-label">Empleado Propio</span>
+                  <span class="radio-description">Trabajador de mi empresa</span>
+                </div>
+              </div>
+            </label>
+
+            <label class="radio-card" [class.selected]="workerForm.get('workerType')?.value === 'contractor'">
+              <input
+                type="radio"
+                formControlName="workerType"
+                value="contractor"
+                class="hidden">
+              <div class="radio-card-content">
+                <mat-icon class="radio-icon">groups</mat-icon>
+                <div>
+                  <span class="radio-label">Subcontratado</span>
+                  <span class="radio-description">De otra empresa</span>
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Selector de empresa (solo si es contractor) -->
+          @if (showCompanySelector()) {
+            <div class="company-selector animate-fadeIn">
+              <label class="form-label">
+                <mat-icon class="label-icon">business</mat-icon>
+                Empresa Subcontratista
+                <span class="text-red-500">*</span>
+              </label>
+
+              <div class="flex gap-3 flex-wrap">
+                <select
+                  formControlName="companyId"
+                  class="form-select flex-1 min-w-[200px]"
+                  [attr.disabled]="mode() === 'view' ? true : null">
+                  <option value="">Seleccionar empresa...</option>
+                  @for (company of companies(); track company.id) {
+                    <option [value]="company.id">{{ company.legalName }}</option>
+                  }
+                </select>
+
+                @if (mode() !== 'view') {
+                  <button type="button"
+                          class="btn-secondary"
+                          (click)="openCreateCompanyDialog()">
+                    <mat-icon>add_business</mat-icon>
+                    <span>Nueva Empresa</span>
+                  </button>
+                }
+              </div>
+
+              @if (companies().length === 0) {
+                <p class="form-help text-amber-600 mt-2 flex items-center gap-2">
+                  <mat-icon class="!text-base">info</mat-icon>
+                  No hay empresas registradas. Crea una nueva para continuar.
+                </p>
+              }
+            </div>
+          }
+        </div>
       </div>
 
-      <!-- ========== FORMULARIO ========== -->
-      <form [formGroup]="workerForm" (ngSubmit)="onSubmit()" class="bg-white rounded-b-2xl shadow-lg">
+      <!-- ========== SECCIÓN: DATOS PERSONALES ========== -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-icon-box">
+            <mat-icon>person</mat-icon>
+          </div>
+          <div class="section-title-group">
+            <h3 class="section-title">Datos del Trabajador</h3>
+            <p class="section-subtitle">Información personal y de contacto</p>
+          </div>
+        </div>
 
-        <div class="px-8 py-8">
+        <div class="section-content">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-          <!-- ========== SECCIÓN: TIPO DE TRABAJADOR ========== -->
-          <div class="section-card mb-8">
-            <div class="section-header">
-              <mat-icon class="section-icon">badge</mat-icon>
-              <h3 class="section-title">Tipo de Trabajador</h3>
-            </div>
-
-            <div class="section-content">
-              <div class="flex flex-col gap-4">
-                <!-- Radio buttons para tipo -->
-                <div class="flex gap-6 flex-wrap">
-                  <label class="radio-card" [class.selected]="workerForm.get('workerType')?.value === 'internal'">
-                    <input
-                      type="radio"
-                      formControlName="workerType"
-                      value="internal"
-                      class="hidden">
-                    <div class="radio-card-content">
-                      <mat-icon class="radio-icon">person</mat-icon>
-                      <div>
-                        <span class="radio-label">Empleado Propio</span>
-                        <span class="radio-description">Trabajador de mi empresa</span>
-                      </div>
-                    </div>
-                  </label>
-
-                  <label class="radio-card" [class.selected]="workerForm.get('workerType')?.value === 'contractor'">
-                    <input
-                      type="radio"
-                      formControlName="workerType"
-                      value="contractor"
-                      class="hidden">
-                    <div class="radio-card-content">
-                      <mat-icon class="radio-icon">groups</mat-icon>
-                      <div>
-                        <span class="radio-label">Subcontratado</span>
-                        <span class="radio-description">De otra empresa</span>
-                      </div>
-                    </div>
-                  </label>
-                </div>
-
-                <!-- Selector de empresa (solo si es contractor) -->
-                @if (showCompanySelector()) {
-                  <div class="company-selector animate-fadeIn">
-                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800 mb-2">
-                      <mat-icon class="label-icon !text-lg text-amber-500">business</mat-icon>
-                      Empresa Subcontratista
-                      <span class="text-red-500">*</span>
-                    </label>
-
-                    <div class="flex gap-3 flex-wrap">
-                      <select
-                        formControlName="companyId"
-                        class="input-field flex-1 min-w-[200px]"
-                        [attr.disabled]="mode() === 'view' ? true : null">
-                        <option value="">Seleccionar empresa...</option>
-                        @for (company of companies(); track company.id) {
-                          <option [value]="company.id">{{ company.legalName }}</option>
-                        }
-                      </select>
-
-                      @if (mode() !== 'view') {
-                        <button
-                          type="button"
-                          mat-stroked-button
-                          (click)="openCreateCompanyDialog()"
-                          class="!border-amber-500 !text-amber-600 hover:!bg-amber-50 whitespace-nowrap">
-                          <mat-icon>add_business</mat-icon>
-                          Nueva Empresa
-                        </button>
-                      }
-                    </div>
-
-                    @if (companies().length === 0) {
-                      <p class="text-sm text-amber-600 mt-2 flex items-center gap-2">
-                        <mat-icon class="!text-lg">info</mat-icon>
-                        No hay empresas registradas. Crea una nueva para continuar.
-                      </p>
-                    }
-                  </div>
+            <!-- Nombre Completo -->
+            <div class="md:col-span-2">
+              <div class="form-group">
+                <label class="form-label">
+                  <mat-icon class="label-icon">person</mat-icon>
+                  Nombres y Apellidos
+                  <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-input"
+                  [class.error]="hasError('fullName')"
+                  formControlName="fullName"
+                  placeholder="Ej: Juan Carlos Pérez García"
+                  [readonly]="mode() === 'view'">
+                @if (hasError('fullName')) {
+                  <span class="form-error">{{ getErrorMessage('fullName') }}</span>
                 }
               </div>
             </div>
-          </div>
 
-          <!-- ========== SECCIÓN: DATOS PERSONALES ========== -->
-          <div class="section-card">
-            <div class="section-header">
-              <mat-icon class="section-icon">person</mat-icon>
-              <h3 class="section-title">Datos del Trabajador</h3>
-            </div>
-
-            <div class="section-content">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                <!-- Nombre Completo -->
-                <div class="md:col-span-2">
-                  <div class="input-group flex flex-col gap-2">
-                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                      <mat-icon class="label-icon !text-lg text-amber-500">person</mat-icon>
-                      Nombres y Apellidos
-                      <span class="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      class="input-field"
-                      formControlName="fullName"
-                      placeholder="Ej: Juan Carlos Pérez García"
-                      [readonly]="mode() === 'view'">
-                    @if (hasError('fullName')) {
-                      <div class="input-error">
-                        {{ getErrorMessage('fullName') }}
-                      </div>
-                    }
-                  </div>
-                </div>
-
-                <!-- ID o Licencia de conducir -->
-                <div>
-                  <div class="input-group flex flex-col gap-2">
-                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                      <mat-icon class="label-icon !text-lg text-amber-500">credit_card</mat-icon>
-                      ID / Licencia de Conducir
-                    </label>
-                    <input
-                      type="text"
-                      class="input-field font-mono"
-                      formControlName="idOrLicense"
-                      placeholder="Número de identificación"
-                      [readonly]="mode() === 'view'">
-                    @if (hasError('idOrLicense')) {
-                      <div class="input-error">
-                        {{ getErrorMessage('idOrLicense') }}
-                      </div>
-                    }
-                  </div>
-                </div>
-
-                <!-- Social Security -->
-                <div>
-                  <div class="input-group flex flex-col gap-2">
-                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                      <mat-icon class="label-icon !text-lg text-amber-500">security</mat-icon>
-                      Social Security
-                    </label>
-                    <input
-                      type="text"
-                      class="input-field font-mono"
-                      formControlName="socialSecurity"
-                      placeholder="XXX-XX-XXXX"
-                      [readonly]="mode() === 'view'">
-                    @if (hasError('socialSecurity')) {
-                      <div class="input-error">
-                        {{ getErrorMessage('socialSecurity') }}
-                      </div>
-                    }
-                  </div>
-                </div>
-
-                <!-- Teléfono -->
-                <div>
-                  <div class="input-group flex flex-col gap-2">
-                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                      <mat-icon class="label-icon !text-lg text-amber-500">phone</mat-icon>
-                      Teléfono
-                    </label>
-                    <input
-                      type="tel"
-                      class="input-field"
-                      formControlName="phone"
-                      placeholder="+1 (555) 123-4567"
-                      [readonly]="mode() === 'view'">
-                    @if (hasError('phone')) {
-                      <div class="input-error">
-                        {{ getErrorMessage('phone') }}
-                      </div>
-                    }
-                  </div>
-                </div>
-
-                <!-- Dirección -->
-                <div>
-                  <div class="input-group flex flex-col gap-2">
-                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                      <mat-icon class="label-icon !text-lg text-amber-500">location_on</mat-icon>
-                      Dirección
-                    </label>
-                    <textarea
-                      class="input-field !h-auto py-3"
-                      formControlName="address"
-                      placeholder="Dirección completa"
-                      rows="2"
-                      [readonly]="mode() === 'view'"></textarea>
-                    @if (hasError('address')) {
-                      <div class="input-error">
-                        {{ getErrorMessage('address') }}
-                      </div>
-                    }
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- ========== ACCIONES ========== -->
-        @if (mode() !== 'view') {
-          <div class="px-8 py-6 bg-slate-50 rounded-b-2xl border-t border-slate-200 flex justify-end gap-3">
-            <button
-              mat-stroked-button
-              type="button"
-              (click)="onCancel()"
-              [disabled]="isSaving()"
-              class="!border-slate-300 !text-slate-700 font-medium">
-              <mat-icon>close</mat-icon>
-              Cancelar
-            </button>
-
-            <button
-              mat-raised-button
-              color="primary"
-              type="submit"
-              [disabled]="isSaving() || workerForm.invalid"
-              class="font-semibold">
-              @if (isSaving()) {
-                <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              } @else {
-                <mat-icon>save</mat-icon>
+            <!-- ID o Licencia de conducir -->
+            <div class="form-group">
+              <label class="form-label">
+                <mat-icon class="label-icon">credit_card</mat-icon>
+                ID / Licencia de Conducir
+              </label>
+              <input
+                type="text"
+                class="form-input font-mono"
+                [class.error]="hasError('idOrLicense')"
+                formControlName="idOrLicense"
+                placeholder="Número de identificación"
+                [readonly]="mode() === 'view'">
+              @if (hasError('idOrLicense')) {
+                <span class="form-error">{{ getErrorMessage('idOrLicense') }}</span>
               }
-              {{ mode() === 'create' ? 'Crear Trabajador' : 'Guardar Cambios' }}
-            </button>
+            </div>
+
+            <!-- Social Security -->
+            <div class="form-group">
+              <label class="form-label">
+                <mat-icon class="label-icon">security</mat-icon>
+                Social Security
+              </label>
+              <input
+                type="text"
+                class="form-input font-mono"
+                [class.error]="hasError('socialSecurity')"
+                formControlName="socialSecurity"
+                placeholder="XXX-XX-XXXX"
+                [readonly]="mode() === 'view'">
+              @if (hasError('socialSecurity')) {
+                <span class="form-error">{{ getErrorMessage('socialSecurity') }}</span>
+              }
+            </div>
+
+            <!-- Teléfono -->
+            <div class="form-group">
+              <label class="form-label">
+                <mat-icon class="label-icon">phone</mat-icon>
+                Teléfono
+              </label>
+              <input
+                type="tel"
+                class="form-input"
+                [class.error]="hasError('phone')"
+                formControlName="phone"
+                placeholder="+1 (555) 123-4567"
+                [readonly]="mode() === 'view'">
+              @if (hasError('phone')) {
+                <span class="form-error">{{ getErrorMessage('phone') }}</span>
+              }
+            </div>
+
+            <!-- Dirección -->
+            <div class="form-group">
+              <label class="form-label">
+                <mat-icon class="label-icon">location_on</mat-icon>
+                Dirección
+              </label>
+              <textarea
+                class="form-textarea"
+                [class.error]="hasError('address')"
+                formControlName="address"
+                placeholder="Dirección completa"
+                rows="2"
+                [readonly]="mode() === 'view'"></textarea>
+              @if (hasError('address')) {
+                <span class="form-error">{{ getErrorMessage('address') }}</span>
+              }
+            </div>
+
           </div>
-        }
+        </div>
+      </div>
 
-      </form>
+      <!-- ========== ACCIONES ========== -->
+      @if (mode() !== 'view') {
+        <div class="form-actions">
+          <button type="button"
+                  class="btn-cancel"
+                  (click)="onCancel()"
+                  [disabled]="isSaving()">
+            <mat-icon>close</mat-icon>
+            <span>Cancelar</span>
+          </button>
 
-    }
+          <button type="submit"
+                  class="btn-save"
+                  [disabled]="isSaving() || workerForm.invalid">
+            @if (isSaving()) {
+              <div class="btn-spinner"></div>
+            } @else {
+              <mat-icon>save</mat-icon>
+            }
+            <span>{{ mode() === 'create' ? 'Crear Trabajador' : 'Guardar Cambios' }}</span>
+          </button>
+        </div>
+      }
 
-  </div>
+    </form>
+
+  }
+
 </div>

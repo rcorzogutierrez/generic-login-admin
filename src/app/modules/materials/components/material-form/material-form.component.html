@@ -1,43 +1,43 @@
-<!-- material-form.component.html -->
+<!-- material-form.component.html - DISEÑO COMPACTO -->
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[1100px] mx-auto p-5">
+<div class="form-container">
 
-    @if (isLoading()) {
-      <!-- Loading State -->
-      <div class="flex flex-col items-center justify-center py-16">
-        <div class="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-sm text-slate-500 mt-4">Cargando formulario...</p>
-      </div>
-    } @else {
+  @if (isLoading()) {
+    <!-- Loading State -->
+    <div class="flex flex-col items-center justify-center py-16">
+      <div class="loading-spinner"></div>
+      <p class="text-sm text-slate-500 mt-3">Cargando formulario...</p>
+    </div>
+  } @else {
 
-      <!-- ========== HEADER PROFESIONAL ========== -->
-      <div class="header-professional">
-        <div class="header-left">
-          <button
-            type="button"
-            class="btn-back"
-            (click)="onCancel()"
-            [disabled]="isSaving()"
-            aria-label="Volver a lista de materiales">
+    <!-- ========== HEADER COMPACTO ========== -->
+    <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+
+        <div class="flex items-center gap-3">
+          <button type="button"
+                  class="back-btn"
+                  (click)="onCancel()"
+                  [disabled]="isSaving()"
+                  title="Volver a materiales">
             <mat-icon>arrow_back</mat-icon>
           </button>
 
-          <div class="icon-badge">
+          <div class="header-icon-box green">
             <mat-icon>
               {{ mode() === 'create' ? 'add_circle' : (mode() === 'edit' ? 'edit' : 'visibility') }}
             </mat-icon>
           </div>
 
-          <div class="header-content">
-            <h1 class="header-title">
+          <div>
+            <h1 class="text-lg font-bold text-slate-800">
               @switch (mode()) {
                 @case ('create') { Nuevo Material }
                 @case ('edit') { Editar Material }
                 @case ('view') { Ver Material }
               }
             </h1>
-            <p class="header-subtitle">
+            <p class="text-xs text-slate-500">
               @if (mode() === 'create') {
                 Complete la información del nuevo material
               } @else if (currentMaterial()) {
@@ -48,277 +48,260 @@
         </div>
 
         @if (mode() === 'view') {
-          <button
-            type="button"
-            mat-stroked-button
-            class="btn-edit"
-            (click)="enableEdit()">
+          <button type="button"
+                  class="btn-secondary"
+                  (click)="enableEdit()">
             <mat-icon>edit</mat-icon>
-            Editar
+            <span>Editar</span>
           </button>
         }
+
       </div>
+    </header>
 
-      <!-- ========== FORMULARIO ========== -->
-      <form [formGroup]="materialForm" (ngSubmit)="onSubmit()" class="bg-white rounded-b-2xl shadow-lg">
+    <!-- ========== FORMULARIO ========== -->
+    <form [formGroup]="materialForm" (ngSubmit)="onSubmit()" class="form-card animate-fadeIn" style="animation-delay: 0.1s">
 
-        <div class="px-8 py-8">
+      <!-- Grid de Campos Dinámicos -->
+      <div [ngStyle]="getGridStyle()">
 
-          <!-- Grid de Campos Dinámicos -->
-          <div [ngStyle]="getGridStyle()">
+        @for (field of fields(); track field.id) {
+          <div [ngStyle]="getFieldStyle(field)">
 
-            @for (field of fields(); track field.id) {
-              <div [ngStyle]="getFieldStyle(field)">
-
-                <!-- ========== TEXT / EMAIL / PHONE / URL ========== -->
-                @if (field.type === FieldType.TEXT || field.type === FieldType.EMAIL || field.type === FieldType.PHONE || field.type === FieldType.URL) {
-                  <div class="input-group flex flex-col gap-2">
-                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                      @if (field.icon) {
-                        <mat-icon class="label-icon !text-lg text-green-500">{{ field.icon }}</mat-icon>
-                      }
-                      {{ field.label }}
-                      @if (field.validation.required) {
-                        <span class="text-red-500">*</span>
-                      }
-                    </label>
-                    <input
-                      [type]="field.type === FieldType.EMAIL ? 'email' : field.type === FieldType.URL ? 'url' : field.type === FieldType.PHONE ? 'tel' : 'text'"
-                      class="input-field"
-                      [formControlName]="field.name"
-                      [placeholder]="field.placeholder || ''"
-                      [readonly]="mode() === 'view'">
-                    @if (field.helpText && !hasError(field.name)) {
-                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
-                    }
-                    @if (hasError(field.name)) {
-                      <div class="input-error">
-                        {{ getErrorMessage(field.name) }}
-                      </div>
-                    }
-                  </div>
+            <!-- ========== TEXT / EMAIL / PHONE / URL ========== -->
+            @if (field.type === FieldType.TEXT || field.type === FieldType.EMAIL || field.type === FieldType.PHONE || field.type === FieldType.URL) {
+              <div class="form-group">
+                <label class="form-label">
+                  @if (field.icon) {
+                    <mat-icon class="label-icon">{{ field.icon }}</mat-icon>
+                  }
+                  {{ field.label }}
+                  @if (field.validation.required) {
+                    <span class="text-red-500">*</span>
+                  }
+                </label>
+                <input
+                  [type]="field.type === FieldType.EMAIL ? 'email' : field.type === FieldType.URL ? 'url' : field.type === FieldType.PHONE ? 'tel' : 'text'"
+                  class="form-input"
+                  [class.error]="hasError(field.name)"
+                  [formControlName]="field.name"
+                  [placeholder]="field.placeholder || ''"
+                  [readonly]="mode() === 'view'">
+                @if (field.helpText && !hasError(field.name)) {
+                  <span class="form-help">{{ field.helpText }}</span>
                 }
-
-                <!-- ========== NUMBER / CURRENCY ========== -->
-                @if (field.type === FieldType.NUMBER || field.type === FieldType.CURRENCY) {
-                  <div class="input-group flex flex-col gap-2">
-                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                      @if (field.icon) {
-                        <mat-icon class="label-icon !text-lg text-green-500">{{ field.icon }}</mat-icon>
-                      }
-                      {{ field.label }}
-                      @if (field.validation.required) {
-                        <span class="text-red-500">*</span>
-                      }
-                    </label>
-                    <div class="relative">
-                      @if (field.type === FieldType.CURRENCY) {
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium pointer-events-none select-none z-10">$</span>
-                      }
-                      <input
-                        type="number"
-                        [class]="'input-field relative' + (field.type === FieldType.CURRENCY ? ' !pl-11' : '')"
-                        [formControlName]="field.name"
-                        [placeholder]="field.placeholder || ''"
-                        [min]="field.validation.min ?? null"
-                        [max]="field.validation.max ?? null"
-                        [readonly]="mode() === 'view'"
-                        [step]="field.type === FieldType.CURRENCY ? '0.01' : '1'">
-                    </div>
-                    @if (field.helpText && !hasError(field.name)) {
-                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
-                    }
-                    @if (hasError(field.name)) {
-                      <div class="input-error">
-                        {{ getErrorMessage(field.name) }}
-                      </div>
-                    }
-                  </div>
+                @if (hasError(field.name)) {
+                  <span class="form-error">{{ getErrorMessage(field.name) }}</span>
                 }
+              </div>
+            }
 
-                <!-- ========== TEXTAREA ========== -->
-                @if (field.type === FieldType.TEXTAREA) {
-                  <div class="input-group flex flex-col gap-2">
-                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                      @if (field.icon) {
-                        <mat-icon class="label-icon !text-lg text-green-500">{{ field.icon }}</mat-icon>
-                      }
-                      {{ field.label }}
-                      @if (field.validation.required) {
-                        <span class="text-red-500">*</span>
-                      }
-                    </label>
-                    <textarea
-                      class="input-field !h-auto py-3"
-                      [formControlName]="field.name"
-                      [placeholder]="field.placeholder || ''"
-                      rows="3"
-                      [maxlength]="field.validation.maxLength ?? null"
-                      [readonly]="mode() === 'view'"></textarea>
-                    @if (field.helpText && !hasError(field.name)) {
-                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
-                    }
-                    @if (hasError(field.name)) {
-                      <div class="input-error">
-                        {{ getErrorMessage(field.name) }}
-                      </div>
-                    }
-                  </div>
+            <!-- ========== NUMBER / CURRENCY ========== -->
+            @if (field.type === FieldType.NUMBER || field.type === FieldType.CURRENCY) {
+              <div class="form-group">
+                <label class="form-label">
+                  @if (field.icon) {
+                    <mat-icon class="label-icon">{{ field.icon }}</mat-icon>
+                  }
+                  {{ field.label }}
+                  @if (field.validation.required) {
+                    <span class="text-red-500">*</span>
+                  }
+                </label>
+                <div class="relative">
+                  @if (field.type === FieldType.CURRENCY) {
+                    <span class="currency-prefix">$</span>
+                  }
+                  <input
+                    type="number"
+                    class="form-input"
+                    [class.error]="hasError(field.name)"
+                    [class.has-prefix]="field.type === FieldType.CURRENCY"
+                    [formControlName]="field.name"
+                    [placeholder]="field.placeholder || ''"
+                    [min]="field.validation.min ?? null"
+                    [max]="field.validation.max ?? null"
+                    [readonly]="mode() === 'view'"
+                    [step]="field.type === FieldType.CURRENCY ? '0.01' : '1'">
+                </div>
+                @if (field.helpText && !hasError(field.name)) {
+                  <span class="form-help">{{ field.helpText }}</span>
                 }
-
-                <!-- ========== SELECT ========== -->
-                @if (field.type === FieldType.SELECT) {
-                  <div class="input-group flex flex-col gap-2">
-                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                      @if (field.icon) {
-                        <mat-icon class="label-icon !text-lg text-green-500">{{ field.icon }}</mat-icon>
-                      }
-                      {{ field.label }}
-                      @if (field.validation.required) {
-                        <span class="text-red-500">*</span>
-                      }
-                    </label>
-                    <select
-                      class="input-field"
-                      [formControlName]="field.name"
-                      [disabled]="mode() === 'view'">
-                      <option value="">{{ field.placeholder || 'Seleccionar...' }}</option>
-                      @for (option of field.options; track option.value) {
-                        <option [value]="option.value">{{ option.label }}</option>
-                      }
-                    </select>
-                    @if (field.helpText && !hasError(field.name)) {
-                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
-                    }
-                    @if (hasError(field.name)) {
-                      <div class="input-error">
-                        {{ getErrorMessage(field.name) }}
-                      </div>
-                    }
-                  </div>
+                @if (hasError(field.name)) {
+                  <span class="form-error">{{ getErrorMessage(field.name) }}</span>
                 }
+              </div>
+            }
 
-                <!-- ========== MULTISELECT ========== -->
-                @if (field.type === FieldType.MULTISELECT) {
-                  <div class="input-group flex flex-col gap-2">
-                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                      @if (field.icon) {
-                        <mat-icon class="label-icon !text-lg text-green-500">{{ field.icon }}</mat-icon>
-                      }
-                      {{ field.label }}
-                      @if (field.validation.required) {
-                        <span class="text-red-500">*</span>
-                      }
-                    </label>
-                    <select
-                      multiple
-                      class="input-field !min-h-[120px]"
-                      [formControlName]="field.name"
-                      [disabled]="mode() === 'view'">
-                      @for (option of field.options; track option.value) {
-                        <option [value]="option.value">{{ option.label }}</option>
-                      }
-                    </select>
-                    <span class="text-xs text-slate-500 mt-1">Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples opciones</span>
-                    @if (field.helpText && !hasError(field.name)) {
-                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
-                    }
-                    @if (hasError(field.name)) {
-                      <div class="input-error">
-                        {{ getErrorMessage(field.name) }}
-                      </div>
-                    }
-                  </div>
+            <!-- ========== TEXTAREA ========== -->
+            @if (field.type === FieldType.TEXTAREA) {
+              <div class="form-group">
+                <label class="form-label">
+                  @if (field.icon) {
+                    <mat-icon class="label-icon">{{ field.icon }}</mat-icon>
+                  }
+                  {{ field.label }}
+                  @if (field.validation.required) {
+                    <span class="text-red-500">*</span>
+                  }
+                </label>
+                <textarea
+                  class="form-textarea"
+                  [class.error]="hasError(field.name)"
+                  [formControlName]="field.name"
+                  [placeholder]="field.placeholder || ''"
+                  rows="3"
+                  [maxlength]="field.validation.maxLength ?? null"
+                  [readonly]="mode() === 'view'"></textarea>
+                @if (field.helpText && !hasError(field.name)) {
+                  <span class="form-help">{{ field.helpText }}</span>
                 }
-
-                <!-- ========== DATE / DATETIME ========== -->
-                @if (field.type === FieldType.DATE || field.type === FieldType.DATETIME) {
-                  <div class="input-group flex flex-col gap-2">
-                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                      @if (field.icon) {
-                        <mat-icon class="label-icon !text-lg text-green-500">{{ field.icon }}</mat-icon>
-                      }
-                      {{ field.label }}
-                      @if (field.validation.required) {
-                        <span class="text-red-500">*</span>
-                      }
-                    </label>
-                    <input
-                      [type]="field.type === FieldType.DATETIME ? 'datetime-local' : 'date'"
-                      class="input-field"
-                      [formControlName]="field.name"
-                      [readonly]="mode() === 'view'">
-                    @if (field.helpText && !hasError(field.name)) {
-                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
-                    }
-                    @if (hasError(field.name)) {
-                      <div class="input-error">
-                        {{ getErrorMessage(field.name) }}
-                      </div>
-                    }
-                  </div>
+                @if (hasError(field.name)) {
+                  <span class="form-error">{{ getErrorMessage(field.name) }}</span>
                 }
+              </div>
+            }
 
-                <!-- ========== CHECKBOX ========== -->
-                @if (field.type === FieldType.CHECKBOX) {
-                  <div class="input-group flex flex-col gap-2">
-                    <label class="input-label flex items-center gap-2 text-sm font-semibold text-slate-800">
-                      @if (field.icon) {
-                        <mat-icon class="label-icon !text-lg text-green-500">{{ field.icon }}</mat-icon>
-                      }
-                      {{ field.label }}
-                    </label>
-                    <mat-checkbox
-                      [formControlName]="field.name"
-                      [disabled]="mode() === 'view'"
-                      class="custom-checkbox">
-                      {{ field.placeholder || field.label }}
-                    </mat-checkbox>
-                    @if (field.helpText) {
-                      <span class="text-xs text-slate-500 mt-1">{{ field.helpText }}</span>
-                    }
-                  </div>
+            <!-- ========== SELECT ========== -->
+            @if (field.type === FieldType.SELECT) {
+              <div class="form-group">
+                <label class="form-label">
+                  @if (field.icon) {
+                    <mat-icon class="label-icon">{{ field.icon }}</mat-icon>
+                  }
+                  {{ field.label }}
+                  @if (field.validation.required) {
+                    <span class="text-red-500">*</span>
+                  }
+                </label>
+                <select
+                  class="form-select"
+                  [class.error]="hasError(field.name)"
+                  [formControlName]="field.name"
+                  [disabled]="mode() === 'view'">
+                  <option value="">{{ field.placeholder || 'Seleccionar...' }}</option>
+                  @for (option of field.options; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+                @if (field.helpText && !hasError(field.name)) {
+                  <span class="form-help">{{ field.helpText }}</span>
                 }
+                @if (hasError(field.name)) {
+                  <span class="form-error">{{ getErrorMessage(field.name) }}</span>
+                }
+              </div>
+            }
 
+            <!-- ========== MULTISELECT ========== -->
+            @if (field.type === FieldType.MULTISELECT) {
+              <div class="form-group">
+                <label class="form-label">
+                  @if (field.icon) {
+                    <mat-icon class="label-icon">{{ field.icon }}</mat-icon>
+                  }
+                  {{ field.label }}
+                  @if (field.validation.required) {
+                    <span class="text-red-500">*</span>
+                  }
+                </label>
+                <select
+                  multiple
+                  class="form-select multiselect"
+                  [class.error]="hasError(field.name)"
+                  [formControlName]="field.name"
+                  [disabled]="mode() === 'view'">
+                  @for (option of field.options; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+                <span class="form-help">Mantén presionado Ctrl para seleccionar múltiples</span>
+                @if (hasError(field.name)) {
+                  <span class="form-error">{{ getErrorMessage(field.name) }}</span>
+                }
+              </div>
+            }
+
+            <!-- ========== DATE / DATETIME ========== -->
+            @if (field.type === FieldType.DATE || field.type === FieldType.DATETIME) {
+              <div class="form-group">
+                <label class="form-label">
+                  @if (field.icon) {
+                    <mat-icon class="label-icon">{{ field.icon }}</mat-icon>
+                  }
+                  {{ field.label }}
+                  @if (field.validation.required) {
+                    <span class="text-red-500">*</span>
+                  }
+                </label>
+                <input
+                  [type]="field.type === FieldType.DATETIME ? 'datetime-local' : 'date'"
+                  class="form-input"
+                  [class.error]="hasError(field.name)"
+                  [formControlName]="field.name"
+                  [readonly]="mode() === 'view'">
+                @if (field.helpText && !hasError(field.name)) {
+                  <span class="form-help">{{ field.helpText }}</span>
+                }
+                @if (hasError(field.name)) {
+                  <span class="form-error">{{ getErrorMessage(field.name) }}</span>
+                }
+              </div>
+            }
+
+            <!-- ========== CHECKBOX ========== -->
+            @if (field.type === FieldType.CHECKBOX) {
+              <div class="form-group">
+                <label class="form-label">
+                  @if (field.icon) {
+                    <mat-icon class="label-icon">{{ field.icon }}</mat-icon>
+                  }
+                  {{ field.label }}
+                </label>
+                <label class="checkbox-card" [class.checked]="materialForm.get(field.name)?.value">
+                  <input
+                    type="checkbox"
+                    [formControlName]="field.name"
+                    [disabled]="mode() === 'view'">
+                  <span class="checkbox-label">{{ field.placeholder || field.label }}</span>
+                </label>
+                @if (field.helpText) {
+                  <span class="form-help">{{ field.helpText }}</span>
+                }
               </div>
             }
 
           </div>
-
-        </div>
-
-        <!-- ========== ACCIONES ========== -->
-        @if (mode() !== 'view') {
-          <div class="px-8 py-6 bg-slate-50 rounded-b-2xl border-t border-slate-200 flex justify-end gap-3">
-            <button
-              mat-stroked-button
-              type="button"
-              (click)="onCancel()"
-              [disabled]="isSaving()"
-              class="!border-slate-300 !text-slate-700 font-medium">
-              <mat-icon>close</mat-icon>
-              Cancelar
-            </button>
-
-            <button
-              mat-raised-button
-              color="primary"
-              type="submit"
-              [disabled]="isSaving() || materialForm.invalid"
-              class="font-semibold">
-              @if (isSaving()) {
-                <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              } @else {
-                <mat-icon>save</mat-icon>
-              }
-              {{ mode() === 'create' ? 'Crear Material' : 'Guardar Cambios' }}
-            </button>
-          </div>
         }
 
-      </form>
+      </div>
 
-    }
+      <!-- ========== ACCIONES ========== -->
+      @if (mode() !== 'view') {
+        <div class="form-actions">
+          <button type="button"
+                  class="btn-cancel"
+                  (click)="onCancel()"
+                  [disabled]="isSaving()">
+            <mat-icon>close</mat-icon>
+            <span>Cancelar</span>
+          </button>
 
-  </div>
+          <button type="submit"
+                  class="btn-save"
+                  [disabled]="isSaving() || materialForm.invalid">
+            @if (isSaving()) {
+              <div class="btn-spinner"></div>
+            } @else {
+              <mat-icon>save</mat-icon>
+            }
+            <span>{{ mode() === 'create' ? 'Crear Material' : 'Guardar Cambios' }}</span>
+          </button>
+        </div>
+      }
+
+    </form>
+
+  }
+
 </div>

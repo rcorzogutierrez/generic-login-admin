@@ -7,9 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -41,9 +39,7 @@ import { FieldConfigDialogComponent } from '../field-config-dialog/field-config-
     MatIconModule,
     MatButtonToggleModule,
     MatTooltipModule,
-    MatCardModule,
-    MatChipsModule,
-    MatDividerModule
+    MatChipsModule
   ],
   templateUrl: './form-designer.component.html',
   styleUrl: './form-designer.component.css',

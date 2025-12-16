@@ -20,6 +20,7 @@ import { GenericDeleteMultipleDialogComponent } from '../../../../shared/compone
 import { AuthService } from '../../../../core/services/auth.service';
 import { GenericModuleConfig } from '../../../../shared/models/generic-entity.interface';
 import { CompaniesListDialogComponent } from '../companies-list-dialog/companies-list-dialog.component';
+import { CompaniesService } from '../../companies/services/companies.service';
 
 @Component({
   selector: 'app-workers-list',
@@ -45,6 +46,8 @@ export class WorkersListComponent implements OnInit {
   selectedWorkers = signal<string[]>([]);
   isLoading = false;
   filterType = signal<WorkerType | 'all'>('all');
+  filterCompanyId = signal<string | null>(null);
+  filterCompanyName = signal<string | null>(null);
 
   // Paginación
   currentPage = signal<number>(0);
@@ -63,6 +66,12 @@ export class WorkersListComponent implements OnInit {
     let workers = this.workers();
     const search = this.searchTerm().toLowerCase();
     const typeFilter = this.filterType();
+    const companyId = this.filterCompanyId();
+
+    // Filtrar por empresa (companyId)
+    if (companyId) {
+      workers = workers.filter(w => w.companyId === companyId);
+    }
 
     // Filtrar por tipo
     if (typeFilter !== 'all') {
@@ -117,6 +126,7 @@ export class WorkersListComponent implements OnInit {
 
   constructor(
     private workersService: WorkersService,
+    private companiesService: CompaniesService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router,
@@ -127,7 +137,32 @@ export class WorkersListComponent implements OnInit {
   async ngOnInit() {
     this.isLoading = true;
     await this.workersService.initialize();
+
+    // Leer queryParam companyId para filtrar
+    this.route.queryParams.subscribe(async params => {
+      const companyId = params['companyId'];
+      if (companyId) {
+        this.filterCompanyId.set(companyId);
+        // Obtener nombre de la empresa
+        await this.companiesService.initialize();
+        const company = this.companiesService.companies().find(c => c.id === companyId);
+        if (company) {
+          this.filterCompanyName.set(company.legalName);
+        }
+      } else {
+        this.filterCompanyId.set(null);
+        this.filterCompanyName.set(null);
+      }
+    });
+
     this.isLoading = false;
+  }
+
+  clearCompanyFilter() {
+    this.filterCompanyId.set(null);
+    this.filterCompanyName.set(null);
+    // Limpiar queryParams de la URL
+    this.router.navigate(['/modules/workers']);
   }
 
   onSearch(term: string) {

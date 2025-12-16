@@ -209,15 +209,17 @@
                       <mat-icon>edit</mat-icon>
                       <span>Editar</span>
                     </button>
-                    <button mat-menu-item (click)="toggleActive(material)">
-                      @if (material.isActive) {
+                    @if (material.isActive) {
+                      <button mat-menu-item (click)="toggleActive(material)">
                         <mat-icon class="text-orange-600">visibility_off</mat-icon>
                         <span>Inactivar</span>
-                      } @else {
+                      </button>
+                    } @else {
+                      <button mat-menu-item (click)="toggleActive(material)">
                         <mat-icon class="text-green-600">visibility</mat-icon>
                         <span>Activar</span>
-                      }
-                    </button>
+                      </button>
+                    }
                     <mat-divider></mat-divider>
                     <button mat-menu-item (click)="deleteMaterial(material)" class="text-red-600">
                       <mat-icon class="text-red-600">delete</mat-icon>

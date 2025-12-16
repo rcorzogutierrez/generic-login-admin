@@ -653,6 +653,53 @@
    RESPONSIVE
    ============================================ */
 
+/* ========== COMPANY FILTER CHIP ========== */
+.company-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 12px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid #f59e0b;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #92400e;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.company-filter-chip mat-icon:first-child {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #d97706;
+}
+
+.chip-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: rgba(217, 119, 6, 0.2);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: #92400e;
+}
+
+.chip-close-btn:hover {
+  background: #dc2626;
+  color: white;
+}
+
+.chip-close-btn mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
 @media (max-width: 768px) {
   .workers-container {
     padding: 16px;

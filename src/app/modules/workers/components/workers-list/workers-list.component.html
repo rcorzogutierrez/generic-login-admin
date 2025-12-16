@@ -114,6 +114,20 @@
           Subcontratados
         </button>
       </div>
+
+      <!-- Filtro por empresa activo -->
+      @if (filterCompanyName()) {
+        <div class="company-filter-chip">
+          <mat-icon>business</mat-icon>
+          <span>{{ filterCompanyName() }}</span>
+          <button type="button"
+                  class="chip-close-btn"
+                  (click)="clearCompanyFilter()"
+                  title="Quitar filtro">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
     </div>
   </div>
 

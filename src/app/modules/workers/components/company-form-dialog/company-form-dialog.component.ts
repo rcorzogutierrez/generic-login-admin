@@ -171,8 +171,7 @@ type DialogMode = 'create' | 'edit';
     .dialog-container {
       display: flex;
       flex-direction: column;
-      width: 520px;
-      max-width: 95vw;
+      width: 100%;
       animation: fadeIn 0.2s ease-out;
     }
 

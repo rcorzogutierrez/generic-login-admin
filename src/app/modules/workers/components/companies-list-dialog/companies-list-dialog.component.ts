@@ -171,8 +171,7 @@ import { CompanyFormDialogComponent, CompanyFormDialogData, CompanyFormDialogRes
     .dialog-container {
       display: flex;
       flex-direction: column;
-      width: 650px;
-      max-width: 95vw;
+      width: 100%;
       max-height: 85vh;
       animation: fadeIn 0.2s ease-out;
     }

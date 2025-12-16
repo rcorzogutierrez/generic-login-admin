@@ -1,529 +1,390 @@
-<!-- proposals-list.component.html -->
+<!-- proposals-list.component.html - DISEÑO COMPACTO -->
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[1600px] mx-auto p-5">
+<div class="proposals-container">
 
-    <!-- ========== HEADER ========== -->
-    <header class="page-header">
-      <div class="flex items-center justify-between gap-5 flex-wrap">
+  <!-- ========== HEADER COMPACTO ========== -->
+  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
 
-        <!-- Título e Icono -->
-        <div class="flex items-center gap-4">
-          <div class="header-icon-container" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
-            <mat-icon>description</mat-icon>
-          </div>
-          <div>
-            <h1 class="text-2xl font-bold text-slate-800 mb-1">Gestión de Estimados</h1>
-            <p class="text-sm text-slate-500">
-              {{ filteredStats().total }} estimados
-              @if (filteredStats().byStatus.approved > 0) {
-                <span class="text-green-600 font-semibold"> • {{ filteredStats().byStatus.approved }} aprobados</span>
-              }
-            </p>
-          </div>
+      <!-- Left: Icon + Title + Stats -->
+      <div class="flex items-center gap-4">
+        <div class="header-icon-box blue">
+          <mat-icon>description</mat-icon>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-800">Gestión de Estimados</h1>
+          <p class="text-xs text-slate-500">Control y seguimiento de propuestas</p>
         </div>
 
-        <!-- Acciones del Header -->
-        <div class="flex items-center gap-3">
-          <button
-            mat-icon-button
-            class="icon-btn"
-            (click)="openConfig()"
-            [disabled]="isLoading()"
-            matTooltip="Configuración del Módulo"
-            aria-label="Configuración del módulo de estimados">
-            <mat-icon>settings</mat-icon>
-          </button>
-
-          <button
-            mat-icon-button
-            class="icon-btn"
-            (click)="refresh()"
-            [disabled]="isLoading()"
-            matTooltip="Actualizar"
-            aria-label="Actualizar lista de estimados">
-            <mat-icon>refresh</mat-icon>
-          </button>
-
-          <button
-            mat-raised-button
-            color="primary"
-            (click)="createProposal()"
-            [disabled]="isLoading()"
-            class="flex items-center gap-2">
-            <mat-icon>add</mat-icon>
-            Nuevo Estimado
-          </button>
-        </div>
-
-      </div>
-    </header>
-
-    <!-- ========== STATS CARDS ========== -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
-
-      <!-- Total -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
-           [class.ring-2]="statusFilter() === 'all'"
-           [class.ring-blue-500]="statusFilter() === 'all'"
-           (click)="filterByStatus('all')">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-medium text-slate-500 mb-1">Total</p>
-            <p class="text-2xl font-bold text-slate-800">{{ stats().total }}</p>
+        <!-- Stats inline -->
+        <div class="flex items-center gap-2 ml-2">
+          <div class="stat-chip slate">
+            <span class="stat-value">{{ stats().total }}</span>
+            <span class="stat-label">Total</span>
           </div>
-          <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-blue-600 !text-xl">description</mat-icon>
+          <div class="stat-chip amber">
+            <span class="stat-value">{{ stats().byStatus.sent }}</span>
+            <span class="stat-label">Enviados</span>
+          </div>
+          <div class="stat-chip green">
+            <span class="stat-value">{{ stats().byStatus.approved }}</span>
+            <span class="stat-label">Aprobados</span>
+          </div>
+          <div class="stat-chip purple">
+            <span class="stat-value">{{ stats().byStatus.converted_to_invoice }}</span>
+            <span class="stat-label">Facturados</span>
           </div>
         </div>
       </div>
 
-      <!-- Borradores -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
-           [class.ring-2]="statusFilter() === 'draft'"
-           [class.ring-slate-500]="statusFilter() === 'draft'"
-           (click)="filterByStatus('draft')">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-medium text-slate-500 mb-1">Borradores</p>
-            <p class="text-2xl font-bold text-slate-600">{{ stats().byStatus.draft }}</p>
-          </div>
-          <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-slate-600 !text-xl">edit</mat-icon>
-          </div>
-        </div>
-      </div>
+      <!-- Right: Actions -->
+      <div class="flex items-center gap-2">
+        <button type="button"
+                class="icon-btn"
+                (click)="openConfig()"
+                [disabled]="isLoading()"
+                title="Configuración">
+          <mat-icon>settings</mat-icon>
+        </button>
 
-      <!-- Enviados -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
-           [class.ring-2]="statusFilter() === 'sent'"
-           [class.ring-amber-500]="statusFilter() === 'sent'"
-           (click)="filterByStatus('sent')">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-medium text-slate-500 mb-1">Enviados</p>
-            <p class="text-2xl font-bold text-amber-600">{{ stats().byStatus.sent }}</p>
-          </div>
-          <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-amber-600 !text-xl">send</mat-icon>
-          </div>
-        </div>
-      </div>
+        <button type="button"
+                class="icon-btn"
+                (click)="refresh()"
+                [disabled]="isLoading()"
+                title="Actualizar">
+          <mat-icon>refresh</mat-icon>
+        </button>
 
-      <!-- Aprobados -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
-           [class.ring-2]="statusFilter() === 'approved'"
-           [class.ring-green-500]="statusFilter() === 'approved'"
-           (click)="filterByStatus('approved')">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-medium text-slate-500 mb-1">Aprobados</p>
-            <p class="text-2xl font-bold text-green-600">{{ stats().byStatus.approved }}</p>
-          </div>
-          <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-green-600 !text-xl">check_circle</mat-icon>
-          </div>
-        </div>
-      </div>
-
-      <!-- Facturados -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
-           [class.ring-2]="statusFilter() === 'converted_to_invoice'"
-           [class.ring-purple-500]="statusFilter() === 'converted_to_invoice'"
-           (click)="filterByStatus('converted_to_invoice')">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-medium text-slate-500 mb-1">Facturados</p>
-            <p class="text-2xl font-bold text-purple-600">{{ stats().byStatus.converted_to_invoice }}</p>
-          </div>
-          <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-purple-600 !text-xl">receipt_long</mat-icon>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pagados -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
-           [class.ring-2]="statusFilter() === 'paid'"
-           [class.ring-emerald-500]="statusFilter() === 'paid'"
-           (click)="filterByStatus('paid')">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-medium text-slate-500 mb-1">Pagados</p>
-            <p class="text-2xl font-bold text-emerald-600">{{ stats().byStatus.paid }}</p>
-          </div>
-          <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-emerald-600 !text-xl">payments</mat-icon>
-          </div>
-        </div>
-      </div>
-
-      <!-- Rechazados -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
-           [class.ring-2]="statusFilter() === 'rejected'"
-           [class.ring-red-500]="statusFilter() === 'rejected'"
-           (click)="filterByStatus('rejected')">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-medium text-slate-500 mb-1">Rechazados</p>
-            <p class="text-2xl font-bold text-red-600">{{ stats().byStatus.rejected }}</p>
-          </div>
-          <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-red-600 !text-xl">cancel</mat-icon>
-          </div>
-        </div>
-      </div>
-
-      <!-- Cancelados -->
-      <div class="card-corporate cursor-pointer hover:shadow-lg transition-all"
-           [class.ring-2]="statusFilter() === 'cancelled'"
-           [class.ring-orange-500]="statusFilter() === 'cancelled'"
-           (click)="filterByStatus('cancelled')">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-medium text-slate-500 mb-1">Cancelados</p>
-            <p class="text-2xl font-bold text-orange-600">{{ stats().byStatus.cancelled }}</p>
-          </div>
-          <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-orange-600 !text-xl">block</mat-icon>
-          </div>
-        </div>
-      </div>
-
-      <!-- Valor Total -->
-      <div class="card-corporate sm:col-span-2 md:col-span-1 lg:col-span-2">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-medium text-slate-500 mb-1">Valor Total</p>
-            <p class="text-2xl font-bold text-blue-600">{{ formatCurrency(filteredStats().totalValue) }}</p>
-          </div>
-          <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-blue-600 !text-xl">attach_money</mat-icon>
-          </div>
-        </div>
+        <button type="button"
+                class="btn-primary"
+                (click)="createProposal()"
+                [disabled]="isLoading()">
+          <mat-icon>add</mat-icon>
+          <span>Nuevo Estimado</span>
+        </button>
       </div>
 
     </div>
+  </header>
 
-    <!-- ========== BÚSQUEDA Y FILTROS ========== -->
-    <div class="card-modern mb-6">
-      <div class="flex items-center gap-4">
-        <mat-icon class="text-slate-400">search</mat-icon>
+  <!-- ========== STATS CARDS (clickeable para filtrar) ========== -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-3 mb-4 animate-fadeIn" style="animation-delay: 0.05s">
+
+    <!-- Total -->
+    <div class="stat-card blue"
+         [class.active]="statusFilter() === 'all'"
+         (click)="filterByStatus('all')">
+      <mat-icon>description</mat-icon>
+      <span class="stat-card-value">{{ stats().total }}</span>
+      <span class="stat-card-label">Total</span>
+    </div>
+
+    <!-- Borradores -->
+    <div class="stat-card slate"
+         [class.active]="statusFilter() === 'draft'"
+         (click)="filterByStatus('draft')">
+      <mat-icon>edit</mat-icon>
+      <span class="stat-card-value">{{ stats().byStatus.draft }}</span>
+      <span class="stat-card-label">Borradores</span>
+    </div>
+
+    <!-- Enviados -->
+    <div class="stat-card amber"
+         [class.active]="statusFilter() === 'sent'"
+         (click)="filterByStatus('sent')">
+      <mat-icon>send</mat-icon>
+      <span class="stat-card-value">{{ stats().byStatus.sent }}</span>
+      <span class="stat-card-label">Enviados</span>
+    </div>
+
+    <!-- Aprobados -->
+    <div class="stat-card green"
+         [class.active]="statusFilter() === 'approved'"
+         (click)="filterByStatus('approved')">
+      <mat-icon>check_circle</mat-icon>
+      <span class="stat-card-value">{{ stats().byStatus.approved }}</span>
+      <span class="stat-card-label">Aprobados</span>
+    </div>
+
+    <!-- Facturados -->
+    <div class="stat-card purple"
+         [class.active]="statusFilter() === 'converted_to_invoice'"
+         (click)="filterByStatus('converted_to_invoice')">
+      <mat-icon>receipt_long</mat-icon>
+      <span class="stat-card-value">{{ stats().byStatus.converted_to_invoice }}</span>
+      <span class="stat-card-label">Facturados</span>
+    </div>
+
+    <!-- Pagados -->
+    <div class="stat-card emerald"
+         [class.active]="statusFilter() === 'paid'"
+         (click)="filterByStatus('paid')">
+      <mat-icon>payments</mat-icon>
+      <span class="stat-card-value">{{ stats().byStatus.paid }}</span>
+      <span class="stat-card-label">Pagados</span>
+    </div>
+
+    <!-- Rechazados -->
+    <div class="stat-card red"
+         [class.active]="statusFilter() === 'rejected'"
+         (click)="filterByStatus('rejected')">
+      <mat-icon>cancel</mat-icon>
+      <span class="stat-card-value">{{ stats().byStatus.rejected }}</span>
+      <span class="stat-card-label">Rechazados</span>
+    </div>
+
+    <!-- Cancelados -->
+    <div class="stat-card orange"
+         [class.active]="statusFilter() === 'cancelled'"
+         (click)="filterByStatus('cancelled')">
+      <mat-icon>block</mat-icon>
+      <span class="stat-card-value">{{ stats().byStatus.cancelled }}</span>
+      <span class="stat-card-label">Cancelados</span>
+    </div>
+
+    <!-- Valor Total -->
+    <div class="stat-card blue-outline">
+      <mat-icon>attach_money</mat-icon>
+      <span class="stat-card-value text-sm">{{ formatCurrency(filteredStats().totalValue) }}</span>
+      <span class="stat-card-label">Valor Total</span>
+    </div>
+
+  </div>
+
+  <!-- ========== FILTROS Y BÚSQUEDA ========== -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 mb-4 animate-fadeIn" style="animation-delay: 0.1s">
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-3">
+      <!-- Búsqueda -->
+      <div class="flex items-center gap-3 flex-1 w-full md:w-auto">
+        <mat-icon class="text-slate-400 text-lg">search</mat-icon>
         <input
           type="text"
           placeholder="Buscar por número, cliente, dirección..."
-          [(ngModel)]="searchTerm"
+          [ngModel]="searchTerm()"
           (ngModelChange)="onSearch($event)"
-          class="flex-1 px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-medium
-                 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all
-                 placeholder:text-slate-400">
+          class="search-input">
 
         @if (searchTerm()) {
-          <button
-            mat-icon-button
-            (click)="onSearch('')"
-            matTooltip="Limpiar búsqueda"
-            aria-label="Limpiar búsqueda">
+          <button type="button"
+                  class="icon-btn-sm"
+                  (click)="onSearch('')"
+                  title="Limpiar búsqueda">
             <mat-icon>close</mat-icon>
           </button>
         }
       </div>
 
-      <!-- Filtros rápidos -->
+      <!-- Filtro activo -->
       @if (statusFilter() !== 'all') {
-        <div class="mt-3 flex items-center gap-2">
-          <mat-icon class="text-slate-400 !text-base">filter_list</mat-icon>
-          <span class="text-sm text-slate-600">Filtrado por:</span>
-          <mat-chip-set>
-            <mat-chip [removable]="true" (removed)="filterByStatus('all')">
-              @if (statusFilter() === 'draft') { Borrador }
-              @else if (statusFilter() === 'sent') { Enviado }
-              @else if (statusFilter() === 'approved') { Aprobado }
-              @else if (statusFilter() === 'rejected') { Rechazado }
-              @else if (statusFilter() === 'converted_to_invoice') { Facturado }
-              @else if (statusFilter() === 'paid') { Pagado }
-              @else if (statusFilter() === 'cancelled') { Cancelado }
-              <button matChipRemove>
-                <mat-icon>cancel</mat-icon>
-              </button>
-            </mat-chip>
-          </mat-chip-set>
+        <div class="status-filter-chip">
+          <mat-icon>filter_list</mat-icon>
+          <span>{{ getStatusLabel(statusFilter()) }}</span>
+          <button type="button"
+                  class="chip-close-btn"
+                  (click)="filterByStatus('all')"
+                  title="Quitar filtro">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
       }
     </div>
+  </div>
 
-    <!-- ========== TABLA DE PROPOSALS ========== -->
-    <div class="card-modern">
+  <!-- ========== TABLA DE PROPOSALS ========== -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-fadeIn" style="animation-delay: 0.15s">
 
-      @if (isLoading()) {
-        <!-- Loading State -->
-        <div class="flex flex-col items-center justify-center py-16">
-          <mat-spinner diameter="40"></mat-spinner>
-          <p class="text-sm text-slate-500 mt-4">Cargando estimados...</p>
-        </div>
-      } @else if (filteredProposals().length === 0) {
-        <!-- Empty State -->
-        <div class="empty-state">
-          <mat-icon>description</mat-icon>
-          <h3>No hay estimados</h3>
-          @if (searchTerm()) {
-            <p>No se encontraron estimados con esos criterios de búsqueda</p>
-          } @else {
-            <p>Comienza creando tu primer estimado</p>
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="createProposal()"
-              class="empty-state-button">
-              <mat-icon>add</mat-icon>
-              Crear Primer Estimado
-            </button>
-          }
-        </div>
-      } @else {
-        <!-- Tabla -->
-        <div class="overflow-x-auto">
-          <table class="w-full" role="table" aria-label="Tabla de estimados">
-            <caption class="sr-only">Listado de estimados con sus datos, estado y acciones disponibles</caption>
+    @if (isLoading()) {
+      <!-- Loading State -->
+      <div class="loading-state">
+        <div class="spinner blue"></div>
+        <p>Cargando estimados...</p>
+      </div>
+    } @else if (filteredProposals().length === 0) {
+      <!-- Empty State -->
+      <div class="empty-state">
+        <mat-icon>description</mat-icon>
+        <h3>{{ searchTerm() ? 'No se encontraron estimados' : 'No hay estimados' }}</h3>
+        <p>{{ searchTerm() ? 'Intenta con otra búsqueda' : 'Comienza creando tu primer estimado' }}</p>
+        @if (!searchTerm()) {
+          <button type="button" class="btn-primary" (click)="createProposal()">
+            <mat-icon>add</mat-icon>
+            <span>Crear Primer Estimado</span>
+          </button>
+        }
+      </div>
+    } @else {
+      <!-- Tabla -->
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="sortable" (click)="sortBy('proposalNumber')">
+                <span>Número</span>
+                @if (currentSort().field === 'proposalNumber') {
+                  <mat-icon>{{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                }
+              </th>
+              <th class="sortable" (click)="sortBy('ownerName')">
+                <span>Cliente</span>
+                @if (currentSort().field === 'ownerName') {
+                  <mat-icon>{{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                }
+              </th>
+              <th>Dirección</th>
+              <th class="sortable" (click)="sortBy('date')">
+                <span>Fecha</span>
+                @if (currentSort().field === 'date') {
+                  <mat-icon>{{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                }
+              </th>
+              <th class="sortable text-right" (click)="sortBy('total')">
+                <span>Total</span>
+                @if (currentSort().field === 'total') {
+                  <mat-icon>{{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                }
+              </th>
+              <th>Estado</th>
+              <th class="text-right">Acciones</th>
+            </tr>
+          </thead>
 
-            <!-- Header -->
-            <thead class="bg-slate-50 border-b-2 border-slate-200">
-              <tr>
+          <tbody>
+            @for (proposal of paginatedProposals(); track proposal.id) {
+              <tr class="table-row" (click)="viewProposal(proposal)">
                 <!-- Número -->
-                <th
-                  class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
-                  (click)="sortBy('proposalNumber')">
-                  <div class="flex items-center gap-2">
-                    <span>Número</span>
-                    @if (currentSort().field === 'proposalNumber') {
-                      @if (currentSort().direction === 'asc') {
-                        <mat-icon class="!text-base">arrow_upward</mat-icon>
-                      } @else {
-                        <mat-icon class="!text-base">arrow_downward</mat-icon>
-                      }
-                    }
-                  </div>
-                </th>
+                <td class="proposal-number">{{ proposal.proposalNumber }}</td>
 
                 <!-- Cliente -->
-                <th
-                  class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
-                  (click)="sortBy('ownerName')">
-                  <div class="flex items-center gap-2">
-                    <span>Cliente</span>
-                    @if (currentSort().field === 'ownerName') {
-                      @if (currentSort().direction === 'asc') {
-                        <mat-icon class="!text-base">arrow_upward</mat-icon>
-                      } @else {
-                        <mat-icon class="!text-base">arrow_downward</mat-icon>
-                      }
-                    }
+                <td>
+                  <div class="client-cell">
+                    <div class="client-avatar">
+                      {{ (proposal.ownerName || 'C').charAt(0).toUpperCase() }}
+                    </div>
+                    <span>{{ proposal.ownerName }}</span>
                   </div>
-                </th>
+                </td>
 
                 <!-- Dirección -->
-                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                  Dirección del Trabajo
-                </th>
+                <td class="address-cell">
+                  <span class="truncate">{{ proposal.address }}, {{ proposal.city }}</span>
+                </td>
 
                 <!-- Fecha -->
-                <th
-                  class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
-                  (click)="sortBy('date')">
-                  <div class="flex items-center gap-2">
-                    <span>Fecha</span>
-                    @if (currentSort().field === 'date') {
-                      @if (currentSort().direction === 'asc') {
-                        <mat-icon class="!text-base">arrow_upward</mat-icon>
-                      } @else {
-                        <mat-icon class="!text-base">arrow_downward</mat-icon>
-                      }
-                    }
-                  </div>
-                </th>
+                <td class="date-cell">{{ formatDate(proposal.date) }}</td>
 
                 <!-- Total -->
-                <th
-                  class="px-4 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
-                  (click)="sortBy('total')">
-                  <div class="flex items-center justify-end gap-2">
-                    <span>Total</span>
-                    @if (currentSort().field === 'total') {
-                      @if (currentSort().direction === 'asc') {
-                        <mat-icon class="!text-base">arrow_upward</mat-icon>
-                      } @else {
-                        <mat-icon class="!text-base">arrow_downward</mat-icon>
-                      }
-                    }
-                  </div>
-                </th>
+                <td class="total-cell">{{ formatCurrency(proposal.total) }}</td>
 
                 <!-- Estado -->
-                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider w-40">
-                  Estado
-                </th>
+                <td>
+                  <span [class]="'status-badge ' + getStatusClass(proposal.status)">
+                    {{ getStatusLabel(proposal.status) }}
+                  </span>
+                </td>
 
                 <!-- Acciones -->
-                <th class="px-4 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider w-24">
-                  Acciones
-                </th>
-              </tr>
-            </thead>
+                <td class="actions-cell" (click)="$event.stopPropagation()">
+                  <button type="button"
+                          class="icon-btn"
+                          [matMenuTriggerFor]="menu"
+                          title="Opciones">
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
 
-            <!-- Body -->
-            <tbody class="divide-y divide-slate-200">
-              @for (proposal of paginatedProposals(); track proposal.id) {
-                <tr
-                  class="hover:bg-slate-50 transition-colors cursor-pointer"
-                  (click)="viewProposal(proposal)">
-
-                  <!-- Número -->
-                  <td class="px-4 py-3 text-sm font-semibold text-blue-600">
-                    {{ proposal.proposalNumber }}
-                  </td>
-
-                  <!-- Cliente -->
-                  <td class="px-4 py-3 text-sm text-slate-700">
-                    <div class="flex items-center gap-2">
-                      <mat-icon class="!text-base text-slate-400">person</mat-icon>
-                      {{ proposal.ownerName }}
-                    </div>
-                  </td>
-
-                  <!-- Dirección -->
-                  <td class="px-4 py-3 text-sm text-slate-600">
-                    <div class="max-w-xs truncate">
-                      {{ proposal.address }}, {{ proposal.city }}
-                    </div>
-                  </td>
-
-                  <!-- Fecha -->
-                  <td class="px-4 py-3 text-sm text-slate-700">
-                    {{ formatDate(proposal.date) }}
-                  </td>
-
-                  <!-- Total -->
-                  <td class="px-4 py-3 text-sm font-bold text-right text-slate-800">
-                    {{ formatCurrency(proposal.total) }}
-                  </td>
-
-                  <!-- Estado -->
-                  <td class="px-4 py-3">
-                    <span [class]="getStatusClass(proposal.status)">
-                      {{ getStatusLabel(proposal.status) }}
-                    </span>
-                  </td>
-
-                  <!-- Acciones -->
-                  <td class="px-4 py-3 text-right" (click)="$event.stopPropagation()">
-                    <button
-                      mat-icon-button
-                      [matMenuTriggerFor]="menu"
-                      (click)="$event.stopPropagation()"
-                      aria-label="Abrir menú de opciones del estimado">
-                      <mat-icon>more_vert</mat-icon>
+                  <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="viewProposal(proposal)">
+                      <mat-icon>visibility</mat-icon>
+                      <span>Ver detalles</span>
                     </button>
 
-                    <mat-menu #menu="matMenu">
-                      <button mat-menu-item (click)="viewProposal(proposal)">
-                        <mat-icon>visibility</mat-icon>
-                        <span>Ver detalles</span>
+                    @if (proposal.status === 'draft') {
+                      <button mat-menu-item (click)="editProposal(proposal)">
+                        <mat-icon>edit</mat-icon>
+                        <span>Editar</span>
                       </button>
+                    }
 
-                      @if (proposal.status === 'draft') {
-                        <button mat-menu-item (click)="editProposal(proposal)">
-                          <mat-icon>edit</mat-icon>
-                          <span>Editar</span>
-                        </button>
-                      }
+                    <mat-divider></mat-divider>
 
-                      <mat-divider></mat-divider>
-
-                      <!-- Cambiar estado -->
-                      @if (proposal.status === 'draft') {
-                        <button mat-menu-item (click)="changeProposalStatus(proposal, 'sent')">
-                          <mat-icon>send</mat-icon>
-                          <span>Marcar como enviado</span>
-                        </button>
-                      }
-
-                      @if (proposal.status === 'sent') {
-                        <button mat-menu-item (click)="changeProposalStatus(proposal, 'approved')">
-                          <mat-icon class="text-green-600">check_circle</mat-icon>
-                          <span>Marcar como aprobado</span>
-                        </button>
-                        <button mat-menu-item (click)="changeProposalStatus(proposal, 'rejected')">
-                          <mat-icon class="text-red-600">cancel</mat-icon>
-                          <span>Marcar como rechazado</span>
-                        </button>
-                      }
-
-                      @if (proposal.status === 'approved') {
-                        <button mat-menu-item (click)="convertToInvoice(proposal)">
-                          <mat-icon class="text-purple-600">receipt_long</mat-icon>
-                          <span>Convertir a factura</span>
-                        </button>
-                      }
-
-                      @if (proposal.status === 'converted_to_invoice') {
-                        <button mat-menu-item (click)="changeProposalStatus(proposal, 'paid')">
-                          <mat-icon class="text-emerald-600">payments</mat-icon>
-                          <span>Marcar como pagado</span>
-                        </button>
-                      }
-
-                      <mat-divider></mat-divider>
-
-                      <button mat-menu-item (click)="deleteProposal(proposal)" class="text-red-600">
-                        <mat-icon class="text-red-600">delete</mat-icon>
-                        <span>Eliminar</span>
+                    <!-- Cambiar estado -->
+                    @if (proposal.status === 'draft') {
+                      <button mat-menu-item (click)="changeProposalStatus(proposal, 'sent')">
+                        <mat-icon>send</mat-icon>
+                        <span>Marcar como enviado</span>
                       </button>
-                    </mat-menu>
-                  </td>
+                    }
 
-                </tr>
-              }
-            </tbody>
+                    @if (proposal.status === 'sent') {
+                      <button mat-menu-item (click)="changeProposalStatus(proposal, 'approved')">
+                        <mat-icon class="text-green-600">check_circle</mat-icon>
+                        <span>Marcar como aprobado</span>
+                      </button>
+                      <button mat-menu-item (click)="changeProposalStatus(proposal, 'rejected')">
+                        <mat-icon class="text-red-600">cancel</mat-icon>
+                        <span>Marcar como rechazado</span>
+                      </button>
+                    }
 
-          </table>
-        </div>
+                    @if (proposal.status === 'approved') {
+                      <button mat-menu-item (click)="convertToInvoice(proposal)">
+                        <mat-icon class="text-purple-600">receipt_long</mat-icon>
+                        <span>Convertir a factura</span>
+                      </button>
+                    }
 
-        <!-- ========== PAGINACIÓN ========== -->
-        @if (totalPages() > 1) {
-          <div class="flex items-center justify-between px-4 py-4 border-t border-slate-200">
-            <div class="text-sm text-slate-600">
-              Mostrando {{ (currentPage() * itemsPerPage()) + 1 }} a
-              {{ Math.min((currentPage() + 1) * itemsPerPage(), filteredProposals().length) }}
-              de {{ filteredProposals().length }} estimados
-            </div>
+                    @if (proposal.status === 'converted_to_invoice') {
+                      <button mat-menu-item (click)="changeProposalStatus(proposal, 'paid')">
+                        <mat-icon class="text-emerald-600">payments</mat-icon>
+                        <span>Marcar como pagado</span>
+                      </button>
+                    }
 
-            <div class="flex items-center gap-2">
-              <button
-                mat-icon-button
-                (click)="goToPage(currentPage() - 1)"
-                [disabled]="currentPage() === 0"
-                aria-label="Página anterior">
-                <mat-icon>chevron_left</mat-icon>
-              </button>
+                    <mat-divider></mat-divider>
 
-              <span class="text-sm font-medium text-slate-700">
-                Página {{ currentPage() + 1 }} de {{ totalPages() }}
-              </span>
+                    <button mat-menu-item (click)="deleteProposal(proposal)" class="text-red-600">
+                      <mat-icon class="text-red-600">delete</mat-icon>
+                      <span>Eliminar</span>
+                    </button>
+                  </mat-menu>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
 
-              <button
-                mat-icon-button
-                (click)="goToPage(currentPage() + 1)"
-                [disabled]="currentPage() >= totalPages() - 1"
-                aria-label="Página siguiente">
-                <mat-icon>chevron_right</mat-icon>
-              </button>
-            </div>
+      <!-- ========== PAGINACIÓN ========== -->
+      @if (totalPages() > 1) {
+        <div class="pagination-bar">
+          <span class="pagination-info">
+            Mostrando {{ (currentPage() * itemsPerPage()) + 1 }} a
+            {{ Math.min((currentPage() + 1) * itemsPerPage(), filteredProposals().length) }}
+            de {{ filteredProposals().length }}
+          </span>
+
+          <div class="pagination-controls">
+            <button type="button"
+                    class="pagination-btn"
+                    (click)="goToPage(currentPage() - 1)"
+                    [disabled]="currentPage() === 0">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+
+            <span class="pagination-current">
+              {{ currentPage() + 1 }} / {{ totalPages() }}
+            </span>
+
+            <button type="button"
+                    class="pagination-btn"
+                    (click)="goToPage(currentPage() + 1)"
+                    [disabled]="currentPage() >= totalPages() - 1">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
           </div>
-        }
-
+        </div>
       }
-
-    </div>
+    }
 
   </div>
+
 </div>

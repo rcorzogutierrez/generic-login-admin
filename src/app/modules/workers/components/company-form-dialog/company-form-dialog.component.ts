@@ -37,99 +37,99 @@ type DialogMode = 'create' | 'edit';
   ],
   template: `
     <div class="dialog-container">
-      <!-- Header -->
+      <!-- Header Compacto -->
       <div class="dialog-header">
         <div class="flex items-center gap-3">
-          <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-white !text-2xl">{{ mode() === 'create' ? 'add_business' : 'edit_note' }}</mat-icon>
+          <div class="header-icon-box">
+            <mat-icon>{{ mode() === 'create' ? 'add_business' : 'edit_note' }}</mat-icon>
           </div>
           <div>
-            <h2 class="text-lg font-bold text-slate-800 m-0">
+            <h2 class="text-base font-bold text-slate-800 m-0">
               {{ mode() === 'create' ? 'Nueva Empresa' : 'Editar Empresa' }}
             </h2>
-            <p class="text-sm text-slate-500 m-0">
+            <p class="text-xs text-slate-500 m-0">
               {{ mode() === 'create' ? 'Crear empresa subcontratista' : data?.company?.legalName }}
             </p>
           </div>
         </div>
-        <button mat-icon-button (click)="cancel()" class="!text-slate-400">
+        <button type="button" class="close-btn" (click)="cancel()" title="Cerrar">
           <mat-icon>close</mat-icon>
         </button>
       </div>
 
       <!-- Content -->
       <form [formGroup]="companyForm" (ngSubmit)="save()" class="dialog-content">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="form-grid">
 
           <!-- Nombre Legal -->
-          <div class="md:col-span-2">
-            <label class="block text-sm font-semibold text-slate-800 mb-2">
-              <mat-icon class="!text-lg text-indigo-500 align-middle mr-1">business</mat-icon>
-              Nombre Legal <span class="text-red-500">*</span>
+          <div class="form-group full-width">
+            <label class="form-label">
+              <mat-icon>business</mat-icon>
+              Nombre Legal <span class="required">*</span>
             </label>
             <input
               type="text"
-              class="input-field"
+              class="form-input"
               formControlName="legalName"
               placeholder="Ej: Construcciones ABC, S.A.">
             @if (hasError('legalName')) {
-              <span class="text-xs text-red-500 mt-1">{{ getErrorMessage('legalName') }}</span>
+              <span class="form-error">{{ getErrorMessage('legalName') }}</span>
             }
           </div>
 
           <!-- Tax ID -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-2">
-              <mat-icon class="!text-lg text-indigo-500 align-middle mr-1">badge</mat-icon>
-              Tax ID <span class="text-red-500">*</span>
+          <div class="form-group">
+            <label class="form-label">
+              <mat-icon>badge</mat-icon>
+              Tax ID <span class="required">*</span>
             </label>
             <input
               type="text"
-              class="input-field font-mono"
+              class="form-input font-mono"
               formControlName="taxId"
               placeholder="12-3456789">
             @if (hasError('taxId')) {
-              <span class="text-xs text-red-500 mt-1">{{ getErrorMessage('taxId') }}</span>
+              <span class="form-error">{{ getErrorMessage('taxId') }}</span>
             }
           </div>
 
           <!-- Email -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-2">
-              <mat-icon class="!text-lg text-indigo-500 align-middle mr-1">email</mat-icon>
+          <div class="form-group">
+            <label class="form-label">
+              <mat-icon>email</mat-icon>
               Email
             </label>
             <input
               type="email"
-              class="input-field"
+              class="form-input"
               formControlName="email"
               placeholder="contacto@empresa.com">
             @if (hasError('email')) {
-              <span class="text-xs text-red-500 mt-1">{{ getErrorMessage('email') }}</span>
+              <span class="form-error">{{ getErrorMessage('email') }}</span>
             }
           </div>
 
           <!-- Teléfono -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-2">
-              <mat-icon class="!text-lg text-indigo-500 align-middle mr-1">phone</mat-icon>
+          <div class="form-group">
+            <label class="form-label">
+              <mat-icon>phone</mat-icon>
               Teléfono
             </label>
             <input
               type="tel"
-              class="input-field"
+              class="form-input"
               formControlName="phone"
               placeholder="+1 (555) 123-4567">
           </div>
 
           <!-- Dirección -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-2">
-              <mat-icon class="!text-lg text-indigo-500 align-middle mr-1">location_on</mat-icon>
+          <div class="form-group">
+            <label class="form-label">
+              <mat-icon>location_on</mat-icon>
               Dirección
             </label>
             <textarea
-              class="input-field !h-auto"
+              class="form-input form-textarea"
               formControlName="address"
               placeholder="Dirección completa"
               rows="2"></textarea>
@@ -139,72 +139,283 @@ type DialogMode = 'create' | 'edit';
 
         <!-- Info de creación (solo en modo edición) -->
         @if (mode() === 'edit' && data?.company?.createdAt) {
-          <div class="mt-6 p-3 bg-slate-50 rounded-lg text-xs text-slate-500">
-            <p class="flex items-center gap-1">
-              <mat-icon class="!text-sm">calendar_today</mat-icon>
-              Creada: {{ formatDate(data!.company!.createdAt) }}
-            </p>
+          <div class="creation-info">
+            <mat-icon>calendar_today</mat-icon>
+            Creada: {{ formatDate(data!.company!.createdAt) }}
           </div>
         }
       </form>
 
-      <!-- Footer -->
+      <!-- Footer Compacto -->
       <div class="dialog-footer">
-        <button mat-stroked-button (click)="cancel()" [disabled]="isSaving()">
+        <button type="button" class="btn-cancel" (click)="cancel()" [disabled]="isSaving()">
           Cancelar
         </button>
         <button
-          mat-raised-button
-          color="primary"
+          type="button"
+          class="btn-save"
           (click)="save()"
-          [disabled]="isSaving() || companyForm.invalid || (mode() === 'edit' && !companyForm.dirty)"
-          class="!bg-indigo-600">
+          [disabled]="isSaving() || companyForm.invalid || (mode() === 'edit' && !companyForm.dirty)">
           @if (isSaving()) {
-            <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+            <div class="btn-spinner"></div>
           } @else {
             <mat-icon>save</mat-icon>
           }
-          {{ mode() === 'create' ? 'Crear Empresa' : 'Guardar Cambios' }}
+          <span>{{ mode() === 'create' ? 'Crear Empresa' : 'Guardar Cambios' }}</span>
         </button>
       </div>
     </div>
   `,
   styles: [`
+    /* Container */
     .dialog-container {
-      @apply flex flex-col;
-      min-width: 500px;
+      display: flex;
+      flex-direction: column;
+      width: 520px;
+      max-width: 95vw;
+      animation: fadeIn 0.2s ease-out;
     }
 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Header Compacto */
     .dialog-header {
-      @apply flex items-center justify-between p-6 border-b border-slate-200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid #e2e8f0;
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
     }
 
+    .header-icon-box {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+    }
+
+    .header-icon-box mat-icon {
+      color: white;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #64748b;
+      transition: all 0.15s;
+    }
+
+    .close-btn:hover {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .close-btn mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Content */
     .dialog-content {
-      @apply p-6 overflow-y-auto;
+      padding: 18px;
+      overflow-y: auto;
       max-height: 60vh;
     }
 
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+
+    .form-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .form-label mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: #f59e0b;
+    }
+
+    .form-label .required {
+      color: #dc2626;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.15s;
+      background: white;
+    }
+
+    .form-input:focus {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+    }
+
+    .form-input::placeholder {
+      color: #94a3b8;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .form-error {
+      font-size: 11px;
+      color: #dc2626;
+      margin-top: 4px;
+    }
+
+    .creation-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 16px;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .creation-info mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Footer Compacto */
     .dialog-footer {
-      @apply flex justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 12px 18px;
+      border-top: 1px solid #e2e8f0;
+      background: #f8fafc;
     }
 
-    .input-field {
-      @apply w-full px-3.5 py-2.5 border-2 border-slate-200 rounded-lg text-sm transition-all outline-none;
+    .btn-cancel {
+      padding: 8px 16px;
+      background: white;
+      color: #475569;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
     }
 
-    .input-field:focus {
-      @apply border-indigo-500;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    .btn-cancel:hover:not(:disabled) {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
     }
 
-    .input-field::placeholder {
-      @apply text-slate-400;
+    .btn-cancel:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
+    .btn-save {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-save:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-save:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-save mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .btn-spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
     @media (max-width: 640px) {
       .dialog-container {
-        min-width: auto;
         width: 100%;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group.full-width {
+        grid-column: span 1;
       }
     }
   `]

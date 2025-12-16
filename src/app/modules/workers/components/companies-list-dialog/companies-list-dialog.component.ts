@@ -33,43 +33,39 @@ import { CompanyFormDialogComponent, CompanyFormDialogData, CompanyFormDialogRes
   ],
   template: `
     <div class="dialog-container">
-      <!-- Header -->
+      <!-- Header Compacto -->
       <div class="dialog-header">
         <div class="flex items-center gap-3">
-          <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-white !text-2xl">business</mat-icon>
+          <div class="header-icon-box">
+            <mat-icon>business</mat-icon>
           </div>
           <div>
-            <h2 class="text-lg font-bold text-slate-800 m-0">Empresas Subcontratistas</h2>
-            <p class="text-sm text-slate-500 m-0">{{ companies().length }} empresa(s) registrada(s)</p>
+            <h2 class="text-base font-bold text-slate-800 m-0">Empresas Subcontratistas</h2>
+            <p class="text-xs text-slate-500 m-0">{{ companies().length }} empresa(s) registrada(s)</p>
           </div>
         </div>
-        <button mat-icon-button (click)="close()" class="!text-slate-400">
+        <button type="button" class="close-btn" (click)="close()" title="Cerrar">
           <mat-icon>close</mat-icon>
         </button>
       </div>
 
-      <!-- Search -->
-      <div class="px-6 py-3 border-b border-slate-200 bg-slate-50">
+      <!-- Search Compacto -->
+      <div class="search-bar">
         <div class="flex items-center gap-3">
-          <mat-icon class="text-slate-400">search</mat-icon>
+          <mat-icon class="text-slate-400 !text-lg">search</mat-icon>
           <input
             type="text"
             [(ngModel)]="searchTerm"
             placeholder="Buscar por nombre, Tax ID, email..."
-            class="flex-1 px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none">
+            class="search-input">
           @if (searchTerm) {
-            <button mat-icon-button (click)="searchTerm = ''" matTooltip="Limpiar">
+            <button type="button" class="icon-btn-sm" (click)="searchTerm = ''" title="Limpiar">
               <mat-icon>close</mat-icon>
             </button>
           }
-          <button
-            mat-raised-button
-            color="primary"
-            (click)="createCompany()"
-            class="!bg-purple-600">
+          <button type="button" class="btn-primary" (click)="createCompany()">
             <mat-icon>add</mat-icon>
-            Nueva
+            <span>Nueva</span>
           </button>
         </div>
       </div>
@@ -77,27 +73,19 @@ import { CompanyFormDialogComponent, CompanyFormDialogData, CompanyFormDialogRes
       <!-- Content -->
       <div class="dialog-content">
         @if (isLoading()) {
-          <div class="flex flex-col items-center justify-center py-12">
-            <div class="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-            <p class="text-sm text-slate-500 mt-3">Cargando empresas...</p>
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Cargando empresas...</p>
           </div>
         } @else if (filteredCompanies().length === 0) {
-          <div class="empty-state py-12">
-            <mat-icon class="!text-6xl text-slate-300 mb-4">business</mat-icon>
-            <h3 class="text-lg font-semibold text-slate-700 mb-2">
-              {{ searchTerm ? 'No se encontraron empresas' : 'No hay empresas registradas' }}
-            </h3>
-            <p class="text-sm text-slate-500 mb-6">
-              {{ searchTerm ? 'Intenta con otra búsqueda' : 'Comienza agregando tu primera empresa subcontratista' }}
-            </p>
+          <div class="empty-state">
+            <mat-icon>business</mat-icon>
+            <h3>{{ searchTerm ? 'No se encontraron empresas' : 'No hay empresas registradas' }}</h3>
+            <p>{{ searchTerm ? 'Intenta con otra búsqueda' : 'Comienza agregando tu primera empresa subcontratista' }}</p>
             @if (!searchTerm) {
-              <button
-                mat-raised-button
-                color="primary"
-                (click)="createCompany()"
-                class="!bg-purple-600">
+              <button type="button" class="btn-primary" (click)="createCompany()">
                 <mat-icon>add_business</mat-icon>
-                Crear Primera Empresa
+                <span>Crear Primera Empresa</span>
               </button>
             }
           </div>
@@ -105,77 +93,64 @@ import { CompanyFormDialogComponent, CompanyFormDialogData, CompanyFormDialogRes
           <div class="companies-list">
             @for (company of filteredCompanies(); track company.id) {
               <div class="company-card" [class.inactive]="!company.isActive">
-                <div class="flex items-start gap-4">
-                  <div class="company-avatar">
-                    {{ (company.legalName || 'E').charAt(0).toUpperCase() }}
+                <div class="company-avatar">
+                  {{ (company.legalName || 'E').charAt(0).toUpperCase() }}
+                </div>
+                <div class="company-info">
+                  <div class="company-header">
+                    <span class="company-name">{{ company.legalName }}</span>
+                    @if (!company.isActive) {
+                      <span class="badge-inactive">Inactiva</span>
+                    }
                   </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2">
-                      <p class="font-semibold text-slate-800 truncate">{{ company.legalName }}</p>
-                      @if (!company.isActive) {
-                        <span class="badge-inactive">Inactiva</span>
-                      }
-                    </div>
-                    <p class="text-sm text-slate-500 font-mono">{{ company.taxId }}</p>
-                    <div class="flex items-center gap-4 mt-2 text-xs text-slate-400">
-                      @if (company.email) {
-                        <span class="flex items-center gap-1">
-                          <mat-icon class="!text-sm">email</mat-icon>
-                          {{ company.email }}
-                        </span>
-                      }
-                      @if (company.phone) {
-                        <span class="flex items-center gap-1">
-                          <mat-icon class="!text-sm">phone</mat-icon>
-                          {{ company.phone }}
-                        </span>
-                      }
-                    </div>
-                    <div class="mt-2">
-                      <span class="text-xs text-purple-600 font-medium">
-                        {{ getWorkerCount(company.id) }} trabajador(es)
-                      </span>
-                    </div>
+                  <p class="company-taxid">{{ company.taxId }}</p>
+                  <div class="company-contact">
+                    @if (company.email) {
+                      <span><mat-icon>email</mat-icon> {{ company.email }}</span>
+                    }
+                    @if (company.phone) {
+                      <span><mat-icon>phone</mat-icon> {{ company.phone }}</span>
+                    }
                   </div>
-                  <div class="flex items-center gap-1">
-                    <button
-                      mat-icon-button
-                      [matMenuTriggerFor]="companyMenu"
-                      matTooltip="Opciones"
-                      class="!text-slate-400">
-                      <mat-icon>more_vert</mat-icon>
+                  <div class="company-workers">
+                    <mat-icon>groups</mat-icon>
+                    {{ getWorkerCount(company.id) }} trabajador(es)
+                  </div>
+                </div>
+                <div class="company-actions">
+                  <button type="button" class="icon-btn" [matMenuTriggerFor]="companyMenu" title="Opciones">
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+                  <mat-menu #companyMenu="matMenu">
+                    <button mat-menu-item (click)="editCompany(company)">
+                      <mat-icon>edit</mat-icon>
+                      <span>Editar</span>
                     </button>
-                    <mat-menu #companyMenu="matMenu">
-                      <button mat-menu-item (click)="editCompany(company)">
-                        <mat-icon>edit</mat-icon>
-                        <span>Editar</span>
+                    <button mat-menu-item (click)="viewWorkers(company)">
+                      <mat-icon>groups</mat-icon>
+                      <span>Ver Trabajadores</span>
+                    </button>
+                    <button mat-menu-item (click)="addWorkerToCompany(company)">
+                      <mat-icon>person_add</mat-icon>
+                      <span>Agregar Trabajador</span>
+                    </button>
+                    <mat-divider></mat-divider>
+                    @if (company.isActive) {
+                      <button mat-menu-item (click)="toggleActive(company)">
+                        <mat-icon class="text-orange-600">visibility_off</mat-icon>
+                        <span>Inactivar</span>
                       </button>
-                      <button mat-menu-item (click)="viewWorkers(company)">
-                        <mat-icon>groups</mat-icon>
-                        <span>Ver Trabajadores</span>
+                    } @else {
+                      <button mat-menu-item (click)="toggleActive(company)">
+                        <mat-icon class="text-green-600">visibility</mat-icon>
+                        <span>Activar</span>
                       </button>
-                      <button mat-menu-item (click)="addWorkerToCompany(company)">
-                        <mat-icon>person_add</mat-icon>
-                        <span>Agregar Trabajador</span>
-                      </button>
-                      <mat-divider></mat-divider>
-                      @if (company.isActive) {
-                        <button mat-menu-item (click)="toggleActive(company)">
-                          <mat-icon class="text-orange-600">visibility_off</mat-icon>
-                          <span>Inactivar</span>
-                        </button>
-                      } @else {
-                        <button mat-menu-item (click)="toggleActive(company)">
-                          <mat-icon class="text-green-600">visibility</mat-icon>
-                          <span>Activar</span>
-                        </button>
-                      }
-                      <button mat-menu-item (click)="deleteCompany(company)" class="text-red-600">
-                        <mat-icon class="text-red-600">delete</mat-icon>
-                        <span>Eliminar</span>
-                      </button>
-                    </mat-menu>
-                  </div>
+                    }
+                    <button mat-menu-item (click)="deleteCompany(company)" class="text-red-600">
+                      <mat-icon class="text-red-600">delete</mat-icon>
+                      <span>Eliminar</span>
+                    </button>
+                  </mat-menu>
                 </div>
               </div>
             }
@@ -183,65 +158,222 @@ import { CompanyFormDialogComponent, CompanyFormDialogData, CompanyFormDialogRes
         }
       </div>
 
-      <!-- Footer -->
+      <!-- Footer Compacto -->
       <div class="dialog-footer">
-        <button mat-stroked-button (click)="close()">
+        <button type="button" class="btn-secondary" (click)="close()">
           Cerrar
         </button>
       </div>
     </div>
   `,
   styles: [`
+    /* Container */
     .dialog-container {
       display: flex;
       flex-direction: column;
-      width: 700px;
+      width: 650px;
       max-width: 95vw;
       max-height: 85vh;
+      animation: fadeIn 0.2s ease-out;
     }
 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Header Compacto */
     .dialog-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1.5rem;
+      padding: 14px 18px;
       border-bottom: 1px solid #e2e8f0;
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
     }
 
-    .dialog-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1rem 1.5rem;
-      min-height: 300px;
-      max-height: 50vh;
-    }
-
-    .dialog-footer {
+    .header-icon-box {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border-radius: 10px;
       display: flex;
-      justify-content: flex-end;
-      gap: 0.75rem;
-      padding: 1rem 1.5rem;
-      border-top: 1px solid #e2e8f0;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+    }
+
+    .header-icon-box mat-icon {
+      color: white;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #64748b;
+      transition: all 0.15s;
+    }
+
+    .close-btn:hover {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .close-btn mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Search Bar */
+    .search-bar {
+      padding: 12px 18px;
+      border-bottom: 1px solid #e2e8f0;
       background: #f8fafc;
     }
 
+    .search-input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.15s;
+    }
+
+    .search-input:focus {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+    }
+
+    .search-input::placeholder {
+      color: #94a3b8;
+    }
+
+    .icon-btn-sm {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: #f1f5f9;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #64748b;
+      transition: all 0.15s;
+    }
+
+    .icon-btn-sm:hover {
+      background: #e2e8f0;
+      color: #475569;
+    }
+
+    .icon-btn-sm mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Content */
+    .dialog-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 18px;
+      min-height: 250px;
+      max-height: 50vh;
+    }
+
+    /* Loading State */
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 0;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #fef3c7;
+      border-top-color: #f59e0b;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-state p {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .empty-state mat-icon {
+      font-size: 56px;
+      width: 56px;
+      height: 56px;
+      color: #cbd5e1;
+      margin-bottom: 16px;
+    }
+
+    .empty-state h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #475569;
+      margin: 0 0 8px;
+    }
+
+    .empty-state p {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0 0 20px;
+    }
+
+    /* Companies List */
     .companies-list {
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 10px;
     }
 
     .company-card {
-      padding: 1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px;
       background: white;
       border: 2px solid #e2e8f0;
-      border-radius: 0.75rem;
+      border-radius: 10px;
       transition: all 0.2s;
     }
 
     .company-card:hover {
-      border-color: #a855f7;
-      box-shadow: 0 2px 8px rgba(168, 85, 247, 0.1);
+      border-color: #f59e0b;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
     }
 
     .company-card.inactive {
@@ -250,34 +382,182 @@ import { CompanyFormDialogComponent, CompanyFormDialogData, CompanyFormDialogRes
     }
 
     .company-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #a855f7, #6366f1);
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 1.25rem;
+      font-size: 18px;
       flex-shrink: 0;
     }
 
+    .company-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .company-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .company-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1e293b;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .badge-inactive {
-      padding: 0.125rem 0.5rem;
+      padding: 2px 6px;
       background: #fef2f2;
       color: #dc2626;
-      font-size: 0.625rem;
+      font-size: 10px;
       font-weight: 600;
-      border-radius: 0.375rem;
+      border-radius: 4px;
       text-transform: uppercase;
     }
 
-    .empty-state {
+    .company-taxid {
+      font-size: 12px;
+      color: #64748b;
+      font-family: monospace;
+      margin: 2px 0 0;
+    }
+
+    .company-contact {
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .company-contact span {
+      display: flex;
       align-items: center;
-      text-align: center;
+      gap: 4px;
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .company-contact mat-icon {
+      font-size: 13px;
+      width: 13px;
+      height: 13px;
+    }
+
+    .company-workers {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      padding: 3px 8px;
+      background: #fef3c7;
+      color: #d97706;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 4px;
+    }
+
+    .company-workers mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+
+    .company-actions {
+      display: flex;
+      align-items: center;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      transition: all 0.15s;
+    }
+
+    .icon-btn:hover {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .icon-btn mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Footer Compacto */
+    .dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 12px 18px;
+      border-top: 1px solid #e2e8f0;
+      background: #f8fafc;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-primary mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: white;
+      color: #475569;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-secondary:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
     }
   `]
 })

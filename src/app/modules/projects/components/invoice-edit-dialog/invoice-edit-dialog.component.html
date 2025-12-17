@@ -1,117 +1,128 @@
-<!-- invoice-edit-dialog.component.html -->
+<!-- invoice-edit-dialog.component.html - Estilo Compacto Blue -->
 
-<div class="bg-white rounded-lg overflow-hidden max-h-[90vh] flex flex-col">
+<div class="dialog-container">
 
   <!-- Header -->
-  <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-6">
-    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-      <span class="text-3xl">📋</span>
-      {{ 'projects.invoice.createInvoice' | translate }}
-    </h2>
-    <p class="text-green-100 mt-1">{{ 'projects.invoice.completeData' | translate }}</p>
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="icon-box">
+        <mat-icon>receipt_long</mat-icon>
+      </div>
+      <div class="header-text">
+        <h2 class="dialog-title">{{ 'projects.invoice.createInvoice' | translate }}</h2>
+        <p class="dialog-subtitle">{{ 'projects.invoice.completeData' | translate }}</p>
+      </div>
+    </div>
+    <button type="button" class="close-btn" (click)="cancel()" title="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
   </div>
 
   <!-- Content -->
-  <div class="flex-1 overflow-y-auto p-4 space-y-3">
+  <div class="dialog-content">
 
     <!-- Idioma y Fecha de Factura -->
-    <div class="bg-blue-50 p-4 rounded-lg border-2 border-blue-300">
-      <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
-        <span class="text-lg">📄</span>
-        {{ 'projects.invoice.invoiceInformation' | translate }}
-        <span class="text-xs text-red-600 font-semibold ml-2">{{ 'common.required' | translate }}</span>
-      </h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-2">
-            {{ 'projects.documentLanguage' | translate }} <span class="text-red-500">*</span>
+    <div class="section section-primary">
+      <div class="section-header">
+        <div class="section-icon">
+          <mat-icon>description</mat-icon>
+        </div>
+        <h3 class="section-title">{{ 'projects.invoice.invoiceInformation' | translate }}</h3>
+        <span class="required-badge">{{ 'common.required' | translate }}</span>
+      </div>
+      <div class="form-grid cols-2">
+        <div class="form-group">
+          <label class="form-label">
+            {{ 'projects.documentLanguage' | translate }} <span class="required">*</span>
           </label>
           <select
             [(ngModel)]="language"
             (ngModelChange)="onLanguageChange($event)"
-            class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all bg-white cursor-pointer">
+            class="form-select">
             <option value="es">🇪🇸 Español</option>
             <option value="en">🇺🇸 English</option>
           </select>
         </div>
-        <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-2">
-            {{ 'projects.invoice.issueDate' | translate }} <span class="text-red-500">*</span>
+        <div class="form-group">
+          <label class="form-label">
+            {{ 'projects.invoice.issueDate' | translate }} <span class="required">*</span>
           </label>
           <input
             type="date"
             [(ngModel)]="invoiceDate"
             required
-            class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all bg-white"
+            class="form-input"
             [placeholder]="'projects.invoice.selectDate' | translate">
         </div>
       </div>
     </div>
 
     <!-- Fechas y Tiempo de Trabajo -->
-    <div class="bg-slate-50 p-4 rounded-lg border-2 border-slate-200">
-      <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
-        <span class="text-lg">📅</span>
-        {{ 'projects.invoice.datesAndWorkTime' | translate }}
-        <span class="text-xs text-red-600 font-semibold ml-2">{{ 'common.required' | translate }}</span>
-      </h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-2">
-            {{ 'projects.invoice.startDate' | translate }} <span class="text-red-500">*</span>
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon">
+          <mat-icon>calendar_month</mat-icon>
+        </div>
+        <h3 class="section-title">{{ 'projects.invoice.datesAndWorkTime' | translate }}</h3>
+        <span class="required-badge">{{ 'common.required' | translate }}</span>
+      </div>
+      <div class="form-grid cols-3">
+        <div class="form-group">
+          <label class="form-label">
+            {{ 'projects.invoice.startDate' | translate }} <span class="required">*</span>
           </label>
           <input
             type="date"
             [(ngModel)]="workStartDate"
             required
-            class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
+            class="form-input"
             [placeholder]="'projects.invoice.selectDate' | translate">
         </div>
-
-        <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-2">
-            {{ 'projects.invoice.endDate' | translate }} <span class="text-red-500">*</span>
+        <div class="form-group">
+          <label class="form-label">
+            {{ 'projects.invoice.endDate' | translate }} <span class="required">*</span>
           </label>
           <input
             type="date"
             [(ngModel)]="workEndDate"
             required
-            class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
+            class="form-input"
             [placeholder]="'projects.invoice.selectDate' | translate">
         </div>
-
-        <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-2">
-            {{ 'projects.invoice.hoursWorked' | translate }} <span class="text-red-500">*</span>
+        <div class="form-group">
+          <label class="form-label">
+            {{ 'projects.invoice.hoursWorked' | translate }} <span class="required">*</span>
           </label>
-          <div class="flex items-center gap-2">
+          <div class="input-with-suffix">
             <input
               type="number"
               [(ngModel)]="workTime"
               min="0.5"
               step="0.5"
               required
-              class="flex-1 px-3 py-2 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
+              class="form-input"
               [placeholder]="'projects.invoice.exampleHours' | translate">
-            <span class="text-slate-600 font-medium text-sm">{{ 'projects.invoice.hrs' | translate }}</span>
+            <span class="input-suffix">{{ 'projects.invoice.hrs' | translate }}</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Materiales Usados -->
-    <div class="bg-slate-50 p-4 rounded-lg border-2 border-slate-200">
-      <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
-        <span class="text-lg">🧱</span>
-        {{ 'projects.invoice.materialsUsed' | translate }}
-      </h3>
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-amber">
+          <mat-icon>inventory_2</mat-icon>
+        </div>
+        <h3 class="section-title">{{ 'projects.invoice.materialsUsed' | translate }}</h3>
+      </div>
 
       <!-- Select para agregar material -->
-      <div class="mb-3">
+      <div class="add-item-row">
         <select
           #materialSelect
           (change)="addMaterial(materialSelect.value); materialSelect.value = ''"
-          class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all bg-white">
+          class="form-select">
           <option value="">{{ 'projects.invoice.selectMaterial' | translate }}</option>
           @for (material of availableMaterials(); track material.id) {
             <option [value]="material.id">{{ getMaterialName(material) }}</option>
@@ -120,67 +131,67 @@
       </div>
 
       <!-- Lista de materiales seleccionados -->
-      <div class="space-y-1.5">
+      <div class="items-list">
         @for (material of selectedMaterials; track $index; let i = $index) {
-          <div class="bg-white px-3 py-2 rounded border border-slate-200 hover:border-green-300 transition-colors">
-            <div class="flex items-center gap-3">
-              <!-- Nombre del material -->
-              <div class="flex-1 min-w-0">
-                <p class="text-xs font-medium text-slate-800 truncate">{{ material.materialName }}</p>
-              </div>
-
-              <!-- Cantidad -->
-              <input
-                type="number"
-                [(ngModel)]="material.amount"
-                min="0"
-                step="1"
-                class="w-16 px-2 py-1 text-xs text-center border border-slate-300 rounded focus:border-green-500 focus:ring-1 focus:ring-green-200 outline-none"
-                placeholder="0">
-
-              <!-- Precio -->
-              <div class="flex items-center gap-0.5">
-                <span class="text-xs text-slate-500">$</span>
+          <div class="item-row">
+            <div class="item-name">
+              <mat-icon class="item-icon">category</mat-icon>
+              <span>{{ material.materialName }}</span>
+            </div>
+            <div class="item-inputs">
+              <div class="item-input-group">
+                <label class="item-label">Cant.</label>
                 <input
                   type="number"
-                  [(ngModel)]="material.price"
+                  [(ngModel)]="material.amount"
                   min="0"
-                  step="0.01"
-                  class="w-20 px-2 py-1 text-xs text-right border border-slate-300 rounded focus:border-green-500 focus:ring-1 focus:ring-green-200 outline-none"
-                  placeholder="0.00">
+                  step="1"
+                  class="item-input"
+                  placeholder="0">
               </div>
-
-              <!-- Botón eliminar -->
-              <button
-                type="button"
-                (click)="removeMaterial(i)"
-                class="p-1 text-red-500 hover:bg-red-50 rounded transition-colors flex-shrink-0">
-                <mat-icon class="!text-lg">close</mat-icon>
-              </button>
+              <div class="item-input-group">
+                <label class="item-label">Precio</label>
+                <div class="price-input-wrapper">
+                  <span class="price-symbol">$</span>
+                  <input
+                    type="number"
+                    [(ngModel)]="material.price"
+                    min="0"
+                    step="0.01"
+                    class="item-input price-input"
+                    placeholder="0.00">
+                </div>
+              </div>
             </div>
+            <button type="button" (click)="removeMaterial(i)" class="remove-btn">
+              <mat-icon>close</mat-icon>
+            </button>
           </div>
         }
         @if (selectedMaterials.length === 0) {
-          <div class="text-center py-4 text-slate-400">
-            <p class="text-xs">{{ 'projects.invoice.noMaterialsAdded' | translate }}</p>
+          <div class="empty-state">
+            <mat-icon>inventory_2</mat-icon>
+            <p>{{ 'projects.invoice.noMaterialsAdded' | translate }}</p>
           </div>
         }
       </div>
     </div>
 
     <!-- Trabajadores -->
-    <div class="bg-slate-50 p-4 rounded-lg border-2 border-slate-200">
-      <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
-        <span class="text-lg">👷</span>
-        {{ 'projects.invoice.workers' | translate }}
-      </h3>
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-green">
+          <mat-icon>engineering</mat-icon>
+        </div>
+        <h3 class="section-title">{{ 'projects.invoice.workers' | translate }}</h3>
+      </div>
 
       <!-- Select para agregar trabajador -->
-      <div class="mb-3">
+      <div class="add-item-row">
         <select
           #workerSelect
           (change)="addWorker(workerSelect.value); workerSelect.value = ''"
-          class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all bg-white">
+          class="form-select">
           <option value="">{{ 'projects.invoice.selectWorker' | translate }}</option>
           @for (worker of availableWorkers(); track worker.id) {
             <option [value]="worker.id">{{ getWorkerName(worker) }}</option>
@@ -189,28 +200,22 @@
       </div>
 
       <!-- Lista de trabajadores seleccionados -->
-      <div class="space-y-1.5">
+      <div class="items-list">
         @for (worker of selectedWorkers; track $index; let i = $index) {
-          <div class="bg-white px-3 py-2 rounded border border-slate-200 hover:border-green-300 transition-colors">
-            <div class="flex items-center gap-3">
-              <!-- Nombre del trabajador -->
-              <div class="flex-1 min-w-0">
-                <p class="text-xs font-medium text-slate-800 truncate">{{ worker.workerName }}</p>
-              </div>
-
-              <!-- Botón eliminar -->
-              <button
-                type="button"
-                (click)="removeWorker(i)"
-                class="p-1 text-red-500 hover:bg-red-50 rounded transition-colors flex-shrink-0">
-                <mat-icon class="!text-lg">close</mat-icon>
-              </button>
+          <div class="item-row worker-row">
+            <div class="item-name">
+              <mat-icon class="item-icon">person</mat-icon>
+              <span>{{ worker.workerName }}</span>
             </div>
+            <button type="button" (click)="removeWorker(i)" class="remove-btn">
+              <mat-icon>close</mat-icon>
+            </button>
           </div>
         }
         @if (selectedWorkers.length === 0) {
-          <div class="text-center py-4 text-slate-400">
-            <p class="text-xs">{{ 'projects.invoice.noWorkersAdded' | translate }}</p>
+          <div class="empty-state">
+            <mat-icon>engineering</mat-icon>
+            <p>{{ 'projects.invoice.noWorkersAdded' | translate }}</p>
           </div>
         }
       </div>
@@ -218,58 +223,51 @@
 
     <!-- Resumen de Costos -->
     @if (selectedMaterials.length > 0) {
-      <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border-2 border-green-300">
-        <h3 class="text-base font-bold text-green-800 mb-3 flex items-center gap-2">
-          <span class="text-lg">💰</span>
-          {{ 'projects.invoice.costSummary' | translate }}
-        </h3>
+      <div class="section section-summary">
+        <div class="section-header">
+          <div class="section-icon icon-blue">
+            <mat-icon>payments</mat-icon>
+          </div>
+          <h3 class="section-title">{{ 'projects.invoice.costSummary' | translate }}</h3>
+        </div>
 
-        <!-- Detalle de materiales -->
-        <div class="bg-white rounded-lg p-3 mb-3">
-          <table class="w-full">
+        <!-- Tabla de materiales -->
+        <div class="summary-table-wrapper">
+          <table class="summary-table">
             <thead>
-              <tr class="border-b border-slate-200">
-                <th class="text-left py-2 px-1 text-xs font-bold text-slate-700">{{ 'projects.invoice.material' | translate }}</th>
-                <th class="text-center py-2 px-1 text-xs font-bold text-slate-700">{{ 'projects.invoice.qty' | translate }}</th>
-                <th class="text-right py-2 px-1 text-xs font-bold text-slate-700">{{ 'projects.invoice.unitPrice' | translate }}</th>
-                <th class="text-right py-2 px-1 text-xs font-bold text-slate-700">{{ 'projects.invoice.total' | translate }}</th>
+              <tr>
+                <th class="text-left">{{ 'projects.invoice.material' | translate }}</th>
+                <th class="text-center">{{ 'projects.invoice.qty' | translate }}</th>
+                <th class="text-right">{{ 'projects.invoice.unitPrice' | translate }}</th>
+                <th class="text-right">{{ 'projects.invoice.total' | translate }}</th>
               </tr>
             </thead>
             <tbody>
               @for (material of selectedMaterials; track $index) {
-                <tr class="border-b border-slate-100">
-                  <td class="py-1.5 px-1 text-xs text-slate-800">{{ material.materialName }}</td>
-                  <td class="py-1.5 px-1 text-xs text-center text-slate-600">{{ material.amount }}</td>
-                  <td class="py-1.5 px-1 text-xs text-right text-slate-600">{{ formatCurrency(material.price) }}</td>
-                  <td class="py-1.5 px-1 text-xs text-right font-semibold text-slate-800">
-                    {{ formatCurrency(material.amount * material.price) }}
-                  </td>
+                <tr>
+                  <td>{{ material.materialName }}</td>
+                  <td class="text-center">{{ material.amount }}</td>
+                  <td class="text-right">{{ formatCurrency(material.price) }}</td>
+                  <td class="text-right font-semibold">{{ formatCurrency(material.amount * material.price) }}</td>
                 </tr>
               }
             </tbody>
           </table>
         </div>
 
-        <!-- Resumen de Totales -->
-        <div class="space-y-2">
-          <!-- Subtotal del Estimado Original -->
-          <div class="flex justify-between items-center p-2 bg-blue-50 rounded-lg border border-blue-200">
-            <span class="text-xs font-semibold text-blue-800">{{ 'projects.invoice.estimateSubtotal' | translate }}:</span>
-            <span class="text-sm font-bold text-blue-900">{{ formatCurrency(getProposalSubtotal()) }}</span>
+        <!-- Totales -->
+        <div class="totals-section">
+          <div class="total-row subtotal">
+            <span class="total-label">{{ 'projects.invoice.estimateSubtotal' | translate }}:</span>
+            <span class="total-value">{{ formatCurrency(getProposalSubtotal()) }}</span>
           </div>
-
-          <!-- Subtotal de Materiales -->
-          <div class="flex justify-between items-center p-2 bg-amber-50 rounded-lg border border-amber-200">
-            <span class="text-xs font-semibold text-amber-800">{{ 'projects.invoice.materialsSubtotal' | translate }}:</span>
-            <span class="text-sm font-bold text-amber-900">{{ formatCurrency(calculateMaterialsSubtotal()) }}</span>
+          <div class="total-row materials">
+            <span class="total-label">{{ 'projects.invoice.materialsSubtotal' | translate }}:</span>
+            <span class="total-value">{{ formatCurrency(calculateMaterialsSubtotal()) }}</span>
           </div>
-
-          <!-- Gran Total -->
-          <div class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-3 rounded-lg shadow-lg">
-            <div class="flex items-center justify-between">
-              <span class="text-sm font-bold uppercase">{{ 'projects.invoice.grandTotal' | translate }}:</span>
-              <span class="text-2xl font-extrabold">{{ formatCurrency(calculateGrandTotal()) }}</span>
-            </div>
+          <div class="total-row grand-total">
+            <span class="total-label">{{ 'projects.invoice.grandTotal' | translate }}:</span>
+            <span class="total-value">{{ formatCurrency(calculateGrandTotal()) }}</span>
           </div>
         </div>
       </div>
@@ -278,25 +276,25 @@
   </div>
 
   <!-- Footer -->
-  <div class="border-t-2 border-slate-200 p-4 bg-slate-50 flex items-center justify-end gap-3">
+  <div class="dialog-footer">
     <button
       type="button"
       (click)="cancel()"
       [disabled]="isSaving()"
-      class="px-6 py-2.5 border-2 border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-      {{ 'common.cancel' | translate }}
+      class="btn-cancel">
+      <mat-icon>close</mat-icon>
+      <span>{{ 'common.cancel' | translate }}</span>
     </button>
-
     <button
       type="button"
       (click)="save()"
       [disabled]="isSaving()"
-      class="px-6 py-2.5 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+      class="btn-primary">
       @if (isSaving()) {
-        <span class="animate-spin text-lg">⏳</span>
+        <span class="spinner-small"></span>
         <span>{{ 'common.saving' | translate }}...</span>
       } @else {
-        <span class="text-lg">💾</span>
+        <mat-icon>check</mat-icon>
         <span>{{ 'projects.invoice.createInvoice' | translate }}</span>
       }
     </button>

@@ -1,26 +1,26 @@
 <!-- add-client-dialog.component.html -->
 
-<div class="dialog-container-modern">
+<div class="dialog-container">
   <!-- Header Compacto -->
-  <div class="dialog-header-compact">
-    <div class="flex items-center gap-3 flex-1">
-      <div class="icon-container">
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="icon-box">
         <mat-icon>person_add</mat-icon>
       </div>
-      <div class="flex-1">
+      <div class="header-text">
         <h2 class="dialog-title">Nuevo Cliente</h2>
         <p class="dialog-subtitle">Complete los datos del cliente</p>
       </div>
     </div>
-    <button mat-icon-button (click)="cancel()" class="close-button" matTooltip="Cerrar (Esc)">
+    <button type="button" (click)="cancel()" class="close-btn" title="Cerrar (Esc)">
       <mat-icon>close</mat-icon>
     </button>
   </div>
 
-  <!-- Loading State Mejorado -->
+  <!-- Loading State -->
   @if (isLoading() && fields().length === 0) {
     <div class="loading-state">
-      <mat-spinner diameter="40"></mat-spinner>
+      <div class="spinner"></div>
       <p class="loading-text">Cargando formulario...</p>
     </div>
   } @else {
@@ -267,33 +267,28 @@
       </form>
     </div>
 
-    <!-- Footer con Botones Mejorado -->
+    <!-- Footer -->
     <div class="dialog-footer">
-      <div class="footer-actions">
-        <button
-          mat-stroked-button
-          type="button"
-          (click)="cancel()"
-          [disabled]="isLoading()"
-          class="btn-cancel">
-          <mat-icon>close</mat-icon>
-          <span>Cancelar</span>
-        </button>
-        <button
-          mat-raised-button
-          color="primary"
-          type="button"
-          (click)="save()"
-          [disabled]="isLoading() || clientForm.invalid"
-          class="btn-save">
-          @if (isLoading()) {
-            <mat-spinner diameter="18" class="inline-spinner"></mat-spinner>
-          } @else {
-            <mat-icon>check</mat-icon>
-          }
-          <span>{{ isLoading() ? 'Guardando...' : 'Guardar Cliente' }}</span>
-        </button>
-      </div>
+      <button
+        type="button"
+        (click)="cancel()"
+        [disabled]="isLoading()"
+        class="btn-cancel">
+        <mat-icon>close</mat-icon>
+        <span>Cancelar</span>
+      </button>
+      <button
+        type="button"
+        (click)="save()"
+        [disabled]="isLoading() || clientForm.invalid"
+        class="btn-primary">
+        @if (isLoading()) {
+          <span class="spinner-small"></span>
+        } @else {
+          <mat-icon>check</mat-icon>
+        }
+        <span>{{ isLoading() ? 'Guardando...' : 'Guardar Cliente' }}</span>
+      </button>
     </div>
   }
 

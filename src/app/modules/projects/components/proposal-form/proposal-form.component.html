@@ -1,942 +1,668 @@
-<!-- proposal-form.component.html -->
+<!-- proposal-form.component.html - DISEÑO COMPACTO BLUE -->
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[1400px] mx-auto p-5">
+<div class="form-container">
 
-    <!-- ========== HEADER ========== -->
-    <header class="page-header">
-      <div class="flex items-center justify-between gap-5">
-        <div class="flex items-center gap-4">
-          <button
-            mat-icon-button
-            (click)="cancel()"
-            class="icon-btn">
-            <mat-icon>arrow_back</mat-icon>
-          </button>
-          <div>
-            <h1 class="text-2xl font-bold text-slate-800">
-              {{ (isEditMode() ? 'projects.proposal.editEstimate' : 'projects.proposal.newEstimate') | translate }}
-            </h1>
-            <p class="text-sm text-slate-500">{{ 'projects.proposal.completeInformation' | translate }}</p>
-          </div>
+  <!-- ========== HEADER COMPACTO ========== -->
+  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
+
+      <!-- Left: Back + Icon + Title -->
+      <div class="flex items-center gap-3">
+        <button type="button" class="back-btn" (click)="cancel()" title="Volver">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="header-icon-box blue">
+          <mat-icon>{{ isEditMode() ? 'edit' : 'add_circle' }}</mat-icon>
         </div>
-
-        <div class="flex items-center gap-3">
-          <!-- Selector de Idioma -->
-          <div class="flex items-center gap-2 px-3 py-2 bg-white border-2 border-slate-200 rounded-lg hover:border-purple-300 transition-all">
-            <mat-icon class="text-purple-600 !text-lg">translate</mat-icon>
-            <select
-              [value]="proposalForm.get('language')?.value || 'es'"
-              (change)="onLanguageChangeFromHeader($any($event.target).value)"
-              class="text-sm font-medium text-slate-800 bg-transparent border-none outline-none cursor-pointer pr-2">
-              <option value="es">🇪🇸 Español</option>
-              <option value="en">🇺🇸 English</option>
-            </select>
-          </div>
-
-          <button
-            mat-stroked-button
-            (click)="cancel()"
-            [disabled]="isLoading()">
-            {{ 'common.cancel' | translate }}
-          </button>
-          <button
-            mat-button
-            color="accent"
-            (click)="save(true)"
-            [disabled]="isLoading()">
-            <mat-icon>drafts</mat-icon>
-            {{ 'common.saveDraft' | translate }}
-          </button>
-          <button
-            mat-raised-button
-            color="primary"
-            (click)="save(false)"
-            [disabled]="isLoading()">
-            <mat-icon>save</mat-icon>
-            {{ (isEditMode() ? 'common.update' : 'common.saveAndFinish') | translate }}
-          </button>
+        <div>
+          <h1 class="text-lg font-bold text-slate-800">
+            {{ (isEditMode() ? 'projects.proposal.editEstimate' : 'projects.proposal.newEstimate') | translate }}
+          </h1>
+          <p class="text-xs text-slate-500">{{ 'projects.proposal.completeInformation' | translate }}</p>
         </div>
       </div>
-    </header>
 
-    <form [formGroup]="proposalForm" class="space-y-3">
-
-      <!-- ========== INFORMACIÓN DEL CLIENTE ========== -->
-      <div class="card-modern p-5">
-        <div class="mb-4 pb-3 border-b-2 border-slate-100">
-          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
-            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <mat-icon class="text-blue-600 !text-xl">person</mat-icon>
-            </div>
-            {{ 'projects.proposal.client_info.title' | translate }}
-          </h2>
-          <p class="text-sm text-slate-500 mt-2 ml-13">{{ 'projects.proposal.client_info.selectAndVerify' | translate }}</p>
+      <!-- Right: Language + Actions -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- Selector de Idioma -->
+        <div class="language-selector">
+          <mat-icon>translate</mat-icon>
+          <select
+            [value]="proposalForm.get('language')?.value || 'es'"
+            (change)="onLanguageChangeFromHeader($any($event.target).value)">
+            <option value="es">ES Español</option>
+            <option value="en">EN English</option>
+          </select>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <!-- Cliente Autocomplete -->
+        <button type="button" class="btn-cancel" (click)="cancel()" [disabled]="isLoading()">
+          <mat-icon>close</mat-icon>
+          <span class="hidden sm:inline">{{ 'common.cancel' | translate }}</span>
+        </button>
+
+        <button type="button" class="btn-secondary" (click)="save(true)" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <div class="btn-spinner"></div>
+          } @else {
+            <mat-icon>drafts</mat-icon>
+          }
+          <span class="hidden sm:inline">{{ 'common.saveDraft' | translate }}</span>
+        </button>
+
+        <button type="button" class="btn-primary" (click)="save(false)" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <div class="btn-spinner"></div>
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+          <span>{{ (isEditMode() ? 'common.update' : 'common.saveAndFinish') | translate }}</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <form [formGroup]="proposalForm" class="space-y-4">
+
+    <!-- ========== INFORMACIÓN DEL CLIENTE ========== -->
+    <div class="form-section animate-fadeIn" style="animation-delay: 0.05s">
+      <div class="section-header">
+        <div class="section-icon blue">
+          <mat-icon>person</mat-icon>
+        </div>
+        <div>
+          <h2>{{ 'projects.proposal.client_info.title' | translate }}</h2>
+          <p>{{ 'projects.proposal.client_info.selectAndVerify' | translate }}</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Cliente Autocomplete -->
+        <div class="form-group">
+          <label class="form-label required">
+            <mat-icon>search</mat-icon>
+            {{ 'projects.proposal.client_info.client' | translate }}
+          </label>
+          <div class="flex gap-2">
+            <div class="relative flex-1">
+              <input
+                type="text"
+                [value]="clientSearchTerm()"
+                (input)="onClientSearchChange($event)"
+                [matAutocomplete]="autoClients"
+                [placeholder]="'projects.proposal.client_info.searchClient' | translate"
+                class="form-input pl-10">
+              <mat-icon class="input-icon-left">search</mat-icon>
+
+              <mat-autocomplete #autoClients="matAutocomplete" (optionSelected)="selectClient($event.option.value)">
+                @if (filteredClients().length === 0) {
+                  <mat-option disabled>
+                    <span class="text-slate-400 text-sm">{{ 'projects.proposal.client_info.noClientsFound' | translate }}</span>
+                  </mat-option>
+                }
+                @for (client of filteredClients(); track client.id) {
+                  <mat-option [value]="client">
+                    <div class="flex flex-col py-1">
+                      <span class="font-semibold text-slate-800">{{ getClientName(client) }}</span>
+                      @if (getClientEmail(client) || getClientPhone(client)) {
+                        <span class="text-xs text-slate-500">
+                          {{ getClientEmail(client) }}
+                          @if (getClientEmail(client) && getClientPhone(client)) { • }
+                          {{ getClientPhone(client) }}
+                        </span>
+                      }
+                    </div>
+                  </mat-option>
+                }
+              </mat-autocomplete>
+            </div>
+            <button type="button" class="btn-icon blue" (click)="openAddClientDialog()" title="{{ 'projects.proposal.client_info.addNewClient' | translate }}">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+          @if (shouldShowError('ownerId')) {
+            <p class="form-error">{{ 'projects.proposal.client_info.validation.clientRequired' | translate }}</p>
+          }
+        </div>
+
+        <!-- Nombre del Cliente -->
+        <div class="form-group">
+          <label class="form-label required">
+            <mat-icon>badge</mat-icon>
+            {{ 'projects.proposal.client_info.name' | translate }}
+          </label>
+          <input type="text" formControlName="ownerName" readonly
+                 class="form-input readonly" [class.error]="shouldShowError('ownerName')"
+                 [placeholder]="'projects.proposal.client_info.namePlaceholder' | translate">
+          @if (shouldShowError('ownerName')) {
+            <p class="form-error">{{ 'projects.proposal.client_info.validation.nameRequired' | translate }}</p>
+          }
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>email</mat-icon>
+            {{ 'projects.proposal.client_info.email' | translate }}
+          </label>
+          <input type="email" formControlName="ownerEmail" readonly
+                 class="form-input readonly" [class.error]="shouldShowError('ownerEmail')"
+                 [placeholder]="'projects.proposal.client_info.emailPlaceholder' | translate">
+          @if (shouldShowError('ownerEmail')) {
+            <p class="form-error">{{ 'projects.proposal.client_info.validation.emailInvalid' | translate }}</p>
+          }
+        </div>
+
+        <!-- Teléfono -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>phone</mat-icon>
+            {{ 'projects.proposal.client_info.phone' | translate }}
+          </label>
+          <input type="tel" formControlName="ownerPhone" readonly
+                 class="form-input readonly"
+                 [placeholder]="'projects.proposal.client_info.phonePlaceholder' | translate">
+        </div>
+
+        <!-- Compañía -->
+        <div class="form-group md:col-span-2">
+          <label class="form-label">
+            <mat-icon>business</mat-icon>
+            {{ 'projects.proposal.client_info.company' | translate }}
+          </label>
+          <input type="text" formControlName="ownerCompany" readonly
+                 class="form-input readonly"
+                 [placeholder]="'projects.proposal.client_info.companyPlaceholder' | translate">
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== UBICACIÓN DEL TRABAJO ========== -->
+    <div class="form-section animate-fadeIn" style="animation-delay: 0.1s">
+      <div class="section-header">
+        <div class="section-icon green">
+          <mat-icon>place</mat-icon>
+        </div>
+        <div class="flex-1">
+          <h2>{{ 'projects.proposal.location.title' | translate }}</h2>
+          <p>{{ 'projects.proposal.location.description' | translate }}</p>
+        </div>
+
+        <!-- Checkbox: Usar misma dirección que el cliente -->
+        <label class="same-address-toggle" [class.active]="useSameAddress()" [class.disabled]="!proposalForm.get('ownerId')?.value">
+          <input type="checkbox"
+                 [checked]="useSameAddress()"
+                 (change)="onUseSameAddressChange($any($event.target).checked)"
+                 [disabled]="!proposalForm.get('ownerId')?.value">
+          <mat-icon>home_work</mat-icon>
+          <span>{{ 'projects.proposal.location.sameAsClient' | translate }}</span>
+        </label>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Tipo de Trabajo -->
+        <div class="form-group">
+          <label class="form-label required">
+            <mat-icon>business</mat-icon>
+            {{ 'projects.proposal.project.type' | translate }}
+          </label>
+          <select formControlName="workType" class="form-input" [class.error]="shouldShowError('workType')">
+            <option value="residential">{{ 'projects.proposal.project.residential' | translate }}</option>
+            <option value="commercial">{{ 'projects.proposal.project.commercial' | translate }}</option>
+          </select>
+          @if (shouldShowError('workType')) {
+            <p class="form-error">{{ 'projects.proposal.project.validation.typeRequired' | translate }}</p>
+          }
+        </div>
+
+        <!-- Clasificación del Servicio -->
+        <div class="form-group">
+          <label class="form-label required">
+            <mat-icon>construction</mat-icon>
+            {{ 'projects.proposal.project.category' | translate }}
+          </label>
+          <select formControlName="jobCategory" class="form-input" [class.error]="shouldShowError('jobCategory')">
+            <option value="">{{ 'projects.proposal.project.selectOption' | translate }}</option>
+            <option value="remodeling">{{ 'projects.proposal.project.remodeling' | translate }}</option>
+            <option value="plumbing">{{ 'projects.proposal.project.plumbing' | translate }}</option>
+            <option value="services">{{ 'projects.proposal.project.services' | translate }}</option>
+            <option value="equipment">{{ 'projects.proposal.project.equipment' | translate }}</option>
+            <option value="new_construction">{{ 'projects.proposal.project.newConstruction' | translate }}</option>
+          </select>
+          @if (shouldShowError('jobCategory')) {
+            <p class="form-error">{{ 'projects.proposal.project.validation.categoryRequired' | translate }}</p>
+          }
+        </div>
+
+        <!-- Dirección del Trabajo -->
+        <div class="form-group lg:col-span-3">
+          <label class="form-label required">
+            <mat-icon>location_on</mat-icon>
+            {{ 'projects.proposal.location.address' | translate }}
+          </label>
+          <input type="text" formControlName="address"
+                 class="form-input" [class.error]="shouldShowError('address')"
+                 [placeholder]="'projects.proposal.location.addressPlaceholder' | translate">
+          @if (shouldShowError('address')) {
+            <p class="form-error">{{ 'projects.proposal.location.validation.addressRequired' | translate }}</p>
+          }
+        </div>
+
+        <!-- Ciudad -->
+        <div class="form-group">
+          <label class="form-label required">
+            <mat-icon>location_city</mat-icon>
+            {{ 'projects.proposal.location.city' | translate }}
+          </label>
+          <input type="text" formControlName="city"
+                 class="form-input" [class.error]="shouldShowError('city')"
+                 [placeholder]="'projects.proposal.location.cityPlaceholder' | translate">
+          @if (shouldShowError('city')) {
+            <p class="form-error">{{ 'projects.proposal.location.validation.cityRequired' | translate }}</p>
+          }
+        </div>
+
+        <!-- Estado -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>map</mat-icon>
+            {{ 'projects.proposal.location.state' | translate }}
+          </label>
+          <input type="text" formControlName="state" class="form-input"
+                 [placeholder]="'projects.proposal.location.statePlaceholder' | translate">
+        </div>
+
+        <!-- Código Postal -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>markunread_mailbox</mat-icon>
+            {{ 'projects.proposal.location.zipCode' | translate }}
+          </label>
+          <input type="text" formControlName="zipCode" class="form-input"
+                 [placeholder]="'projects.proposal.location.zipCodePlaceholder' | translate">
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== FECHAS ========== -->
+    <div class="form-section animate-fadeIn" style="animation-delay: 0.15s">
+      <div class="section-header">
+        <div class="section-icon purple">
+          <mat-icon>event</mat-icon>
+        </div>
+        <div>
+          <h2>{{ 'projects.proposal.dates.title' | translate }}</h2>
+          <p>{{ 'projects.proposal.dates.description' | translate }}</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Fecha del Estimado -->
+        <div class="form-group">
+          <label class="form-label required">
+            <mat-icon>calendar_today</mat-icon>
+            {{ 'projects.proposal.dates.estimateDate' | translate }}
+          </label>
+          <input type="date" formControlName="date" class="form-input">
+          @if (proposalForm.get('date')?.invalid && proposalForm.get('date')?.touched) {
+            <p class="form-error">La fecha es requerida</p>
+          }
+        </div>
+
+        <!-- Válido Hasta -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>event_available</mat-icon>
+            {{ 'projects.proposal.dates.validUntil' | translate }}
+          </label>
+          <input type="date" formControlName="validUntil" class="form-input">
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ITEMS INCLUIDOS ========== -->
+    <div class="form-section animate-fadeIn" style="animation-delay: 0.2s">
+      <div class="section-header">
+        <div class="section-icon blue">
+          <mat-icon>checklist</mat-icon>
+        </div>
+        <div>
+          <h2>{{ 'projects.proposal.items.includedItems' | translate }}</h2>
+          <p>{{ 'projects.proposal.items.includedItemsDescription' | translate }}</p>
+        </div>
+      </div>
+
+      <!-- Alerta de validación -->
+      @if (formSubmitted() && selectedCatalogItems().length === 0) {
+        <div class="alert-error mb-4">
+          <mat-icon>error</mat-icon>
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">
-              {{ 'projects.proposal.client_info.client' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
-            </label>
-            <div class="flex gap-2">
-              <div class="relative flex-1">
-                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg z-10">search</mat-icon>
-                <input
-                  type="text"
-                  [value]="clientSearchTerm()"
-                  (input)="onClientSearchChange($event)"
-                  [matAutocomplete]="autoClients"
-                  [placeholder]="'projects.proposal.client_info.searchClient' | translate"
-                  class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                         transition-all bg-white text-slate-800 hover:border-slate-300">
+            <p class="font-bold">{{ 'projects.proposal.items.selectionRequired' | translate }}</p>
+            <p class="text-xs mt-1">{{ 'projects.proposal.items.selectionRequiredMessage' | translate }}</p>
+          </div>
+        </div>
+      }
 
-                <mat-autocomplete #autoClients="matAutocomplete" (optionSelected)="selectClient($event.option.value)">
-                  @if (filteredClients().length === 0) {
-                    <mat-option disabled>
-                      <div class="text-slate-400 text-sm py-2">
-                        {{ 'projects.proposal.client_info.noClientsFound' | translate }}
-                      </div>
-                    </mat-option>
-                  }
-                  @for (client of filteredClients(); track client.id) {
-                    <mat-option [value]="client">
-                      <div class="flex flex-col py-1">
-                        <span class="font-semibold text-slate-800">{{ getClientName(client) }}</span>
-                        @if (getClientEmail(client) || getClientPhone(client)) {
-                          <span class="text-xs text-slate-500">
-                            @if (getClientEmail(client)) {
-                              <span>{{ getClientEmail(client) }}</span>
-                            }
-                            @if (getClientEmail(client) && getClientPhone(client)) {
-                              <span class="mx-1">•</span>
-                            }
-                            @if (getClientPhone(client)) {
-                              <span>{{ getClientPhone(client) }}</span>
-                            }
-                          </span>
-                        }
-                      </div>
-                    </mat-option>
-                  }
-                </mat-autocomplete>
+      <!-- Dos Paneles -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-                @if (clients().length === 0) {
-                  <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                    <span class="text-xs text-amber-600">{{ 'projects.proposal.client_info.noClients' | translate }}</span>
-                  </div>
+        <!-- PANEL IZQUIERDO: Items Disponibles del Catálogo -->
+        <div class="catalog-panel">
+          <div class="catalog-panel-header">
+            <div class="flex items-center justify-between mb-2">
+              <h3>
+                <mat-icon>inventory</mat-icon>
+                {{ 'projects.proposal.catalog.title' | translate }} ({{ filteredCatalogItems().length }})
+              </h3>
+              <div class="flex items-center gap-2">
+                <button type="button" class="btn-icon-sm blue" (click)="openCatalogManager()" title="Administrar catálogo">
+                  <mat-icon>settings</mat-icon>
+                </button>
+                @if (filteredCatalogItems().length > 0) {
+                  <button type="button" class="btn-text blue" (click)="addAllFilteredItems()">
+                    <mat-icon>add_circle</mat-icon>
+                    {{ 'projects.proposal.catalog.addAll' | translate }}
+                  </button>
                 }
               </div>
-              <button
-                type="button"
-                mat-mini-fab
-                color="primary"
-                (click)="openAddClientDialog()"
-                [matTooltip]="'projects.proposal.client_info.addNewClient' | translate"
-                class="!flex-shrink-0">
-                <mat-icon>add</mat-icon>
-              </button>
             </div>
-            @if (shouldShowError('ownerId')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.client_info.validation.clientRequired' | translate }}</p>
-            }
-          </div>
 
-          <!-- Nombre del Cliente -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">
-              {{ 'projects.proposal.client_info.name' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
-            </label>
+            <!-- Búsqueda -->
             <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
-                        [ngClass]="shouldShowError('ownerName') ? 'text-red-500' : 'text-slate-400'">badge</mat-icon>
-              <input
-                type="text"
-                formControlName="ownerName"
-                required
-                readonly
-                [ngClass]="shouldShowError('ownerName')
-                  ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
-                  : 'border-slate-200 bg-slate-50 focus:border-blue-500 focus:ring-blue-100'"
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800 cursor-not-allowed"
-                [placeholder]="'projects.proposal.client_info.namePlaceholder' | translate">
-            </div>
-            @if (shouldShowError('ownerName')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.client_info.validation.nameRequired' | translate }}</p>
-            }
-          </div>
-
-          <!-- Email -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">{{ 'projects.proposal.client_info.email' | translate }}</label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
-                        [ngClass]="shouldShowError('ownerEmail') ? 'text-red-500' : 'text-slate-400'">email</mat-icon>
-              <input
-                type="email"
-                formControlName="ownerEmail"
-                readonly
-                [ngClass]="shouldShowError('ownerEmail')
-                  ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
-                  : 'border-slate-200 bg-slate-50 focus:border-blue-500 focus:ring-blue-100'"
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800 cursor-not-allowed"
-                [placeholder]="'projects.proposal.client_info.emailPlaceholder' | translate">
-            </div>
-            @if (shouldShowError('ownerEmail')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.client_info.validation.emailInvalid' | translate }}</p>
-            }
-          </div>
-
-          <!-- Teléfono -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">{{ 'projects.proposal.client_info.phone' | translate }}</label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">phone</mat-icon>
-              <input
-                type="tel"
-                formControlName="ownerPhone"
-                readonly
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                       transition-all bg-slate-50 text-slate-800 cursor-not-allowed"
-                [placeholder]="'projects.proposal.client_info.phonePlaceholder' | translate">
+              <mat-icon class="input-icon-left-sm">search</mat-icon>
+              <input type="text"
+                     [value]="catalogSearchTerm()"
+                     (input)="onCatalogSearchChange($event)"
+                     [placeholder]="'projects.proposal.catalog.searchCatalog' | translate"
+                     class="form-input-sm pl-8">
             </div>
           </div>
 
-          <!-- Compañía -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">{{ 'projects.proposal.client_info.company' | translate }}</label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">business</mat-icon>
-              <input
-                type="text"
-                formControlName="ownerCompany"
-                readonly
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                       transition-all bg-slate-50 text-slate-800 cursor-not-allowed"
-                [placeholder]="'projects.proposal.client_info.companyPlaceholder' | translate">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========== UBICACIÓN DEL TRABAJO ========== -->
-      <div class="card-modern p-5">
-        <div class="mb-4 pb-3 border-b-2 border-slate-100">
-          <div class="flex items-start justify-between gap-4">
-            <div class="flex-1">
-              <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
-                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <mat-icon class="text-green-600 !text-xl">place</mat-icon>
-                </div>
-                {{ 'projects.proposal.location.title' | translate }}
-              </h2>
-              <p class="text-sm text-slate-500 mt-2 ml-13">{{ 'projects.proposal.location.description' | translate }}</p>
-            </div>
-
-            <!-- Checkbox: Usar misma dirección que el cliente -->
-            <label class="flex items-center gap-2 px-3 py-2 bg-green-50 border-2 border-green-200 rounded-lg cursor-pointer hover:bg-green-100 transition-all group">
-              <input
-                type="checkbox"
-                [checked]="useSameAddress()"
-                (change)="onUseSameAddressChange($any($event.target).checked)"
-                [disabled]="!proposalForm.get('ownerId')?.value"
-                class="w-4 h-4 text-green-600 border-2 border-green-300 rounded
-                       focus:ring-2 focus:ring-green-400
-                       disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
-              <div class="flex items-center gap-1">
-                <mat-icon class="text-green-500 !text-lg">home_work</mat-icon>
-                <span class="text-xs font-semibold text-green-900 whitespace-nowrap">
-                  {{ 'projects.proposal.location.sameAsClient' | translate }}
-                </span>
+          <div class="catalog-items-list">
+            @if (filteredCatalogItems().length === 0) {
+              <div class="empty-catalog">
+                <mat-icon>search_off</mat-icon>
+                <p>{{ 'projects.proposal.catalog.noItems' | translate }}</p>
+                <span>{{ 'projects.proposal.catalog.tryAnotherSearch' | translate }}</span>
               </div>
-            </label>
+            } @else {
+              @for (item of filteredCatalogItems(); track item.id) {
+                <div class="catalog-item" (click)="addCatalogItemToProposal(item)">
+                  <div class="flex-1 min-w-0">
+                    <p class="item-name">{{ item.name }}</p>
+                    @if (item.description) {
+                      <p class="item-desc">{{ item.description }}</p>
+                    }
+                  </div>
+                  <button type="button" class="item-add-btn">
+                    <mat-icon>add_circle</mat-icon>
+                  </button>
+                </div>
+              }
+            }
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          <!-- Tipo de Trabajo -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">
-              {{ 'projects.proposal.project.type' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
-            </label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
-                        [ngClass]="shouldShowError('workType') ? 'text-red-500' : 'text-slate-400'">business</mat-icon>
-              <select
-                formControlName="workType"
-                required
-                [ngClass]="shouldShowError('workType')
-                  ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
-                  : 'border-slate-200 bg-white focus:border-green-500 focus:ring-green-100 hover:border-slate-300'"
-                class="w-full pl-11 pr-10 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800 cursor-pointer appearance-none">
-                <option value="residential">{{ 'projects.proposal.project.residential' | translate }}</option>
-                <option value="commercial">{{ 'projects.proposal.project.commercial' | translate }}</option>
-              </select>
-              <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">expand_more</mat-icon>
+        <!-- PANEL DERECHO: Items Seleccionados -->
+        <div class="selected-panel">
+          <div class="selected-panel-header">
+            <div class="flex items-center justify-between">
+              <h3>
+                <mat-icon>checklist</mat-icon>
+                {{ 'projects.proposal.catalog.selectedItems' | translate }} ({{ selectedCatalogItems().length }})
+              </h3>
+              @if (selectedCatalogItems().length > 0) {
+                <button type="button" class="btn-text red" (click)="removeAllSelectedItems()">
+                  <mat-icon>remove_circle</mat-icon>
+                  {{ 'projects.proposal.catalog.removeAll' | translate }}
+                </button>
+              }
             </div>
-            @if (shouldShowError('workType')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.project.validation.typeRequired' | translate }}</p>
+          </div>
+
+          <div class="selected-items-list">
+            @if (selectedCatalogItems().length === 0) {
+              <div class="empty-selected">
+                <mat-icon>playlist_add</mat-icon>
+                <p>{{ 'projects.proposal.catalog.noSelectedItems' | translate }}</p>
+                <span>{{ 'projects.proposal.catalog.clickToAdd' | translate }}</span>
+              </div>
+            } @else {
+              @for (item of selectedCatalogItems(); track item.id; let i = $index) {
+                <div class="selected-item">
+                  <div class="item-number">{{ i + 1 }}</div>
+                  <div class="flex-1 min-w-0">
+                    <p class="item-name">{{ item.name }}</p>
+                    @if (item.description) {
+                      <p class="item-desc">{{ item.description }}</p>
+                    }
+                  </div>
+                  <button type="button" class="item-remove-btn" (click)="removeCatalogItemFromProposal(item.id)">
+                    <mat-icon>remove_circle</mat-icon>
+                  </button>
+                </div>
+              }
             }
           </div>
+        </div>
 
-          <!-- Clasificación del Servicio -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">
-              {{ 'projects.proposal.project.category' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
-            </label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
-                        [ngClass]="shouldShowError('jobCategory') ? 'text-red-500' : 'text-slate-400'">construction</mat-icon>
-              <select
-                formControlName="jobCategory"
-                required
-                [ngClass]="shouldShowError('jobCategory')
-                  ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
-                  : 'border-slate-200 bg-white focus:border-green-500 focus:ring-green-100 hover:border-slate-300'"
-                class="w-full pl-11 pr-10 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800 cursor-pointer appearance-none">
-                <option value="">{{ 'projects.proposal.project.selectOption' | translate }}</option>
-                <option value="remodeling">{{ 'projects.proposal.project.remodeling' | translate }}</option>
-                <option value="plumbing">{{ 'projects.proposal.project.plumbing' | translate }}</option>
-                <option value="services">{{ 'projects.proposal.project.services' | translate }}</option>
-                <option value="equipment">{{ 'projects.proposal.project.equipment' | translate }}</option>
-                <option value="new_construction">{{ 'projects.proposal.project.newConstruction' | translate }}</option>
-              </select>
-              <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">expand_more</mat-icon>
-            </div>
-            @if (shouldShowError('jobCategory')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.project.validation.categoryRequired' | translate }}</p>
+      </div>
+
+      <!-- Nota informativa -->
+      <div class="info-note mt-4">
+        <mat-icon>info</mat-icon>
+        <p><strong>{{ 'projects.proposal.catalog.howToUse' | translate }}</strong> {{ 'projects.proposal.catalog.instructions' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- ========== EXTRAS NO INCLUIDOS ========== -->
+    <div class="form-section animate-fadeIn" style="animation-delay: 0.25s"
+         [class.extras-active]="includeExtrasSection()">
+      <div class="section-header">
+        <div class="section-icon" [class.amber]="includeExtrasSection()" [class.amber-light]="!includeExtrasSection()">
+          <mat-icon>do_not_disturb_on</mat-icon>
+        </div>
+        <div class="flex-1">
+          <h2>{{ 'projects.proposal.items.extrasNotIncluded' | translate }}</h2>
+          <p>{{ 'projects.proposal.items.extrasDescription' | translate }}</p>
+        </div>
+
+        <!-- Toggle de activación -->
+        <label class="extras-toggle" [class.active]="includeExtrasSection()">
+          <input type="checkbox"
+                 [checked]="includeExtrasSection()"
+                 (change)="toggleExtrasSection($any($event.target).checked)">
+          <div class="toggle-content">
+            <span class="toggle-label">{{ includeExtrasSection() ? 'Sección Activada' : 'Activar Sección' }}</span>
+            <span class="toggle-hint">{{ includeExtrasSection() ? 'Se incluirá en el estimado' : 'No se incluirá' }}</span>
+          </div>
+        </label>
+      </div>
+
+      <!-- Lista fija de extras -->
+      <div class="extras-list">
+        @for (extra of FIXED_EXTRAS; track $index; let i = $index) {
+          <div class="extra-item" [class.active]="includeExtrasSection()">
+            <div class="extra-number" [class.active]="includeExtrasSection()">{{ i + 1 }}</div>
+            <p class="extra-text" [class.active]="includeExtrasSection()">{{ extra }}</p>
+            @if (includeExtrasSection()) {
+              <mat-icon class="extra-check">check</mat-icon>
             }
           </div>
+        }
+      </div>
+    </div>
 
-          <!-- Dirección del Trabajo -->
-          <div class="md:col-span-2 lg:col-span-3">
-            <label class="block text-sm font-semibold text-slate-700 mb-2">
-              {{ 'projects.proposal.location.address' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
-            </label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
-                        [ngClass]="shouldShowError('address') ? 'text-red-500' : 'text-slate-400'">location_on</mat-icon>
-              <input
-                type="text"
-                formControlName="address"
-                required
-                [ngClass]="shouldShowError('address')
-                  ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
-                  : 'border-slate-200 bg-white focus:border-blue-500 focus:ring-blue-100 hover:border-slate-300'"
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800"
-                [placeholder]="'projects.proposal.location.addressPlaceholder' | translate">
-            </div>
-            @if (shouldShowError('address')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.location.validation.addressRequired' | translate }}</p>
-            }
+    <!-- ========== TOTALES ========== -->
+    <div class="totals-section animate-fadeIn" style="animation-delay: 0.3s">
+      <div class="section-header">
+        <div class="section-icon blue-dark">
+          <mat-icon>calculate</mat-icon>
+        </div>
+        <div>
+          <h2>{{ 'projects.proposal.totals.title' | translate }}</h2>
+          <p>{{ 'projects.proposal.totals.description' | translate }}</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <!-- Subtotal -->
+        <div class="form-group">
+          <label class="form-label-light required">
+            <mat-icon>payments</mat-icon>
+            {{ 'projects.proposal.totals.subtotal' | translate }}
+          </label>
+          <div class="relative">
+            <span class="input-prefix">$</span>
+            <input type="number" formControlName="subtotal" min="0" step="0.01"
+                   class="form-input-totals pl-8" [class.error]="shouldShowError('subtotal')"
+                   placeholder="0.00">
           </div>
+          @if (shouldShowError('subtotal')) {
+            <p class="form-error-light">{{ 'projects.proposal.totals.subtotalRequired' | translate }}</p>
+          }
+        </div>
 
-          <!-- Ciudad -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">
-              {{ 'projects.proposal.location.city' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
-            </label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
-                        [ngClass]="shouldShowError('city') ? 'text-red-500' : 'text-slate-400'">location_city</mat-icon>
-              <input
-                type="text"
-                formControlName="city"
-                required
-                [ngClass]="shouldShowError('city')
-                  ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100'
-                  : 'border-slate-200 bg-white focus:border-blue-500 focus:ring-blue-100 hover:border-slate-300'"
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all text-slate-800"
-                [placeholder]="'projects.proposal.location.cityPlaceholder' | translate">
-            </div>
-            @if (shouldShowError('city')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.location.validation.cityRequired' | translate }}</p>
-            }
+        <!-- Impuesto -->
+        <div class="form-group">
+          <label class="form-label-light">
+            <mat-icon>percent</mat-icon>
+            {{ 'projects.proposal.totals.taxPercent' | translate }}
+          </label>
+          <div class="relative">
+            <input type="number" formControlName="taxPercentage" min="0" max="100" step="0.01"
+                   class="form-input-totals pr-8" placeholder="0">
+            <span class="input-suffix">%</span>
           </div>
+        </div>
 
-          <!-- Estado -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">{{ 'projects.proposal.location.state' | translate }}</label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">map</mat-icon>
-              <input
-                type="text"
-                formControlName="state"
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                       transition-all bg-white text-slate-800 hover:border-slate-300"
-                [placeholder]="'projects.proposal.location.statePlaceholder' | translate">
-            </div>
-          </div>
-
-          <!-- Código Postal -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">{{ 'projects.proposal.location.zipCode' | translate }}</label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">markunread_mailbox</mat-icon>
-              <input
-                type="text"
-                formControlName="zipCode"
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                       transition-all bg-white text-slate-800 hover:border-slate-300"
-                [placeholder]="'projects.proposal.location.zipCodePlaceholder' | translate">
-            </div>
+        <!-- Descuento -->
+        <div class="form-group">
+          <label class="form-label-light">
+            <mat-icon>local_offer</mat-icon>
+            {{ 'projects.proposal.totals.discountPercent' | translate }}
+          </label>
+          <div class="relative">
+            <input type="number" formControlName="discountPercentage" min="0" max="100" step="0.01"
+                   class="form-input-totals pr-8" placeholder="0">
+            <span class="input-suffix">%</span>
           </div>
         </div>
       </div>
 
-      <!-- ========== FECHAS ========== -->
-      <div class="card-modern p-5">
-        <div class="mb-4 pb-3 border-b-2 border-slate-100">
-          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
-            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <mat-icon class="text-purple-600 !text-xl">event</mat-icon>
-            </div>
-            {{ 'projects.proposal.dates.title' | translate }}
-          </h2>
-          <p class="text-sm text-slate-500 mt-2 ml-13">{{ 'projects.proposal.dates.description' | translate }}</p>
+      <!-- Resumen de cálculos -->
+      <div class="totals-summary">
+        <div class="summary-row">
+          <span>{{ 'projects.proposal.totals.subtotal' | translate }}:</span>
+          <span class="value">{{ getSubtotal() | currencyFormatter }}</span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <!-- Fecha del Estimado -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">
-              {{ 'projects.proposal.dates.estimateDate' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
-            </label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">calendar_today</mat-icon>
-              <input
-                type="date"
-                formControlName="date"
-                required
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                       transition-all bg-white text-slate-800 hover:border-slate-300 cursor-pointer">
-            </div>
-            @if (proposalForm.get('date')?.invalid && proposalForm.get('date')?.touched) {
-              <p class="text-xs text-red-500 mt-1.5">La fecha es requerida</p>
-            }
-          </div>
-
-          <!-- Válido Hasta -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">{{ 'projects.proposal.dates.validUntil' | translate }}</label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">event_available</mat-icon>
-              <input
-                type="date"
-                formControlName="validUntil"
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                       transition-all bg-white text-slate-800 hover:border-slate-300 cursor-pointer">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========== ITEMS INCLUIDOS - SISTEMA DE DOS PANELES ========== -->
-      <div class="card-modern p-5">
-        <div class="mb-4 pb-4 border-b-2 border-slate-100">
-          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
-            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <mat-icon class="text-blue-600 !text-xl">checklist</mat-icon>
-            </div>
-            {{ 'projects.proposal.items.includedItems' | translate }}
-          </h2>
-          <p class="text-sm text-slate-500 mt-2 ml-13">{{ 'projects.proposal.items.includedItemsDescription' | translate }}</p>
-        </div>
-
-        <!-- Alerta de validación -->
-        @if (formSubmitted() && selectedCatalogItems().length === 0) {
-          <div class="mb-4 p-4 bg-red-50 border-2 border-red-300 rounded-lg flex items-start gap-3">
-            <mat-icon class="text-red-600 !text-2xl">error</mat-icon>
-            <div class="flex-1">
-              <p class="text-sm font-bold text-red-800">{{ 'projects.proposal.items.selectionRequired' | translate }}</p>
-              <p class="text-xs text-red-700 mt-1">{{ 'projects.proposal.items.selectionRequiredMessage' | translate }}</p>
-            </div>
+        @if (proposalForm.get('taxPercentage')?.value > 0) {
+          <div class="summary-row">
+            <span>{{ 'projects.proposal.totals.tax' | translate }} ({{ proposalForm.get('taxPercentage')?.value }}%):</span>
+            <span class="value positive">+ {{ calculateTax() | currencyFormatter }}</span>
           </div>
         }
 
-        <!-- Dos Paneles -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-          <!-- PANEL IZQUIERDO: Items Disponibles del Catálogo -->
-          <div class="border-2 border-slate-200 rounded-lg overflow-hidden bg-white">
-            <!-- Header del panel izquierdo -->
-            <div class="bg-slate-100 p-3 border-b-2 border-slate-200">
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                  <mat-icon class="!text-lg text-slate-600">inventory</mat-icon>
-                  {{ 'projects.proposal.catalog.title' | translate }} ({{ filteredCatalogItems().length }})
-                </h3>
-                <div class="flex items-center gap-2">
-                  <!-- Botón Administrar Catálogo -->
-                  <button
-                    mat-icon-button
-                    type="button"
-                    (click)="openCatalogManager()"
-                    matTooltip="Administrar catálogo"
-                    class="!w-8 !h-8 !min-w-0 !p-0 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-700 transition-colors">
-                    <mat-icon class="!text-lg !w-5 !h-5 !leading-5 text-white">settings</mat-icon>
-                  </button>
-                  @if (filteredCatalogItems().length > 0) {
-                    <button
-                      mat-button
-                      type="button"
-                      (click)="addAllFilteredItems()"
-                      class="!text-xs !py-1 !px-3">
-                      <mat-icon class="!text-sm">add_circle</mat-icon>
-                      {{ 'projects.proposal.catalog.addAll' | translate }}
-                    </button>
-                  }
-                </div>
-              </div>
-
-              <!-- Búsqueda -->
-              <div class="relative">
-                <mat-icon class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 !text-base">search</mat-icon>
-                <input
-                  type="text"
-                  [value]="catalogSearchTerm()"
-                  (input)="onCatalogSearchChange($event)"
-                  [placeholder]="'projects.proposal.catalog.searchCatalog' | translate"
-                  class="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded
-                         focus:border-blue-500 focus:ring-1 focus:ring-blue-100 outline-none
-                         transition-all bg-white text-slate-800">
-              </div>
-            </div>
-
-            <!-- Lista con scroll fijo -->
-            <div class="h-96 overflow-y-auto px-1.5 py-1 space-y-0.5">
-              @if (filteredCatalogItems().length === 0) {
-                <div class="text-center py-12 text-slate-400">
-                  <mat-icon class="!text-5xl mb-2 text-slate-300">search_off</mat-icon>
-                  <p class="text-sm font-medium">{{ 'projects.proposal.catalog.noItems' | translate }}</p>
-                  <p class="text-xs mt-1">{{ 'projects.proposal.catalog.tryAnotherSearch' | translate }}</p>
-                </div>
-              } @else {
-                @for (item of filteredCatalogItems(); track item.id) {
-                  <div class="group flex items-center gap-2 px-2 py-1 rounded hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-all cursor-pointer"
-                       (click)="addCatalogItemToProposal(item)">
-                    <div class="flex-1 min-w-0">
-                      <p class="text-xs font-semibold text-slate-800 truncate group-hover:text-blue-700 leading-tight">
-                        {{ item.name }}
-                      </p>
-                      @if (item.description) {
-                        <p class="text-[11px] text-slate-500 truncate leading-tight">
-                          {{ item.description }}
-                        </p>
-                      }
-                    </div>
-                    <button
-                      mat-icon-button
-                      type="button"
-                      class="!w-6 !h-6 !min-w-0 !p-0 !flex !items-center !justify-center flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <mat-icon class="!text-base !w-4 !h-4 !leading-4 text-blue-600">add_circle</mat-icon>
-                    </button>
-                  </div>
-                }
-              }
-            </div>
+        @if (proposalForm.get('discountPercentage')?.value > 0) {
+          <div class="summary-row">
+            <span>{{ 'projects.proposal.totals.discount' | translate }} ({{ proposalForm.get('discountPercentage')?.value }}%):</span>
+            <span class="value negative">- {{ calculateDiscount() | currencyFormatter }}</span>
           </div>
+        }
 
-          <!-- PANEL DERECHO: Items Seleccionados -->
-          <div class="border-2 border-blue-300 rounded-lg overflow-hidden bg-blue-50/30">
-            <!-- Header del panel derecho -->
-            <div class="bg-blue-100 p-3 border-b-2 border-blue-200">
-              <div class="flex items-center justify-between">
-                <h3 class="text-sm font-bold text-blue-900 flex items-center gap-2">
-                  <mat-icon class="!text-lg text-blue-700">checklist</mat-icon>
-                  {{ 'projects.proposal.catalog.selectedItems' | translate }} ({{ selectedCatalogItems().length }})
-                </h3>
-                @if (selectedCatalogItems().length > 0) {
-                  <button
-                    mat-button
-                    color="warn"
-                    type="button"
-                    (click)="removeAllSelectedItems()"
-                    class="!text-xs !py-1 !px-3">
-                    <mat-icon class="!text-sm">remove_circle</mat-icon>
-                    {{ 'projects.proposal.catalog.removeAll' | translate }}
-                  </button>
-                }
-              </div>
-            </div>
+        <div class="summary-divider"></div>
 
-            <!-- Lista con scroll fijo -->
-            <div class="h-96 overflow-y-auto px-1.5 py-1 space-y-0.5">
-              @if (selectedCatalogItems().length === 0) {
-                <div class="text-center py-12 text-blue-400">
-                  <mat-icon class="!text-5xl mb-2 text-blue-300">playlist_add</mat-icon>
-                  <p class="text-sm font-medium">{{ 'projects.proposal.catalog.noSelectedItems' | translate }}</p>
-                  <p class="text-xs mt-1">{{ 'projects.proposal.catalog.clickToAdd' | translate }}</p>
-                </div>
-              } @else {
-                @for (item of selectedCatalogItems(); track item.id; let i = $index) {
-                  <div class="group flex items-center gap-2 px-2 py-1 rounded bg-white hover:bg-red-50 border border-blue-200 hover:border-red-200 transition-all">
-                    <!-- Número de orden -->
-                    <div class="flex items-center justify-center w-5 h-5 bg-blue-600 text-white rounded font-bold text-[10px] flex-shrink-0">
-                      {{ i + 1 }}
-                    </div>
-
-                    <div class="flex-1 min-w-0">
-                      <p class="text-xs font-semibold text-slate-800 truncate leading-tight">
-                        {{ item.name }}
-                      </p>
-                      @if (item.description) {
-                        <p class="text-[11px] text-slate-500 truncate leading-tight">
-                          {{ item.description }}
-                        </p>
-                      }
-                    </div>
-
-                    <button
-                      mat-icon-button
-                      type="button"
-                      (click)="removeCatalogItemFromProposal(item.id)"
-                      class="!w-6 !h-6 !min-w-0 !p-0 !flex !items-center !justify-center flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <mat-icon class="!text-base !w-4 !h-4 !leading-4 text-red-600">remove_circle</mat-icon>
-                    </button>
-                  </div>
-                }
-              }
-            </div>
-          </div>
-
+        <div class="summary-total">
+          <span>{{ 'projects.proposal.totals.totalLabel' | translate }}</span>
+          <span class="total-value">{{ calculateTotal() | currencyFormatter }}</span>
         </div>
+      </div>
+    </div>
 
-        <!-- Nota informativa -->
-        <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200 flex items-start gap-3">
-          <mat-icon class="text-blue-600 !text-base mt-0.5">info</mat-icon>
-          <p class="text-xs text-blue-800">
-            <strong>{{ 'projects.proposal.catalog.howToUse' | translate }}</strong> {{ 'projects.proposal.catalog.instructions' | translate }}
-          </p>
+    <!-- ========== NOTAS Y TÉRMINOS ========== -->
+    <div class="form-section animate-fadeIn" style="animation-delay: 0.35s">
+      <div class="section-header">
+        <div class="section-icon slate">
+          <mat-icon>notes</mat-icon>
+        </div>
+        <div>
+          <h2>{{ 'projects.proposal.notes.title' | translate }}</h2>
+          <p>{{ 'projects.proposal.notes.description' | translate }}</p>
         </div>
       </div>
 
-      <!-- ========== EXTRAS NO INCLUIDOS ========== -->
-      <div class="card-modern p-5 border-2 transition-all duration-300"
-           [ngClass]="includeExtrasSection() ? 'border-amber-300 bg-amber-50/30' : 'border-amber-100 bg-white'">
-
-        <!-- Header con checkbox principal -->
-        <div class="mb-4 pb-3 border-b-2 transition-colors duration-300"
-             [ngClass]="includeExtrasSection() ? 'border-amber-300' : 'border-amber-100'">
-          <div class="flex items-start justify-between gap-4">
-            <div class="flex-1">
-              <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center transition-colors duration-300"
-                     [ngClass]="includeExtrasSection() ? 'bg-amber-500' : 'bg-amber-100'">
-                  <mat-icon [ngClass]="includeExtrasSection() ? 'text-white' : 'text-amber-700'" class="!text-xl">do_not_disturb_on</mat-icon>
-                </div>
-                {{ 'projects.proposal.items.extrasNotIncluded' | translate }}
-              </h2>
-              <p class="text-sm text-slate-500 mt-2 ml-13">
-                {{ 'projects.proposal.items.extrasDescription' | translate }}
-              </p>
-            </div>
-
-            <!-- Checkbox Principal -->
-            <label class="flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 hover:shadow-md"
-                   [ngClass]="includeExtrasSection()
-                     ? 'bg-amber-500 border-amber-600'
-                     : 'bg-white border-amber-200 hover:border-amber-300'">
-              <input
-                type="checkbox"
-                [checked]="includeExtrasSection()"
-                (change)="toggleExtrasSection($any($event.target).checked)"
-                class="w-6 h-6 text-amber-600 border-2 border-amber-400 rounded
-                       focus:ring-2 focus:ring-amber-500 focus:ring-offset-2
-                       cursor-pointer transition-all">
-              <div class="flex flex-col">
-                <span class="text-sm font-bold transition-colors"
-                      [ngClass]="includeExtrasSection() ? 'text-white' : 'text-slate-800'">
-                  {{ includeExtrasSection() ? 'Sección Activada' : 'Activar Sección' }}
-                </span>
-                <span class="text-xs transition-colors"
-                      [ngClass]="includeExtrasSection() ? 'text-amber-100' : 'text-slate-500'">
-                  {{ includeExtrasSection() ? 'Se incluirá en el estimado' : 'No se incluirá en el estimado' }}
-                </span>
-              </div>
-            </label>
-          </div>
+      <div class="space-y-4">
+        <!-- Notas Visibles -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>visibility</mat-icon>
+            {{ 'projects.proposal.notes.clientNotes' | translate }}
+          </label>
+          <textarea formControlName="notes" rows="3" class="form-textarea"
+                    [placeholder]="'projects.proposal.notes.clientNotesPlaceholder' | translate"></textarea>
         </div>
 
-        <!-- Lista fija de extras (siempre visible) -->
-        <div class="space-y-1">
-          @for (extra of FIXED_EXTRAS; track $index; let i = $index) {
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all duration-200"
-                 [ngClass]="includeExtrasSection()
-                   ? 'bg-amber-100/50 border-amber-200'
-                   : 'bg-slate-50 border-slate-200'">
+        <!-- Notas Internas -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>visibility_off</mat-icon>
+            {{ 'projects.proposal.notes.internalNotes' | translate }}
+          </label>
+          <textarea formControlName="internalNotes" rows="3" class="form-textarea internal"
+                    [placeholder]="'projects.proposal.notes.internalNotesPlaceholder' | translate"></textarea>
+        </div>
 
-              <!-- Número -->
-              <div class="flex items-center justify-center w-5 h-5 rounded font-bold text-[10px] flex-shrink-0 transition-colors duration-200"
-                   [ngClass]="includeExtrasSection()
-                     ? 'bg-amber-600 text-white'
-                     : 'bg-slate-300 text-slate-600'">
-                {{ i + 1 }}
-              </div>
-
-              <!-- Descripción -->
-              <div class="flex-1">
-                <p class="text-xs font-medium leading-tight transition-colors duration-200"
-                   [ngClass]="includeExtrasSection()
-                     ? 'text-amber-900'
-                     : 'text-slate-600'">
-                  {{ extra }}
-                </p>
-              </div>
-
-              <!-- Indicador visual -->
-              @if (includeExtrasSection()) {
-                <div class="flex items-center justify-center w-5 h-5 bg-amber-600 rounded-full flex-shrink-0 animate-fade-in">
-                  <mat-icon class="!text-sm text-white">check</mat-icon>
-                </div>
-              }
-            </div>
-          }
+        <!-- Términos y Condiciones -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>gavel</mat-icon>
+            {{ 'projects.proposal.terms.title' | translate }}
+          </label>
+          <textarea formControlName="terms" rows="5" class="form-textarea"
+                    [placeholder]="'projects.proposal.terms.placeholder' | translate"></textarea>
         </div>
       </div>
+    </div>
 
-      <!-- ========== TOTALES ========== -->
-      <div class="card-modern p-5 bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100 border-2 border-blue-300 shadow-lg">
-        <div class="mb-4 pb-3 border-b-2 border-blue-200">
-          <h2 class="text-xl font-bold text-blue-900 flex items-center gap-3">
-            <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-              <mat-icon class="text-white !text-xl">calculate</mat-icon>
-            </div>
-            {{ 'projects.proposal.totals.title' | translate }}
-          </h2>
-          <p class="text-sm text-blue-700 mt-2 ml-13">{{ 'projects.proposal.totals.description' | translate }}</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
-          <!-- Subtotal -->
-          <div>
-            <label class="block text-sm font-semibold text-blue-900 mb-2">
-              {{ 'projects.proposal.totals.subtotal' | translate }} <span class="text-red-500">{{ 'common.required' | translate }}</span>
-            </label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !text-lg"
-                        [ngClass]="shouldShowError('subtotal') ? 'text-red-500' : 'text-blue-600'">payments</mat-icon>
-              <span class="absolute left-11 top-1/2 -translate-y-1/2 text-sm font-bold"
-                    [ngClass]="shouldShowError('subtotal') ? 'text-red-800' : 'text-blue-800'">$</span>
-              <input
-                type="number"
-                formControlName="subtotal"
-                min="0"
-                step="0.01"
-                required
-                [ngClass]="shouldShowError('subtotal')
-                  ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100 text-red-900'
-                  : 'border-blue-300 bg-white focus:border-blue-600 focus:ring-blue-200 text-blue-900 hover:border-blue-400'"
-                class="w-full pl-16 pr-4 py-3 text-sm border-2 rounded-lg outline-none transition-all font-semibold"
-                placeholder="0.00">
-            </div>
-            @if (shouldShowError('subtotal')) {
-              <p class="text-xs text-red-500 mt-1.5 font-semibold">⚠️ {{ 'projects.proposal.totals.subtotalRequired' | translate }}</p>
-            }
-          </div>
-
-          <!-- Impuesto -->
-          <div>
-            <label class="block text-sm font-semibold text-blue-900 mb-2">{{ 'projects.proposal.totals.taxPercent' | translate }}</label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg">percent</mat-icon>
-              <input
-                type="number"
-                formControlName="taxPercentage"
-                min="0"
-                max="100"
-                step="0.01"
-                class="w-full pl-11 pr-12 py-3 text-sm border-2 border-blue-300 rounded-lg
-                       focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none
-                       transition-all bg-white text-blue-900 hover:border-blue-400 font-semibold"
-                placeholder="0">
-              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600 font-bold">%</span>
-            </div>
-          </div>
-
-          <!-- Descuento -->
-          <div>
-            <label class="block text-sm font-semibold text-blue-900 mb-2">{{ 'projects.proposal.totals.discountPercent' | translate }}</label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg">local_offer</mat-icon>
-              <input
-                type="number"
-                formControlName="discountPercentage"
-                min="0"
-                max="100"
-                step="0.01"
-                class="w-full pl-11 pr-12 py-3 text-sm border-2 border-blue-300 rounded-lg
-                       focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none
-                       transition-all bg-white text-blue-900 hover:border-blue-400 font-semibold"
-                placeholder="0">
-              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600 font-bold">%</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Cálculos -->
-        <div class="bg-white p-5 rounded-lg space-y-3 shadow-sm">
-          <div class="flex justify-between text-sm">
-            <span class="text-slate-600 font-medium">{{ 'projects.proposal.totals.subtotal' | translate }}:</span>
-            <span class="font-bold text-slate-800">{{ getSubtotal() | currencyFormatter }}</span>
-          </div>
-
-          @if (proposalForm.get('taxPercentage')?.value > 0) {
-            <div class="flex justify-between text-sm">
-              <span class="text-slate-600">{{ 'projects.proposal.totals.tax' | translate }} ({{ proposalForm.get('taxPercentage')?.value }}%):</span>
-              <span class="font-semibold text-green-600">
-                + {{ calculateTax() | currencyFormatter }}
-              </span>
-            </div>
-          }
-
-          @if (proposalForm.get('discountPercentage')?.value > 0) {
-            <div class="flex justify-between text-sm">
-              <span class="text-slate-600">{{ 'projects.proposal.totals.discount' | translate }} ({{ proposalForm.get('discountPercentage')?.value }}%):</span>
-              <span class="font-semibold text-red-600">
-                - {{ calculateDiscount() | currencyFormatter }}
-              </span>
-            </div>
-          }
-
-          <mat-divider class="my-3"></mat-divider>
-
-          <div class="flex justify-between items-center pt-2">
-            <span class="text-lg font-bold text-blue-900">{{ 'projects.proposal.totals.totalLabel' | translate }}</span>
-            <span class="text-2xl font-bold text-blue-600">{{ calculateTotal() | currencyFormatter }}</span>
-          </div>
-        </div>
+    <!-- ========== BARRA DE ACCIONES STICKY ========== -->
+    <div class="actions-bar animate-fadeIn" style="animation-delay: 0.4s">
+      <div class="form-status">
+        @if (proposalForm.invalid) {
+          <mat-icon class="text-amber-500">warning</mat-icon>
+          <span class="text-amber-600">{{ 'projects.proposal.validation.formIncomplete' | translate }}</span>
+        } @else {
+          <mat-icon class="text-green-500">check_circle</mat-icon>
+          <span class="text-green-600">{{ 'projects.proposal.validation.formComplete' | translate }}</span>
+        }
       </div>
 
-      <!-- ========== NOTAS Y TÉRMINOS ========== -->
-      <div class="card-modern p-5">
-        <div class="mb-4 pb-3 border-b-2 border-slate-100">
-          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
-            <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-              <mat-icon class="text-slate-600 !text-xl">notes</mat-icon>
-            </div>
-            {{ 'projects.proposal.notes.title' | translate }}
-          </h2>
-          <p class="text-sm text-slate-500 mt-2 ml-13">{{ 'projects.proposal.notes.description' | translate }}</p>
-        </div>
+      <div class="flex gap-2">
+        <button type="button" class="btn-cancel" (click)="cancel()" [disabled]="isLoading()">
+          <mat-icon>close</mat-icon>
+          <span>{{ 'common.cancel' | translate }}</span>
+        </button>
 
-        <div class="space-y-5">
-          <!-- Notas Visibles -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-              <mat-icon class="!text-lg text-slate-600">visibility</mat-icon>
-              {{ 'projects.proposal.notes.clientNotes' | translate }}
-            </label>
-            <textarea
-              formControlName="notes"
-              rows="4"
-              class="w-full px-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                     focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                     transition-all bg-white text-slate-800 hover:border-slate-300
-                     resize-vertical min-h-[100px]"
-              [placeholder]="'projects.proposal.notes.clientNotesPlaceholder' | translate"></textarea>
-          </div>
-
-          <!-- Notas Internas -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-              <mat-icon class="!text-lg text-slate-600">visibility_off</mat-icon>
-              {{ 'projects.proposal.notes.internalNotes' | translate }}
-            </label>
-            <textarea
-              formControlName="internalNotes"
-              rows="3"
-              class="w-full px-4 py-3 text-sm border-2 border-purple-200 rounded-lg
-                     focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none
-                     transition-all bg-purple-50/30 text-slate-800 hover:border-purple-300
-                     resize-vertical min-h-[80px]"
-              [placeholder]="'projects.proposal.notes.internalNotesPlaceholder' | translate"></textarea>
-          </div>
-
-          <!-- Términos y Condiciones -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-              <mat-icon class="!text-lg text-slate-600">gavel</mat-icon>
-              {{ 'projects.proposal.terms.title' | translate }}
-            </label>
-            <textarea
-              formControlName="terms"
-              rows="5"
-              class="w-full px-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                     focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                     transition-all bg-white text-slate-800 hover:border-slate-300
-                     resize-vertical min-h-[120px]"
-              [placeholder]="'projects.proposal.terms.placeholder' | translate"></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========== BOTONES FINALES ========== -->
-      <div class="sticky bottom-0 bg-gradient-to-r from-slate-100 to-slate-200 p-6 rounded-xl shadow-lg border-2 border-slate-300 flex justify-between items-center gap-4">
-        <div class="text-sm text-slate-600">
-          @if (proposalForm.invalid) {
-            <div class="flex items-center gap-2 text-amber-600">
-              <mat-icon class="!text-base">warning</mat-icon>
-              <span class="font-medium">{{ 'projects.proposal.validation.formIncomplete' | translate }}</span>
-            </div>
+        <button type="button" class="btn-secondary" (click)="save(true)" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <div class="btn-spinner"></div>
           } @else {
-            <div class="flex items-center gap-2 text-green-600">
-              <mat-icon class="!text-base">check_circle</mat-icon>
-              <span class="font-medium">{{ 'projects.proposal.validation.formComplete' | translate }}</span>
-            </div>
+            <mat-icon>drafts</mat-icon>
           }
-        </div>
+          <span>{{ 'common.saveDraft' | translate }}</span>
+        </button>
 
-        <div class="flex gap-3">
-          <button
-            mat-stroked-button
-            type="button"
-            (click)="cancel()"
-            [disabled]="isLoading()"
-            class="!px-6 !py-3 !border-2">
-            <mat-icon>close</mat-icon>
-            {{ 'common.cancel' | translate }}
-          </button>
-          <button
-            mat-button
-            color="accent"
-            type="button"
-            (click)="save(true)"
-            [disabled]="isLoading()"
-            class="!px-6 !py-3 !border-2">
-            @if (isLoading()) {
-              <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
-            } @else {
-              <mat-icon>drafts</mat-icon>
-            }
-            {{ 'common.saveDraft' | translate }}
-          </button>
-          <button
-            mat-raised-button
-            color="primary"
-            type="button"
-            (click)="save(false)"
-            [disabled]="isLoading()"
-            class="!px-8 !py-3 !text-base">
-            @if (isLoading()) {
-              <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
-            } @else {
-              <mat-icon>save</mat-icon>
-            }
-            {{ isEditMode() ? ('projects.proposal.updateEstimate' | translate) : ('common.saveAndFinish' | translate) }}
-          </button>
-        </div>
+        <button type="button" class="btn-primary" (click)="save(false)" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <div class="btn-spinner"></div>
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+          <span>{{ isEditMode() ? ('projects.proposal.updateEstimate' | translate) : ('common.saveAndFinish' | translate) }}</span>
+        </button>
       </div>
+    </div>
 
-    </form>
+  </form>
 
-  </div>
 </div>

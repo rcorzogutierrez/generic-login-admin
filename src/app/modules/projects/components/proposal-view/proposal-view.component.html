@@ -1,249 +1,221 @@
-<!-- proposal-view.component.html -->
+<!-- proposal-view.component.html - DISEÑO COMPACTO BLUE -->
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[1200px] mx-auto p-5">
+<div class="view-container">
 
-    @if (isLoading()) {
-      <!-- Loading State -->
-      <div class="flex flex-col items-center justify-center py-16">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p class="text-sm text-slate-500 mt-4">{{ 'projects.proposal.view.loading' | translate }}</p>
+  @if (isLoading()) {
+    <!-- Loading State -->
+    <div class="loading-state">
+      <div class="spinner blue"></div>
+      <p>{{ 'projects.proposal.view.loading' | translate }}</p>
+    </div>
+  } @else if (proposal()) {
+
+    <!-- ========== HEADER COMPACTO ========== -->
+    <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn print:hidden">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+
+        <!-- Left: Back + Icon + Title -->
+        <div class="flex items-center gap-3">
+          <button type="button" class="back-btn" (click)="back()" title="Volver">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <div class="header-icon-box" [class.blue]="proposal()!.status !== 'converted_to_invoice'" [class.green]="proposal()!.status === 'converted_to_invoice'">
+            <mat-icon>{{ proposal()!.status === 'converted_to_invoice' ? 'receipt_long' : 'description' }}</mat-icon>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold text-slate-800">
+              @if (proposal()!.status === 'converted_to_invoice') {
+                {{ 'projects.proposal.view.invoice' | translate }} {{ proposal()!.proposalNumber }}
+              } @else {
+                {{ 'projects.proposal.view.estimate' | translate }} {{ proposal()!.proposalNumber }}
+              }
+            </h1>
+            <p class="text-xs text-slate-500">
+              @if (proposal()!.status === 'converted_to_invoice') {
+                {{ 'projects.proposal.view.detailedViewInvoice' | translate }}
+              } @else {
+                {{ 'projects.proposal.view.detailedView' | translate }}
+              }
+            </p>
+          </div>
+        </div>
+
+        <!-- Right: Actions -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <!-- Toggle para mostrar detalles del estimado (solo en facturas) -->
+          @if (proposal()!.status === 'converted_to_invoice') {
+            <label class="details-toggle" [class.active]="showProposalDetails()">
+              <input type="checkbox" [checked]="showProposalDetails()" (change)="toggleProposalDetails()">
+              <mat-icon>{{ showProposalDetails() ? 'visibility' : 'visibility_off' }}</mat-icon>
+              <span>{{ 'projects.proposal.view.estimateDetails' | translate }}</span>
+            </label>
+          }
+
+          <button type="button" class="icon-btn" (click)="print()" title="{{ 'projects.proposal.view.print' | translate }}">
+            <mat-icon>print</mat-icon>
+          </button>
+
+          @if (proposal()!.status !== 'converted_to_invoice') {
+            <button type="button" class="btn-primary" (click)="editProposal()">
+              <mat-icon>edit</mat-icon>
+              <span>{{ 'projects.proposal.view.editEstimate' | translate }}</span>
+            </button>
+          }
+
+          <button type="button" class="icon-btn" [matMenuTriggerFor]="menu" title="{{ 'projects.proposal.view.moreOptions' | translate }}">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+
+          <mat-menu #menu="matMenu">
+            @if (proposal()!.status === 'draft') {
+              <button mat-menu-item (click)="changeStatus('sent')">
+                <mat-icon>send</mat-icon>
+                <span>{{ 'projects.proposal.view.markAsSent' | translate }}</span>
+              </button>
+            }
+
+            @if (proposal()!.status === 'sent') {
+              <button mat-menu-item (click)="changeStatus('approved')">
+                <mat-icon class="text-green-600">check_circle</mat-icon>
+                <span>{{ 'projects.proposal.view.markAsApproved' | translate }}</span>
+              </button>
+              <button mat-menu-item (click)="changeStatus('rejected')">
+                <mat-icon class="text-red-600">cancel</mat-icon>
+                <span>{{ 'projects.proposal.view.markAsRejected' | translate }}</span>
+              </button>
+            }
+
+            @if (proposal()!.status === 'approved') {
+              <button mat-menu-item (click)="convertToInvoice()">
+                <mat-icon class="text-blue-600">receipt</mat-icon>
+                <span>{{ 'projects.proposal.view.convertToInvoice' | translate }}</span>
+              </button>
+            }
+
+            <mat-divider></mat-divider>
+
+            <button mat-menu-item (click)="deleteProposal()" class="text-red-600">
+              <mat-icon class="text-red-600">delete</mat-icon>
+              <span>{{ 'projects.proposal.view.delete' | translate }}</span>
+            </button>
+          </mat-menu>
+        </div>
+
       </div>
-    } @else if (proposal()) {
+    </header>
 
-      <!-- ========== HEADER ========== -->
-      <header class="page-header print:hidden">
-        <div class="flex items-center justify-between gap-5">
-          <div class="flex items-center gap-4">
-            <button
-              mat-icon-button
-              (click)="back()"
-              class="icon-btn">
-              <mat-icon>arrow_back</mat-icon>
-            </button>
-            <div>
-              <h1 class="text-2xl font-bold text-slate-800">
+    <!-- ========== DOCUMENTO DEL ESTIMADO ========== -->
+    <div class="document-card animate-fadeIn" style="animation-delay: 0.05s">
+
+      <!-- Encabezado del documento -->
+      <div class="document-header">
+        <div class="grid grid-cols-12 gap-4">
+
+          <!-- Columna Izquierda: Info del Cliente -->
+          <div class="col-span-4 space-y-1.5">
+            <p class="doc-info-row">
+              <span class="doc-label">{{ 'projects.proposal.view.for' | translate }}</span>
+              <span class="doc-value font-bold">{{ proposal()!.ownerName }}</span>
+            </p>
+            <p class="doc-info-row">
+              <span class="doc-label">{{ 'projects.proposal.location.address' | translate }}</span>
+              <span class="doc-value">{{ proposal()!.address }}, {{ proposal()!.city }}@if (proposal()!.state) {, {{ proposal()!.state }}}@if (proposal()!.zipCode) { {{ proposal()!.zipCode }}}</span>
+            </p>
+            <p class="doc-info-row">
+              <span class="doc-label">
                 @if (proposal()!.status === 'converted_to_invoice') {
-                  {{ 'projects.proposal.view.invoice' | translate }} {{ proposal()!.proposalNumber }}
+                  {{ 'projects.proposal.view.invoiceDate' | translate }}
                 } @else {
-                  {{ 'projects.proposal.view.estimate' | translate }} {{ proposal()!.proposalNumber }}
+                  {{ 'projects.proposal.view.date' | translate }}
                 }
-              </h1>
-              <p class="text-sm text-slate-500">
-                @if (proposal()!.status === 'converted_to_invoice') {
-                  {{ 'projects.proposal.view.detailedViewInvoice' | translate }}
-                } @else {
-                  {{ 'projects.proposal.view.detailedView' | translate }}
-                }
-              </p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <!-- Toggle para mostrar detalles del estimado (solo en facturas) -->
-            @if (proposal()!.status === 'converted_to_invoice') {
-              <div class="flex items-center gap-2 px-3 py-2 bg-slate-100 rounded-lg">
-                <mat-icon class="!text-lg text-slate-600">{{showProposalDetails() ? 'visibility' : 'visibility_off'}}</mat-icon>
-                <mat-slide-toggle
-                  [checked]="showProposalDetails()"
-                  (change)="toggleProposalDetails()"
-                  color="primary"
-                  class="text-sm">
-                  <span class="text-sm text-slate-700 font-medium">{{ 'projects.proposal.view.estimateDetails' | translate }}</span>
-                </mat-slide-toggle>
-              </div>
-            }
-            <button
-              mat-icon-button
-              (click)="print()"
-              [matTooltip]="'projects.proposal.view.print' | translate">
-              <mat-icon>print</mat-icon>
-            </button>
-
-            <!-- Botón de editar (disponible para estimados no facturados) -->
-            @if (proposal()!.status !== 'converted_to_invoice') {
-              <button
-                mat-raised-button
-                color="primary"
-                (click)="editProposal()">
-                <mat-icon>edit</mat-icon>
-                {{ 'projects.proposal.view.editEstimate' | translate }}
-              </button>
-            }
-
-            <button
-              mat-icon-button
-              [matMenuTriggerFor]="menu"
-              [matTooltip]="'projects.proposal.view.moreOptions' | translate">
-              <mat-icon>more_vert</mat-icon>
-            </button>
-
-            <mat-menu #menu="matMenu">
-              @if (proposal()!.status === 'draft') {
-                <button mat-menu-item (click)="changeStatus('sent')">
-                  <mat-icon>send</mat-icon>
-                  <span>{{ 'projects.proposal.view.markAsSent' | translate }}</span>
-                </button>
-              }
-
-              @if (proposal()!.status === 'sent') {
-                <button mat-menu-item (click)="changeStatus('approved')">
-                  <mat-icon class="text-green-600">check_circle</mat-icon>
-                  <span>{{ 'projects.proposal.view.markAsApproved' | translate }}</span>
-                </button>
-                <button mat-menu-item (click)="changeStatus('rejected')">
-                  <mat-icon class="text-red-600">cancel</mat-icon>
-                  <span>{{ 'projects.proposal.view.markAsRejected' | translate }}</span>
-                </button>
-              }
-
-              @if (proposal()!.status === 'approved') {
-                <button mat-menu-item (click)="convertToInvoice()">
-                  <mat-icon class="text-blue-600">receipt</mat-icon>
-                  <span>{{ 'projects.proposal.view.convertToInvoice' | translate }}</span>
-                </button>
-              }
-
-              <mat-divider></mat-divider>
-
-              <button mat-menu-item (click)="deleteProposal()" class="text-red-600">
-                <mat-icon class="text-red-600">delete</mat-icon>
-                <span>{{ 'projects.proposal.view.delete' | translate }}</span>
-              </button>
-            </mat-menu>
-          </div>
-        </div>
-      </header>
-
-      <!-- ========== DOCUMENTO DEL ESTIMADO ========== -->
-      <div class="card-modern mt-6 print:shadow-none print:border-0">
-
-        <!-- Encabezado del documento -->
-        <div class="border-b-2 border-blue-600 pb-2 mb-2">
-          <div class="grid grid-cols-12 gap-4">
-
-            <!-- Columna Izquierda: Nombre, Dirección y Fecha -->
-            <div class="col-span-4 space-y-1.5">
-              <!-- Nombre del Cliente -->
-              <p class="text-xs text-slate-700">
-                <span class="font-semibold text-slate-500">{{ 'projects.proposal.view.for' | translate }}</span>
-                <span class="font-bold text-sm text-slate-800 ml-1">{{ proposal()!.ownerName }}</span>
-              </p>
-
-              <!-- Dirección -->
-              <p class="text-xs text-slate-700">
-                <span class="font-semibold text-slate-500">{{ 'projects.proposal.location.address' | translate }}</span>
-                <span class="text-slate-800 ml-1">{{ proposal()!.address }}, {{ proposal()!.city }}@if (proposal()!.state) {, {{ proposal()!.state }}}@if (proposal()!.zipCode) { {{ proposal()!.zipCode }}}</span>
-              </p>
-
-              <!-- Fecha -->
-              <p class="text-xs text-slate-700">
-                <span class="font-semibold text-slate-500">
-                  @if (proposal()!.status === 'converted_to_invoice') {
-                    {{ 'projects.proposal.view.invoiceDate' | translate }}
-                  } @else {
-                    {{ 'projects.proposal.view.date' | translate }}
-                  }
-                </span>
-                <span class="font-semibold text-slate-800 ml-1">
-                  @if (proposal()!.status === 'converted_to_invoice') {
-                    {{ proposal()!.invoiceDate ? formatDate(proposal()!.invoiceDate) : formatDate(proposal()!.date) }}
-                  } @else {
-                    {{ formatDate(proposal()!.date) }}
-                  }
-                </span>
-              </p>
-            </div>
-
-            <!-- Columna Central: Número del Estimado/Factura -->
-            <div class="col-span-3 flex items-start justify-center">
-              <div class="text-center">
-                @if (proposal()!.status === 'converted_to_invoice') {
-                  <p class="text-xs font-semibold text-slate-500 uppercase mb-1">{{ 'projects.proposal.view.invoice' | translate }}</p>
-                } @else {
-                  <p class="text-xs font-semibold text-slate-500 uppercase mb-1">{{ 'projects.proposal.view.estimate' | translate }}</p>
-                }
-                <p class="text-xl font-bold text-blue-600">{{ proposal()!.proposalNumber }}</p>
-              </div>
-            </div>
-
-            <!-- Columna Derecha: Logo e Info de Empresa -->
-            <div class="col-span-5 text-right">
-              @if (businessInfo()?.logoUrl) {
-                <img
-                  [src]="businessInfo()!.logoUrl"
-                  [alt]="businessInfo()!.businessName || 'Logo de la empresa'"
-                  class="max-h-16 w-auto object-contain mb-2 ml-auto">
-              }
-              @if (businessInfo()) {
-                <div class="text-xs text-slate-600 space-y-0.5">
-                  @if (businessInfo()!.businessName) {
-                    <p class="font-bold text-sm text-slate-800">{{ businessInfo()!.businessName }}</p>
-                  }
-                  @if (businessInfo()!.emails && businessInfo()!.emails.length > 0) {
-                    <p>{{ businessInfo()!.emails[0].value }}</p>
-                  }
-                  @if (businessInfo()!.phones && businessInfo()!.phones!.length > 0) {
-                    <p>{{ businessInfo()!.phones![0].value }}</p>
-                  }
-                  @if (businessInfo()!.address) {
-                    @if (businessInfo()!.address!.street) {
-                      <p>{{ businessInfo()!.address!.street }}</p>
-                    }
-                    @if (businessInfo()!.address!.city || businessInfo()!.address!.state) {
-                      <p>
-                        @if (businessInfo()!.address!.city) {
-                          {{ businessInfo()!.address!.city }}
-                        }
-                        @if (businessInfo()!.address!.state) {
-                          , {{ businessInfo()!.address!.state }}
-                        }
-                        @if (businessInfo()!.address!.zipCode) {
-                          {{ businessInfo()!.address!.zipCode }}
-                        }
-                      </p>
-                    }
-                  }
-                </div>
-              }
-              <span [class]="getStatusClass(proposal()!.status)" class="text-base print:hidden mt-2 inline-block">
-                {{ getStatusLabel(proposal()!.status) }}
               </span>
-            </div>
-
+              <span class="doc-value font-semibold">
+                @if (proposal()!.status === 'converted_to_invoice') {
+                  {{ proposal()!.invoiceDate ? formatDate(proposal()!.invoiceDate) : formatDate(proposal()!.date) }}
+                } @else {
+                  {{ formatDate(proposal()!.date) }}
+                }
+              </span>
+            </p>
           </div>
-        </div>
 
-        <!-- ========== DETALLES DEL ESTIMADO ORIGINAL (ocultables en facturas) ========== -->
-        @if (proposal()!.status !== 'converted_to_invoice' || showProposalDetails()) {
+          <!-- Columna Central: Número -->
+          <div class="col-span-3 flex items-start justify-center">
+            <div class="document-number-box">
+              @if (proposal()!.status === 'converted_to_invoice') {
+                <span class="doc-type-label">{{ 'projects.proposal.view.invoice' | translate }}</span>
+              } @else {
+                <span class="doc-type-label">{{ 'projects.proposal.view.estimate' | translate }}</span>
+              }
+              <span class="doc-number">{{ proposal()!.proposalNumber }}</span>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Logo e Info de Empresa -->
+          <div class="col-span-5 text-right">
+            @if (businessInfo()?.logoUrl) {
+              <img [src]="businessInfo()!.logoUrl"
+                   [alt]="businessInfo()!.businessName || 'Logo'"
+                   class="company-logo">
+            }
+            @if (businessInfo()) {
+              <div class="company-info">
+                @if (businessInfo()!.businessName) {
+                  <p class="company-name">{{ businessInfo()!.businessName }}</p>
+                }
+                @if (businessInfo()!.emails && businessInfo()!.emails.length > 0) {
+                  <p>{{ businessInfo()!.emails[0].value }}</p>
+                }
+                @if (businessInfo()!.phones && businessInfo()!.phones!.length > 0) {
+                  <p>{{ businessInfo()!.phones![0].value }}</p>
+                }
+                @if (businessInfo()!.address) {
+                  @if (businessInfo()!.address!.street) {
+                    <p>{{ businessInfo()!.address!.street }}</p>
+                  }
+                  @if (businessInfo()!.address!.city || businessInfo()!.address!.state) {
+                    <p>
+                      {{ businessInfo()!.address!.city }}{{ businessInfo()!.address!.state ? ', ' + businessInfo()!.address!.state : '' }}
+                      {{ businessInfo()!.address!.zipCode }}
+                    </p>
+                  }
+                }
+              </div>
+            }
+            <span [class]="'status-badge ' + getStatusClass(proposal()!.status)" class="print:hidden mt-2 inline-block">
+              {{ getStatusLabel(proposal()!.status) }}
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ========== DETALLES DEL ESTIMADO ORIGINAL ========== -->
+      @if (proposal()!.status !== 'converted_to_invoice' || showProposalDetails()) {
 
         <!-- Items Incluidos -->
         @if (proposal()!.includes && proposal()!.includes.length > 0) {
-          <div class="mb-3">
-            <h3 class="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
-              <mat-icon class="!text-base text-blue-600">checklist</mat-icon>
+          <div class="doc-section">
+            <h3 class="section-title blue">
+              <mat-icon>checklist</mat-icon>
               {{ 'projects.proposal.view.includes' | translate }}
             </h3>
 
-            <div class="space-y-0">
+            <div class="items-list">
               @for (item of proposal()!.includes; track item.id; let i = $index) {
-                <div class="flex items-start gap-2 py-0.5 border-b border-slate-200">
-                  <span class="text-xs font-bold text-slate-600 min-w-[25px]">{{ i + 1 }}.</span>
-                  <div class="flex-1">
-                    <p class="text-xs text-slate-800 leading-tight">{{ item.description }}</p>
+                <div class="item-row">
+                  <span class="item-number">{{ i + 1 }}.</span>
+                  <div class="item-content">
+                    <p class="item-desc">{{ item.description }}</p>
                     @if (item.notes) {
-                      <p class="text-[10px] text-slate-500 mt-0.5">{{ item.notes }}</p>
+                      <p class="item-notes">{{ item.notes }}</p>
                     }
                   </div>
                   @if (item.totalPrice && item.totalPrice > 0) {
-                    <div class="text-right min-w-[100px]">
-                      <p class="text-xs font-semibold text-slate-800">
-                        {{ item.totalPrice | currencyFormatter }}
-                      </p>
+                    <div class="item-price">
+                      <p class="price-main">{{ item.totalPrice | currencyFormatter }}</p>
                       @if (item.quantity && item.unitPrice) {
-                        <p class="text-[10px] text-slate-500">
-                          {{ item.quantity }} x {{ item.unitPrice | currencyFormatter }}
-                        </p>
+                        <p class="price-detail">{{ item.quantity }} x {{ item.unitPrice | currencyFormatter }}</p>
                       }
                     </div>
                   }
@@ -255,17 +227,17 @@
 
         <!-- Extras No Incluidos -->
         @if (proposal()!.extras && proposal()!.extras.length > 0) {
-          <div class="mt-4 mb-3">
-            <h3 class="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2">
-              <mat-icon class="!text-base text-amber-600">do_not_disturb_on</mat-icon>
+          <div class="doc-section">
+            <h3 class="section-title amber">
+              <mat-icon>do_not_disturb_on</mat-icon>
               {{ 'projects.proposal.view.extrasNotIncluded' | translate }}
             </h3>
 
-            <div class="space-y-0">
+            <div class="extras-list">
               @for (item of proposal()!.extras; track item.id; let i = $index) {
-                <div class="flex items-start gap-2 py-0.5 border-b border-amber-200">
-                  <span class="text-xs font-bold text-amber-700 min-w-[25px]">{{ i + 1 }}.</span>
-                  <p class="text-xs text-slate-700 leading-tight flex-1">{{ item.description }}</p>
+                <div class="extra-row">
+                  <span class="extra-number">{{ i + 1 }}.</span>
+                  <p class="extra-desc">{{ item.description }}</p>
                 </div>
               }
             </div>
@@ -274,228 +246,175 @@
 
         <!-- Notas -->
         @if (proposal()!.notes) {
-          <div class="mt-3 p-2 bg-slate-50 rounded">
-            <h3 class="text-xs font-semibold text-slate-700 uppercase mb-1">{{ 'projects.proposal.notes.title' | translate }}</h3>
-            <p class="text-xs text-slate-700 whitespace-pre-line leading-tight">{{ proposal()!.notes }}</p>
+          <div class="notes-box">
+            <h3>{{ 'projects.proposal.notes.title' | translate }}</h3>
+            <p>{{ proposal()!.notes }}</p>
           </div>
         }
 
         <!-- Términos y Condiciones -->
         @if (proposal()!.terms) {
-          <div class="mt-3 p-2 bg-slate-50 rounded border-l-2 border-blue-600">
-            <h3 class="text-xs font-semibold text-slate-700 uppercase mb-1">{{ 'projects.proposal.terms.title' | translate }}</h3>
-            <p class="text-[10px] text-slate-600 whitespace-pre-line leading-tight">{{ proposal()!.terms }}</p>
+          <div class="terms-box">
+            <h3>{{ 'projects.proposal.terms.title' | translate }}</h3>
+            <p>{{ proposal()!.terms }}</p>
           </div>
         }
 
-        }
-        <!-- Fin de detalles del estimado original -->
+      }
 
-        <!-- ========== SECCIÓN DE FACTURA (solo cuando está convertido a invoice) ========== -->
-        @if (proposal()!.status === 'converted_to_invoice') {
-          <div class="mt-3 pt-3 border-t-2 border-green-200">
-            <div class="flex items-center justify-between mb-2 print:mb-1">
-              <h2 class="text-sm font-bold text-green-800 flex items-center gap-1 uppercase">
-                <mat-icon class="!text-base text-green-600">receipt_long</mat-icon>
-                {{ 'projects.proposal.view.invoiceInfo' | translate }}
-              </h2>
-              <button
-                mat-raised-button
-                color="primary"
-                (click)="editInvoiceData()"
-                class="print:hidden !py-1 !px-2 !text-xs">
-                <mat-icon class="!text-sm">edit</mat-icon>
-                {{ 'projects.proposal.view.editData' | translate }}
-              </button>
+      <!-- ========== SECCIÓN DE FACTURA ========== -->
+      @if (proposal()!.status === 'converted_to_invoice') {
+        <div class="invoice-section">
+          <div class="invoice-header">
+            <h2>
+              <mat-icon>receipt_long</mat-icon>
+              {{ 'projects.proposal.view.invoiceInfo' | translate }}
+            </h2>
+            <button type="button" class="btn-edit print:hidden" (click)="editInvoiceData()">
+              <mat-icon>edit</mat-icon>
+              {{ 'projects.proposal.view.editData' | translate }}
+            </button>
+          </div>
+
+          <!-- Info Grid -->
+          <div class="invoice-info-grid">
+            <div class="info-card">
+              <span class="info-label">{{ 'projects.proposal.view.startDate' | translate }}</span>
+              <span class="info-value">{{ proposal()!.workStartDate ? formatDate(proposal()!.workStartDate) : '-' }}</span>
             </div>
+            <div class="info-card">
+              <span class="info-label">{{ 'projects.proposal.view.endDate' | translate }}</span>
+              <span class="info-value">{{ proposal()!.workEndDate ? formatDate(proposal()!.workEndDate) : '-' }}</span>
+            </div>
+            <div class="info-card">
+              <span class="info-label">{{ 'projects.proposal.view.workTime' | translate }}</span>
+              <span class="info-value">{{ proposal()!.workTime ? proposal()!.workTime + ' ' + ('projects.proposal.view.hours' | translate) : '-' }}</span>
+            </div>
+            <div class="info-card">
+              <span class="info-label">{{ 'projects.proposal.view.workers' | translate }}</span>
+              <span class="info-value">{{ proposal()!.workers?.length ?? 0 }}</span>
+            </div>
+          </div>
 
-            <!-- Información de trabajo en grid compacto -->
-            <div class="grid grid-cols-4 gap-2 mb-2 text-xs">
-              <!-- Fecha Inicio -->
-              <div class="bg-green-50 p-1.5 rounded border border-green-200">
-                <p class="text-[10px] text-green-700 font-semibold uppercase mb-0.5">{{ 'projects.proposal.view.startDate' | translate }}</p>
-                <p class="text-xs text-slate-800 font-semibold">
-                  {{ proposal()!.workStartDate ? formatDate(proposal()!.workStartDate) : '-' }}
-                </p>
-              </div>
-
-              <!-- Fecha Fin -->
-              <div class="bg-green-50 p-1.5 rounded border border-green-200">
-                <p class="text-[10px] text-green-700 font-semibold uppercase mb-0.5">{{ 'projects.proposal.view.endDate' | translate }}</p>
-                <p class="text-xs text-slate-800 font-semibold">
-                  {{ proposal()!.workEndDate ? formatDate(proposal()!.workEndDate) : '-' }}
-                </p>
-              </div>
-
-              <!-- Horas -->
-              <div class="bg-green-50 p-1.5 rounded border border-green-200">
-                <p class="text-[10px] text-green-700 font-semibold uppercase mb-0.5">{{ 'projects.proposal.view.workTime' | translate }}</p>
-                <p class="text-xs text-slate-800 font-semibold">
-                  {{ proposal()!.workTime ? proposal()!.workTime + ' ' + ('projects.proposal.view.hours' | translate) : '-' }}
-                </p>
-              </div>
-
-              <!-- Trabajadores -->
-              <div class="bg-green-50 p-1.5 rounded border border-green-200">
-                <p class="text-[10px] text-green-700 font-semibold uppercase mb-0.5">{{ 'projects.proposal.view.workers' | translate }}</p>
-                <p class="text-xs text-slate-800 font-semibold">
-                  {{ proposal()!.workers?.length ?? 0 }}
-                </p>
+          <!-- Trabajadores -->
+          @if ((proposal()!.workers?.length ?? 0) > 0) {
+            <div class="workers-section">
+              <span class="workers-label">{{ 'projects.proposal.view.workersParticipated' | translate }}</span>
+              <div class="workers-list">
+                @for (worker of proposal()!.workers; track worker.id) {
+                  <span class="worker-badge">
+                    {{ worker.name }}@if (worker.role) { <span class="worker-role">({{ worker.role }})</span>}
+                  </span>
+                }
               </div>
             </div>
+          }
 
-            <!-- Trabajadores (nombres compactos) -->
-            @if ((proposal()!.workers?.length ?? 0) > 0) {
-              <div class="mb-2">
-                <p class="text-[10px] text-green-700 font-semibold uppercase mb-1">{{ 'projects.proposal.view.workersParticipated' | translate }}</p>
-                <div class="flex flex-wrap gap-1">
-                  @for (worker of proposal()!.workers; track worker.id) {
-                    <span class="bg-green-50 px-2 py-0.5 rounded text-[10px] text-slate-700 border border-green-200">
-                      {{ worker.name }}@if (worker.role) { <span class="text-green-600">({{ worker.role }})</span>}
-                    </span>
-                  }
-                </div>
-              </div>
-            }
-
-            <!-- Materiales Usados (tabla compacta) -->
-            @if ((proposal()!.materialsUsed?.length ?? 0) > 0) {
-              <div>
-                <p class="text-[10px] text-green-700 font-semibold uppercase mb-1">{{ 'projects.proposal.view.materialsUsed' | translate }}</p>
-                <table class="w-full text-[10px] border border-green-200">
-                  <thead>
-                    <tr class="bg-green-50 border-b border-green-200">
-                      <th class="text-left p-1 font-bold text-slate-700">Material</th>
-                      <th class="text-center p-1 font-bold text-slate-700 w-20">Cant.</th>
-                      <th class="text-right p-1 font-bold text-slate-700 w-24">Precio</th>
+          <!-- Materiales -->
+          @if ((proposal()!.materialsUsed?.length ?? 0) > 0) {
+            <div class="materials-section">
+              <span class="materials-label">{{ 'projects.proposal.view.materialsUsed' | translate }}</span>
+              <table class="materials-table">
+                <thead>
+                  <tr>
+                    <th class="text-left">Material</th>
+                    <th class="text-center">Cant.</th>
+                    <th class="text-right">Precio</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (material of proposal()!.materialsUsed; track material.id) {
+                    <tr>
+                      <td>{{ material.material }}</td>
+                      <td class="text-center">{{ material.amount }}</td>
+                      <td class="text-right font-semibold">{{ material.price | currencyFormatter }}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    @for (material of proposal()!.materialsUsed; track material.id) {
-                      <tr class="border-b border-green-100">
-                        <td class="p-1 text-slate-800">{{ material.material }}</td>
-                        <td class="p-1 text-center text-slate-800">{{ material.amount }}</td>
-                        <td class="p-1 text-right text-slate-800 font-semibold">{{ material.price | currencyFormatter }}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            }
-          </div>
-        }
-
-        <!-- ========== SECCIÓN DE TOTALES ========== -->
-        <div class="border-t-2 border-slate-200 pt-3 mt-3">
-          <div class="max-w-md ml-auto space-y-1.5">
-
-            <!-- Si NO hay materiales (propuesta normal) -->
-            @if (!proposal()!.materialsUsed || (proposal()!.materialsUsed?.length ?? 0) === 0) {
-
-              <!-- Subtotal del Trabajo -->
-              <div class="flex justify-between items-center text-xs">
-                <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.subtotal' | translate }}</span>
-                <span class="font-semibold text-slate-800">
-                  {{ (proposal()!.subtotal || 0) | currencyFormatter }}
-                </span>
-              </div>
-
-              <!-- Tax (si existe) -->
-              @if ((proposal()!.taxPercentage ?? 0) > 0) {
-                <div class="flex justify-between items-center text-xs">
-                  <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.tax' | translate }} ({{ proposal()!.taxPercentage }}%):</span>
-                  <span class="font-semibold text-slate-800">
-                    + {{ (proposal()!.tax || 0) | currencyFormatter }}
-                  </span>
-                </div>
-              }
-
-              <!-- Discount (si existe) -->
-              @if ((proposal()!.discountPercentage ?? 0) > 0) {
-                <div class="flex justify-between items-center text-xs">
-                  <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.discount' | translate }} ({{ proposal()!.discountPercentage }}%):</span>
-                  <span class="font-semibold text-red-600">
-                    - {{ (proposal()!.discount || 0) | currencyFormatter }}
-                  </span>
-                </div>
-              }
-
-              <mat-divider></mat-divider>
-
-              <!-- Total -->
-              <div class="flex justify-between items-center p-2 bg-blue-50 rounded border border-blue-200">
-                <span class="text-sm font-bold text-blue-800">{{ 'projects.proposal.view.total' | translate }}</span>
-                <span class="text-lg font-bold text-blue-900">
-                  {{ proposal()!.total | currencyFormatter }}
-                </span>
-              </div>
-
-            } @else {
-              <!-- Si HAY materiales (factura) - Recalcular impuestos sobre el subtotal combinado -->
-
-              <!-- Subtotal del Trabajo Original -->
-              <div class="flex justify-between items-center text-xs">
-                <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.workSubtotal' | translate }}</span>
-                <span class="font-semibold text-slate-800">
-                  {{ (proposal()!.subtotal || 0) | currencyFormatter }}
-                </span>
-              </div>
-
-              <!-- Subtotal de Materiales -->
-              <div class="flex justify-between items-center text-xs">
-                <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.materialsSubtotal' | translate }}</span>
-                <span class="font-semibold text-amber-700">
-                  {{ calculateMaterialsTotal() | currencyFormatter }}
-                </span>
-              </div>
-
-              <mat-divider></mat-divider>
-
-              <!-- Subtotal Combinado -->
-              <div class="flex justify-between items-center text-xs">
-                <span class="text-slate-700 font-semibold">{{ 'projects.proposal.view.combinedSubtotal' | translate }}</span>
-                <span class="font-bold text-slate-800">
-                  {{ calculateCombinedSubtotal() | currencyFormatter }}
-                </span>
-              </div>
-
-              <!-- Impuesto recalculado (si existe) -->
-              @if ((proposal()!.taxPercentage ?? 0) > 0) {
-                <div class="flex justify-between items-center text-xs">
-                  <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.tax' | translate }} ({{ proposal()!.taxPercentage }}%):</span>
-                  <span class="font-semibold text-slate-800">
-                    + {{ calculateTaxAmount() | currencyFormatter }}
-                  </span>
-                </div>
-              }
-
-              <!-- Descuento recalculado (si existe) -->
-              @if ((proposal()!.discountPercentage ?? 0) > 0) {
-                <div class="flex justify-between items-center text-xs">
-                  <span class="text-slate-600 font-medium">{{ 'projects.proposal.view.discount' | translate }} ({{ proposal()!.discountPercentage }}%):</span>
-                  <span class="font-semibold text-red-600">
-                    - {{ calculateDiscountAmount() | currencyFormatter }}
-                  </span>
-                </div>
-              }
-
-              <mat-divider></mat-divider>
-
-              <!-- Gran Total -->
-              <div class="flex justify-between items-center p-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded">
-                <span class="text-sm font-bold uppercase tracking-wide">{{ 'projects.proposal.view.grandTotal' | translate }}</span>
-                <span class="text-lg font-extrabold">
-                  {{ calculateGrandTotal() | currencyFormatter }}
-                </span>
-              </div>
-            }
-
-          </div>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
         </div>
+      }
 
+      <!-- ========== SECCIÓN DE TOTALES ========== -->
+      <div class="totals-section">
+        <div class="totals-content">
+
+          @if (!proposal()!.materialsUsed || (proposal()!.materialsUsed?.length ?? 0) === 0) {
+            <!-- Sin materiales -->
+            <div class="total-row">
+              <span>{{ 'projects.proposal.view.subtotal' | translate }}</span>
+              <span class="value">{{ (proposal()!.subtotal || 0) | currencyFormatter }}</span>
+            </div>
+
+            @if ((proposal()!.taxPercentage ?? 0) > 0) {
+              <div class="total-row">
+                <span>{{ 'projects.proposal.view.tax' | translate }} ({{ proposal()!.taxPercentage }}%):</span>
+                <span class="value">+ {{ (proposal()!.tax || 0) | currencyFormatter }}</span>
+              </div>
+            }
+
+            @if ((proposal()!.discountPercentage ?? 0) > 0) {
+              <div class="total-row">
+                <span>{{ 'projects.proposal.view.discount' | translate }} ({{ proposal()!.discountPercentage }}%):</span>
+                <span class="value negative">- {{ (proposal()!.discount || 0) | currencyFormatter }}</span>
+              </div>
+            }
+
+            <div class="total-divider"></div>
+
+            <div class="grand-total blue">
+              <span>{{ 'projects.proposal.view.total' | translate }}</span>
+              <span class="amount">{{ proposal()!.total | currencyFormatter }}</span>
+            </div>
+
+          } @else {
+            <!-- Con materiales -->
+            <div class="total-row">
+              <span>{{ 'projects.proposal.view.workSubtotal' | translate }}</span>
+              <span class="value">{{ (proposal()!.subtotal || 0) | currencyFormatter }}</span>
+            </div>
+
+            <div class="total-row">
+              <span>{{ 'projects.proposal.view.materialsSubtotal' | translate }}</span>
+              <span class="value amber">{{ calculateMaterialsTotal() | currencyFormatter }}</span>
+            </div>
+
+            <div class="total-divider"></div>
+
+            <div class="total-row bold">
+              <span>{{ 'projects.proposal.view.combinedSubtotal' | translate }}</span>
+              <span class="value">{{ calculateCombinedSubtotal() | currencyFormatter }}</span>
+            </div>
+
+            @if ((proposal()!.taxPercentage ?? 0) > 0) {
+              <div class="total-row">
+                <span>{{ 'projects.proposal.view.tax' | translate }} ({{ proposal()!.taxPercentage }}%):</span>
+                <span class="value">+ {{ calculateTaxAmount() | currencyFormatter }}</span>
+              </div>
+            }
+
+            @if ((proposal()!.discountPercentage ?? 0) > 0) {
+              <div class="total-row">
+                <span>{{ 'projects.proposal.view.discount' | translate }} ({{ proposal()!.discountPercentage }}%):</span>
+                <span class="value negative">- {{ calculateDiscountAmount() | currencyFormatter }}</span>
+              </div>
+            }
+
+            <div class="total-divider"></div>
+
+            <div class="grand-total green">
+              <span>{{ 'projects.proposal.view.grandTotal' | translate }}</span>
+              <span class="amount">{{ calculateGrandTotal() | currencyFormatter }}</span>
+            </div>
+          }
+
+        </div>
       </div>
 
-    }
+    </div>
 
-  </div>
+  }
+
 </div>

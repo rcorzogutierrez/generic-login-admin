@@ -529,7 +529,8 @@ export class ProposalsListComponent implements OnInit {
   /**
    * Obtener label del status
    */
-  getStatusLabel(status: ProposalStatus): string {
+  getStatusLabel(status: ProposalStatus | 'all'): string {
+    if (status === 'all') return 'Todos';
     const labels: Record<ProposalStatus, string> = {
       draft: 'Borrador',
       sent: 'Enviado',

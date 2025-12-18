@@ -734,7 +734,7 @@
   color: white;
 }
 
-/* ========== PRINT STYLES ========== */
+/* ========== PRINT STYLES - OPTIMIZADO PARA 1 PÁGINA ========== */
 @media print {
   /* Ocultar elementos no imprimibles */
   .print\:hidden,
@@ -755,143 +755,164 @@
     margin: 0 !important;
     padding: 0 !important;
     background: white !important;
-    font-size: 11pt !important;
+    font-size: 9pt !important;
   }
 
-  /* Container principal - usar todo el ancho, alinear a la izquierda */
+  /* Container principal */
   .view-container {
     display: block !important;
     width: 100% !important;
     max-width: none !important;
-    min-width: 100% !important;
     min-height: auto !important;
     margin: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
     padding: 0 !important;
     background: white !important;
-    float: none !important;
-    position: relative !important;
-    left: 0 !important;
-    right: 0 !important;
   }
 
-  /* Document Card - sin bordes ni sombras, ancho completo */
+  /* Document Card */
   .document-card {
     display: block !important;
     width: 100% !important;
-    max-width: none !important;
-    min-width: 100% !important;
     margin: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
     padding: 0 !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
     background: white !important;
-    float: none !important;
   }
 
-  /* Header del documento */
+  /* ===== HEADER DEL DOCUMENTO - COMPACTO ===== */
   .document-header {
     width: 100% !important;
-    border-bottom: 2px solid #333 !important;
-    padding-bottom: 0.4cm !important;
-    margin-bottom: 0.5cm !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+    border-bottom: 1.5pt solid #000 !important;
+    padding-bottom: 0.25cm !important;
+    margin-bottom: 0.3cm !important;
   }
 
   .document-header .grid {
-    display: grid !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
     width: 100% !important;
-    grid-template-columns: 35% 30% 35% !important;
-    gap: 0.3cm !important;
+    gap: 0.2cm !important;
   }
 
+  /* Columna izquierda: Cliente */
   .document-header .col-span-4 {
-    width: 100% !important;
-    grid-column: 1 !important;
+    flex: 0 0 38% !important;
+    width: 38% !important;
     text-align: left !important;
   }
 
+  /* Columna central: Número de documento */
   .document-header .col-span-3 {
-    width: 100% !important;
-    grid-column: 2 !important;
+    flex: 0 0 22% !important;
+    width: 22% !important;
     text-align: center !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
   }
 
+  /* Columna derecha: Empresa */
   .document-header .col-span-5 {
-    width: 100% !important;
-    grid-column: 3 !important;
+    flex: 0 0 38% !important;
+    width: 38% !important;
     text-align: right !important;
   }
 
-  /* Tipografía para impresión */
+  /* Info del cliente */
   .doc-info-row {
-    font-size: 10pt !important;
-    line-height: 1.4 !important;
-    margin-bottom: 0.15cm !important;
+    font-size: 8pt !important;
+    line-height: 1.3 !important;
+    margin-bottom: 0.08cm !important;
   }
 
   .doc-label {
-    font-weight: 700 !important;
+    font-weight: 600 !important;
+    color: #333 !important;
+  }
+
+  .doc-value {
+    color: #000 !important;
+  }
+
+  /* Número de documento */
+  .document-number-box {
+    text-align: center !important;
+    padding: 0.15cm !important;
+    background: #f5f5f5 !important;
+    border: 1pt solid #ccc !important;
+    border-radius: 4pt !important;
+  }
+
+  .doc-type-label {
+    font-size: 7pt !important;
+    color: #555 !important;
+    margin-bottom: 0.05cm !important;
+    display: block !important;
   }
 
   .doc-number {
-    font-size: 16pt !important;
+    font-size: 14pt !important;
     font-weight: 700 !important;
     color: #000 !important;
   }
 
-  .doc-type-label {
-    font-size: 8pt !important;
-    color: #333 !important;
-  }
-
-  .company-name {
-    font-size: 11pt !important;
-    font-weight: 700 !important;
+  /* Info de la empresa - COMPACTO */
+  .company-logo {
+    max-height: 1cm !important;
+    max-width: 3cm !important;
+    margin-bottom: 0.1cm !important;
+    display: block !important;
+    margin-left: auto !important;
   }
 
   .company-info {
+    font-size: 7pt !important;
+    line-height: 1.25 !important;
+    color: #333 !important;
+  }
+
+  .company-info p {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .company-name {
     font-size: 9pt !important;
+    font-weight: 700 !important;
+    color: #000 !important;
+    margin-bottom: 0.05cm !important;
   }
 
-  .company-logo {
-    max-height: 1.5cm !important;
-    max-width: 4cm !important;
-  }
-
-  /* Ocultar badge de status en impresión */
+  /* Ocultar badge de status */
   .status-badge {
     display: none !important;
   }
 
-  /* Secciones del documento */
+  /* ===== SECCIONES DEL DOCUMENTO ===== */
   .doc-section {
     width: 100% !important;
-    margin-bottom: 0.5cm !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+    margin-bottom: 0.25cm !important;
     page-break-inside: avoid !important;
   }
 
   .section-title {
-    font-size: 11pt !important;
+    font-size: 9pt !important;
     font-weight: 700 !important;
     color: #000 !important;
-    border-bottom: 1px solid #ccc !important;
-    padding-bottom: 0.15cm !important;
-    margin-bottom: 0.3cm !important;
+    border-bottom: 0.5pt solid #999 !important;
+    padding-bottom: 0.08cm !important;
+    margin-bottom: 0.15cm !important;
   }
 
   .section-title mat-icon {
     display: none !important;
   }
 
-  /* Items */
+  /* Items - MÁS COMPACTOS */
   .items-list, .extras-list {
     width: 100% !important;
   }
@@ -899,88 +920,88 @@
   .item-row, .extra-row {
     display: flex !important;
     width: 100% !important;
-    padding: 0.15cm 0 !important;
-    border-bottom: 1px solid #e0e0e0 !important;
+    padding: 0.08cm 0 !important;
+    border-bottom: 0.5pt solid #ddd !important;
     page-break-inside: avoid !important;
   }
 
   .item-number, .extra-number {
-    font-size: 10pt !important;
-    min-width: 0.6cm !important;
-    font-weight: 700 !important;
+    font-size: 8pt !important;
+    min-width: 0.5cm !important;
+    font-weight: 600 !important;
   }
 
   .item-content {
     flex: 1 !important;
-    padding-right: 0.3cm !important;
+    padding-right: 0.2cm !important;
   }
 
   .item-desc, .extra-desc {
-    font-size: 10pt !important;
-    line-height: 1.4 !important;
+    font-size: 8pt !important;
+    line-height: 1.3 !important;
   }
 
   .item-notes {
-    font-size: 9pt !important;
-    color: #555 !important;
+    font-size: 7pt !important;
+    color: #666 !important;
+    margin-top: 0.02cm !important;
   }
 
   .item-price {
     text-align: right !important;
-    min-width: 2.5cm !important;
+    min-width: 2cm !important;
   }
 
   .price-main {
-    font-size: 10pt !important;
+    font-size: 8pt !important;
     font-weight: 600 !important;
   }
 
   .price-detail {
-    font-size: 8pt !important;
+    font-size: 7pt !important;
     color: #666 !important;
   }
 
-  /* Notas y términos */
+  /* Notas y términos - COMPACTOS */
   .notes-box, .terms-box {
     width: 100% !important;
-    background: #f8f8f8 !important;
-    border: 1px solid #ddd !important;
-    padding: 0.3cm !important;
-    margin-top: 0.3cm !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+    background: #fafafa !important;
+    border: 0.5pt solid #ddd !important;
+    border-left: 2pt solid #333 !important;
+    padding: 0.15cm !important;
+    margin-top: 0.15cm !important;
     page-break-inside: avoid !important;
   }
 
   .notes-box h3, .terms-box h3 {
-    font-size: 9pt !important;
+    font-size: 7pt !important;
     font-weight: 700 !important;
     color: #333 !important;
-    margin-bottom: 0.15cm !important;
+    text-transform: uppercase !important;
+    margin-bottom: 0.08cm !important;
   }
 
   .notes-box p, .terms-box p {
-    font-size: 9pt !important;
-    line-height: 1.4 !important;
+    font-size: 7pt !important;
+    line-height: 1.3 !important;
+    margin: 0 !important;
   }
 
-  /* Invoice Section */
+  /* ===== INVOICE SECTION - COMPACTA ===== */
   .invoice-section {
     width: 100% !important;
-    border-top: 2px solid #333 !important;
-    padding-top: 0.4cm !important;
-    margin-top: 0.5cm !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+    border-top: 1pt solid #000 !important;
+    padding-top: 0.2cm !important;
+    margin-top: 0.25cm !important;
     page-break-inside: avoid !important;
   }
 
   .invoice-header {
-    margin-bottom: 0.3cm !important;
+    margin-bottom: 0.15cm !important;
   }
 
   .invoice-header h2 {
-    font-size: 12pt !important;
+    font-size: 9pt !important;
     font-weight: 700 !important;
     color: #000 !important;
   }
@@ -997,83 +1018,99 @@
     display: grid !important;
     width: 100% !important;
     grid-template-columns: repeat(4, 1fr) !important;
-    gap: 0.3cm !important;
-    margin-bottom: 0.4cm !important;
+    gap: 0.15cm !important;
+    margin-bottom: 0.2cm !important;
   }
 
   .info-card {
-    background: #f5f5f5 !important;
-    border: 1px solid #ddd !important;
-    padding: 0.2cm !important;
+    background: #f8f8f8 !important;
+    border: 0.5pt solid #ddd !important;
+    padding: 0.1cm !important;
+    border-radius: 2pt !important;
   }
 
   .info-label {
-    font-size: 7pt !important;
-    font-weight: 700 !important;
-    color: #333 !important;
+    font-size: 6pt !important;
+    font-weight: 600 !important;
+    color: #555 !important;
+    text-transform: uppercase !important;
   }
 
   .info-value {
-    font-size: 10pt !important;
+    font-size: 8pt !important;
     font-weight: 600 !important;
+    color: #000 !important;
   }
 
-  /* Workers */
+  /* Workers - COMPACTO */
   .workers-section {
     width: 100% !important;
-    margin-bottom: 0.3cm !important;
+    margin-bottom: 0.15cm !important;
   }
 
   .workers-label, .materials-label {
-    font-size: 8pt !important;
-    font-weight: 700 !important;
+    font-size: 7pt !important;
+    font-weight: 600 !important;
     color: #333 !important;
-    margin-bottom: 0.15cm !important;
+    text-transform: uppercase !important;
+    margin-bottom: 0.08cm !important;
+  }
+
+  .workers-list {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.1cm !important;
   }
 
   .worker-badge {
     background: #f0f0f0 !important;
-    border: 1px solid #ccc !important;
-    padding: 0.1cm 0.2cm !important;
-    font-size: 9pt !important;
-    margin-right: 0.15cm !important;
-    margin-bottom: 0.1cm !important;
+    border: 0.5pt solid #ccc !important;
+    padding: 0.05cm 0.12cm !important;
+    font-size: 7pt !important;
+    border-radius: 2pt !important;
   }
 
-  /* Materials Table */
+  .worker-role {
+    color: #666 !important;
+  }
+
+  /* Materials Table - COMPACTA */
+  .materials-section {
+    margin-top: 0.1cm !important;
+  }
+
   .materials-table {
     width: 100% !important;
     border-collapse: collapse !important;
-    font-size: 9pt !important;
+    font-size: 7pt !important;
   }
 
   .materials-table th {
     background: #f0f0f0 !important;
-    border: 1px solid #ccc !important;
-    padding: 0.15cm 0.2cm !important;
-    font-weight: 700 !important;
-    font-size: 8pt !important;
+    border: 0.5pt solid #ccc !important;
+    padding: 0.08cm !important;
+    font-weight: 600 !important;
+    font-size: 7pt !important;
   }
 
   .materials-table td {
-    border: 1px solid #ddd !important;
-    padding: 0.15cm 0.2cm !important;
+    border: 0.5pt solid #ddd !important;
+    padding: 0.06cm 0.08cm !important;
+    font-size: 7pt !important;
   }
 
-  /* Totales - Sección crítica */
+  /* ===== TOTALES - COMPACTO ===== */
   .totals-section {
     width: 100% !important;
-    border-top: 2px solid #333 !important;
-    padding-top: 0.4cm !important;
-    margin-top: 0.5cm !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+    border-top: 1pt solid #000 !important;
+    padding-top: 0.2cm !important;
+    margin-top: 0.25cm !important;
     page-break-inside: avoid !important;
   }
 
   .totals-content {
-    width: 8cm !important;
-    max-width: 100% !important;
+    width: 6cm !important;
+    max-width: 50% !important;
     margin-left: auto !important;
     margin-right: 0 !important;
   }
@@ -1081,8 +1118,8 @@
   .total-row {
     display: flex !important;
     justify-content: space-between !important;
-    padding: 0.1cm 0 !important;
-    font-size: 10pt !important;
+    padding: 0.05cm 0 !important;
+    font-size: 8pt !important;
   }
 
   .total-row span:first-child {
@@ -1094,56 +1131,62 @@
     color: #000 !important;
   }
 
+  .total-row.bold span {
+    font-weight: 700 !important;
+  }
+
   .total-divider {
-    border-top: 1px solid #ccc !important;
-    margin: 0.15cm 0 !important;
+    border-top: 0.5pt solid #ccc !important;
+    margin: 0.08cm 0 !important;
+    height: 0 !important;
+    background: none !important;
   }
 
   .grand-total {
     background: #f0f0f0 !important;
-    border: 2px solid #333 !important;
-    padding: 0.3cm !important;
-    margin-top: 0.2cm !important;
+    border: 1.5pt solid #000 !important;
+    padding: 0.15cm !important;
+    margin-top: 0.1cm !important;
+    border-radius: 2pt !important;
   }
 
   .grand-total.blue,
   .grand-total.green {
     background: #f0f0f0 !important;
-    border: 2px solid #333 !important;
+    border: 1.5pt solid #000 !important;
   }
 
   .grand-total span:first-child {
-    font-size: 11pt !important;
+    font-size: 9pt !important;
     font-weight: 700 !important;
     color: #000 !important;
   }
 
   .grand-total .amount {
-    font-size: 14pt !important;
+    font-size: 12pt !important;
     font-weight: 700 !important;
     color: #000 !important;
   }
 
-  /* Page settings */
+  /* ===== PAGE SETTINGS ===== */
   @page {
     size: letter portrait;
-    margin: 1cm;
+    margin: 0.8cm;
   }
 
-  /* Evitar cortes de página */
-  .document-card,
+  /* Evitar cortes de página en elementos importantes */
+  .document-header,
   .doc-section,
-  .invoice-section,
-  .totals-section,
   .notes-box,
   .terms-box,
-  table {
+  .invoice-section,
+  .totals-section {
     page-break-inside: avoid !important;
   }
 
-  /* Permitir corte antes de secciones grandes si es necesario */
-  .invoice-section {
-    page-break-before: auto;
+  /* Space-y utilities */
+  .space-y-1\.5 > * + * {
+    margin-top: 0.08cm !important;
   }
 }
 

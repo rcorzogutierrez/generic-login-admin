@@ -780,12 +780,28 @@
 
 /* 11. PRINT STYLES */
 @media print {
-  /* Forzar fondo blanco */
-  body,
+  /* Reset completo para impresión */
+  *, *::before, *::after {
+    box-sizing: border-box !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  /* Forzar fondo blanco y ancho completo */
   html {
-    background: white !important;
+    width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+    background: white !important;
+  }
+
+  body {
+    width: 100% !important;
+    min-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    font-size: 11pt !important;
   }
 
   /* Ocultar TODOS los elementos de navegación y controles */
@@ -796,7 +812,7 @@
   mat-sidenav,
   mat-sidenav-container mat-sidenav,
   mat-sidenav-content mat-toolbar,
-  header,
+  header.print\:hidden,
   nav,
   aside,
   .navbar,
@@ -809,6 +825,7 @@
   .mat-mdc-menu-panel,
   .mat-drawer,
   .mat-drawer-backdrop,
+  .print\:hidden,
   button:not(.print-visible) {
     display: none !important;
     visibility: hidden !important;
@@ -819,23 +836,44 @@
     left: -9999px !important;
   }
 
-  /* Asegurar que el contenido principal ocupe todo */
+  /* Forzar contenedores principales a ancho completo */
+  app-root,
   mat-sidenav-container,
-  mat-sidenav-content {
+  mat-sidenav-content,
+  .mat-sidenav-container,
+  .mat-sidenav-content,
+  main,
+  .main-content {
+    display: block !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
     margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
     padding: 0 !important;
+    transform: none !important;
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    float: none !important;
+  }
+
+  /* Resetear Tailwind grid en impresión */
+  .grid {
+    display: grid !important;
+    width: 100% !important;
+  }
+
+  .grid-cols-12 {
+    grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+    width: 100% !important;
   }
 
   /* Configuración de página */
   @page {
-    margin: 0.5cm;
-    size: auto;
-  }
-
-  /* Preservar colores */
-  * {
-    print-color-adjust: exact !important;
-    -webkit-print-color-adjust: exact !important;
+    size: letter portrait;
+    margin: 1cm;
   }
 }
 

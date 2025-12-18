@@ -2,10 +2,8 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -22,41 +20,34 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
     FormsModule,
     CurrencyPipe,
     DatePipe,
-    MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    MatTooltipModule,
     MatDialogModule,
     MatSnackBarModule
   ],
   template: `
     <div class="p-4 md:p-6 max-w-7xl mx-auto">
-      <!-- Header -->
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div class="flex items-center gap-3">
-          <button
-            mat-icon-button
-            (click)="goBack()"
-            matTooltip="Volver"
-            class="!text-slate-500 hover:!bg-slate-100">
-            <mat-icon>arrow_back</mat-icon>
+      <!-- Header Compacto -->
+      <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5">
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+          <div class="flex items-center gap-3">
+            <button class="btn-icon" (click)="goBack()" title="Volver">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+            <div class="header-icon-box emerald">
+              <mat-icon>savings</mat-icon>
+            </div>
+            <div>
+              <h1 class="text-lg font-bold text-slate-800 m-0">Cobros</h1>
+              <p class="text-xs text-slate-500 m-0">{{ filteredCobros().length }} registros</p>
+            </div>
+          </div>
+          <button class="btn-primary emerald" (click)="openFormDialog()">
+            <mat-icon>add</mat-icon>
+            Nuevo Cobro
           </button>
-          <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
-            <mat-icon class="text-white !text-2xl">savings</mat-icon>
-          </div>
-          <div>
-            <h1 class="text-xl md:text-2xl font-bold text-slate-800 m-0">Cobros</h1>
-            <p class="text-sm text-slate-500 m-0">{{ filteredCobros().length }} registros</p>
-          </div>
         </div>
-        <button
-          mat-raised-button
-          (click)="openFormDialog()"
-          class="!bg-emerald-600 !text-white hover:!bg-emerald-700 !rounded-xl !px-6 !h-11">
-          <mat-icon class="mr-1">add</mat-icon>
-          Nuevo Cobro
-        </button>
-      </div>
+      </header>
 
       <!-- Filters -->
       <div class="flex flex-col sm:flex-row gap-3 mb-4">
@@ -113,11 +104,8 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
           </div>
           <h3 class="text-lg font-semibold text-slate-600 mb-2">No hay cobros registrados</h3>
           <p class="text-slate-500 text-center mb-6">Registra tu primer cobro haciendo clic en el botón "Nuevo Cobro"</p>
-          <button
-            mat-raised-button
-            (click)="openFormDialog()"
-            class="!bg-emerald-600 !text-white hover:!bg-emerald-700 !rounded-xl !px-6">
-            <mat-icon class="mr-1">add</mat-icon>
+          <button class="btn-primary emerald" (click)="openFormDialog()">
+            <mat-icon>add</mat-icon>
             Registrar Cobro
           </button>
         </div>
@@ -137,7 +125,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
                     {{ getPaymentLabel(cobro.paymentMethod) }}
                   </span>
                 </div>
-                <button mat-icon-button [matMenuTriggerFor]="menu" class="!text-slate-400 group-hover:!text-slate-600">
+                <button class="btn-icon-sm" [matMenuTriggerFor]="menu">
                   <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #menu="matMenu">
@@ -221,20 +209,18 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
         @if (totalPages() > 1) {
           <div class="flex items-center justify-center gap-3 mt-8">
             <button
-              mat-icon-button
+              class="btn-icon"
               [disabled]="currentPage() === 0"
-              (click)="currentPage.set(currentPage() - 1)"
-              class="!border !border-slate-200 !rounded-xl disabled:!opacity-50">
+              (click)="currentPage.set(currentPage() - 1)">
               <mat-icon>chevron_left</mat-icon>
             </button>
             <span class="text-sm text-slate-600 px-4">
               Página {{ currentPage() + 1 }} de {{ totalPages() }}
             </span>
             <button
-              mat-icon-button
+              class="btn-icon"
               [disabled]="currentPage() >= totalPages() - 1"
-              (click)="currentPage.set(currentPage() + 1)"
-              class="!border !border-slate-200 !rounded-xl disabled:!opacity-50">
+              (click)="currentPage.set(currentPage() + 1)">
               <mat-icon>chevron_right</mat-icon>
             </button>
           </div>
@@ -243,6 +229,111 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
     </div>
   `,
   styles: [`
+    /* Header Icon Box */
+    .header-icon-box {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .header-icon-box mat-icon {
+      color: white;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+
+    .header-icon-box.emerald {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    /* Buttons */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      color: white;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .btn-primary.emerald {
+      background: #10b981;
+    }
+
+    .btn-primary.emerald:hover {
+      background: #059669;
+    }
+
+    .btn-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 0.5rem;
+      border: 1px solid #e2e8f0;
+      background: white;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-icon:hover:not(:disabled) {
+      background: #f1f5f9;
+      color: #334155;
+    }
+
+    .btn-icon:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-icon mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .btn-icon-sm {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 0.375rem;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-icon-sm:hover {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .btn-icon-sm mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
     .line-clamp-2 {
       display: -webkit-box;
       -webkit-line-clamp: 2;

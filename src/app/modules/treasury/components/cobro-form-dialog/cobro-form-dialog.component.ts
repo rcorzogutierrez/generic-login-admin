@@ -2,10 +2,8 @@ import { Component, OnInit, OnDestroy, Inject, inject, signal, computed, Element
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Timestamp } from 'firebase/firestore';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
@@ -37,9 +35,7 @@ interface SelectedProposal {
     CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressBarModule
+    MatIconModule
   ],
   template: `
     <div class="dialog-container">
@@ -58,7 +54,7 @@ interface SelectedProposal {
             </p>
           </div>
         </div>
-        <button mat-icon-button (click)="cancel()" class="!text-slate-400">
+        <button class="btn-icon-close" (click)="cancel()">
           <mat-icon>close</mat-icon>
         </button>
       </div>
@@ -405,7 +401,9 @@ interface SelectedProposal {
                     </div>
                     @if (uploadProgress() > 0 && uploadProgress() < 100) {
                       <div class="upload-progress">
-                        <mat-progress-bar mode="determinate" [value]="uploadProgress()"></mat-progress-bar>
+                        <div class="progress-bar">
+                          <div class="progress-fill" [style.width.%]="uploadProgress()"></div>
+                        </div>
                         <span class="text-xs text-white mt-1">{{ uploadProgress() }}%</span>
                       </div>
                     }
@@ -465,14 +463,14 @@ interface SelectedProposal {
 
       <!-- Footer -->
       <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
-        <button mat-stroked-button (click)="cancel()" [disabled]="isSaving()">
+        <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="isSaving()">
           Cancelar
         </button>
         <button
-          mat-raised-button
+          type="button"
+          class="btn-primary emerald"
           (click)="save()"
-          [disabled]="form.invalid || selectedProposals().length === 0 || isSaving() || isUploading()"
-          class="!bg-emerald-600 !text-white">
+          [disabled]="form.invalid || selectedProposals().length === 0 || isSaving() || isUploading()">
           @if (isSaving()) {
             <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
           } @else {
@@ -964,6 +962,104 @@ interface SelectedProposal {
       display: flex;
       flex-direction: column;
       align-items: center;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #10b981;
+      transition: width 0.3s ease;
+    }
+
+    /* Button styles */
+    .btn-icon-close {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 0.5rem;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-icon-close:hover {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .btn-icon-close mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      color: white;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .btn-primary.emerald {
+      background: #10b981;
+    }
+
+    .btn-primary.emerald:hover:not(:disabled) {
+      background: #059669;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      background: white;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+      transition: all 0.15s ease;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    .btn-secondary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     @media (max-width: 640px) {

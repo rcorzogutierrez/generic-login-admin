@@ -300,3 +300,15 @@
 .logout-item:hover {
   background: #fef2f2 !important;
 }
+
+/* ============================================
+   ESTILOS DE IMPRESIÓN
+   ============================================ */
+@media print {
+  .header {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+  }
+}

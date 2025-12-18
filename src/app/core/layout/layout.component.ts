@@ -114,6 +114,43 @@ import { AppConfigService } from '../services/app-config.service';
       color: #94a3b8;
       margin: 0;
     }
+
+    /* ============================================
+       ESTILOS DE IMPRESIÓN
+       ============================================ */
+    @media print {
+      :host {
+        display: block !important;
+        background: white !important;
+      }
+
+      .main-wrapper,
+      .main-wrapper.sidebar-collapsed,
+      .main-wrapper.sidebar-mobile {
+        margin-left: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        display: block !important;
+        position: relative !important;
+        left: 0 !important;
+        right: 0 !important;
+        transform: none !important;
+      }
+
+      .main-content {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      .main-footer {
+        display: none !important;
+      }
+    }
   `]
 })
 export class LayoutComponent {

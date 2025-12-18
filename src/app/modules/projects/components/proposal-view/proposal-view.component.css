@@ -243,6 +243,10 @@
   margin-bottom: 1rem;
 }
 
+.document-header.invoice {
+  border-bottom-color: #10b981;
+}
+
 .doc-info-row {
   font-size: 0.75rem;
   color: #475569;
@@ -510,8 +514,7 @@
 /* ========== INVOICE SECTION ========== */
 .invoice-section {
   margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 2px solid #d1fae5;
+  padding-top: 0.5rem;
 }
 
 .invoice-header {
@@ -990,9 +993,8 @@
   /* ===== INVOICE SECTION - COMPACTA ===== */
   .invoice-section {
     width: 100% !important;
-    border-top: 1pt solid #000 !important;
-    padding-top: 0.2cm !important;
-    margin-top: 0.25cm !important;
+    padding-top: 0.15cm !important;
+    margin-top: 0.2cm !important;
     page-break-inside: avoid !important;
   }
 

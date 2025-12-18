@@ -108,7 +108,7 @@
     <div class="document-card animate-fadeIn" style="animation-delay: 0.05s">
 
       <!-- Encabezado del documento -->
-      <div class="document-header">
+      <div class="document-header" [class.invoice]="proposal()!.status === 'converted_to_invoice'">
         <div class="grid grid-cols-12 gap-4">
 
           <!-- Columna Izquierda: Info del Cliente -->

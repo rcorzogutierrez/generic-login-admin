@@ -60,13 +60,17 @@ export class LoginComponent implements OnInit {
 
   /** Mensaje de resultado del login (éxito o error) */
   private _loginMessage = signal<{
-    type: 'error' | 'success';
+    type: 'error' | 'success' | 'info';
     message: string;
   } | null>(null);
+
+  /** Indica si hay un redirect de OAuth pendiente */
+  private _isRedirectPending = signal(false);
 
   // Readonly signals expuestos al template
   readonly isLoggingIn = this._isLoggingIn.asReadonly();
   readonly loginMessage = this._loginMessage.asReadonly();
+  readonly isRedirectPending = this._isRedirectPending.asReadonly();
 
   // ========================================
   // COMPUTED SIGNALS - Estados derivados
@@ -107,8 +111,20 @@ export class LoginComponent implements OnInit {
   /**
    * Inicialización del componente
    * Carga la configuración de la app desde Firestore
+   * Detecta si hay un redirect de OAuth pendiente
    */
   async ngOnInit(): Promise<void> {
+    // Detectar si hay un redirect pendiente (popup bloqueado)
+    const redirectPending = localStorage.getItem('auth_redirect_pending') === 'true';
+    if (redirectPending) {
+      this._isRedirectPending.set(true);
+      this._loginMessage.set({
+        type: 'info',
+        message: 'Procesando autenticación, por favor espera...'
+      });
+      this.logger.info('Redirect de OAuth detectado, procesando...');
+    }
+
     // Inicializar configuración (nombre, logo, etc.)
     await this.appConfigService.initialize();
 
@@ -120,8 +136,10 @@ export class LoginComponent implements OnInit {
       adminContactEmail: this.adminContactEmail()
     });
 
-    // Limpiar mensajes previos
-    this._loginMessage.set(null);
+    // Limpiar mensajes previos si no hay redirect pendiente
+    if (!redirectPending) {
+      this._loginMessage.set(null);
+    }
   }
 
   // ========================================

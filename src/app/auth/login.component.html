@@ -150,33 +150,42 @@
         class="mt-6 p-4 rounded-xl border flex items-start gap-3 animate-fadeInUp"
         [ngClass]="{
           'bg-red-50 border-red-200': loginMessage()?.type === 'error',
-          'bg-green-50 border-green-200': loginMessage()?.type === 'success'
+          'bg-green-50 border-green-200': loginMessage()?.type === 'success',
+          'bg-blue-50 border-blue-200': loginMessage()?.type === 'info'
         }">
 
         <!-- Icono -->
         <mat-icon
-          [attr.aria-label]="loginMessage()?.type === 'error' ? 'Error' : 'Éxito'"
+          [attr.aria-label]="loginMessage()?.type === 'error' ? 'Error' : loginMessage()?.type === 'success' ? 'Éxito' : 'Información'"
           [ngClass]="{
             'text-red-600': loginMessage()?.type === 'error',
-            'text-green-600': loginMessage()?.type === 'success'
+            'text-green-600': loginMessage()?.type === 'success',
+            'text-blue-600': loginMessage()?.type === 'info'
           }">
-          {{ loginMessage()?.type === 'error' ? 'error_outline' : 'check_circle_outline' }}
+          {{ loginMessage()?.type === 'error' ? 'error_outline' : loginMessage()?.type === 'success' ? 'check_circle_outline' : 'info_outline' }}
         </mat-icon>
 
         <!-- Contenido -->
         <div class="flex-1">
           <p class="font-semibold text-sm mb-1" [ngClass]="{
             'text-red-800': loginMessage()?.type === 'error',
-            'text-green-800': loginMessage()?.type === 'success'
+            'text-green-800': loginMessage()?.type === 'success',
+            'text-blue-800': loginMessage()?.type === 'info'
           }">
-            {{ loginMessage()?.type === 'error' ? 'Error de Acceso' : 'Acceso Autorizado' }}
+            {{ loginMessage()?.type === 'error' ? 'Error de Acceso' : loginMessage()?.type === 'success' ? 'Acceso Autorizado' : 'Procesando autenticación' }}
           </p>
           <p class="text-sm opacity-90" [ngClass]="{
             'text-red-700': loginMessage()?.type === 'error',
-            'text-green-700': loginMessage()?.type === 'success'
+            'text-green-700': loginMessage()?.type === 'success',
+            'text-blue-700': loginMessage()?.type === 'info'
           }">
             {{ loginMessage()?.message }}
           </p>
+
+          <!-- Spinner durante redirect -->
+          @if (loginMessage()?.type === 'info') {
+            <div class="loading-spinner-sm mt-2" aria-hidden="true"></div>
+          }
         </div>
       </div>
     }

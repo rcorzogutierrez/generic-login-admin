@@ -53,7 +53,7 @@ export class ProposalConfigService {
 
     await this.loadConfig();
     this.isInitialized = true;
-    console.log('✅ ProposalConfigService inicializado');
+
   }
 
   /**
@@ -74,10 +74,10 @@ export class ProposalConfigService {
           ...docSnap.data() as Omit<ProposalModuleConfig, 'id'>
         };
         this.config.set(config);
-        console.log('✅ Configuración de proposals cargada:', config);
+
       } else {
         // No existe configuración, crear una por defecto
-        console.log('⚠️ No existe configuración, creando configuración por defecto');
+
         await this.createDefaultConfig();
       }
     } catch (error) {
@@ -112,7 +112,7 @@ export class ProposalConfigService {
     await setDoc(docRef, configData);
 
     this.config.set(configData);
-    console.log('✅ Configuración por defecto creada:', configData);
+
   }
 
   /**
@@ -128,7 +128,7 @@ export class ProposalConfigService {
       createdBy: 'system'
     };
     this.config.set(configData);
-    console.log('⚠️ Usando configuración por defecto en memoria (sin guardar en Firestore)');
+    
   }
 
   /**
@@ -163,7 +163,6 @@ export class ProposalConfigService {
         } as ProposalModuleConfig);
       }
 
-      console.log('✅ Configuración actualizada:', updateData);
     } catch (error) {
       console.error('❌ Error actualizando configuración:', error);
       this.error.set('Error al actualizar la configuración');

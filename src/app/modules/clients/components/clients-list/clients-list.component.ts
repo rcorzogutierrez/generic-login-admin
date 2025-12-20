@@ -144,7 +144,6 @@ export class ClientsListComponent implements OnInit {
    */
   async loadData() {
     try {
-      console.log('📂 ClientsListComponent.loadData() - Iniciando...');
 
       // Cargar configuración y clientes en paralelo
       await Promise.all([
@@ -153,19 +152,17 @@ export class ClientsListComponent implements OnInit {
       ]);
 
       const config = this.config();
-      console.log('   Config cargada:', config ? 'existe' : 'null');
 
       if (config && config.gridConfig) {
-        console.log('   gridConfig existe, aplicando configuración');
+
         this.itemsPerPage.set(config.gridConfig.itemsPerPage || 25);
         this.currentSort.set({
           field: config.gridConfig.sortBy || 'name',
           direction: config.gridConfig.sortOrder || 'asc'
         });
-        console.log('   itemsPerPage:', config.gridConfig.itemsPerPage);
-        console.log('   sortBy:', config.gridConfig.sortBy);
+
       } else {
-        console.log('ℹ️ Usando configuración por defecto del grid');
+
         // Usar valores por defecto si no hay configuración
         this.itemsPerPage.set(25);
         this.currentSort.set({
@@ -174,7 +171,6 @@ export class ClientsListComponent implements OnInit {
         });
       }
 
-      console.log('✅ Datos cargados correctamente');
       this.cdr.markForCheck();
     } catch (error) {
       console.error('❌ Error cargando datos:', error);

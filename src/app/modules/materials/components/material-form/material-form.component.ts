@@ -85,11 +85,9 @@ export class MaterialFormComponent implements OnInit {
 
       // Obtener campos activos ordenados
       const activeFields = this.configService.getActiveFields();
-      console.log('📝 FORMULARIO MATERIALS: Campos activos cargados:', activeFields.length);
 
       // Validar que existan campos configurados
       if (activeFields.length === 0) {
-        console.warn('⚠️ No hay campos configurados en el módulo de Materials');
 
         const currentUser = this.authService.authorizedUser();
         const isAdmin = currentUser?.role === 'admin';
@@ -129,7 +127,6 @@ export class MaterialFormComponent implements OnInit {
       // Cargar layout del formulario
       const layout = this.configService.getFormLayout();
       this.formLayout.set(layout);
-      console.log('📐 Layout del formulario cargado:', layout ? `${layout.columns} columnas` : 'sin layout');
 
       // Determinar modo según ruta
       const materialId = this.route.snapshot.paramMap.get('id');
@@ -183,21 +180,18 @@ export class MaterialFormComponent implements OnInit {
     const fields = this.fields();
     const layout = this.formLayout();
 
-    console.log('🔨 buildForm(): Construyendo formulario con', fields.length, 'campos');
-    console.log('   Modo:', this.mode());
-
     // Si hay layout personalizado, obtener solo los campos que están en el layout
     let fieldsToRender = fields;
     if (layout && layout.fields && Object.keys(layout.fields).length > 0) {
-      console.log('   ⚙️ Layout personalizado detectado - filtrando campos');
+
       fieldsToRender = fields.filter(field => {
         const isInLayout = layout.fields[field.id] !== undefined;
         if (!isInLayout) {
-          console.warn(`   ⚠️ Campo "${field.label}" (${field.name}) está activo pero NO está en el layout - se omitirá del FormGroup`);
+          
         }
         return isInLayout;
       });
-      console.log(`   📋 Campos después de filtrar por layout: ${fieldsToRender.length} de ${fields.length}`);
+
     }
 
     fieldsToRender.forEach(field => {
@@ -337,7 +331,7 @@ export class MaterialFormComponent implements OnInit {
 
       if (layout && layout.fields && Object.keys(layout.fields).length > 0) {
         fieldsToProcess = this.fields().filter(field => layout.fields[field.id] !== undefined);
-        console.log('📤 onSubmit(): Procesando', fieldsToProcess.length, 'campos (filtrados por layout)');
+        
       }
 
       fieldsToProcess.forEach(field => {

@@ -209,9 +209,9 @@ export class ProposalsListComponent implements OnInit {
    */
   async loadData() {
     try {
-      console.log('📂 ProposalsListComponent.loadData() - Iniciando...');
+      
       await this.proposalsService.initialize();
-      console.log('✅ Datos cargados correctamente');
+
       this.cdr.markForCheck();
     } catch (error) {
       console.error('❌ Error cargando datos:', error);

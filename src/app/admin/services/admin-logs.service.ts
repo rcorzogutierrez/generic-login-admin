@@ -63,12 +63,12 @@ export interface DeleteLogsResult {
  * ```typescript
  * // Obtener logs con paginación
  * const page = await logsService.getLogsPaginated(15, { action: 'create_user' });
- * console.log(page.logs); // Array de logs
- * console.log(page.hasMore); // ¿Hay más páginas?
+ *  // Array de logs
+ *  // ¿Hay más páginas?
  *
  * // Eliminar logs antiguos
  * const result = await logsService.deleteLogsOlderThan(30); // > 30 días
- * console.log(result.deletedCount);
+ * 
  * ```
  */
 @Injectable({
@@ -188,7 +188,6 @@ export class AdminLogsService {
    */
   async deleteAllLogs(): Promise<DeleteLogsResult> {
     try {
-      console.log('🗑️ Iniciando eliminación de TODOS los logs...');
 
       const logsRef = collection(this.db, 'admin_logs');
       const q = query(logsRef);
@@ -203,7 +202,6 @@ export class AdminLogsService {
       }
 
       const totalLogs = querySnapshot.size;
-      console.log(`📊 Total de logs a eliminar: ${totalLogs}`);
 
       let deletedCount = 0;
       const errors: string[] = [];
@@ -224,7 +222,7 @@ export class AdminLogsService {
         try {
           await batch.commit();
           deletedCount += docsToDelete.length;
-          console.log(`✅ Batch ${i + 1}/${batches} completado: ${docsToDelete.length} logs eliminados`);
+
         } catch (error: any) {
           console.error(`❌ Error en batch ${i + 1}:`, error);
           errors.push(`Batch ${i + 1}: ${error.message}`);
@@ -242,7 +240,6 @@ export class AdminLogsService {
         result.message += ` (con ${errors.length} error(es))`;
       }
 
-      console.log('✅ Eliminación completada:', result);
       return result;
 
     } catch (error: any) {
@@ -261,7 +258,6 @@ export class AdminLogsService {
    */
   async deleteLogsOlderThan(days: number): Promise<DeleteLogsResult> {
     try {
-      console.log(`🗑️ Eliminando logs con más de ${days} días...`);
 
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - days);
@@ -283,7 +279,6 @@ export class AdminLogsService {
       }
 
       const totalLogs = querySnapshot.size;
-      console.log(`📊 Logs a eliminar (>${days} días): ${totalLogs}`);
 
       let deletedCount = 0;
       const errors: string[] = [];
@@ -303,7 +298,7 @@ export class AdminLogsService {
         try {
           await batch.commit();
           deletedCount += docsToDelete.length;
-          console.log(`✅ Batch ${i + 1}/${batches} completado`);
+
         } catch (error: any) {
           console.error(`❌ Error en batch ${i + 1}:`, error);
           errors.push(`Batch ${i + 1}: ${error.message}`);
@@ -339,7 +334,6 @@ export class AdminLogsService {
    */
   async deleteLogsByFilter(filters: LogsFilter): Promise<DeleteLogsResult> {
     try {
-      console.log('🗑️ Eliminando logs por filtros:', filters);
 
       const logsRef = collection(this.db, 'admin_logs');
       let q = query(logsRef);
@@ -371,7 +365,6 @@ export class AdminLogsService {
       }
 
       const totalLogs = querySnapshot.size;
-      console.log(`📊 Logs que coinciden con filtros: ${totalLogs}`);
 
       let deletedCount = 0;
       const errors: string[] = [];

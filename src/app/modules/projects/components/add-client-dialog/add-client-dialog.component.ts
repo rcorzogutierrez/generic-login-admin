@@ -61,10 +61,8 @@ export class AddClientDialogComponent implements OnInit {
       // Obtener campos en uso (respeta layout personalizado si existe)
       const fieldsInUse = this.configService.getFieldsInUse();
 
-      console.log('📝 ADD CLIENT DIALOG: Campos en uso cargados:', fieldsInUse.length);
-      console.log('   Lista de campos:');
       fieldsInUse.forEach((f, i) => {
-        console.log(`   ${i + 1}. ${f.label} (${f.name}) - Tipo: ${f.type} - formOrder: ${f.formOrder}`);
+        
       });
 
       if (fieldsInUse.length === 0) {

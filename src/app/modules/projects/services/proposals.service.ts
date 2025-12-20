@@ -112,7 +112,7 @@ export class ProposalsService {
 
     await this.loadProposals();
     this.isInitialized = true;
-    console.log('✅ ProposalsService inicializado -', this.proposals().length, 'proposals cargados');
+    
   }
 
   /**
@@ -147,7 +147,7 @@ export class ProposalsService {
       const snapshot = await getDocs(q);
 
       if (snapshot.empty) {
-        console.warn('⚠️ No se encontraron documentos en la colección "proposals"');
+
       }
 
       const proposals: Proposal[] = snapshot.docs.map((docSnapshot) => ({

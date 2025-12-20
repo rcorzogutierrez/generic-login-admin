@@ -103,17 +103,13 @@ export class MaterialConfigComponent implements OnInit {
    */
   async onLayoutChange(layout: FormLayoutConfig) {
     try {
-      console.log('📥 MaterialConfigComponent.onLayoutChange() - Layout recibido:', layout);
-      console.log('   Campos en layout:', Object.keys(layout.fields).length);
-      console.log('   Columnas:', layout.columns);
-      console.log('   Spacing:', layout.spacing);
 
       // Validar que exista al menos un campo obligatorio
       const activeFields = this.configService.getActiveFields();
       const hasRequiredField = activeFields.some(field => field.validation?.required === true);
 
       if (!hasRequiredField) {
-        console.warn('⚠️ No hay campos obligatorios en el formulario');
+
         this.snackBar.open('⚠️ Debes tener al menos un campo obligatorio en el formulario', 'Cerrar', {
           duration: 5000,
           horizontalPosition: 'end',
@@ -123,9 +119,7 @@ export class MaterialConfigComponent implements OnInit {
         return;
       }
 
-      console.log('🔄 Llamando a configService.saveFormLayout()...');
       await this.configService.saveFormLayout(layout);
-      console.log('✅ saveFormLayout() completado exitosamente');
 
       this.snackBar.open('✅ Diseño del formulario guardado correctamente', '', {
         duration: 3000,

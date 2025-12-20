@@ -43,7 +43,7 @@ interface OperationResult {
  *
  * async loadBusiness() {
  *   const business = await this.businessService.getBusinessInfo();
- *   console.log(business);
+ *   
  * }
  * ```
  */
@@ -94,7 +94,7 @@ export class BusinessInfoService {
    * ```typescript
    * const business = await this.businessInfoService.getBusinessInfo();
    * if (business) {
-   *   console.log('Empresa:', business.businessName);
+   *   
    * }
    * ```
    */
@@ -143,7 +143,7 @@ export class BusinessInfoService {
    * });
    *
    * if (result.success) {
-   *   console.log('Guardado exitoso');
+   *   
    * }
    * ```
    */
@@ -243,11 +243,11 @@ export class BusinessInfoService {
    * ```typescript
    * const file = event.target.files[0];
    * const url = await this.businessInfoService.uploadLogo(file, (progress) => {
-   *   console.log('Progreso:', progress, '%');
+   *   
    * });
    *
    * if (url) {
-   *   console.log('Logo subido:', url);
+   *   
    * }
    * ```
    */
@@ -334,9 +334,9 @@ export class BusinessInfoService {
 
       const fileRef = ref(this.storage, filePath);
       await deleteObject(fileRef);
-      console.log('Logo anterior eliminado:', filePath);
+
     } catch (error) {
-      console.warn('Error eliminando logo anterior:', error);
+
       // No lanzar error, continuar con la operación
     }
   }

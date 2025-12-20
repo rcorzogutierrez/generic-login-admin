@@ -98,7 +98,6 @@ export class AppConfigService implements OnDestroy {
     }
   }
 
-
   /**
    * Actualiza todos los signals con los datos de Firestore
    */

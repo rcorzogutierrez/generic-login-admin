@@ -272,8 +272,8 @@ export function isYesterday(date: Date): boolean {
  * @example
  * ```typescript
  * const { startDate, endDate } = getDateRange('week');
- * console.log(startDate); // Inicio de la semana
- * console.log(endDate);   // Ahora
+ *  // Inicio de la semana
+ *    // Ahora
  * ```
  */
 export function getDateRange(range: 'today' | 'week' | 'month' | 'year'): {

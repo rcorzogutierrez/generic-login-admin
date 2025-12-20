@@ -69,17 +69,9 @@ export async function getDocWithLogging<T = DocumentData>(
   const collectionName = getCollectionName(reference);
   const startTime = performance.now();
 
-  console.log(`${COLORS.cyan}🔍 getDoc${COLORS.reset} → ${collectionName}`);
-
   try {
     const result = await getDoc(reference);
     const duration = performance.now() - startTime;
-
-    console.log(
-      `${COLORS.green}✅ getDoc${COLORS.reset} → ${collectionName} | ` +
-      `Tiempo: ${formatTime(duration)} | ` +
-      `Existe: ${result.exists()}`
-    );
 
     return result;
   } catch (error) {
@@ -102,17 +94,9 @@ export async function getDocsWithLogging<T = DocumentData>(
   const collectionName = getCollectionName(query);
   const startTime = performance.now();
 
-  console.log(`${COLORS.cyan}📋 getDocs${COLORS.reset} → ${collectionName}`);
-
   try {
     const result = await getDocs(query);
     const duration = performance.now() - startTime;
-
-    console.log(
-      `${COLORS.green}✅ getDocs${COLORS.reset} → ${collectionName} | ` +
-      `Tiempo: ${formatTime(duration)} | ` +
-      `Documentos: ${result.size}`
-    );
 
     return result;
   } catch (error) {
@@ -136,17 +120,9 @@ export async function addDocWithLogging<T = DocumentData>(
   const collectionName = getCollectionName(reference);
   const startTime = performance.now();
 
-  console.log(`${COLORS.magenta}➕ addDoc${COLORS.reset} → ${collectionName}`);
-
   try {
     const result = await addDoc(reference, data);
     const duration = performance.now() - startTime;
-
-    console.log(
-      `${COLORS.green}✅ addDoc${COLORS.reset} → ${collectionName} | ` +
-      `Tiempo: ${formatTime(duration)} | ` +
-      `ID: ${result.id}`
-    );
 
     return result;
   } catch (error) {
@@ -170,16 +146,10 @@ export async function setDocWithLogging<T = DocumentData>(
   const collectionName = getCollectionName(reference);
   const startTime = performance.now();
 
-  console.log(`${COLORS.magenta}💾 setDoc${COLORS.reset} → ${collectionName}`);
-
   try {
     await setDoc(reference, data);
     const duration = performance.now() - startTime;
 
-    console.log(
-      `${COLORS.green}✅ setDoc${COLORS.reset} → ${collectionName} | ` +
-      `Tiempo: ${formatTime(duration)}`
-    );
   } catch (error) {
     const duration = performance.now() - startTime;
     console.error(
@@ -201,16 +171,10 @@ export async function updateDocWithLogging<T = DocumentData>(
   const collectionName = getCollectionName(reference);
   const startTime = performance.now();
 
-  console.log(`${COLORS.yellow}✏️ updateDoc${COLORS.reset} → ${collectionName}`);
-
   try {
     await updateDoc(reference, data as any);
     const duration = performance.now() - startTime;
 
-    console.log(
-      `${COLORS.green}✅ updateDoc${COLORS.reset} → ${collectionName} | ` +
-      `Tiempo: ${formatTime(duration)}`
-    );
   } catch (error) {
     const duration = performance.now() - startTime;
     console.error(
@@ -231,16 +195,10 @@ export async function deleteDocWithLogging<T = DocumentData>(
   const collectionName = getCollectionName(reference);
   const startTime = performance.now();
 
-  console.log(`${COLORS.red}🗑️ deleteDoc${COLORS.reset} → ${collectionName}`);
-
   try {
     await deleteDoc(reference);
     const duration = performance.now() - startTime;
 
-    console.log(
-      `${COLORS.green}✅ deleteDoc${COLORS.reset} → ${collectionName} | ` +
-      `Tiempo: ${formatTime(duration)}`
-    );
   } catch (error) {
     const duration = performance.now() - startTime;
     console.error(

@@ -18,7 +18,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AdminService, CreateUserRequest } from '../../services/admin.service';
 import { getRoleIcon, getPermissionIcon, getModuleIcon } from '../../../shared/utils';
 
-
 @Component({
   selector: 'app-add-user-dialog',
   standalone: true,

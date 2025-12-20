@@ -666,7 +666,6 @@ export class ModulesService {
       }
     ];
 
-
     for (const module of defaultModules) {
       await this.createModule(module, currentUserUid);
     }

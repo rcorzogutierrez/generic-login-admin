@@ -266,12 +266,7 @@ export class AssignModulesDialogComponent implements OnInit {
     }
 
     // Este log se hará en el servicio AdminService
-    console.log('Módulos asignados:', {
-      user: this.data.user.email,
-      added,
-      removed,
-      performedBy: this.authService.authorizedUser()?.email
-    });
+    
   }
 
   /**

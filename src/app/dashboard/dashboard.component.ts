@@ -2,7 +2,6 @@
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
 import { UserDashboardService, UserDashboardData } from './services/user-dashboard.service';
@@ -49,7 +48,6 @@ interface KeyMetric {
   imports: [
     CommonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',

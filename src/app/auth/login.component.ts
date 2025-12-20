@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../core/services/auth.service';
 import { AppConfigService } from '../core/services/app-config.service';
 import { NotificationService } from '../core/services/notification.service';
@@ -36,7 +35,6 @@ import { NavigationService } from '../core/services/navigation.service';
     MatButtonModule,
     MatCardModule,
     MatIconModule,
-    MatProgressSpinnerModule,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',

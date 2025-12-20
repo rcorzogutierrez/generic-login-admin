@@ -157,8 +157,6 @@ export class ProposalViewComponent implements OnInit {
       return;
     }
 
-    console.log('🔄 Abriendo diálogo de factura para proposal:', proposal.id);
-
     // Abrir directamente el diálogo para agregar datos de factura
     // El estado se cambiará a 'converted_to_invoice' cuando se guarden los datos
     await this.editInvoiceData();
@@ -340,20 +338,11 @@ export class ProposalViewComponent implements OnInit {
       return;
     }
 
-    console.log('📋 Abriendo diálogo de factura con datos:', {
-      proposalId: proposal.id,
-      status: proposal.status,
-      hasWorkers: !!proposal.workers,
-      hasMaterials: !!proposal.materialsUsed
-    });
-
     try {
       // Importar dinámicamente el componente del diálogo
-      console.log('⏳ Cargando componente InvoiceEditDialogComponent...');
-      const { InvoiceEditDialogComponent } = await import('../invoice-edit-dialog/invoice-edit-dialog.component');
-      console.log('✅ Componente cargado exitosamente');
 
-      console.log('🔓 Abriendo diálogo...');
+      const { InvoiceEditDialogComponent } = await import('../invoice-edit-dialog/invoice-edit-dialog.component');
+
       const dialogRef = this.dialog.open(InvoiceEditDialogComponent, {
         width: '900px',
         maxWidth: '95vw',
@@ -362,13 +351,11 @@ export class ProposalViewComponent implements OnInit {
         data: { proposal }
       });
 
-      console.log('✅ Diálogo abierto');
-
       dialogRef.afterClosed().subscribe(async (result) => {
-        console.log('🔒 Diálogo cerrado con resultado:', result);
+
         if (result) {
           // Recargar el proposal para ver los cambios
-          console.log('🔄 Recargando proposal...');
+
           await this.loadProposal(proposal.id);
         }
       });

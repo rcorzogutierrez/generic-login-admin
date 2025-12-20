@@ -123,7 +123,6 @@ export async function logAuditAction(logData: AuditLogData): Promise<AuditLogRes
     };
 
   } catch (error) {
-    console.warn('⚠️ Error registrando acción de auditoría:', error);
 
     return {
       success: false,
@@ -149,7 +148,7 @@ export async function logAuditAction(logData: AuditLogData): Promise<AuditLogRes
  * ]);
  *
  * const successCount = results.filter(r => r.success).length;
- * console.log(`${successCount}/${results.length} logs registrados`);
+ * 
  * ```
  */
 export async function logAuditActionBatch(

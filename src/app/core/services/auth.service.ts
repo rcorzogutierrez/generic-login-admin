@@ -86,7 +86,7 @@ export class AuthService {
    * ```typescript
    * const result = await authService.loginWithGoogle();
    * if (result.success) {
-   *   console.log('Usuario autenticado');
+   *   
    * } else {
    *   console.error(result.message);
    * }

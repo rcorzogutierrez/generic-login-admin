@@ -104,21 +104,19 @@ export class ClientFormComponent implements OnInit {
 
       // Obtener campos activos ordenados
       const activeFields = this.configService.getActiveFields();
-      console.log('📝 FORMULARIO: Campos activos cargados:', activeFields.length);
-      console.log('   Lista de campos:');
+
       activeFields.forEach((f, i) => {
-        console.log(`   ${i + 1}. ${f.label} (${f.name}) - Tipo: ${f.type} - formOrder: ${f.formOrder}`);
+        
       });
 
       // Advertencia si hay campos sin formOrder
       const withoutOrder = activeFields.filter(f => f.formOrder === undefined || f.formOrder === null);
       if (withoutOrder.length > 0) {
-        console.warn(`   ⚠️ ${withoutOrder.length} campo(s) sin formOrder definido - el orden podría ser impredecible`);
+        
       }
 
       // Validar que existan campos configurados
       if (activeFields.length === 0) {
-        console.warn('⚠️ No hay campos configurados en el módulo de Clients');
 
         const currentUser = this.authService.authorizedUser();
         const isAdmin = currentUser?.role === 'admin';
@@ -215,21 +213,18 @@ export class ClientFormComponent implements OnInit {
     const fields = this.fields();
     const layout = this.formLayout();
 
-    console.log('🔨 buildForm(): Construyendo formulario con', fields.length, 'campos');
-    console.log('   Modo:', this.mode());
-
     // Si hay layout personalizado, obtener solo los campos que están en el layout
     let fieldsToRender = fields;
     if (layout && layout.fields && Object.keys(layout.fields).length > 0) {
-      console.log('   ⚙️ Layout personalizado detectado - filtrando campos');
+
       fieldsToRender = fields.filter(field => {
         const isInLayout = layout.fields[field.id] !== undefined;
         if (!isInLayout) {
-          console.warn(`   ⚠️ Campo "${field.label}" (${field.name}) está activo pero NO está en el layout - se omitirá del FormGroup`);
+          
         }
         return isInLayout;
       });
-      console.log(`   📋 Campos después de filtrar por layout: ${fieldsToRender.length} de ${fields.length}`);
+
     }
 
     fieldsToRender.forEach(field => {
@@ -241,7 +236,7 @@ export class ClientFormComponent implements OnInit {
 
       // Para campos tipo DICTIONARY, crear un control por cada opción
       if (field.type === FieldType.DICTIONARY && field.options && field.options.length > 0) {
-        console.log(`   📖 Campo DICTIONARY: ${field.label} (${field.name}) - ${field.options.length} opciones - Required: ${field.validation.required}`);
+        
         field.options.forEach(option => {
           const controlName = `${field.name}_${option.value}`;
           const initialValue = this.getDictionaryOptionValue(field, option.value, client);
@@ -253,13 +248,11 @@ export class ClientFormComponent implements OnInit {
           ];
         });
       } else if (field.type === FieldType.DICTIONARY) {
-        console.warn(`   ⚠️ Campo DICTIONARY: ${field.label} NO tiene opciones - no se renderizará`);
+
       } else {
         // Para otros tipos de campos, comportamiento normal
         let initialValue = this.getInitialValue(field, client);
         const validators = this.createValidators(field);
-
-        console.log(`   ✅ Campo: ${field.label} (${field.name}) - Tipo: ${field.type} - Required: ${field.validation.required} - Validators: ${validators.length}`);
 
         formControls[field.name] = [
           { value: initialValue, disabled: this.mode() === 'view' },
@@ -268,13 +261,10 @@ export class ClientFormComponent implements OnInit {
       }
     });
 
-    console.log('   📋 Total de controles creados en FormGroup:', Object.keys(formControls).length);
-    console.log('   📋 Lista de controles:', Object.keys(formControls).join(', '));
-
     this.clientForm = this.fb.group(formControls);
 
     // Log del estado del formulario después de construcción
-    console.log('   ✅ FormGroup construido. Estado: valid =', this.clientForm.valid, ', invalid =', this.clientForm.invalid);
+
   }
 
   /**
@@ -445,7 +435,7 @@ export class ClientFormComponent implements OnInit {
 
       if (layout && layout.fields && Object.keys(layout.fields).length > 0) {
         fieldsToProcess = this.fields().filter(field => layout.fields[field.id] !== undefined);
-        console.log('📤 onSubmit(): Procesando', fieldsToProcess.length, 'campos (filtrados por layout)');
+        
       }
 
       fieldsToProcess.forEach(field => {
@@ -637,7 +627,7 @@ export class ClientFormComponent implements OnInit {
     return this.fields().filter(field => {
       // Verificar que el campo esté activo (doble verificación de seguridad)
       if (!field.isActive) {
-        console.warn(`⚠️ Campo ${field.label} está inactivo pero apareció en this.fields(). Esto no debería pasar.`);
+        
         return false;
       }
 
@@ -698,84 +688,47 @@ export class ClientFormComponent implements OnInit {
    * Puedes llamar esto desde la consola del navegador para debuggear
    */
   debugFormState() {
-    console.group('🐛 DEBUG: Estado del Formulario de Cliente');
 
-    console.log('📋 Modo:', this.mode());
-    console.log('📋 FormGroup válido:', this.clientForm.valid);
-    console.log('📋 FormGroup inválido:', this.clientForm.invalid);
-    console.log('📋 FormGroup touched:', this.clientForm.touched);
-    console.log('📋 FormGroup dirty:', this.clientForm.dirty);
-
-    console.group('📝 Campos en this.fields() (deberían ser solo ACTIVOS):');
     this.fields().forEach((field, index) => {
-      console.log(`  ${index + 1}. ${field.label} (${field.name})`);
-      console.log(`     - Tipo: ${field.type}`);
-      console.log(`     - Activo: ${field.isActive}`);
-      console.log(`     - Requerido: ${field.validation.required}`);
-    });
-    console.groupEnd();
 
-    console.group('🎮 Controles en FormGroup:');
+    });
+
     Object.keys(this.clientForm.controls).forEach((controlName, index) => {
       const control = this.clientForm.get(controlName);
-      console.log(`  ${index + 1}. ${controlName}`);
-      console.log(`     - Valor: ${control?.value}`);
-      console.log(`     - Válido: ${control?.valid}`);
-      console.log(`     - Inválido: ${control?.invalid}`);
-      console.log(`     - Touched: ${control?.touched}`);
-      console.log(`     - Errores:`, control?.errors);
-    });
-    console.groupEnd();
 
-    console.group('❌ Campos Inválidos (según getInvalidFields()):');
+    });
+
     const invalidFields = this.getInvalidFields();
     if (invalidFields.length === 0) {
-      console.log('  ✅ No hay campos inválidos');
+
     } else {
       invalidFields.forEach((field, index) => {
         const control = this.clientForm.get(field.name);
-        console.log(`  ${index + 1}. ${field.label} (${field.name})`);
-        console.log(`     - Activo: ${field.isActive}`);
-        console.log(`     - Errores del control:`, control?.errors);
+
       });
     }
-    console.groupEnd();
 
     // Buscar campo específico por nombre
-    console.group('🔍 Búsqueda de campo "test":');
+
     const testField = this.fields().find(f => f.name === 'test');
     if (testField) {
-      console.log('  ✅ Campo "test" encontrado en this.fields()');
-      console.log(`     - Label: ${testField.label}`);
-      console.log(`     - Activo: ${testField.isActive}`);
-      console.log(`     - Requerido: ${testField.validation.required}`);
-      console.log(`     - Tipo: ${testField.type}`);
 
       const testControl = this.clientForm.get('test');
       if (testControl) {
-        console.log('  ✅ Control "test" encontrado en FormGroup');
-        console.log(`     - Valor: ${testControl.value}`);
-        console.log(`     - Válido: ${testControl.valid}`);
-        console.log(`     - Errores:`, testControl.errors);
+
       } else {
-        console.log('  ❌ Control "test" NO encontrado en FormGroup');
+
       }
     } else {
-      console.log('  ❌ Campo "test" NO encontrado en this.fields()');
 
       // Buscar en TODOS los campos de la configuración (incluyendo inactivos)
       const allFields = this.configService.fields();
       const testInAll = allFields.find(f => f.name === 'test');
       if (testInAll) {
-        console.log('  ⚠️ PERO SÍ está en la configuración completa (puede estar inactivo)');
-        console.log(`     - Label: ${testInAll.label}`);
-        console.log(`     - Activo: ${testInAll.isActive}`);
-        console.log(`     - Requerido: ${testInAll.validation.required}`);
+
       }
     }
-    console.groupEnd();
 
-    console.groupEnd();
   }
 
   /**
@@ -788,17 +741,14 @@ export class ClientFormComponent implements OnInit {
       const testField = allFields.find(f => f.name === 'test');
 
       if (!testField) {
-        console.log('❌ Campo "test" no encontrado');
+
         this.snackBar.open('Campo "test" no encontrado en la configuración', 'Cerrar', { duration: 3000 });
         return;
       }
 
-      console.log('🔧 Desactivando campo "test"...');
       await this.configService.updateField(testField.id, { isActive: false });
 
       this.snackBar.open('✅ Campo "test" desactivado. Recarga la página.', 'Cerrar', { duration: 5000 });
-      console.log('✅ Campo "test" desactivado exitosamente');
-      console.log('   Por favor, recarga la página (F5) para aplicar los cambios');
 
     } catch (error) {
       console.error('❌ Error desactivando campo:', error);
@@ -856,20 +806,14 @@ export class ClientFormComponent implements OnInit {
     const layout = this.formLayout();
     const fields = this.fields();
 
-    console.log('🎨 getGridRows(): Total de campos a renderizar:', fields.length);
-
     if (!layout || !layout.fields || Object.keys(layout.fields).length === 0) {
       // Sin layout personalizado, usar layout por defecto (lista simple)
-      console.log('   Usando layout por defecto (una sola fila)');
-      console.log('   Campos que se van a renderizar:');
+
       fields.forEach((f, i) => {
-        console.log(`     ${i + 1}. ${f.label} (${f.name}) - Tipo: ${f.type}`);
+        
       });
       return [fields];
     }
-
-    console.log('   ⚠️ Usando layout personalizado');
-    console.log('   Layout tiene', Object.keys(layout.fields).length, 'posiciones definidas');
 
     // Organizar campos según posiciones del layout
     const fieldPositions: Array<{field: FieldConfig, position: FieldPosition}> = [];
@@ -877,10 +821,10 @@ export class ClientFormComponent implements OnInit {
     fields.forEach(field => {
       const position = layout.fields[field.id];
       if (position) {
-        console.log(`     ✅ ${field.label} tiene posición en layout`);
+
         fieldPositions.push({ field, position });
       } else {
-        console.warn(`     ❌ ${field.label} NO tiene posición en layout - SE OMITIRÁ`);
+
       }
     });
 

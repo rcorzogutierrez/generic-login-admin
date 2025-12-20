@@ -161,7 +161,7 @@ export class FirestoreUserService {
       const user = await this.findUser(emailOrUid);
       
       if (!user) {
-        console.warn('Usuario no encontrado para actualizar lastLogin');
+
         return;
       }
 
@@ -171,7 +171,7 @@ export class FirestoreUserService {
         lastLoginDate: new Date().toISOString()
       });
     } catch (error) {
-      console.warn('Error actualizando lastLogin (no crítico):', error);
+      
     }
   }
 

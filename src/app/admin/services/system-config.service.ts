@@ -115,18 +115,13 @@ async updateConfig(
       version: (this._config()?.version || 1) + 1
     };
 
-    console.log('💾 Guardando en Firestore:', updateData);
-
     await updateDoc(configRef, updateData);
-
-    console.log('✅ Configuración guardada en Firestore');
 
     // ✅ Recargar configuración local
     await this.loadConfig();
 
     // ✅ IMPORTANTE: Notificar a AppConfigService para actualizar navbar y títulos
     await this.appConfigService.forceReload();
-    console.log('🔄 AppConfigService recargado - UI actualizada');
 
     return {
       success: true,
@@ -235,10 +230,10 @@ async updateConfig(
     try {
       const storageRef = ref(this.storage, storagePath);
       await deleteObject(storageRef);
-      console.log('✅ Logo anterior eliminado:', storagePath);
+
     } catch (error: any) {
       // No es crítico si falla (el archivo puede no existir)
-      console.warn('⚠️ No se pudo eliminar logo anterior:', error);
+
     }
   }
 

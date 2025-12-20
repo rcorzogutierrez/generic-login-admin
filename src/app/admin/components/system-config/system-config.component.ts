@@ -15,7 +15,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SystemConfigService } from '../../services/system-config.service';
 import { AuthService } from '../../../core/services/auth.service';
 
-
 @Component({
   selector: 'app-system-config',
   standalone: true,

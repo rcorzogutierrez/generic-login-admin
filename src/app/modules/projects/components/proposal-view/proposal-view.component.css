@@ -10,10 +10,6 @@
 }
 
 /* ========== ANIMATIONS ========== */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out forwards;
@@ -46,9 +42,6 @@
   border-top-color: #3b82f6;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 /* ========== HEADER ========== */
 .header-icon-box {

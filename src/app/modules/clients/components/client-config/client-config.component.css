@@ -20,21 +20,7 @@
    ANIMATIONS
    ============================================ */
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
@@ -48,10 +34,6 @@
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
 
 /* ============================================
    HEADER ELEMENTS
@@ -315,16 +297,6 @@
    ANIMATIONS (stagger)
    ============================================ */
 
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: translateY(15px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
 
 .field-card {
   animation: fadeInScale 0.3s ease-out backwards;

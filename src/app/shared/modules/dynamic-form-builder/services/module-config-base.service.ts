@@ -80,7 +80,6 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
 
         // Asegurar que fields siempre sea un array
         if (!config.fields || !Array.isArray(config.fields)) {
-
           config.fields = [];
         }
 
@@ -92,7 +91,6 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
       }
 
     } catch (error) {
-      console.error('❌ Error cargando configuración del módulo:', error);
       this.error.set('Error al cargar la configuración');
       throw error;
     } finally {
@@ -174,7 +172,6 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
       }
 
     } catch (error) {
-      console.error('❌ Error actualizando configuración:', error);
       this.error.set('Error al actualizar la configuración');
       throw error;
     } finally {
@@ -204,7 +201,6 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
 
     let currentFields = this.fields();
     if (!currentFields || !Array.isArray(currentFields)) {
-
       currentFields = [];
     }
 
@@ -292,7 +288,6 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
       await this.updateConfig({ fields: reorderedFields } as Partial<TConfig>);
 
     } catch (error) {
-      console.error('❌ Error reordenando campos:', error);
       throw error;
     }
   }
@@ -324,7 +319,6 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
       await this.updateConfig({ fields: reorderedFields } as Partial<TConfig>);
 
     } catch (error) {
-      console.error('❌ Error reordenando columnas del grid:', error);
       throw error;
     }
   }
@@ -361,7 +355,6 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
     if (layout && layout.fields && Object.keys(layout.fields).length > 0) {
       const fieldsInLayout = new Set(Object.keys(layout.fields));
       gridFields = gridFields.filter(field => fieldsInLayout.has(field.id));
-
     }
 
     return gridFields.sort((a, b) => a.gridConfig.gridOrder - b.gridConfig.gridOrder);
@@ -449,47 +442,25 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
     const inFormOnly = fields.filter(f => f.isActive && !f.gridConfig.showInGrid);
 
     // Buscar problemas potenciales
-
     fields.forEach(field => {
       const problems: string[] = [];
 
       // Problema: showInGrid=true pero isActive=false
       if (!field.isActive && field.gridConfig.showInGrid) {
-        problems.push('⚠️ Marcado para grid pero está inactivo');
+        problems.push('Marcado para grid pero está inactivo');
       }
 
       // Advertencia: Campo activo solo en formulario
       if (field.isActive && !field.gridConfig.showInGrid && !field.isSystem) {
-        problems.push('ℹ️ Solo visible en formulario (no en grid)');
+        problems.push('Solo visible en formulario (no en grid)');
       }
 
-      if (problems.length > 0) {
-
-        problems.forEach(p => 
-
-      }
+      // Los problemas se procesan internamente sin output de consola
+      // En producción, estos datos podrían enviarse a un servicio de logging
     });
 
-    // Listar campos por categoría
-
-    if (inGrid.length > 0) {
-      
-      inGrid.forEach(f => 
-
-    }
-
-    if (inFormOnly.length > 0) {
-      
-      inFormOnly.forEach(f => 
-
-    }
-
-    if (inactive.length > 0) {
-      
-      inactive.forEach(f => 
-
-    }
-
+    // El diagnóstico se completa sin output de consola
+    // Los resultados se pueden acceder mediante las variables locales si es necesario
   }
 
   /**
@@ -506,8 +477,7 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
     );
 
     if (!field) {
-      console.error(`❌ Campo "${fieldNameOrLabel}" no encontrado`);
-      
+      // Campo no encontrado - en producción no se muestra error en consola
       return;
     }
 
@@ -523,24 +493,8 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
       problems.push('formWidth no definido - podría tener problemas de visualización');
     }
 
-    if (problems.length > 0) {
-
-      problems.forEach(p => 
-
-    } else {
-
-    }
-
-    if (!field.isActive && field.gridConfig.showInGrid) {
-
-    } else if (field.isActive && !field.gridConfig.showInGrid) {
-
-    } else if (field.isActive && field.gridConfig.showInGrid) {
-
-    } else {
-      
-    }
-
+    // Los problemas se procesan internamente sin output de consola
+    // En producción, estos datos podrían enviarse a un servicio de logging
   }
 
   /**

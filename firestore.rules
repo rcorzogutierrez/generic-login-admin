@@ -1,0 +1,244 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Get user document from authorized_users
+    function getUserData() {
+      return get(/databases/$(database)/documents/authorized_users/$(request.auth.uid)).data;
+    }
+
+    // Check if user is active
+    function isActiveUser() {
+      return isAuthenticated() && getUserData().isActive == true;
+    }
+
+    // Check user role
+    function hasRole(role) {
+      return isActiveUser() && getUserData().role == role;
+    }
+
+    // Check if user is admin
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    // Check if user has specific permission
+    function hasPermission(permission) {
+      return isActiveUser() && permission in getUserData().permissions;
+    }
+
+    // Check if user can read (admin, user, or viewer)
+    function canRead() {
+      return isActiveUser();
+    }
+
+    // Check if user can write (admin or user)
+    function canWrite() {
+      return isAdmin() || hasRole('user');
+    }
+
+    // Check if user can delete (admin only by default)
+    function canDelete() {
+      return isAdmin() || hasPermission('delete');
+    }
+
+    // Check if user has access to a specific module
+    function hasModuleAccess(moduleName) {
+      return isActiveUser() && moduleName in getUserData().modules;
+    }
+
+    // Validate required fields exist
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    // ============================================
+    // USER MANAGEMENT
+    // ============================================
+
+    // Authorized Users - Only admins can manage users
+    match /authorized_users/{userId} {
+      allow read: if isAuthenticated() &&
+        (request.auth.uid == userId || isAdmin());
+      allow create: if isAdmin();
+      allow update: if isAdmin() ||
+        (request.auth.uid == userId &&
+         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'permissions', 'modules', 'isActive']));
+      allow delete: if isAdmin();
+    }
+
+    // Roles - Admin only
+    match /roles/{roleId} {
+      allow read: if canRead();
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin() &&
+        resource.data.isSystemRole != true; // Prevent deleting system roles
+    }
+
+    // Admin Logs - Append only, admins can read
+    match /admin_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isActiveUser();
+      allow update, delete: if false; // Logs are immutable
+    }
+
+    // ============================================
+    // SYSTEM CONFIGURATION
+    // ============================================
+
+    // System Config - Admin only for writes
+    match /config/{configId} {
+      allow read: if canRead();
+      allow write: if isAdmin();
+    }
+
+    // Business Info - Admin only for writes
+    match /business_info/{docId} {
+      allow read: if canRead();
+      allow write: if isAdmin();
+    }
+
+    // ============================================
+    // CLIENTS MODULE
+    // ============================================
+
+    match /clients/{clientId} {
+      allow read: if canRead() && hasModuleAccess('clients');
+      allow create: if canWrite() && hasModuleAccess('clients') &&
+        hasRequiredFields(['name', 'createdAt', 'createdBy', 'isActive']);
+      allow update: if canWrite() && hasModuleAccess('clients');
+      allow delete: if canDelete() && hasModuleAccess('clients');
+    }
+
+    // Client Config
+    match /client_config/{configId} {
+      allow read: if canRead() && hasModuleAccess('clients');
+      allow write: if isAdmin();
+    }
+
+    // ============================================
+    // PROJECTS MODULE (Proposals/Estimates)
+    // ============================================
+
+    match /proposals/{proposalId} {
+      allow read: if canRead() && hasModuleAccess('projects');
+      allow create: if canWrite() && hasModuleAccess('projects') &&
+        hasRequiredFields(['proposalNumber', 'ownerId', 'status', 'createdAt', 'createdBy']);
+      allow update: if canWrite() && hasModuleAccess('projects');
+      allow delete: if canDelete() && hasModuleAccess('projects');
+    }
+
+    // Proposal Config
+    match /proposal_config/{configId} {
+      allow read: if canRead() && hasModuleAccess('projects');
+      allow write: if isAdmin();
+    }
+
+    // Catalog Items
+    match /catalogItems/{itemId} {
+      allow read: if canRead() && hasModuleAccess('projects');
+      allow create, update: if canWrite() && hasModuleAccess('projects');
+      allow delete: if canDelete() && hasModuleAccess('projects');
+    }
+
+    // ============================================
+    // MATERIALS MODULE
+    // ============================================
+
+    match /materials/{materialId} {
+      allow read: if canRead() && hasModuleAccess('materials');
+      allow create: if canWrite() && hasModuleAccess('materials') &&
+        hasRequiredFields(['name', 'code', 'createdAt', 'createdBy', 'isActive']);
+      allow update: if canWrite() && hasModuleAccess('materials');
+      allow delete: if canDelete() && hasModuleAccess('materials');
+    }
+
+    // Material Config
+    match /material_config/{configId} {
+      allow read: if canRead() && hasModuleAccess('materials');
+      allow write: if isAdmin();
+    }
+
+    // ============================================
+    // WORKERS MODULE
+    // ============================================
+
+    match /workers/{workerId} {
+      allow read: if canRead() && hasModuleAccess('workers');
+      allow create: if canWrite() && hasModuleAccess('workers') &&
+        hasRequiredFields(['fullName', 'workerType', 'createdAt', 'createdBy', 'isActive']);
+      allow update: if canWrite() && hasModuleAccess('workers');
+      allow delete: if canDelete() && hasModuleAccess('workers');
+    }
+
+    // Companies (Contractor companies)
+    match /companies/{companyId} {
+      allow read: if canRead() && hasModuleAccess('workers');
+      allow create: if canWrite() && hasModuleAccess('workers') &&
+        hasRequiredFields(['legalName', 'taxId', 'createdAt', 'createdBy', 'isActive']);
+      allow update: if canWrite() && hasModuleAccess('workers');
+      allow delete: if canDelete() && hasModuleAccess('workers');
+    }
+
+    // Worker Config
+    match /worker_config/{configId} {
+      allow read: if canRead() && hasModuleAccess('workers');
+      allow write: if isAdmin();
+    }
+
+    // ============================================
+    // TREASURY MODULE (Cobros & Pagos)
+    // ============================================
+
+    // Cobros - Collections from clients
+    match /cobros/{cobroId} {
+      allow read: if canRead() && hasModuleAccess('treasury');
+      allow create: if canWrite() && hasModuleAccess('treasury') &&
+        hasRequiredFields(['clientId', 'amount', 'transactionDate', 'paymentMethod', 'createdAt', 'createdBy']);
+      allow update: if canWrite() && hasModuleAccess('treasury');
+      allow delete: if canDelete() && hasModuleAccess('treasury');
+    }
+
+    // Pagos - Payments to workers
+    match /pagos/{pagoId} {
+      allow read: if canRead() && hasModuleAccess('treasury');
+      allow create: if canWrite() && hasModuleAccess('treasury') &&
+        hasRequiredFields(['workerId', 'amount', 'transactionDate', 'paymentMethod', 'createdAt', 'createdBy']);
+      allow update: if canWrite() && hasModuleAccess('treasury');
+      allow delete: if canDelete() && hasModuleAccess('treasury');
+    }
+
+    // Treasury Config
+    match /treasury_config/{configId} {
+      allow read: if canRead() && hasModuleAccess('treasury');
+      allow write: if isAdmin();
+    }
+
+    // ============================================
+    // MODULE CONFIGURATIONS (Generic)
+    // ============================================
+
+    match /module_configs/{moduleId} {
+      allow read: if canRead();
+      allow write: if isAdmin();
+    }
+
+    // ============================================
+    // CATCH-ALL RULE (Deny by default)
+    // ============================================
+
+    // Deny access to any collection not explicitly defined
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

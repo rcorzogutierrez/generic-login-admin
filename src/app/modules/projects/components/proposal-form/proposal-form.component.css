@@ -541,14 +541,19 @@
 /* Input Icons */
 .input-icon-left {
   position: absolute;
-  left: 0.75rem;
+  left: 0.625rem;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 18px !important;
-  width: 18px !important;
-  height: 18px !important;
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
   color: #94a3b8;
   pointer-events: none;
+}
+
+/* Input with left icon - override form-input padding */
+.form-input.pl-10 {
+  padding-left: 2.25rem !important;
 }
 
 .input-icon-left-sm {

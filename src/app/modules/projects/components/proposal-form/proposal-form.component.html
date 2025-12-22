@@ -83,7 +83,7 @@
             <mat-icon>search</mat-icon>
             {{ 'projects.proposal.client_info.client' | translate }}
           </label>
-          <div class="flex gap-2">
+          <div class="flex gap-1.5">
             <div class="relative flex-1">
               <input
                 type="text"
@@ -91,7 +91,7 @@
                 (input)="onClientSearchChange($event)"
                 [matAutocomplete]="autoClients"
                 [placeholder]="'projects.proposal.client_info.searchClient' | translate"
-                class="form-input pl-10">
+                class="form-input w-full pl-10">
               <mat-icon class="input-icon-left">search</mat-icon>
 
               <mat-autocomplete #autoClients="matAutocomplete" (optionSelected)="selectClient($event.option.value)">

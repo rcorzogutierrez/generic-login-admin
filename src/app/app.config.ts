@@ -7,7 +7,7 @@ import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { HttpClient } from '@angular/common/http';
 import { initializeApp } from 'firebase/app';
-import { environment } from '../environments/environment.development';
+import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { CustomTitleStrategy } from './core/services/custom-title-strategy';
 

@@ -65,10 +65,13 @@ service cloud.firestore {
     // USER MANAGEMENT
     // ============================================
 
-    // Authorized Users - Only admins can manage users
+    // Authorized Users - Users can read their own doc, admins can manage all
     match /authorized_users/{userId} {
+      // Allow user to read their own document (needed for login flow)
+      // Admins can read any user document
       allow read: if isAuthenticated() &&
-        (request.auth.uid == userId || isAdmin());
+        (request.auth.uid == userId ||
+         get(/databases/$(database)/documents/authorized_users/$(request.auth.uid)).data.role == 'admin');
       allow create: if isAdmin();
       allow update: if isAdmin() ||
         (request.auth.uid == userId &&
@@ -95,15 +98,15 @@ service cloud.firestore {
     // SYSTEM CONFIGURATION
     // ============================================
 
-    // System Config - Admin only for writes
+    // System Config - Public read (needed for app initialization before login)
     match /config/{configId} {
-      allow read: if canRead();
+      allow read: if true;
       allow write: if isAdmin();
     }
 
-    // Business Info - Admin only for writes
+    // Business Info - Public read (needed for branding before login)
     match /business_info/{docId} {
-      allow read: if canRead();
+      allow read: if true;
       allow write: if isAdmin();
     }
 

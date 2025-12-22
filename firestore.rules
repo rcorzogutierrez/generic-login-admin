@@ -51,9 +51,9 @@ service cloud.firestore {
       return isAdmin() || hasPermission('delete');
     }
 
-    // Check if user has access to a specific module
+    // Check if user has access to a specific module (admins bypass this check)
     function hasModuleAccess(moduleName) {
-      return isActiveUser() && moduleName in getUserData().modules;
+      return isActiveUser() && (getUserData().role == 'admin' || moduleName in getUserData().modules);
     }
 
     // Validate required fields exist

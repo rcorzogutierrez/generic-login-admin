@@ -235,6 +235,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // System Modules - Navigation and module management
+    match /system_modules/{moduleId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
     // ============================================
     // CATCH-ALL RULE (Deny by default)
     // ============================================

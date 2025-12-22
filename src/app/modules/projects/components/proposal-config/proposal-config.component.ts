@@ -154,7 +154,6 @@ export class ProposalConfigComponent implements OnInit {
 
       this.availableFields.set(allFields);
 
-      console.log('✅ Campos disponibles cargados:', allFields);
     } catch (error) {
       console.error('❌ Error cargando campos disponibles:', error);
     } finally {
@@ -229,7 +228,6 @@ export class ProposalConfigComponent implements OnInit {
         defaultTerms: config.defaultTerms || this.proposalConfigService.getDefaultTerms()
       });
 
-      console.log('✅ Configuración actual cargada:', config);
     } else {
       // No hay configuración, usar sugerencias inteligentes
       this.configForm.patchValue({
@@ -247,7 +245,6 @@ export class ProposalConfigComponent implements OnInit {
         defaultTerms: this.proposalConfigService.getDefaultTerms()
       });
 
-      console.log('💡 Usando sugerencias automáticas para configuración inicial');
     }
   }
 
@@ -296,7 +293,6 @@ export class ProposalConfigComponent implements OnInit {
         panelClass: ['success-snackbar']
       });
 
-      console.log('✅ Configuración guardada - Campos básicos:', clientFieldsMapping, 'Dirección:', addressMapping);
     } catch (error) {
       console.error('❌ Error guardando configuración:', error);
       this.snackBar.open('❌ Error al guardar la configuración', 'Cerrar', {

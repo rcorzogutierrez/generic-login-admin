@@ -1,25 +1,171 @@
-/* material-config.component.css */
+/* material-config.component.css - DISEÑO COMPACTO */
 
 /* ============================================
-   ESTILOS ESPECÍFICOS DE CONFIGURACIÓN
-   Usa clases globales de styles.css
+   HOST & CONTAINER
    ============================================ */
 
-/* Status dot animado */
-.status-dot {
-  width: 8px;
-  height: 8px;
-  background: #10b981;
-  border-radius: 50%;
-  display: inline-block;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+:host {
+  display: block;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
+.config-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ============================================
+   HEADER ICON BOX
+   ============================================ */
+
+.header-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-icon-box.green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.header-icon-box mat-icon {
+  color: white;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* ============================================
+   BACK BUTTON
+   ============================================ */
+
+.back-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #334155;
+  transform: translateX(-2px);
+}
+
+.back-btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* ============================================
+   ICON BUTTON
+   ============================================ */
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* ============================================
+   STAT CHIP
+   ============================================ */
+
+.stat-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 10px;
+  padding: 6px 12px;
+  min-width: 65px;
+}
+
+.stat-chip.green {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+}
+
+.stat-chip.green .stat-value { color: #059669; }
+.stat-chip.green .stat-label { color: #10b981; }
+
+.stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ============================================
+   LOADING SPINNER
+   ============================================ */
+
+
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .config-container {
+    padding: 16px;
   }
-  50% {
-    opacity: 0.5;
+
+  .stat-chip {
+    display: none;
   }
 }

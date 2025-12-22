@@ -10,7 +10,6 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { ModulesService } from '../../services/modules.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -28,8 +27,7 @@ import { DeleteModuleDialogComponent } from '../delete-module-dialog/delete-modu
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatMenuModule,
-    MatDividerModule,
-    DragDropModule
+    MatDividerModule
   ],
   templateUrl: './manage-modules.component.html',
   styleUrl: './manage-modules.component.css',
@@ -127,9 +125,11 @@ export class ManageModulesComponent implements OnInit {
    */
   addModule() {
     const dialogRef = this.dialog.open(ModuleFormDialogComponent, {
-      width: '700px',
+      width: '600px',
       maxWidth: '90vw',
+      maxHeight: '90vh',
       disableClose: true,
+      panelClass: 'module-dialog-no-scroll',
       data: { mode: 'create' }
     });
 
@@ -145,9 +145,11 @@ export class ManageModulesComponent implements OnInit {
    */
   editModule(module: SystemModule) {
     const dialogRef = this.dialog.open(ModuleFormDialogComponent, {
-      width: '700px',
+      width: '600px',
       maxWidth: '90vw',
+      maxHeight: '90vh',
       disableClose: true,
+      panelClass: 'module-dialog-no-scroll',
       data: { mode: 'edit', module }
     });
 
@@ -236,34 +238,6 @@ export class ManageModulesComponent implements OnInit {
       this.snackBar.open('Error al cambiar el estado', 'Cerrar', { duration: 3000 });
     } finally {
       this.isLoading = false;
-    }
-  }
-
-  /**
-   * Maneja el reordenamiento drag & drop
-   */
-  async onModuleDrop(event: CdkDragDrop<SystemModule[]>) {
-    if (event.previousIndex === event.currentIndex) return;
-
-    const modulesCopy = [...this.modules];
-    moveItemInArray(modulesCopy, event.previousIndex, event.currentIndex);
-
-    // Actualizar orden localmente
-    this.modules = modulesCopy;
-
-    // Guardar en Firestore
-    const moduleIds = modulesCopy.map(m => m.id);
-    
-    const result = await this.modulesService.reorderModules(
-      moduleIds,
-      this.currentUser()?.uid || ''
-    );
-
-    if (result.success) {
-      this.snackBar.open('Orden actualizado', '', { duration: 2000 });
-    } else {
-      this.snackBar.open('Error al guardar el orden', 'Cerrar', { duration: 3000 });
-      await this.loadModules(); // Recargar si falla
     }
   }
 

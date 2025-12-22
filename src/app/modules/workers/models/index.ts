@@ -2,29 +2,28 @@
  * Modelos y tipos para el módulo de Workers
  */
 
-import { GenericEntity, GenericModuleConfig } from '../../../shared/models/generic-entity.interface';
-import {
-  FieldType,
-  FieldConfig,
-  FieldOption
-} from '../../../shared/modules/dynamic-form-builder/models/field-config.interface';
-import { GridConfiguration } from '../../../shared/modules/dynamic-form-builder/models/module-config.interface';
+import { GenericEntity } from '../../../shared/models/generic-entity.interface';
 
-// Re-export shared types for convenience
-export { FieldType, FieldConfig, FieldOption };
+/**
+ * Tipo de trabajador
+ */
+export type WorkerType = 'internal' | 'contractor';
 
 /**
  * Interfaz para Worker (Trabajadores/Empleados)
  */
 export interface Worker extends GenericEntity {
-  // Campos del sistema (obligatorios)
-  name: string;
-  email: string;
-  phone?: string;
-  position?: string;
+  // Datos personales
+  fullName: string;           // Nombres y Apellidos (requerido)
+  idOrLicense?: string;       // ID o Licencia de conducir
+  socialSecurity?: string;    // Social Security
+  address?: string;           // Dirección
+  phone?: string;             // Teléfono
 
-  // Campos personalizables
-  customFields?: { [key: string]: any };
+  // Tipo de trabajador
+  workerType: WorkerType;     // 'internal' = Empleado propio, 'contractor' = Subcontratado
+  companyId?: string;         // ID de la empresa (solo si es contractor)
+  companyName?: string;       // Nombre de la empresa (desnormalizado para mostrar en lista)
 
   // Metadatos del sistema
   isActive: boolean;
@@ -35,108 +34,14 @@ export interface Worker extends GenericEntity {
 }
 
 /**
- * Configuración del módulo de Workers
+ * Tipo para datos parciales de Worker (crear/actualizar)
  */
-export interface WorkerModuleConfig {
-  // Identificación
-  id?: string;
+export type WorkerFormData = Omit<Worker, 'id' | 'isActive' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'>;
 
-  // Configuración de campos
-  fields: FieldConfig[];
-
-  // Configuración del grid
-  gridConfig?: GridConfiguration;
-
-  // Configuración adicional
-  settings: {
-    enableTags?: boolean;
-    enableDepartments?: boolean;
-    enableShifts?: boolean;
-    requireApproval?: boolean;
-    autoDeactivate?: boolean;
-    deactivateDays?: number;
-  };
-
-  // Metadata
-  version?: string;
-  isActive?: boolean;
-  lastModified?: any;
-  modifiedBy?: string;
-  createdAt?: any;
-  createdBy?: string;
-}
-
-export const DEFAULT_MODULE_CONFIG: Partial<WorkerModuleConfig> = {
-  fields: [],
-  settings: {
-    enableTags: true,
-    enableDepartments: true,
-    enableShifts: true,
-    requireApproval: false,
-    autoDeactivate: false,
-    deactivateDays: 90
-  }
+/**
+ * Labels para tipos de trabajador
+ */
+export const WORKER_TYPE_LABELS: Record<WorkerType, string> = {
+  internal: 'Empleado Propio',
+  contractor: 'Subcontratado'
 };
-
-export const DEFAULT_WORKER_FIELDS: Partial<FieldConfig>[] = [
-  {
-    name: 'name',
-    label: 'Nombre Completo',
-    type: FieldType.TEXT,
-    icon: 'person',
-    placeholder: 'Ej: Juan Pérez',
-    helpText: 'Nombre completo del trabajador',
-    validation: { required: true, minLength: 2, maxLength: 100 },
-    formOrder: 0,
-    formWidth: 'full',
-    gridConfig: { showInGrid: true, gridOrder: 0, sortable: true, filterable: true },
-    isActive: true,
-    isSystem: true,
-    isDefault: true
-  },
-  {
-    name: 'email',
-    label: 'Email',
-    type: FieldType.EMAIL,
-    icon: 'email',
-    placeholder: 'Ej: juan@ejemplo.com',
-    helpText: 'Correo electrónico del trabajador',
-    validation: { required: true, pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' },
-    formOrder: 1,
-    formWidth: 'half',
-    gridConfig: { showInGrid: true, gridOrder: 1, sortable: true, filterable: true },
-    isActive: true,
-    isSystem: true,
-    isDefault: true
-  },
-  {
-    name: 'phone',
-    label: 'Teléfono',
-    type: FieldType.PHONE,
-    icon: 'phone',
-    placeholder: 'Ej: +1234567890',
-    helpText: 'Teléfono de contacto',
-    validation: { required: false, maxLength: 20 },
-    formOrder: 2,
-    formWidth: 'half',
-    gridConfig: { showInGrid: true, gridOrder: 2, sortable: false, filterable: false },
-    isActive: true,
-    isSystem: true,
-    isDefault: true
-  },
-  {
-    name: 'position',
-    label: 'Cargo',
-    type: FieldType.TEXT,
-    icon: 'work',
-    placeholder: 'Ej: Ingeniero de Software',
-    helpText: 'Puesto o cargo del trabajador',
-    validation: { required: false, maxLength: 100 },
-    formOrder: 3,
-    formWidth: 'full',
-    gridConfig: { showInGrid: true, gridOrder: 3, sortable: true, filterable: true },
-    isActive: true,
-    isSystem: true,
-    isDefault: false
-  }
-];

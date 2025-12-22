@@ -280,11 +280,82 @@
           <mat-icon class="label-icon !text-lg text-purple-500">radio_button_checked</mat-icon>
           Valor por Defecto
         </label>
-        <input
-          type="text"
-          class="input-field"
-          formControlName="defaultValue"
-          placeholder="Valor inicial del campo">
+
+        <!-- Para campos SELECT: mostrar dropdown con opciones -->
+        @if (fieldForm.get('type')?.value === 'select' && requiresOptions() && options.length > 0) {
+          <select class="input-field" formControlName="defaultValue">
+            <option value="">-- Sin valor por defecto --</option>
+            @for (option of options.controls; track $index) {
+              <option [value]="option.get('value')?.value">
+                {{ option.get('label')?.value || option.get('value')?.value }}
+              </option>
+            }
+          </select>
+          <span class="text-xs text-slate-500 mt-1">Selecciona el valor que estará preseleccionado cuando se cree un nuevo registro</span>
+        }
+        <!-- Para campos MULTISELECT: mostrar dropdown múltiple -->
+        @else if (fieldForm.get('type')?.value === 'multiselect' && requiresOptions() && options.length > 0) {
+          <select multiple class="input-field !h-auto !py-2" formControlName="defaultValue" size="4">
+            @for (option of options.controls; track $index) {
+              <option [value]="option.get('value')?.value">
+                {{ option.get('label')?.value || option.get('value')?.value }}
+              </option>
+            }
+          </select>
+          <span class="text-xs text-slate-500 mt-1">Mantén Ctrl/Cmd presionado para seleccionar múltiples valores por defecto</span>
+        }
+        <!-- Para campos CHECKBOX: mostrar checkbox -->
+        @else if (fieldForm.get('type')?.value === 'checkbox') {
+          <div class="bg-purple-50 border border-purple-200 rounded-xl p-4">
+            <div class="flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="defaultValue-checkbox"
+                class="w-5 h-5 mt-0.5 rounded border-2 border-purple-300 text-purple-600 focus:ring-2 focus:ring-purple-500"
+                [checked]="fieldForm.get('defaultValue')?.value === true"
+                (change)="onDefaultValueCheckboxChange($event)">
+              <label for="defaultValue-checkbox" class="flex-1 cursor-pointer">
+                <span class="text-sm font-semibold text-purple-800">Marcado por defecto</span>
+              </label>
+            </div>
+          </div>
+        }
+        <!-- Para campos NUMBER y CURRENCY: input numérico -->
+        @else if (fieldForm.get('type')?.value === 'number' || fieldForm.get('type')?.value === 'currency') {
+          <input
+            type="number"
+            class="input-field"
+            formControlName="defaultValue"
+            placeholder="Valor numérico inicial">
+          <span class="text-xs text-slate-500 mt-1">Valor numérico con el que se inicializará el campo</span>
+        }
+        <!-- Para campos DATE: input de fecha -->
+        @else if (fieldForm.get('type')?.value === 'date') {
+          <input
+            type="date"
+            class="input-field"
+            formControlName="defaultValue"
+            placeholder="Fecha inicial">
+          <span class="text-xs text-slate-500 mt-1">Fecha con la que se inicializará el campo</span>
+        }
+        <!-- Para campos DATETIME: input de fecha y hora -->
+        @else if (fieldForm.get('type')?.value === 'datetime') {
+          <input
+            type="datetime-local"
+            class="input-field"
+            formControlName="defaultValue"
+            placeholder="Fecha y hora inicial">
+          <span class="text-xs text-slate-500 mt-1">Fecha y hora con la que se inicializará el campo</span>
+        }
+        <!-- Para los demás tipos: input de texto normal -->
+        @else {
+          <input
+            type="text"
+            class="input-field"
+            formControlName="defaultValue"
+            placeholder="Valor inicial del campo">
+          <span class="text-xs text-slate-500 mt-1">Texto con el que se inicializará el campo al crear un nuevo registro</span>
+        }
       </div>
     </section>
 

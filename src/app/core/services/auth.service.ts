@@ -1,12 +1,13 @@
 // src/app/core/services/auth.service.ts - VERSIÓN OPTIMIZADA
 
-import { Injectable, signal } from '@angular/core';
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, User } from 'firebase/auth';
+import { Injectable, signal, inject } from '@angular/core';
+import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, User } from 'firebase/auth';
 import { Timestamp, collection, getFirestore } from 'firebase/firestore';
 import { addDocWithLogging as addDoc } from '../../shared/utils/firebase-logger.utils';
 import { Router } from '@angular/router';
 import { FirestoreUserService, FirestoreUser } from './firestore-user.service';
 import { AppConfigService } from './app-config.service';
+import { LoggerService } from './logger.service';
 
 /**
  * Servicio de autenticación con Firebase Auth
@@ -50,13 +51,16 @@ export class AuthService {
   private firestore = getFirestore();
   private googleProvider = new GoogleAuthProvider();
 
-  constructor(
-    private router: Router,
-    private firestoreUserService: FirestoreUserService,
-    private appConfigService: AppConfigService
-  ) {
+  // Servicios inyectados
+  private router = inject(Router);
+  private firestoreUserService = inject(FirestoreUserService);
+  private appConfigService = inject(AppConfigService);
+  private logger = inject(LoggerService);
+
+  constructor() {
     this.setupGoogleProvider();
     this.initAuthStateListener();
+    this.handleRedirectResult(); // Manejar resultado del redirect si existe
   }
 
   private setupGoogleProvider(): void {
@@ -69,11 +73,12 @@ export class AuthService {
    * Inicia sesión con Google OAuth
    *
    * Flujo:
-   * 1. Abre popup de autenticación de Google
-   * 2. Verifica que el usuario existe en Firestore (users collection)
-   * 3. Verifica que el usuario está activo (isActive: true)
-   * 4. Actualiza lastLogin en primer login o login exitoso
-   * 5. Configura signals de estado (isAuthenticated, isAuthorized)
+   * 1. Intenta abrir popup de autenticación de Google
+   * 2. Si el popup está bloqueado, usa redirect automáticamente (fallback)
+   * 3. Verifica que el usuario existe en Firestore (users collection)
+   * 4. Verifica que el usuario está activo (isActive: true)
+   * 5. Actualiza lastLogin en primer login o login exitoso
+   * 6. Configura signals de estado (isAuthenticated, isAuthorized)
    *
    * @returns Promise con resultado del login
    * @returns result.success - true si login exitoso y usuario autorizado
@@ -83,7 +88,7 @@ export class AuthService {
    * ```typescript
    * const result = await authService.loginWithGoogle();
    * if (result.success) {
-   *   console.log('Usuario autenticado');
+   *   
    * } else {
    *   console.error(result.message);
    * }
@@ -92,23 +97,43 @@ export class AuthService {
   async loginWithGoogle(): Promise<{ success: boolean; message: string }> {
     try {
       this._loading.set(true);
-      
-      const result = await signInWithPopup(this.auth, this.googleProvider);
 
-      if (result.user) {
-        const authResult = await this.checkUserAuthorization(result.user);
+      // Intentar con popup primero
+      try {
+        const result = await signInWithPopup(this.auth, this.googleProvider);
 
-        if (authResult.authorized) {
-          // ✅ ACTUALIZAR LASTLOGIN DESPUÉS DE LOGIN EXITOSO
-          await this.updateUserLastLogin(result.user.email!);
-          return { success: true, message: 'Login exitoso' };
-        } else {
-          await this.logout();
-          return { success: false, message: authResult.message || 'No autorizado' };
+        if (result.user) {
+          const authResult = await this.checkUserAuthorization(result.user);
+
+          if (authResult.authorized) {
+            // ✅ ACTUALIZAR LASTLOGIN DESPUÉS DE LOGIN EXITOSO
+            await this.updateUserLastLogin(result.user.email!);
+            return { success: true, message: 'Login exitoso' };
+          } else {
+            await this.logout();
+            return { success: false, message: authResult.message || 'No autorizado' };
+          }
         }
-      }
 
-      return { success: false, message: 'Error en la autenticación' };
+        return { success: false, message: 'Error en la autenticación' };
+      } catch (popupError: any) {
+        // Si el popup fue bloqueado, usar redirect automáticamente
+        if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/popup-closed-by-user') {
+          this.logger.info('Popup bloqueado, usando redirect como fallback');
+
+          // Guardar indicador de que estamos en flujo de redirect
+          localStorage.setItem('auth_redirect_pending', 'true');
+
+          // Redirigir a Google para autenticación
+          await signInWithRedirect(this.auth, this.googleProvider);
+
+          // signInWithRedirect no retorna nada, la página se recargará
+          return { success: false, message: 'Redirigiendo a Google...' };
+        }
+
+        // Si es otro tipo de error, lanzarlo para que lo maneje el catch externo
+        throw popupError;
+      }
     } catch (error: any) {
       await this.logout();
       return { success: false, message: this.getErrorMessage(error) };
@@ -117,15 +142,63 @@ export class AuthService {
     }
   }
 
+  /**
+   * Maneja el resultado del redirect de Google OAuth
+   * Se ejecuta automáticamente al cargar la app después de un redirect
+   */
+  private async handleRedirectResult(): Promise<void> {
+    try {
+      // Verificar si hay un resultado de redirect pendiente
+      const isPending = localStorage.getItem('auth_redirect_pending');
+
+      if (isPending) {
+        this._loading.set(true);
+        this.logger.info('Procesando resultado de redirect OAuth');
+
+        const result = await getRedirectResult(this.auth);
+
+        // Limpiar el indicador
+        localStorage.removeItem('auth_redirect_pending');
+
+        if (result?.user) {
+          this.logger.info('Redirect exitoso, verificando autorización');
+          const authResult = await this.checkUserAuthorization(result.user);
+
+          if (authResult.authorized) {
+            await this.updateUserLastLogin(result.user.email!);
+            this.logger.info('Autenticación por redirect completada exitosamente');
+            // El navigation service se encargará de redirigir al dashboard
+          } else {
+            this.logger.warn('Usuario no autorizado después de redirect');
+            await this.logout();
+          }
+        } else {
+          this.logger.debug('No hay resultado de redirect o fue cancelado');
+        }
+
+        this._loading.set(false);
+      }
+    } catch (error: any) {
+      this.logger.error('Error procesando redirect result', error);
+      localStorage.removeItem('auth_redirect_pending');
+      this._loading.set(false);
+
+      // Si hay error, hacer logout para limpiar estado
+      await this.logout();
+    }
+  }
+
   private async checkUserAuthorization(user: User): Promise<{ authorized: boolean; message?: string }> {
     try {
       if (!user.email) {
+        this.logger.warn('Intento de login sin email');
         return { authorized: false, message: 'Email no disponible' };
       }
 
       const userResult = await this.firestoreUserService.findUserByEmail(user.email);
 
       if (!userResult) {
+        this.logger.warn('Usuario no registrado', { email: user.email });
         return {
           authorized: false,
           message: `Tu cuenta (${user.email}) no está registrada. Contacta al administrador.`
@@ -135,11 +208,13 @@ export class AuthService {
       const userData = userResult.data;
 
       if (!userData.isActive) {
+        this.logger.warn('Cuenta deshabilitada', { email: user.email });
         return { authorized: false, message: 'Tu cuenta está deshabilitada.' };
       }
 
       // Actualizar UID en primer login
       if (userData.accountStatus === 'pending_first_login' || userData.uid !== user.uid) {
+        this.logger.info('Primer login detectado', { email: user.email });
         await this.handleFirstLogin(userResult.ref, user.uid);
         userData.uid = user.uid;
         userData.accountStatus = 'active';
@@ -150,7 +225,7 @@ export class AuthService {
 
       return { authorized: true };
     } catch (error) {
-      console.error('Error verificando autorización:', error);
+      this.logger.error('Error verificando autorización', error);
       return { authorized: false, message: 'Error verificando permisos.' };
     }
   }
@@ -169,7 +244,7 @@ export class AuthService {
 
       await this.logFirstLogin(uid, this.auth.currentUser?.email || '');
     } catch (error) {
-      console.warn('Error en primer login (no crítico):', error);
+      this.logger.warn('Error en primer login (no crítico)', error);
     }
   }
 
@@ -179,14 +254,14 @@ export class AuthService {
   private async updateUserLastLogin(email: string): Promise<void> {
     try {
       await this.firestoreUserService.updateLastLogin(email);
-      
+
       // Actualizar el signal con la información más reciente
       const userResult = await this.firestoreUserService.findUserByEmail(email);
       if (userResult) {
         this._authorizedUser.set(userResult.data);
       }
     } catch (error) {
-      console.warn('Error actualizando lastLogin (no crítico):', error);
+      this.logger.warn('Error actualizando lastLogin (no crítico)', error);
     }
   }
 
@@ -203,17 +278,18 @@ export class AuthService {
         ip: 'unknown'
       });
     } catch (error) {
-      console.warn('Error logging first login:', error);
+      this.logger.warn('Error logging first login', error);
     }
   }
 
   async logout(): Promise<void> {
     try {
+      this.logger.info('Usuario cerrando sesión');
       await signOut(this.auth);
       this.clearUserState();
       this.router.navigate(['/login']);
     } catch (error) {
-      console.error('Error en logout:', error);
+      this.logger.error('Error en logout', error);
       this.clearUserState();
     }
   }
@@ -232,6 +308,7 @@ export class AuthService {
 
       try {
         if (user) {
+          this.logger.debug('Auth state changed - Usuario autenticado', { email: user.email });
           this._isAuthenticated.set(true);
           const userResult = await this.firestoreUserService.findUserByEmail(user.email!);
 
@@ -239,13 +316,15 @@ export class AuthService {
             this._authorizedUser.set(userResult.data);
             this._isAuthorized.set(true);
           } else {
+            this.logger.warn('Usuario no autorizado o inactivo', { email: user.email });
             await this.logout();
           }
         } else {
+          this.logger.debug('Auth state changed - Usuario no autenticado');
           this.clearUserState();
         }
       } catch (error) {
-        console.error('Error en auth listener:', error);
+        this.logger.error('Error en auth listener', error);
         this.clearUserState();
       } finally {
         this._loading.set(false);
@@ -303,9 +382,11 @@ export class AuthService {
   private getErrorMessage(error: any): string {
     const errorMessages: { [key: string]: string } = {
       'auth/popup-closed-by-user': 'Login cancelado',
-      'auth/popup-blocked': 'Popup bloqueado. Permite popups',
+      'auth/popup-blocked': 'Redirigiendo a Google para autenticación...',
       'auth/network-request-failed': 'Error de conexión',
-      'auth/too-many-requests': 'Demasiados intentos'
+      'auth/too-many-requests': 'Demasiados intentos',
+      'auth/cancelled-popup-request': 'Solicitud cancelada',
+      'auth/unauthorized-domain': 'Dominio no autorizado en Firebase'
     };
     return errorMessages[error.code] || `Error: ${error.message}`;
   }

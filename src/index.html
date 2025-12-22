@@ -2,26 +2,24 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>MiApp</title>
+  <title>Sistema de Gestión</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  
+
   <!-- Preconnect para mejor performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Material+Icons&display=swap" rel="stylesheet">
-  
+
   <!-- Meta tags para SEO y PWA -->
-  <meta name="description" content="Sistema de gestión y administración empresarial">
-  <meta name="keywords" content="administración, gestión, angular, firebase, sistema empresarial">
-  <meta name="author" content="MiApp">
+  <meta name="description" content="Sistema de gestión empresarial">
+  <meta name="keywords" content="administración, gestión, angular, firebase">
   <meta name="theme-color" content="#3b82f6">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="MiApp">
-  
+
   <!-- Critical CSS inline -->
   <style>
     body {
@@ -31,12 +29,12 @@
       background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
       overflow-x: hidden;
     }
-    
+
     /* Animaciones del loader */
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
-    
+
     @keyframes fadeInUp {
       from {
         opacity: 0;
@@ -47,82 +45,124 @@
         transform: translateY(0);
       }
     }
-    
+
     @keyframes progress {
       0% { transform: translateX(-100%); }
       50% { transform: translateX(0%); }
       100% { transform: translateX(100%); }
     }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -1000px 0; }
+      100% { background-position: 1000px 0; }
+    }
+
+    /* Skeleton loader styles */
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 1000px 100%;
+      animation: shimmer 2s infinite;
+    }
   </style>
 </head>
 <body>
   <app-root>
-    <!-- Loading screen -->
+    <!-- Loading screen con skeleton loader -->
     <div id="initial-loader" style="
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
       color: #64748b;
       z-index: 9999;
     ">
       <div style="text-align: center; animation: fadeInUp 0.6s ease-out;">
-        <!-- Logo -->
+        <!-- Logo skeleton (cuadrado con gradiente) -->
         <div style="
-          width: 80px; 
-          height: 80px; 
+          width: 80px;
+          height: 80px;
           background: linear-gradient(135deg, #3b82f6, #1d4ed8);
           border-radius: 20px;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin: 0 auto 24px;
+          margin: 0 auto 32px;
           box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+          position: relative;
+          overflow: hidden;
         ">
-          <div style="color: white; font-size: 32px; font-weight: 600;">G</div>
+          <!-- Icono genérico de sistema -->
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: white;">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
-        
-        <!-- Spinner -->
+
+        <!-- Spinner principal -->
         <div style="
-          width: 32px; 
-          height: 32px; 
-          border: 2px solid #e2e8f0; 
-          border-top: 2px solid #3b82f6; 
-          border-radius: 50%; 
-          animation: spin 1s linear infinite; 
+          width: 40px;
+          height: 40px;
+          border: 3px solid #e2e8f0;
+          border-top: 3px solid #3b82f6;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
           margin: 0 auto 24px;
         "></div>
-        
-        <!-- Texto -->
-        <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: #374151;">
-          Cargando aplicación...
+
+        <!-- Skeleton para texto (placeholders neutros) -->
+        <div style="margin-bottom: 16px;">
+          <div class="skeleton" style="
+            width: 180px;
+            height: 20px;
+            border-radius: 10px;
+            margin: 0 auto 12px;
+          "></div>
+          <div class="skeleton" style="
+            width: 140px;
+            height: 14px;
+            border-radius: 7px;
+            margin: 0 auto;
+          "></div>
         </div>
-        <div style="font-size: 14px; opacity: 0.7; color: #6b7280;">
-          MiApp
-        </div>
-        
+
         <!-- Barra de progreso -->
         <div style="
           width: 200px;
-          height: 2px;
+          height: 3px;
           background: #e5e7eb;
-          border-radius: 1px;
-          margin: 20px auto 0;
+          border-radius: 2px;
+          margin: 24px auto 0;
           overflow: hidden;
         ">
           <div style="
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, #3b82f6, #1d4ed8);
-            border-radius: 1px;
+            border-radius: 2px;
             animation: progress 2s ease-in-out infinite;
           "></div>
+        </div>
+
+        <!-- Mensaje genérico -->
+        <div style="
+          margin-top: 24px;
+          font-size: 13px;
+          color: #94a3b8;
+          animation: pulse 2s ease-in-out infinite;
+        ">
+          Cargando...
         </div>
       </div>
     </div>
@@ -133,16 +173,16 @@
     (function() {
       const loader = document.getElementById('initial-loader');
       if (!loader) return;
-      
+
       function hideLoader() {
         loader.style.opacity = '0';
-        loader.style.transition = 'opacity 0.3s ease-out';
-        setTimeout(() => loader.remove(), 300);
+        loader.style.transition = 'opacity 0.4s ease-out';
+        setTimeout(() => loader.remove(), 400);
       }
-      
-      // Timeout de seguridad (3 segundos)
-      const timeoutId = setTimeout(hideLoader, 3000);
-      
+
+      // Timeout de seguridad (5 segundos)
+      const timeoutId = setTimeout(hideLoader, 5000);
+
       // Observer para detectar cuando Angular carga
       const observer = new MutationObserver(() => {
         const appRoot = document.querySelector('app-root');
@@ -152,14 +192,14 @@
           observer.disconnect();
         }
       });
-      
+
       observer.observe(document.querySelector('app-root'), {
         childList: true,
         subtree: true
       });
     })();
   </script>
-  
+
   <!-- Mensaje para navegadores sin JavaScript -->
   <noscript>
     <div style="padding: 2rem; text-align: center; font-family: 'Inter', sans-serif;">

@@ -327,10 +327,9 @@
         </button>
 
         @if (selectedTabIndex < 2) {
-          <button 
+          <button
             mat-raised-button
-            (click)="nextTab()"
-            [disabled]="!canProceedToNextTab()"
+            (click)="attemptNextTab()"
             class="next-button flex items-center gap-2 font-semibold px-6 py-2.5 rounded-lg !bg-gradient-to-br !from-blue-500 !to-blue-600 !text-white hover:!shadow-[0_6px_16px_rgba(59,130,246,0.3)] hover:!-translate-y-0.5 transition-all"
             color="primary">
             Siguiente

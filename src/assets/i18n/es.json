@@ -1,4 +1,60 @@
 {
+  "workers": {
+    "title": "Gestión de Trabajadores",
+    "titleSingular": "Trabajador",
+    "newWorker": "Nuevo Trabajador",
+    "editWorker": "Editar Trabajador",
+    "viewWorker": "Ver Trabajador",
+    "fields": {
+      "fullName": "Nombres y Apellidos",
+      "idOrLicense": "ID o Licencia de conducir",
+      "socialSecurity": "Social Security",
+      "address": "Dirección",
+      "phone": "Teléfono",
+      "workerType": "Tipo de Trabajador",
+      "company": "Empresa"
+    },
+    "types": {
+      "internal": "Empleado Propio",
+      "contractor": "Subcontratado"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "messages": {
+      "created": "Trabajador creado exitosamente",
+      "updated": "Trabajador actualizado exitosamente",
+      "deleted": "Trabajador eliminado exitosamente",
+      "error": "Error al procesar el trabajador"
+    }
+  },
+  "companies": {
+    "title": "Gestión de Empresas",
+    "titleSingular": "Empresa",
+    "newCompany": "Nueva Empresa",
+    "editCompany": "Editar Empresa",
+    "viewCompany": "Ver Empresa",
+    "viewWorkers": "Ver Trabajadores",
+    "fields": {
+      "legalName": "Nombre Legal",
+      "taxId": "Tax ID",
+      "address": "Dirección",
+      "phone": "Teléfono",
+      "email": "Email",
+      "createdAt": "Fecha de Ingreso"
+    },
+    "status": {
+      "active": "Activa",
+      "inactive": "Inactiva"
+    },
+    "messages": {
+      "created": "Empresa creada exitosamente",
+      "updated": "Empresa actualizada exitosamente",
+      "deleted": "Empresa eliminada exitosamente",
+      "error": "Error al procesar la empresa"
+    }
+  },
   "common": {
     "save": "Guardar",
     "cancel": "Cancelar",

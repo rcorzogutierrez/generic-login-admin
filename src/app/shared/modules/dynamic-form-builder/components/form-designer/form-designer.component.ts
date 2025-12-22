@@ -1,15 +1,13 @@
 // src/app/shared/modules/dynamic-form-builder/components/form-designer/form-designer.component.ts
 
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, signal, computed, inject, input, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, input, output, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -41,9 +39,7 @@ import { FieldConfigDialogComponent } from '../field-config-dialog/field-config-
     MatIconModule,
     MatButtonToggleModule,
     MatTooltipModule,
-    MatCardModule,
-    MatChipsModule,
-    MatDividerModule
+    MatChipsModule
   ],
   templateUrl: './form-designer.component.html',
   styleUrl: './form-designer.component.css',
@@ -53,18 +49,20 @@ export class FormDesignerComponent {
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 
-  // Inyectar el servicio de configuración dinámicamente
-  @Input({ required: true }) configService!: ModuleConfigBaseService<any>;
+  // ✅ MODERNIZADO: Signal inputs en lugar de @Input()
+  // Servicio de configuración inyectado dinámicamente
+  configService = input.required<ModuleConfigBaseService<any>>();
 
   // Nombre del módulo para personalizar textos (ej: 'clientes', 'productos')
-  @Input() moduleName: string = 'registros';
+  moduleName = input<string>('registros');
 
-  // Convert to signal inputs for reactivity
+  // Signal inputs para reactividad
   fields = input<FieldConfig[]>([]);
   layout = input<FormLayoutConfig | undefined>();
 
-  @Output() layoutChange = new EventEmitter<FormLayoutConfig>();
-  @Output() fieldAdded = new EventEmitter<void>();
+  // ✅ MODERNIZADO: Signal outputs en lugar de @Output()
+  layoutChange = output<FormLayoutConfig>();
+  fieldAdded = output<void>();
 
   // Configuration signals
   columns = signal<2 | 3 | 4>(3);
@@ -108,13 +106,8 @@ export class FormDesignerComponent {
       const currentFields = this.fields();
       const currentLayout = this.layout();
 
-      console.log('🔄 Effect 1 (Layout inicial) - isLayoutInitialized:', this.isLayoutInitialized);
-      console.log('   currentFields.length:', currentFields.length);
-      console.log('   currentLayout:', currentLayout ? 'exists' : 'undefined');
-
       // Solo cargar el layout la primera vez
       if (!this.isLayoutInitialized && currentFields.length > 0) {
-        console.log('📥 Cargando layout inicial...');
 
         // Initialize with existing layout or set all fields as available
         if (currentLayout) {
@@ -135,11 +128,11 @@ export class FormDesignerComponent {
               // Field has a position, place it in the grid
               const key = `${fieldPos.row}-${fieldPos.col}`;
               gridPositions.set(key, field);
-              console.log(`   ✓ Campo posicionado: ${field.label} en (${fieldPos.row},${fieldPos.col})`);
+              
             } else {
               // Field not positioned, add to available
               available.push(field);
-              console.log(`   ○ Campo disponible: ${field.label}`);
+
             }
           });
 
@@ -148,24 +141,23 @@ export class FormDesignerComponent {
           const orphanedFields = layoutFieldIds.filter(id => !currentFieldIds.has(id));
 
           if (orphanedFields.length > 0) {
-            console.warn('⚠️ Layout contiene referencias a campos inexistentes:', orphanedFields);
+
           }
 
           this.gridFieldPositions.set(gridPositions);
           this.availableFields.set(available);
 
-          console.log(`✅ Layout cargado: ${gridPositions.size} campos en grid, ${available.length} disponibles`);
         } else {
           // All fields start as available
           this.availableFields.set([...currentFields]);
-          console.log(`✅ Sin layout guardado: ${currentFields.length} campos disponibles`);
+
         }
 
         // Marcar como inicializado para no volver a cargar
         this.isLayoutInitialized = true;
-        console.log('🔒 Layout inicializado, no se volverá a cargar automáticamente');
+
       } else {
-        console.log('⏭️ Effect 1 ignorado (ya inicializado o sin campos)');
+        
       }
     });
 
@@ -175,7 +167,6 @@ export class FormDesignerComponent {
 
       // Solo ejecutar si el layout ya fue inicializado
       if (this.isLayoutInitialized && currentFields.length > 0) {
-        console.log('🔄 Effect 2 (Nuevos campos) - Verificando nuevos campos...');
 
         // Obtener IDs de campos que ya están en el grid o en availableFields
         const gridFieldIds = new Set<string>();
@@ -189,7 +180,7 @@ export class FormDesignerComponent {
         );
 
         if (newFields.length > 0) {
-          console.log(`   ➕ ${newFields.length} campos nuevos detectados:`, newFields.map(f => f.label));
+          
           // Agregar nuevos campos a availableFields
           this.availableFields.update(current => [...current, ...newFields]);
         }
@@ -202,7 +193,6 @@ export class FormDesignerComponent {
 
       // Solo ejecutar si el layout ya fue inicializado
       if (this.isLayoutInitialized && currentFields.length > 0) {
-        console.log('🔄 Effect 3 (Actualizar referencias) - Actualizando referencias de campos...');
 
         // Crear un mapa de campos actuales por ID para búsqueda rápida
         const fieldsMap = new Map(currentFields.map(f => [f.id, f]));
@@ -216,7 +206,7 @@ export class FormDesignerComponent {
             if (updatedField) {
               // Verificar si el campo cambió (comparar referencias)
               if (updatedField !== oldField) {
-                console.log(`   🔄 Actualizando campo en grid: ${updatedField.label} (${key})`);
+                
                 gridUpdated = true;
               }
               newPositions.set(key, updatedField);
@@ -234,7 +224,7 @@ export class FormDesignerComponent {
           return fields.map(oldField => {
             const updatedField = fieldsMap.get(oldField.id);
             if (updatedField && updatedField !== oldField) {
-              console.log(`   🔄 Actualizando campo disponible: ${updatedField.label}`);
+
               availableUpdated = true;
               return updatedField;
             }
@@ -243,7 +233,7 @@ export class FormDesignerComponent {
         });
 
         if (gridUpdated || availableUpdated) {
-          console.log('✅ Referencias de campos actualizadas');
+
         }
       }
     });
@@ -271,14 +261,9 @@ export class FormDesignerComponent {
   onGridCellDrop(event: CdkDragDrop<string>, row: number, col: number) {
     const cellKey = `${row}-${col}`;
 
-    console.log('🎯 onGridCellDrop - Iniciando...');
-    console.log('   Target cell:', cellKey);
-    console.log('   Source container:', event.previousContainer.id);
-    console.log('   Previous index:', event.previousIndex);
-
     // Check if cell already has a field
     if (this.gridFieldPositions().has(cellKey)) {
-      console.log('⛔ Celda ya ocupada, cancelando drop');
+
       return;
     }
 
@@ -287,7 +272,6 @@ export class FormDesignerComponent {
     if (sourceListId === 'available-fields') {
       // Dragging from palette to grid
       const field = this.availableFields()[event.previousIndex];
-      console.log(`   ➕ Moviendo campo "${field.label}" de paleta a grid (${cellKey})`);
 
       // Remove from available
       this.availableFields.update(fields => {
@@ -303,7 +287,6 @@ export class FormDesignerComponent {
         return newPositions;
       });
 
-      console.log(`   ✅ Campo agregado al grid. Total en grid: ${this.gridFieldPositions().size}`);
       this.markAsChanged();
     } else if (sourceListId.startsWith('grid-')) {
       // Moving between grid cells
@@ -312,7 +295,6 @@ export class FormDesignerComponent {
 
       const field = this.gridFieldPositions().get(sourceKey);
       if (field) {
-        console.log(`   🔀 Moviendo campo "${field.label}" de ${sourceKey} a ${cellKey}`);
 
         this.gridFieldPositions.update(positions => {
           const newPositions = new Map(positions);
@@ -321,7 +303,6 @@ export class FormDesignerComponent {
           return newPositions;
         });
 
-        console.log(`   ✅ Campo movido. Total en grid: ${this.gridFieldPositions().size}`);
         this.markAsChanged();
       }
     }
@@ -334,11 +315,7 @@ export class FormDesignerComponent {
     const cellKey = `${row}-${col}`;
     const field = this.gridFieldPositions().get(cellKey);
 
-    console.log(`❌ removeFieldFromGrid - Removiendo campo en (${row},${col})`);
-
     if (field) {
-      console.log(`   Campo a remover: "${field.label}"`);
-      console.log(`   Grid size antes: ${this.gridFieldPositions().size}`);
 
       // Remove from grid
       this.gridFieldPositions.update(positions => {
@@ -350,13 +327,9 @@ export class FormDesignerComponent {
       // Add back to available
       this.availableFields.update(fields => [...fields, field]);
 
-      console.log(`   ✅ Campo removido del grid`);
-      console.log(`   Grid size después: ${this.gridFieldPositions().size}`);
-      console.log(`   Campos disponibles: ${this.availableFields().length}`);
-
       this.markAsChanged();
     } else {
-      console.log(`   ⚠️ No se encontró campo en la celda ${cellKey}`);
+
     }
   }
 
@@ -424,13 +397,8 @@ export class FormDesignerComponent {
    * Guarda el layout actual
    */
   saveLayout() {
-    console.log('💾 saveLayout() - Guardando layout...');
-    console.log('   Grid positions:', this.gridFieldPositions().size);
-    console.log('   Columns:', this.columns());
-    console.log('   Spacing:', this.spacing());
 
     const fieldPositions = this.buildFieldPositions();
-    console.log('   Field positions a guardar:', Object.keys(fieldPositions).length);
 
     const layoutConfig: FormLayoutConfig = {
       columns: this.columns(),
@@ -440,18 +408,15 @@ export class FormDesignerComponent {
       showSections: false
     };
 
-    console.log('📤 Emitiendo layoutChange event:', layoutConfig);
     this.layoutChange.emit(layoutConfig);
     this.hasUnsavedChanges.set(false);
-    console.log('✅ Layout emitido, hasUnsavedChanges = false');
+
   }
 
   /**
    * Limpia todo el grid y mueve todos los campos a disponibles
    */
   clearGrid() {
-    console.log('🗑️ clearGrid() - Limpiando todo el grid...');
-    console.log('   Campos en grid antes:', this.gridFieldPositions().size);
 
     const fieldsInGrid: FieldConfig[] = [];
     this.gridFieldPositions().forEach(field => {
@@ -463,9 +428,6 @@ export class FormDesignerComponent {
 
     // Mover todos los campos a disponibles
     this.availableFields.update(current => [...current, ...fieldsInGrid]);
-
-    console.log('   ✅ Grid limpiado');
-    console.log('   Campos disponibles ahora:', this.availableFields().length);
 
     this.markAsChanged();
   }
@@ -514,8 +476,8 @@ export class FormDesignerComponent {
       maxHeight: '90vh',
       data: {
         mode: 'create',
-        configService: this.configService,
-        moduleName: this.moduleName
+        configService: this.configService(),
+        moduleName: this.moduleName()
       },
       disableClose: false
     });
@@ -539,8 +501,8 @@ export class FormDesignerComponent {
       data: {
         mode: 'edit',
         field: field,
-        configService: this.configService,
-        moduleName: this.moduleName
+        configService: this.configService(),
+        moduleName: this.moduleName()
       },
       disableClose: false
     });
@@ -564,7 +526,7 @@ export class FormDesignerComponent {
     }
 
     try {
-      await this.configService.deleteField(field.id);
+      await this.configService().deleteField(field.id);
 
       // Remover del grid si está posicionado
       const cellKey = Array.from(this.gridFieldPositions().entries())
@@ -599,11 +561,9 @@ export class FormDesignerComponent {
   getOrderedFieldsForPreview(): FieldConfig[] {
     const gridPositions = this.gridFieldPositions();
 
-    console.log('🔍 Preview: gridFieldPositions size:', gridPositions.size);
-
     // Si no hay campos en el grid, retornar array vacío
     if (gridPositions.size === 0) {
-      console.log('✅ Preview: Grid vacío, mostrando 0 campos');
+
       return [];
     }
 
@@ -617,7 +577,7 @@ export class FormDesignerComponent {
     gridPositions.forEach((field, cellKey) => {
       const [row, col] = cellKey.split('-').map(Number);
       fieldsWithPositions.push({ field, row, col });
-      console.log(`  - Campo en grid: ${field.label} (${row},${col})`);
+      
     });
 
     // Ordenar por row y col
@@ -629,7 +589,6 @@ export class FormDesignerComponent {
     });
 
     const result = fieldsWithPositions.map(item => item.field);
-    console.log(`✅ Preview mostrando ${result.length} campos`);
 
     return result;
   }

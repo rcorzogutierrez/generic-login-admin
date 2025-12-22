@@ -1,66 +1,465 @@
-/* admin-panel.component.css - MINIMALISTA (de 850 líneas → 80 líneas) */
+/* admin-panel.component.css - REDISEÑADO COMPACTO */
 
 /* ============================================
-   ESTILOS ÚNICOS DEL ADMIN PANEL
-   TODO LO DEMÁS USA TAILWIND O CLASES GLOBALES
+   BUTTONS
+   ============================================ */
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 10px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.btn-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-icon mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   LOADING SPINNER
    ============================================ */
 
-/* Animación específica para fila seleccionada */
-.selected-row {
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
-  border-left: 3px solid #3b82f6 !important;
+/* ============================================
+   HEADER COMPACTO
+   ============================================ */
+.header-icon-box {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.selected-row:hover {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
+.header-icon-box mat-icon {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: white;
 }
 
-/* Animación de entrada para filas de la tabla (stagger effect) */
-.admin-table-row {
-  animation: fadeInRow 0.3s ease-out backwards;
+/* ============================================
+   STAT CHIPS (Header Inline)
+   ============================================ */
+.stat-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  min-width: 70px;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.admin-table-row:nth-child(1) { animation-delay: 0.05s; }
-.admin-table-row:nth-child(2) { animation-delay: 0.1s; }
-.admin-table-row:nth-child(3) { animation-delay: 0.15s; }
-.admin-table-row:nth-child(4) { animation-delay: 0.2s; }
-.admin-table-row:nth-child(5) { animation-delay: 0.25s; }
-
-/* Reutiliza fadeInRow de styles.css */
-
-/* Animación para las tarjetas de stats */
-.card-corporate {
-  animation: slideInUp 0.4s ease-out backwards;
+.stat-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.card-corporate:nth-child(1) { animation-delay: 0.05s; }
-.card-corporate:nth-child(2) { animation-delay: 0.1s; }
-.card-corporate:nth-child(3) { animation-delay: 0.15s; }
-.card-corporate:nth-child(4) { animation-delay: 0.2s; }
+.stat-chip .stat-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #334155;
+  line-height: 1;
+}
 
-/* Reutiliza slideInUp de styles.css */
+.stat-chip .stat-label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  margin-top: 2px;
+}
 
-/* Mejora de accesibilidad para checkboxes */
-input[type="checkbox"]:focus-visible {
-  outline: 2px solid #3b82f6;
+.stat-chip.users {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.stat-chip.users .stat-value {
+  color: #2563eb;
+}
+
+.stat-chip.active {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+.stat-chip.active .stat-value {
+  color: #16a34a;
+}
+
+.stat-chip.modules {
+  background: #faf5ff;
+  border-color: #e9d5ff;
+}
+
+.stat-chip.modules .stat-value {
+  color: #7c3aed;
+}
+
+.stat-chip.admin {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.stat-chip.admin .stat-value {
+  color: #dc2626;
+}
+
+/* ============================================
+   ACTION CARDS
+   ============================================ */
+.action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 12px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.action-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.action-card:hover .action-icon {
+  transform: scale(1.1);
+}
+
+.action-icon mat-icon {
+  font-size: 24px !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.action-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Action card colors */
+.action-card.users {
+  border-color: #e9d5ff;
+}
+.action-card.users:hover {
+  border-color: #a855f7;
+  background: #faf5ff;
+}
+.action-card.users .action-icon {
+  background: #f3e8ff;
+}
+.action-card.users .action-icon mat-icon {
+  color: #a855f7;
+}
+.action-card.users .action-label {
+  color: #7c3aed;
+}
+
+.action-card.roles {
+  border-color: #bbf7d0;
+}
+.action-card.roles:hover {
+  border-color: #22c55e;
+  background: #f0fdf4;
+}
+.action-card.roles .action-icon {
+  background: #dcfce7;
+}
+.action-card.roles .action-icon mat-icon {
+  color: #22c55e;
+}
+.action-card.roles .action-label {
+  color: #16a34a;
+}
+
+.action-card.modules {
+  border-color: #c7d2fe;
+}
+.action-card.modules:hover {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+.action-card.modules .action-icon {
+  background: #e0e7ff;
+}
+.action-card.modules .action-icon mat-icon {
+  color: #6366f1;
+}
+.action-card.modules .action-label {
+  color: #4f46e5;
+}
+
+.action-card.logs {
+  border-color: #e9d5ff;
+}
+.action-card.logs:hover {
+  border-color: #a855f7;
+  background: #faf5ff;
+}
+.action-card.logs .action-icon {
+  background: #f3e8ff;
+}
+.action-card.logs .action-icon mat-icon {
+  color: #a855f7;
+}
+.action-card.logs .action-label {
+  color: #7c3aed;
+}
+
+.action-card.config {
+  border-color: #bfdbfe;
+}
+.action-card.config:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+.action-card.config .action-icon {
+  background: #dbeafe;
+}
+.action-card.config .action-icon mat-icon {
+  color: #3b82f6;
+}
+.action-card.config .action-label {
+  color: #2563eb;
+}
+
+.action-card.business {
+  border-color: #a5f3fc;
+}
+.action-card.business:hover {
+  border-color: #06b6d4;
+  background: #ecfeff;
+}
+.action-card.business .action-icon {
+  background: #cffafe;
+}
+.action-card.business .action-icon mat-icon {
+  color: #06b6d4;
+}
+.action-card.business .action-label {
+  color: #0891b2;
+}
+
+/* ============================================
+   SUMMARY CARDS
+   ============================================ */
+.summary-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.summary-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.summary-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.summary-icon mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.summary-icon.users {
+  background: #dbeafe;
+}
+.summary-icon.users mat-icon {
+  color: #2563eb;
+}
+
+.summary-icon.modules {
+  background: #f3e8ff;
+}
+.summary-icon.modules mat-icon {
+  color: #9333ea;
+}
+
+.summary-icon.config {
+  background: #cffafe;
+}
+.summary-icon.config mat-icon {
+  color: #0891b2;
+}
+
+.summary-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.summary-subtitle {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.summary-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.summary-action {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6366f1;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.summary-card:hover .summary-action {
+  opacity: 1;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+
+.action-card {
+  animation: fadeInUp 0.3s ease-out backwards;
+}
+
+.action-card:nth-child(1) { animation-delay: 0.05s; }
+.action-card:nth-child(2) { animation-delay: 0.1s; }
+.action-card:nth-child(3) { animation-delay: 0.15s; }
+.action-card:nth-child(4) { animation-delay: 0.2s; }
+.action-card:nth-child(5) { animation-delay: 0.25s; }
+.action-card:nth-child(6) { animation-delay: 0.3s; }
+
+
+.summary-card {
+  animation: fadeIn 0.3s ease-out backwards;
+}
+
+.summary-card:nth-child(1) { animation-delay: 0.1s; }
+.summary-card:nth-child(2) { animation-delay: 0.15s; }
+.summary-card:nth-child(3) { animation-delay: 0.2s; }
+
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .stat-chip {
+    padding: 4px 10px;
+    min-width: 60px;
+  }
+
+  .stat-chip .stat-value {
+    font-size: 0.875rem;
+  }
+
+  .action-card {
+    padding: 16px 10px;
+  }
+
+  .action-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .action-icon mat-icon {
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .action-label {
+    font-size: 0.75rem;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .action-card,
+  .summary-card,
+  .stat-chip {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+button:focus-visible,
+.action-card:focus-visible,
+.summary-card:focus-visible {
+  outline: 2px solid #6366f1;
   outline-offset: 2px;
 }
-
-/* Evitar que se seleccione texto al hacer click rápido en filas */
-.admin-table-row {
-  user-select: none;
-}
-
-/* Transición suave para bulk actions */
-.animate-fadeInUp {
-  animation: fadeInUp 0.3s ease-out;
-}
-
-/* Reutiliza fadeInUp de styles.css */
-
-/* Estilo para el indeterminate state del checkbox principal */
-input[type="checkbox"]:indeterminate {
-  background: #3b82f6;
-  border-color: #3b82f6;
-}
-

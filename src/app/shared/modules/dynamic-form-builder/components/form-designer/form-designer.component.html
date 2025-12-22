@@ -1,99 +1,74 @@
-<!-- src/app/modules/clients/components/form-designer/form-designer.component.html -->
+<!-- form-designer.component.html - DISEÑO COMPACTO -->
 <div class="form-designer">
 
-  <!-- HEADER: Configuration Controls -->
+  <!-- ============================================
+       HEADER: Configuration Controls
+       ============================================ -->
   <div class="designer-header">
-    <div class="flex items-center justify-between gap-6 flex-wrap">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
 
       <!-- Action Buttons -->
-      <div class="flex items-center gap-3">
-        <!-- Save Button -->
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="saveLayout()"
-          [disabled]="!hasUnsavedChanges()"
-          class="!flex !items-center !gap-2 !shadow-lg !px-6">
+      <div class="flex items-center gap-2">
+        <button type="button"
+                class="btn-primary"
+                (click)="saveLayout()"
+                [disabled]="!hasUnsavedChanges()">
           <mat-icon>save</mat-icon>
-          <span class="font-semibold">
-            {{ hasUnsavedChanges() ? 'Guardar Cambios' : 'Guardado' }}
-          </span>
+          <span>{{ hasUnsavedChanges() ? 'Guardar Cambios' : 'Guardado' }}</span>
           @if (hasUnsavedChanges()) {
-            <span class="ml-1 px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full font-bold">
-              Sin guardar
-            </span>
+            <span class="unsaved-badge">Sin guardar</span>
           }
         </button>
 
-        <!-- Clear Grid Button -->
-        <button
-          mat-raised-button
-          color="warn"
-          (click)="clearGrid()"
-          [disabled]="gridFieldPositions().size === 0"
-          class="!flex !items-center !gap-2"
-          matTooltip="Quitar todos los campos del grid y moverlos a disponibles">
+        <button type="button"
+                class="btn-danger"
+                (click)="clearGrid()"
+                [disabled]="gridFieldPositions().size === 0"
+                title="Quitar todos los campos del grid">
           <mat-icon>clear_all</mat-icon>
-          <span class="font-semibold">Limpiar Grid</span>
+          <span>Limpiar</span>
         </button>
       </div>
 
-      <!-- Columns Selector -->
-      <div class="config-group">
-        <label class="config-label">
-          <mat-icon class="!text-lg mr-2">view_column</mat-icon>
-          Columnas del Formulario
-        </label>
-        <mat-button-toggle-group
-          [value]="columns()"
-          (change)="setColumns($event.value)"
-          class="columns-toggle">
-          <mat-button-toggle [value]="2">
-            <mat-icon>view_day</mat-icon>
-            <span class="ml-2">2</span>
-          </mat-button-toggle>
-          <mat-button-toggle [value]="3">
+      <!-- Columns & Spacing Selectors -->
+      <div class="flex items-center gap-4 flex-wrap">
+        <div class="config-group">
+          <label class="config-label">
             <mat-icon>view_column</mat-icon>
-            <span class="ml-2">3</span>
-          </mat-button-toggle>
-          <mat-button-toggle [value]="4">
-            <mat-icon>view_week</mat-icon>
-            <span class="ml-2">4</span>
-          </mat-button-toggle>
-        </mat-button-toggle-group>
-      </div>
+            Columnas
+          </label>
+          <mat-button-toggle-group
+            [value]="columns()"
+            (change)="setColumns($event.value)"
+            class="columns-toggle">
+            <mat-button-toggle [value]="2">2</mat-button-toggle>
+            <mat-button-toggle [value]="3">3</mat-button-toggle>
+            <mat-button-toggle [value]="4">4</mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
 
-      <!-- Spacing Selector -->
-      <div class="config-group">
-        <label class="config-label">
-          <mat-icon class="!text-lg mr-2">space_bar</mat-icon>
-          Espaciado
-        </label>
-        <mat-button-toggle-group
-          [value]="spacing()"
-          (change)="setSpacing($event.value)"
-          class="spacing-toggle">
-          <mat-button-toggle value="compact">
-            <mat-icon>compress</mat-icon>
-            <span class="ml-2">Compacto</span>
-          </mat-button-toggle>
-          <mat-button-toggle value="normal">
-            <mat-icon>unfold_more</mat-icon>
-            <span class="ml-2">Normal</span>
-          </mat-button-toggle>
-          <mat-button-toggle value="spacious">
-            <mat-icon>expand</mat-icon>
-            <span class="ml-2">Amplio</span>
-          </mat-button-toggle>
-        </mat-button-toggle-group>
+        <div class="config-group">
+          <label class="config-label">
+            <mat-icon>space_bar</mat-icon>
+            Espaciado
+          </label>
+          <mat-button-toggle-group
+            [value]="spacing()"
+            (change)="setSpacing($event.value)"
+            class="spacing-toggle">
+            <mat-button-toggle value="compact">Compacto</mat-button-toggle>
+            <mat-button-toggle value="normal">Normal</mat-button-toggle>
+            <mat-button-toggle value="spacious">Amplio</mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
       </div>
 
     </div>
   </div>
 
-  <mat-divider class="my-6"></mat-divider>
-
-  <!-- AVAILABLE FIELDS PALETTE -->
+  <!-- ============================================
+       AVAILABLE FIELDS PALETTE
+       ============================================ -->
   <section class="fields-palette">
     <div class="palette-header">
       <div class="flex items-center justify-between">
@@ -106,13 +81,11 @@
             Arrastra los campos al formulario para posicionarlos
           </p>
         </div>
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="addNewField()"
-          class="!flex !items-center !gap-2">
+        <button type="button"
+                class="btn-primary"
+                (click)="addNewField()">
           <mat-icon>add</mat-icon>
-          Nuevo Campo
+          <span>Nuevo Campo</span>
         </button>
       </div>
     </div>
@@ -160,15 +133,15 @@
       @if (availableFields().length === 0) {
         <div class="palette-empty">
           <mat-icon class="!text-3xl text-slate-300">check_circle</mat-icon>
-          <p class="text-sm text-slate-500 mt-2">Todos los campos han sido colocados</p>
+          <p class="text-xs text-slate-500 mt-2">Todos los campos han sido colocados</p>
         </div>
       }
     </div>
   </section>
 
-  <mat-divider class="my-6"></mat-divider>
-
-  <!-- FORM GRID DESIGNER -->
+  <!-- ============================================
+       FORM GRID DESIGNER
+       ============================================ -->
   <section class="grid-designer">
     <div class="grid-header">
       <h3 class="grid-title">
@@ -176,8 +149,7 @@
         Diseño del Formulario
       </h3>
       <p class="grid-subtitle">
-        Vista previa del formulario con {{ columns() }} columnas •
-        Arrastra campos desde arriba para posicionarlos
+        Vista previa con {{ columns() }} columnas • Arrastra campos para posicionarlos
       </p>
     </div>
 
@@ -235,7 +207,7 @@
                       class="placed-field-delete"
                       (click)="deleteField(field)"
                       (mousedown)="$event.stopPropagation()"
-                      matTooltip="Eliminar campo permanentemente">
+                      matTooltip="Eliminar permanentemente">
                       <mat-icon>delete</mat-icon>
                     </button>
                   }
@@ -245,7 +217,7 @@
               <!-- Empty drop zone -->
               <div class="drop-zone">
                 <mat-icon class="drop-zone-icon">add_circle_outline</mat-icon>
-                <span class="drop-zone-text">Suelta un campo aquí</span>
+                <span class="drop-zone-text">Suelta aquí</span>
               </div>
             }
           </div>
@@ -254,25 +226,25 @@
     </div>
   </section>
 
-  <mat-divider class="my-6"></mat-divider>
-
-  <!-- PREVIEW SECTION -->
+  <!-- ============================================
+       PREVIEW SECTION
+       ============================================ -->
   <section class="preview-section">
     <div class="preview-header">
       <div class="flex items-center justify-between">
         <div>
           <h3 class="preview-title">
             <mat-icon>preview</mat-icon>
-            Previsualización del Formulario
+            Previsualización
           </h3>
           <p class="preview-subtitle">
-            Así se verá el formulario cuando se cree o edite un cliente
+            Así se verá el formulario cuando se cree o edite un registro
           </p>
         </div>
         @if (hasUnsavedChanges()) {
           <div class="preview-warning">
             <mat-icon>warning</mat-icon>
-            <span>Esta previsualización muestra cambios sin guardar</span>
+            <span>Cambios sin guardar</span>
           </div>
         }
       </div>
@@ -281,12 +253,12 @@
     <div class="preview-container">
       <div class="preview-form-wrapper">
         @if (getOrderedFieldsForPreview().length === 0) {
-          <!-- Empty state cuando no hay campos en el grid -->
-          <div class="flex flex-col items-center justify-center py-12 text-center">
-            <mat-icon class="text-slate-300 mb-4" style="font-size: 64px; width: 64px; height: 64px;">drag_indicator</mat-icon>
-            <h3 class="text-lg font-semibold text-slate-600 mb-2">No hay campos en el formulario</h3>
-            <p class="text-sm text-slate-500 max-w-md">
-              Arrastra campos desde la paleta de "Campos Disponibles" al diseñador para verlos en la previsualización.
+          <!-- Empty state -->
+          <div class="flex flex-col items-center justify-center py-8 text-center">
+            <mat-icon class="text-slate-300 mb-3" style="font-size: 48px; width: 48px; height: 48px;">drag_indicator</mat-icon>
+            <h3 class="text-sm font-semibold text-slate-600 mb-1">No hay campos en el formulario</h3>
+            <p class="text-xs text-slate-500 max-w-sm">
+              Arrastra campos desde la paleta al diseñador para verlos aquí.
             </p>
           </div>
         } @else {
@@ -330,9 +302,10 @@
             [class.flex-row]="buttonsConfig().style === 'inline'">
             @for (btn of buttonsConfig().order; track btn) {
               <button
-                mat-raised-button
-                [color]="btn === 'save' ? 'primary' : 'basic'"
-                class="preview-button">
+                type="button"
+                class="preview-button"
+                [class.btn-primary]="btn === 'save'"
+                [class.btn-secondary]="btn !== 'save'">
                 <mat-icon>{{ btn === 'save' ? 'save' : 'cancel' }}</mat-icon>
                 @if (buttonsConfig().showLabels) {
                   {{ btn === 'save' ? 'Guardar' : 'Cancelar' }}
@@ -345,9 +318,9 @@
     </div>
   </section>
 
-  <mat-divider class="my-6"></mat-divider>
-
-  <!-- BUTTONS CONFIGURATION -->
+  <!-- ============================================
+       BUTTONS CONFIGURATION
+       ============================================ -->
   <section class="buttons-config">
     <div class="buttons-header">
       <h3 class="buttons-title">
@@ -363,44 +336,29 @@
       <!-- Button Position -->
       <div class="config-group">
         <label class="config-label">
-          <mat-icon class="!text-lg mr-2">align_horizontal_center</mat-icon>
+          <mat-icon>align_horizontal_center</mat-icon>
           Alineación
         </label>
         <mat-button-toggle-group
           [value]="buttonsConfig().position"
           (change)="updateButtonConfig({ position: $event.value })">
-          <mat-button-toggle value="left">
-            <mat-icon>align_horizontal_left</mat-icon>
-            <span class="ml-2">Izquierda</span>
-          </mat-button-toggle>
-          <mat-button-toggle value="center">
-            <mat-icon>align_horizontal_center</mat-icon>
-            <span class="ml-2">Centro</span>
-          </mat-button-toggle>
-          <mat-button-toggle value="right">
-            <mat-icon>align_horizontal_right</mat-icon>
-            <span class="ml-2">Derecha</span>
-          </mat-button-toggle>
+          <mat-button-toggle value="left">Izquierda</mat-button-toggle>
+          <mat-button-toggle value="center">Centro</mat-button-toggle>
+          <mat-button-toggle value="right">Derecha</mat-button-toggle>
         </mat-button-toggle-group>
       </div>
 
       <!-- Button Style -->
       <div class="config-group">
         <label class="config-label">
-          <mat-icon class="!text-lg mr-2">view_agenda</mat-icon>
+          <mat-icon>view_agenda</mat-icon>
           Estilo
         </label>
         <mat-button-toggle-group
           [value]="buttonsConfig().style"
           (change)="updateButtonConfig({ style: $event.value })">
-          <mat-button-toggle value="inline">
-            <mat-icon>view_week</mat-icon>
-            <span class="ml-2">En línea</span>
-          </mat-button-toggle>
-          <mat-button-toggle value="stacked">
-            <mat-icon>view_agenda</mat-icon>
-            <span class="ml-2">Apilados</span>
-          </mat-button-toggle>
+          <mat-button-toggle value="inline">En línea</mat-button-toggle>
+          <mat-button-toggle value="stacked">Apilados</mat-button-toggle>
         </mat-button-toggle-group>
       </div>
     </div>
@@ -416,7 +374,10 @@
         [class.flex-row]="buttonsConfig().style === 'inline'">
 
         @for (btn of buttonsConfig().order; track btn) {
-          <button mat-raised-button [color]="btn === 'save' ? 'primary' : 'basic'">
+          <button
+            type="button"
+            [class.btn-primary]="btn === 'save'"
+            [class.btn-secondary]="btn !== 'save'">
             <mat-icon>{{ btn === 'save' ? 'save' : 'cancel' }}</mat-icon>
             @if (buttonsConfig().showLabels) {
               {{ btn === 'save' ? 'Guardar' : 'Cancelar' }}

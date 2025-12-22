@@ -1,0 +1,107 @@
+<!-- src/app/core/layout/header/header.component.html -->
+
+<header class="header">
+  <div class="header-content">
+    <!-- LEFT: Toggle sidebar (móvil) + Breadcrumb/Título -->
+    <div class="header-left">
+      <!-- Botón hamburguesa para móvil -->
+      <button
+        class="menu-toggle"
+        (click)="toggleSidebar()"
+        matTooltip="Menú"
+        matTooltipPosition="below">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <!-- Título de página (opcional, se puede usar para breadcrumbs) -->
+      <div class="page-title">
+        <!-- Aquí se puede agregar un breadcrumb component en el futuro -->
+      </div>
+    </div>
+
+    <!-- RIGHT: Acciones + Usuario -->
+    <div class="header-right">
+      <!-- Notificaciones (placeholder para futuro) -->
+      <!--
+      <button
+        class="icon-button"
+        [matBadge]="notifications()"
+        [matBadgeHidden]="notifications() === 0"
+        matBadgeColor="warn"
+        matBadgeSize="small"
+        matTooltip="Notificaciones">
+        <mat-icon>notifications</mat-icon>
+      </button>
+      -->
+
+      <!-- Búsqueda rápida (placeholder para futuro) -->
+      <!--
+      <button class="icon-button" matTooltip="Buscar (Ctrl+K)">
+        <mat-icon>search</mat-icon>
+      </button>
+      -->
+
+      <!-- User Badge -->
+      <button
+        [matMenuTriggerFor]="userMenu"
+        class="user-badge">
+        <div class="user-avatar" [style.background]="getAvatarColor()">
+          {{ getUserInitials() }}
+        </div>
+        <div class="user-info">
+          <span class="user-name">{{ user()?.displayName }}</span>
+          <span class="user-role">{{ getUserRole() }}</span>
+        </div>
+        <mat-icon class="dropdown-icon">expand_more</mat-icon>
+      </button>
+
+      <!-- User Menu Dropdown -->
+      <mat-menu #userMenu="matMenu" class="user-dropdown-menu">
+        <div class="menu-header">
+          <div class="menu-avatar" [style.background]="getAvatarColor()">
+            {{ getUserInitials() }}
+          </div>
+          <div class="menu-user-info">
+            <div class="menu-user-name">{{ user()?.displayName }}</div>
+            <div class="menu-user-email">{{ user()?.email }}</div>
+            <div class="menu-user-role">
+              <mat-icon class="role-icon">{{ isAdmin() ? 'shield' : 'person' }}</mat-icon>
+              {{ getUserRole() }}
+            </div>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <button mat-menu-item (click)="goToDashboard()">
+          <mat-icon>dashboard</mat-icon>
+          <span>Dashboard</span>
+        </button>
+
+        @if (isAdmin()) {
+          <button mat-menu-item (click)="goToAdmin()">
+            <mat-icon>admin_panel_settings</mat-icon>
+            <span>Panel de Admin</span>
+          </button>
+        }
+
+        <button mat-menu-item (click)="goToProfile()">
+          <mat-icon>account_circle</mat-icon>
+          <span>Mi Perfil</span>
+        </button>
+
+        <button mat-menu-item (click)="goToSettings()">
+          <mat-icon>settings</mat-icon>
+          <span>Configuración</span>
+        </button>
+
+        <mat-divider></mat-divider>
+
+        <button mat-menu-item (click)="logout()" class="logout-item">
+          <mat-icon>logout</mat-icon>
+          <span>Cerrar Sesión</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+</header>

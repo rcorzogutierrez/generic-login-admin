@@ -61,10 +61,8 @@ export class AddClientDialogComponent implements OnInit {
       // Obtener campos en uso (respeta layout personalizado si existe)
       const fieldsInUse = this.configService.getFieldsInUse();
 
-      console.log('📝 ADD CLIENT DIALOG: Campos en uso cargados:', fieldsInUse.length);
-      console.log('   Lista de campos:');
       fieldsInUse.forEach((f, i) => {
-        console.log(`   ${i + 1}. ${f.label} (${f.name}) - Tipo: ${f.type} - formOrder: ${f.formOrder}`);
+        
       });
 
       if (fieldsInUse.length === 0) {
@@ -290,15 +288,18 @@ export class AddClientDialogComponent implements OnInit {
   }
 
   getFieldWidth(field: FieldConfig): string {
-    switch (field.formWidth) {
-      case 'full':
-        return 'col-span-2';
-      case 'half':
-        return 'col-span-2 md:col-span-1';
-      case 'third':
-        return 'col-span-2 md:col-span-1 lg:col-span-1';
-      default:
-        return 'col-span-2 md:col-span-1';
+    // TEXTAREA y DICTIONARY siempre ocupan ancho completo (2 columnas)
+    if (field.type === FieldType.TEXTAREA || field.type === FieldType.DICTIONARY) {
+      return 'w-full';
     }
+
+    // MULTISELECT también puede ocupar ancho completo si tiene muchas opciones
+    if (field.type === FieldType.MULTISELECT && field.options && field.options.length > 4) {
+      return 'w-full';
+    }
+
+    // Todos los demás campos ocupan 1 columna (mitad del ancho)
+    // Esto fuerza el layout de 2 columnas ignorando formWidth para hacer el dialog más compacto
+    return 'w-half';
   }
 }

@@ -5,18 +5,13 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
-// Material imports
-import { MatButtonModule } from '@angular/material/button';
+// Material imports (solo los necesarios)
 import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // Services
 import { ClientsService } from '../../services/clients.service';
@@ -40,17 +35,12 @@ import { formatFieldValue, getFieldValue } from '../../../../shared/modules/dyna
   imports: [
     CommonModule,
     FormsModule,
-    MatButtonModule,
     MatIconModule,
-    MatTooltipModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatMenuModule,
-    MatBadgeModule,
-    MatChipsModule,
     MatDividerModule,
     MatDialogModule,
-    MatCheckboxModule
   ],
   templateUrl: './clients-list.component.html',
   styleUrl: './clients-list.component.css',
@@ -154,7 +144,6 @@ export class ClientsListComponent implements OnInit {
    */
   async loadData() {
     try {
-      console.log('📂 ClientsListComponent.loadData() - Iniciando...');
 
       // Cargar configuración y clientes en paralelo
       await Promise.all([
@@ -163,19 +152,17 @@ export class ClientsListComponent implements OnInit {
       ]);
 
       const config = this.config();
-      console.log('   Config cargada:', config ? 'existe' : 'null');
 
       if (config && config.gridConfig) {
-        console.log('   gridConfig existe, aplicando configuración');
+
         this.itemsPerPage.set(config.gridConfig.itemsPerPage || 25);
         this.currentSort.set({
           field: config.gridConfig.sortBy || 'name',
           direction: config.gridConfig.sortOrder || 'asc'
         });
-        console.log('   itemsPerPage:', config.gridConfig.itemsPerPage);
-        console.log('   sortBy:', config.gridConfig.sortBy);
+
       } else {
-        console.log('ℹ️ Usando configuración por defecto del grid');
+
         // Usar valores por defecto si no hay configuración
         this.itemsPerPage.set(25);
         this.currentSort.set({
@@ -184,7 +171,6 @@ export class ClientsListComponent implements OnInit {
         });
       }
 
-      console.log('✅ Datos cargados correctamente');
       this.cdr.markForCheck();
     } catch (error) {
       console.error('❌ Error cargando datos:', error);

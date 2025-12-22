@@ -64,7 +64,7 @@ export class ClientsService {
 
     await this.loadClients();
     this.isInitialized = true;
-    console.log('✅ ClientsService inicializado -', this.clients().length, 'clientes cargados');
+    
   }
 
   /**
@@ -100,7 +100,7 @@ export class ClientsService {
       const snapshot = await getDocs(q);
 
       if (snapshot.empty) {
-        console.warn('⚠️ No se encontraron documentos en la colección "clients"');
+
       }
 
       const clients: Client[] = snapshot.docs.map((docSnapshot) => ({

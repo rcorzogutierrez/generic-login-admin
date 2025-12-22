@@ -54,12 +54,6 @@ export class NavbarComponent implements OnInit {
     // ✅ Inicializar configuración de la aplicación
     await this.appConfigService.initialize();
 
-    console.log('🔍 NavbarComponent - Valores actuales:', {
-      appName: this.appName(),
-      logoUrl: this.logoUrl()
-    });
-    console.log('🧭 Navbar cargado para:', this.user()?.email);
-
     // Cargar módulos del usuario
     await this.loadUserModules();
   }
@@ -78,7 +72,7 @@ export class NavbarComponent implements OnInit {
         await this.modulesService.initialize();
         const allModules = this.modulesService.getActiveModules().map(m => m.value);
         this.userModules.set(allModules);
-        console.log('📦 Admin - Todos los módulos cargados para navbar:', allModules);
+
         return;
       }
 
@@ -93,9 +87,9 @@ export class NavbarComponent implements OnInit {
 
       if (currentUserData?.modules) {
         this.userModules.set(currentUserData.modules);
-        console.log('📦 Módulos cargados para navbar:', currentUserData.modules);
+
       } else {
-        console.warn('⚠️ Usuario sin módulos asignados');
+
         this.userModules.set([]);
       }
     } catch (error) {

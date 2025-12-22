@@ -23,7 +23,7 @@ import { ProposalsService } from '../../services/proposals.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
 // Models
-import { Proposal, ProposalFilters, ProposalSort, ProposalStatus } from '../../models';
+import { Proposal, ProposalFilters, ProposalSort, ProposalStatus, ProposalStats } from '../../models';
 
 // Shared Components
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
@@ -123,6 +123,46 @@ export class ProposalsListComponent implements OnInit {
     return Math.ceil(total / perPage);
   });
 
+  // Estadísticas calculadas dinámicamente basadas en los proposals filtrados
+  filteredStats = computed(() => {
+    const proposals = this.filteredProposals();
+
+    const stats: ProposalStats = {
+      total: proposals.length,
+      byStatus: {
+        draft: proposals.filter(p => p.status === 'draft').length,
+        sent: proposals.filter(p => p.status === 'sent').length,
+        approved: proposals.filter(p => p.status === 'approved').length,
+        rejected: proposals.filter(p => p.status === 'rejected').length,
+        converted_to_invoice: proposals.filter(p => p.status === 'converted_to_invoice').length,
+        paid: proposals.filter(p => p.status === 'paid').length,
+        cancelled: proposals.filter(p => p.status === 'cancelled').length
+      },
+      totalValue: proposals.reduce((sum, p) => sum + (p.total || 0), 0),
+      averageValue: 0,
+      approvalRate: 0
+    };
+
+    // Calcular valor promedio
+    if (proposals.length > 0) {
+      stats.averageValue = stats.totalValue / proposals.length;
+    }
+
+    // Calcular tasa de aprobación
+    const sentOrApproved = proposals.filter(
+      p => ['sent', 'approved', 'converted_to_invoice'].includes(p.status)
+    ).length;
+
+    if (sentOrApproved > 0) {
+      const approved = proposals.filter(
+        p => ['approved', 'converted_to_invoice'].includes(p.status)
+      ).length;
+      stats.approvalRate = (approved / sentOrApproved) * 100;
+    }
+
+    return stats;
+  });
+
   // Configuración para el diálogo de eliminación
   private deleteDialogConfig: GenericModuleConfig = {
     collection: 'proposals',
@@ -169,9 +209,9 @@ export class ProposalsListComponent implements OnInit {
    */
   async loadData() {
     try {
-      console.log('📂 ProposalsListComponent.loadData() - Iniciando...');
+      
       await this.proposalsService.initialize();
-      console.log('✅ Datos cargados correctamente');
+
       this.cdr.markForCheck();
     } catch (error) {
       console.error('❌ Error cargando datos:', error);
@@ -268,6 +308,10 @@ export class ProposalsListComponent implements OnInit {
       if (result?.confirmed) {
         try {
           await this.proposalsService.deleteProposal(proposal.id);
+
+          // Forzar recarga para asegurar actualización de estadísticas
+          await this.proposalsService.refresh();
+
           this.snackBar.open('Estimado eliminado exitosamente', 'Cerrar', { duration: 3000 });
           this.cdr.markForCheck();
         } catch (error) {
@@ -283,13 +327,67 @@ export class ProposalsListComponent implements OnInit {
    */
   async changeProposalStatus(proposal: Proposal, newStatus: ProposalStatus) {
     try {
+      // Validar que el proposal esté completo antes de enviarlo
+      if (proposal.status === 'draft' && newStatus === 'sent') {
+        const validation = this.validateProposalComplete(proposal);
+        if (!validation.isValid) {
+          this.snackBar.open(validation.message, 'Cerrar', { duration: 5000 });
+          return;
+        }
+      }
+
       await this.proposalsService.updateProposalStatus(proposal.id, newStatus);
+
+      // Forzar recarga de proposals para asegurar actualización de estadísticas
+      await this.proposalsService.refresh();
+
       this.snackBar.open('Estado actualizado exitosamente', 'Cerrar', { duration: 3000 });
       this.cdr.markForCheck();
     } catch (error) {
       console.error('Error cambiando estado del proposal:', error);
       this.snackBar.open('Error al cambiar el estado', 'Cerrar', { duration: 3000 });
     }
+  }
+
+  /**
+   * Validar que el proposal esté completo antes de enviarlo
+   */
+  private validateProposalComplete(proposal: Proposal): { isValid: boolean; message: string } {
+    const errors: string[] = [];
+
+    // Validar que tenga items incluidos
+    if (!proposal.includes || proposal.includes.length === 0) {
+      errors.push('Debe agregar al menos un item al estimado');
+    }
+
+    // Validar que tenga dirección del trabajo
+    if (!proposal.address || proposal.address.trim() === '') {
+      errors.push('Debe especificar la dirección del trabajo');
+    }
+
+    // Validar que tenga ciudad
+    if (!proposal.city || proposal.city.trim() === '') {
+      errors.push('Debe especificar la ciudad');
+    }
+
+    // Validar que tenga un total válido
+    if (!proposal.total || proposal.total <= 0) {
+      errors.push('El total debe ser mayor a $0');
+    }
+
+    // Validar que tenga fecha de validez
+    if (!proposal.validUntil) {
+      errors.push('Debe especificar la fecha de validez del estimado');
+    }
+
+    if (errors.length > 0) {
+      return {
+        isValid: false,
+        message: `No se puede enviar el estimado. Falta completar: ${errors.join(', ')}`
+      };
+    }
+
+    return { isValid: true, message: '' };
   }
 
   /**
@@ -431,13 +529,15 @@ export class ProposalsListComponent implements OnInit {
   /**
    * Obtener label del status
    */
-  getStatusLabel(status: ProposalStatus): string {
+  getStatusLabel(status: ProposalStatus | 'all'): string {
+    if (status === 'all') return 'Todos';
     const labels: Record<ProposalStatus, string> = {
       draft: 'Borrador',
       sent: 'Enviado',
       approved: 'Aprobado',
       rejected: 'Rechazado',
       converted_to_invoice: 'Facturado',
+      paid: 'Pagado',
       cancelled: 'Cancelado'
     };
     return labels[status] || status;
@@ -453,6 +553,7 @@ export class ProposalsListComponent implements OnInit {
       approved: 'badge-status-approved',
       rejected: 'badge-status-rejected',
       converted_to_invoice: 'badge-status-converted',
+      paid: 'badge-status-paid',
       cancelled: 'badge-status-cancelled'
     };
     return classes[status] || 'badge-status-draft';

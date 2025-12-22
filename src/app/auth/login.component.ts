@@ -1,14 +1,14 @@
 // src/app/auth/login.component.ts
-import { Component, OnInit, computed, signal, Signal, inject, effect } from '@angular/core';
+import { Component, OnInit, computed, signal, Signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
 import { AppConfigService } from '../core/services/app-config.service';
+import { NotificationService } from '../core/services/notification.service';
+import { LoggerService } from '../core/services/logger.service';
+import { NavigationService } from '../core/services/navigation.service';
 
 /**
  * Componente de Login - Implementación optimizada con Angular 20
@@ -17,8 +17,9 @@ import { AppConfigService } from '../core/services/app-config.service';
  * - Standalone component con signal-based state
  * - Inject function pattern para DI
  * - Computed signals para estados derivados
- * - Auth state management vía AuthService
+ * - Servicios centralizados (Auth, Navigation, Notification, Logger)
  * - Integración con Firebase Auth (Google provider)
+ * - Skeleton loaders para mejor UX
  *
  * @example
  * ```typescript
@@ -34,19 +35,19 @@ import { AppConfigService } from '../core/services/app-config.service';
     MatButtonModule,
     MatCardModule,
     MatIconModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnInit {
-  // ✅ Inject pattern (Angular 20 best practice)
+  // ========================================
+  // SERVICIOS (Inject pattern - Angular 20)
+  // ========================================
   readonly authService = inject(AuthService);
-  private appConfigService = inject(AppConfigService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private snackBar = inject(MatSnackBar);
+  readonly appConfigService = inject(AppConfigService);
+  private notificationService = inject(NotificationService);
+  private logger = inject(LoggerService);
+  private navigationService = inject(NavigationService);
 
   // ========================================
   // SIGNALS - Estado del componente
@@ -57,13 +58,17 @@ export class LoginComponent implements OnInit {
 
   /** Mensaje de resultado del login (éxito o error) */
   private _loginMessage = signal<{
-    type: 'error' | 'success';
+    type: 'error' | 'success' | 'info';
     message: string;
   } | null>(null);
+
+  /** Indica si hay un redirect de OAuth pendiente */
+  private _isRedirectPending = signal(false);
 
   // Readonly signals expuestos al template
   readonly isLoggingIn = this._isLoggingIn.asReadonly();
   readonly loginMessage = this._loginMessage.asReadonly();
+  readonly isRedirectPending = this._isRedirectPending.asReadonly();
 
   // ========================================
   // COMPUTED SIGNALS - Estados derivados
@@ -89,52 +94,13 @@ export class LoginComponent implements OnInit {
   );
 
   // ========================================
-  // APP CONFIG SIGNALS
+  // APP CONFIG SIGNALS (delegados del servicio)
   // ========================================
-
-  /** Nombre de la aplicación (configurable desde Firestore) */
-  readonly appName: Signal<string | null> = this.appConfigService.appName;
-
-  /** Descripción de la aplicación */
-  readonly appDescription: Signal<string | null> = this.appConfigService.appDescription;
-
-  /** URL del logo personalizado */
-  readonly logoUrl: Signal<string | null> = this.appConfigService.logoUrl;
-
-  /** Color de fondo del contenedor del logo */
+  readonly appName = this.appConfigService.appName;
+  readonly appDescription = this.appConfigService.appDescription;
+  readonly logoUrl = this.appConfigService.logoUrl;
   readonly logoBackgroundColor = this.appConfigService.logoBackgroundColor;
-
-  /** Email de contacto del administrador */
-  readonly adminContactEmail: Signal<string | null> = this.appConfigService.adminContactEmail;
-
-  /** Información de la aplicación */
-  readonly appInfo = this.authService.getAppInfo();
-
-  /** Versión de Angular utilizada */
-  readonly angularVersion = '20';
-
-  // ========================================
-  // CONSTRUCTOR - Effect para auto-redirect
-  // ========================================
-
-  constructor() {
-    /**
-     * ✅ OPTIMIZACIÓN: Effect para redirección automática
-     * Elimina la necesidad de setInterval (polling cada 200ms)
-     * Se ejecuta automáticamente cuando cambia el estado de auth
-     */
-    effect(() => {
-      const isLoading = this.authService.loading();
-      const isAuth = this.authService.isAuthenticated();
-      const isAuthorized = this.authService.isAuthorized();
-
-      // Solo redirigir cuando está completamente autorizado
-      if (!isLoading && isAuth && isAuthorized) {
-        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-        this.router.navigate([returnUrl]);
-      }
-    });
-  }
+  readonly adminContactEmail = this.appConfigService.adminContactEmail;
 
   // ========================================
   // LIFECYCLE HOOKS
@@ -143,21 +109,35 @@ export class LoginComponent implements OnInit {
   /**
    * Inicialización del componente
    * Carga la configuración de la app desde Firestore
+   * Detecta si hay un redirect de OAuth pendiente
    */
   async ngOnInit(): Promise<void> {
+    // Detectar si hay un redirect pendiente (popup bloqueado)
+    const redirectPending = localStorage.getItem('auth_redirect_pending') === 'true';
+    if (redirectPending) {
+      this._isRedirectPending.set(true);
+      this._loginMessage.set({
+        type: 'info',
+        message: 'Procesando autenticación, por favor espera...'
+      });
+      this.logger.info('Redirect de OAuth detectado, procesando...');
+    }
+
     // Inicializar configuración (nombre, logo, etc.)
     await this.appConfigService.initialize();
 
-    // Debug: log de configuración cargada
-    console.log('🔍 LoginComponent - Configuración cargada:', {
+    // Debug: log de configuración cargada (solo en desarrollo)
+    this.logger.debug('LoginComponent - Configuración cargada', {
       appName: this.appName(),
       appDescription: this.appDescription(),
       logoUrl: this.logoUrl(),
       adminContactEmail: this.adminContactEmail()
     });
 
-    // Limpiar mensajes previos
-    this._loginMessage.set(null);
+    // Limpiar mensajes previos si no hay redirect pendiente
+    if (!redirectPending) {
+      this._loginMessage.set(null);
+    }
   }
 
   // ========================================
@@ -171,7 +151,7 @@ export class LoginComponent implements OnInit {
    * 1. Abre popup de Google Auth
    * 2. Verifica autorización en Firestore (users collection)
    * 3. Actualiza lastLogin si es exitoso
-   * 4. Redirige automáticamente vía effect
+   * 4. Redirige automáticamente vía NavigationService
    *
    * @returns Promise<void>
    */
@@ -192,7 +172,8 @@ export class LoginComponent implements OnInit {
           message: '¡Bienvenido! Redirigiendo...',
         });
 
-        // Nota: La redirección se maneja automáticamente vía effect
+        this.logger.info('Login exitoso con Google');
+        // Nota: La redirección se maneja automáticamente vía NavigationService
 
       } else {
         // ❌ Login fallido (usuario no autorizado)
@@ -201,11 +182,9 @@ export class LoginComponent implements OnInit {
           message: result.message,
         });
 
-        // Mostrar snackbar adicional para errores
-        this.snackBar.open(result.message, 'Cerrar', {
-          duration: 8000,
-          panelClass: ['error-snackbar'],
-        });
+        // Mostrar notificación de error
+        this.notificationService.error(result.message);
+        this.logger.warn('Login fallido', { message: result.message });
       }
     } catch (error) {
       // ✅ Tipado mejorado de errores
@@ -218,7 +197,9 @@ export class LoginComponent implements OnInit {
         message: errorMessage,
       });
 
-      console.error('❌ Error en loginWithGoogle:', error);
+      // Logging y notificación de error
+      this.logger.error('Error en loginWithGoogle', error);
+      this.notificationService.error(errorMessage);
     } finally {
       this._isLoggingIn.set(false);
     }

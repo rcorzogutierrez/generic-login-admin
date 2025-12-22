@@ -1,50 +1,65 @@
 <!-- src/app/admin/components/manage-modules/manage-modules.component.html -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[1400px] mx-auto p-5">
-    
+  <div class="max-w-[1200px] mx-auto p-5">
+
     <!-- HEADER -->
-    <header class="page-header">
-      <div class="flex items-center justify-between gap-5 flex-wrap">
-        
+    <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+
         <!-- Left Section -->
-        <div class="flex items-center gap-4">
-          <button
-            mat-icon-button
-            class="icon-btn"
-            (click)="goBack()"
-            matTooltip="Volver al panel de admin"
-            aria-label="Volver al panel de admin">
-            <mat-icon>arrow_back</mat-icon>
-          </button>
-          
-          <div class="header-icon-container">
-            <mat-icon>apps</mat-icon>
-          </div>
-          
-          <div>
-            <h1 class="text-2xl font-bold text-slate-800 mb-1">Gestión de Módulos</h1>
-            <p class="text-sm text-slate-600 flex items-center gap-2 font-medium">
-              <span class="status-dot"></span>
-              Administra los módulos del sistema
-            </p>
-          </div>
-        </div>
-        
-        <!-- Right Section -->
         <div class="flex items-center gap-3">
           <button
             mat-icon-button
-            class="icon-btn"
+            class="!bg-slate-100 hover:!bg-slate-200"
+            (click)="goBack()"
+            matTooltip="Volver al panel de admin">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+
+          <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+            <mat-icon class="text-white !text-xl">apps</mat-icon>
+          </div>
+
+          <div>
+            <h1 class="text-lg font-bold text-slate-800">Gestión de Módulos</h1>
+            <p class="text-xs text-slate-500">Administra los módulos del sistema</p>
+          </div>
+        </div>
+
+        <!-- Stats Inline -->
+        <div class="flex items-center gap-3">
+          <div class="stat-chip">
+            <span class="stat-value">{{ modules.length }}</span>
+            <span class="stat-label">Total</span>
+          </div>
+          <div class="stat-chip active">
+            <span class="stat-value">{{ activeModulesCount() }}</span>
+            <span class="stat-label">Activos</span>
+          </div>
+          <div class="stat-chip inactive">
+            <span class="stat-value">{{ inactiveModulesCount() }}</span>
+            <span class="stat-label">Inactivos</span>
+          </div>
+          <div class="stat-chip users">
+            <span class="stat-value">{{ totalAssignments() }}</span>
+            <span class="stat-label">Asignaciones</span>
+          </div>
+        </div>
+
+        <!-- Right Section -->
+        <div class="flex items-center gap-2">
+          <button
+            mat-icon-button
+            class="!bg-slate-100 hover:!bg-slate-200"
             (click)="loadModules()"
             [disabled]="isLoading"
-            matTooltip="Recargar módulos"
-            aria-label="Recargar módulos">
-            <mat-icon>refresh</mat-icon>
+            matTooltip="Recargar módulos">
+            <mat-icon [class.animate-spin]="isLoading">refresh</mat-icon>
           </button>
-          
-          <button 
-            mat-raised-button 
-            color="primary"
+
+          <button
+            mat-raised-button
+            class="!bg-purple-600 !text-white"
             (click)="addModule()"
             [disabled]="isLoading">
             <mat-icon>add</mat-icon>
@@ -56,215 +71,124 @@
 
     <!-- LOADING STATE -->
     @if (isLoading && modules.length === 0) {
-      <div class="empty-state">
-        <mat-spinner diameter="50"></mat-spinner>
-        <p class="mt-4 text-slate-600 font-medium">Cargando módulos...</p>
+      <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center">
+        <mat-spinner diameter="40" class="mx-auto"></mat-spinner>
+        <p class="mt-4 text-slate-500 text-sm">Cargando módulos...</p>
       </div>
     }
 
-    <!-- MAIN CONTENT -->
-    @if (!isLoading || modules.length > 0) {
-      
-      <!-- Stats -->
-      <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div class="card-corporate">
-          <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-4">
-            <mat-icon class="!text-2xl text-white">apps</mat-icon>
-          </div>
-          <div class="text-3xl font-bold text-slate-800 mb-1">{{ modules.length }}</div>
-          <div class="text-sm text-slate-600 font-semibold">Total Módulos</div>
+    <!-- EMPTY STATE -->
+    @if (!isLoading && modules.length === 0) {
+      <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center">
+        <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <mat-icon class="!text-4xl text-slate-400">apps</mat-icon>
+        </div>
+        <h3 class="text-lg font-semibold text-slate-800 mb-2">No hay módulos configurados</h3>
+        <p class="text-sm text-slate-500 mb-6">Comienza agregando el primer módulo del sistema</p>
+        <div class="flex gap-3 justify-center">
+          <button
+            mat-raised-button
+            class="!bg-purple-600 !text-white"
+            (click)="addModule()">
+            <mat-icon>add</mat-icon>
+            Crear Módulo
+          </button>
+          <button
+            mat-stroked-button
+            (click)="initializeDefaultModules()">
+            <mat-icon>auto_fix_high</mat-icon>
+            Inicializar por Defecto
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- MODULES LIST -->
+    @if (modules.length > 0) {
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+
+        <!-- List Header -->
+        <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <span class="text-xs text-slate-500 font-medium">Módulos del sistema</span>
+          <span class="text-xs text-slate-500">{{ modules.length }} módulo(s)</span>
         </div>
 
-        <div class="card-corporate">
-          <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-4">
-            <mat-icon class="!text-2xl text-white">check_circle</mat-icon>
-          </div>
-          <div class="text-3xl font-bold text-slate-800 mb-1">
-            {{ activeModulesCount() }}
-          </div>
-          <div class="text-sm text-slate-600 font-semibold">Módulos Activos</div>
-        </div>
+        <!-- Module List -->
+        <div class="module-list">
+          @for (module of modules; track trackByModuleId($index, module)) {
+            <div class="module-row group" [class.inactive]="!module.isActive">
 
-        <div class="card-corporate">
-          <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center mb-4">
-            <mat-icon class="!text-2xl text-white">cancel</mat-icon>
-          </div>
-          <div class="text-3xl font-bold text-slate-800 mb-1">
-            {{ inactiveModulesCount() }}
-          </div>
-          <div class="text-sm text-slate-600 font-semibold">Módulos Inactivos</div>
-        </div>
-
-        <div class="card-corporate">
-          <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-4">
-            <mat-icon class="!text-2xl text-white">people</mat-icon>
-          </div>
-          <div class="text-3xl font-bold text-slate-800 mb-1">
-            {{ totalAssignments() }}
-          </div>
-          <div class="text-sm text-slate-600 font-semibold">Asignaciones Totales</div>
-        </div>
-      </section>
-
-      <!-- EMPTY STATE -->
-      @if (modules.length === 0) {
-        <div class="empty-state">
-          <mat-icon class="!text-6xl text-slate-300 mb-4">apps</mat-icon>
-          <h3 class="text-lg font-semibold text-slate-800 mb-2">No hay módulos configurados</h3>
-          <p class="text-sm text-slate-600 mb-6">Comienza agregando el primer módulo del sistema</p>
-          <div class="flex gap-3">
-            <button 
-              mat-raised-button 
-              color="primary"
-              (click)="addModule()">
-              <mat-icon>add</mat-icon>
-              Crear Módulo
-            </button>
-            <button 
-              mat-stroked-button
-              (click)="initializeDefaultModules()">
-              <mat-icon>auto_fix_high</mat-icon>
-              Inicializar Módulos por Defecto
-            </button>
-          </div>
-        </div>
-      }
-
-      <!-- MODULES GRID -->
-      @if (modules.length > 0) {
-        <section>
-
-          <!-- Info Header -->
-          <div class="flex items-center justify-between mb-6">
-            <div>
-              <h2 class="text-lg font-bold text-slate-800 mb-1">Módulos del Sistema</h2>
-              <p class="text-sm text-slate-600 flex items-center gap-2">
-                <mat-icon class="!text-sm text-purple-500">drag_indicator</mat-icon>
-                Arrastra para reordenar • {{ modules.length }} módulo(s)
-              </p>
-            </div>
-          </div>
-
-          <!-- Grid con drag & drop -->
-          <div
-            cdkDropList
-            cdkDropListOrientation="mixed"
-            (cdkDropListDropped)="onModuleDrop($event)"
-            class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-
-            @for (module of modules; track trackByModuleId($index, module)) {
-              <div
-                cdkDrag
-                class="module-card-grid group"
-                [class.inactive]="!module.isActive">
-
-                <!-- Card Header con Drag Handle -->
-                <div class="flex items-center justify-between mb-4">
-                  <div cdkDragHandle class="drag-handle-grid">
-                    <mat-icon class="text-slate-400">drag_indicator</mat-icon>
-                  </div>
-
-                  <button
-                    mat-icon-button
-                    [matMenuTriggerFor]="moduleMenu"
-                    class="opacity-0 group-hover:opacity-100 transition-opacity"
-                    aria-label="Opciones del módulo">
-                    <mat-icon class="text-slate-600">more_vert</mat-icon>
-                  </button>
-
-                  <mat-menu #moduleMenu="matMenu">
-                    <button mat-menu-item (click)="editModule(module)">
-                      <mat-icon class="text-blue-600">edit</mat-icon>
-                      <span>Editar</span>
-                    </button>
-
-                    <button mat-menu-item (click)="toggleModuleStatus(module)">
-                      @if (module.isActive) {
-                        <mat-icon class="text-amber-600">cancel</mat-icon>
-                      } @else {
-                        <mat-icon class="text-green-600">check_circle</mat-icon>
-                      }
-                      <span>{{ module.isActive ? 'Desactivar' : 'Activar' }}</span>
-                    </button>
-
-                    <mat-divider></mat-divider>
-
-                    <button
-                      mat-menu-item
-                      (click)="deleteModule(module)"
-                      class="!text-red-600">
-                      <mat-icon class="text-red-600">delete</mat-icon>
-                      <span>Eliminar</span>
-                    </button>
-                  </mat-menu>
-                </div>
-
-                <!-- Module Icon -->
-                <div class="flex justify-center mb-4">
-                  <div
-                    class="module-icon-grid"
-                    [class.inactive-icon]="!module.isActive">
-                    <mat-icon>{{ module.icon }}</mat-icon>
-                  </div>
-                </div>
-
-                <!-- Module Info -->
-                <div class="text-center mb-4">
-                  <h3 class="module-title-grid mb-2">{{ module.label }}</h3>
-                  <p class="module-description-grid mb-3">{{ module.description }}</p>
-
-                  <!-- Status Badge -->
-                  <div class="flex items-center justify-center gap-2 flex-wrap">
-                    @if (!module.isActive) {
-                      <span class="badge-inactive">
-                        <mat-icon class="!text-xs">cancel</mat-icon>
-                        Inactivo
-                      </span>
-                    } @else {
-                      <span class="badge-active">
-                        <mat-icon class="!text-xs">check_circle</mat-icon>
-                        Activo
-                      </span>
-                    }
-
-                    @if (module.usersCount && module.usersCount > 0) {
-                      <span class="badge-users">
-                        <mat-icon class="!text-xs">people</mat-icon>
-                        {{ module.usersCount }}
-                      </span>
-                    }
-                  </div>
-                </div>
-
-                <!-- Module Meta -->
-                <div class="space-y-2">
-                  <div class="meta-item">
-                    <mat-icon class="!text-sm text-purple-500">code</mat-icon>
-                    <span class="meta-label">Identificador:</span>
-                    <code class="meta-value">{{ module.value }}</code>
-                  </div>
-
-                  @if (module.route) {
-                    <div class="meta-item">
-                      <mat-icon class="!text-sm text-blue-500">link</mat-icon>
-                      <span class="meta-label">Ruta:</span>
-                      <code class="meta-value">{{ module.route }}</code>
-                    </div>
-                  }
-
-                  <div class="meta-item">
-                    <mat-icon class="!text-sm text-slate-500">sort</mat-icon>
-                    <span class="meta-label">Orden:</span>
-                    <span class="meta-value">{{ module.order }}</span>
-                  </div>
-                </div>
-
+              <!-- Icon -->
+              <div class="module-icon" [class.inactive]="!module.isActive">
+                <mat-icon>{{ module.icon }}</mat-icon>
               </div>
-            }
-          </div>
 
-        </section>
-      }
+              <!-- Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                  <h3 class="font-semibold text-slate-800 text-sm truncate">{{ module.label }}</h3>
+                  @if (!module.isActive) {
+                    <span class="badge-sm inactive">Inactivo</span>
+                  }
+                </div>
+                <p class="text-xs text-slate-500 truncate">{{ module.description }}</p>
+              </div>
+
+              <!-- Meta -->
+              <div class="hidden lg:flex items-center gap-4">
+                <div class="meta-info">
+                  <mat-icon class="!text-xs text-slate-400">code</mat-icon>
+                  <code class="text-xs text-slate-600">{{ module.value }}</code>
+                </div>
+                @if (module.route) {
+                  <div class="meta-info">
+                    <mat-icon class="!text-xs text-slate-400">link</mat-icon>
+                    <code class="text-xs text-slate-600">{{ module.route }}</code>
+                  </div>
+                }
+                @if (module.usersCount && module.usersCount > 0) {
+                  <div class="meta-info users">
+                    <mat-icon class="!text-xs">people</mat-icon>
+                    <span>{{ module.usersCount }}</span>
+                  </div>
+                }
+              </div>
+
+              <!-- Actions -->
+              <div class="flex items-center gap-1">
+                <button
+                  mat-icon-button
+                  class="!w-8 !h-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                  (click)="editModule(module)"
+                  matTooltip="Editar">
+                  <mat-icon class="!text-lg text-blue-600">edit</mat-icon>
+                </button>
+
+                <button
+                  mat-icon-button
+                  class="!w-8 !h-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                  (click)="toggleModuleStatus(module)"
+                  [matTooltip]="module.isActive ? 'Desactivar' : 'Activar'">
+                  @if (module.isActive) {
+                    <mat-icon class="!text-lg text-amber-600">toggle_on</mat-icon>
+                  } @else {
+                    <mat-icon class="!text-lg text-slate-400">toggle_off</mat-icon>
+                  }
+                </button>
+
+                <button
+                  mat-icon-button
+                  class="!w-8 !h-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                  (click)="deleteModule(module)"
+                  matTooltip="Eliminar">
+                  <mat-icon class="!text-lg text-red-500">delete</mat-icon>
+                </button>
+              </div>
+
+            </div>
+          }
+        </div>
+      </div>
     }
 
   </div>

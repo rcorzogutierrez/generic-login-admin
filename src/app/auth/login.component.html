@@ -4,14 +4,19 @@
     
     <!-- HEADER CON LOGO Y TÍTULO DINÁMICOS -->
     <div class="text-center mb-8 animate-fadeInDown">
-      <!-- ✅ Logo dinámico -->
-      @if (logoUrl()) {
+      <!-- ✅ Logo dinámico con skeleton -->
+      @if (!appConfigService.isLoaded()) {
+        <!-- Skeleton loader para logo -->
+        <div class="mx-auto mb-6 animate-pulse">
+          <div class="w-24 h-24 mx-auto rounded-xl bg-slate-200"></div>
+        </div>
+      } @else if (logoUrl()) {
         <div class="mx-auto mb-6 animate-fadeInScale">
-          <div 
+          <div
             class="w-24 h-24 mx-auto rounded-xl flex items-center justify-center overflow-hidden"
             [style.background]="logoBackgroundColor()">
-            <img 
-              [src]="logoUrl()" 
+            <img
+              [src]="logoUrl()"
               alt="Logo"
               class="w-full h-full object-contain p-2"
             />
@@ -22,16 +27,24 @@
           <mat-icon>admin_panel_settings</mat-icon>
         </div>
       }
-      
-      <!-- ✅ Nombre dinámico -->
-      <h1 class="text-3xl font-bold text-slate-800 mb-2">
-        {{ appName() ?? 'My App Name Default' }}
-      </h1>
-      
-      <!-- ✅ Descripción dinámica -->
-      <p class="text-sm text-slate-600 font-medium">
-        {{ appDescription() }}
-      </p>
+
+      <!-- ✅ Nombre dinámico con skeleton -->
+      @if (!appConfigService.isLoaded()) {
+        <div class="h-9 bg-slate-200 rounded-lg mx-auto mb-2 animate-pulse" style="width: 280px;"></div>
+      } @else {
+        <h1 class="text-3xl font-bold text-slate-800 mb-2">
+          {{ appName() || 'Sistema de Gestión' }}
+        </h1>
+      }
+
+      <!-- ✅ Descripción dinámica con skeleton -->
+      @if (!appConfigService.isLoaded()) {
+        <div class="h-5 bg-slate-200 rounded-lg mx-auto animate-pulse" style="width: 220px;"></div>
+      } @else {
+        <p class="text-sm text-slate-600 font-medium">
+          {{ appDescription() || 'Plataforma de administración empresarial' }}
+        </p>
+      }
     </div>
 
     <!-- ============================================
@@ -137,44 +150,57 @@
         class="mt-6 p-4 rounded-xl border flex items-start gap-3 animate-fadeInUp"
         [ngClass]="{
           'bg-red-50 border-red-200': loginMessage()?.type === 'error',
-          'bg-green-50 border-green-200': loginMessage()?.type === 'success'
+          'bg-green-50 border-green-200': loginMessage()?.type === 'success',
+          'bg-blue-50 border-blue-200': loginMessage()?.type === 'info'
         }">
 
         <!-- Icono -->
         <mat-icon
-          [attr.aria-label]="loginMessage()?.type === 'error' ? 'Error' : 'Éxito'"
+          [attr.aria-label]="loginMessage()?.type === 'error' ? 'Error' : loginMessage()?.type === 'success' ? 'Éxito' : 'Información'"
           [ngClass]="{
             'text-red-600': loginMessage()?.type === 'error',
-            'text-green-600': loginMessage()?.type === 'success'
+            'text-green-600': loginMessage()?.type === 'success',
+            'text-blue-600': loginMessage()?.type === 'info'
           }">
-          {{ loginMessage()?.type === 'error' ? 'error_outline' : 'check_circle_outline' }}
+          {{ loginMessage()?.type === 'error' ? 'error_outline' : loginMessage()?.type === 'success' ? 'check_circle_outline' : 'info_outline' }}
         </mat-icon>
 
         <!-- Contenido -->
         <div class="flex-1">
           <p class="font-semibold text-sm mb-1" [ngClass]="{
             'text-red-800': loginMessage()?.type === 'error',
-            'text-green-800': loginMessage()?.type === 'success'
+            'text-green-800': loginMessage()?.type === 'success',
+            'text-blue-800': loginMessage()?.type === 'info'
           }">
-            {{ loginMessage()?.type === 'error' ? 'Error de Acceso' : 'Acceso Autorizado' }}
+            {{ loginMessage()?.type === 'error' ? 'Error de Acceso' : loginMessage()?.type === 'success' ? 'Acceso Autorizado' : 'Procesando autenticación' }}
           </p>
           <p class="text-sm opacity-90" [ngClass]="{
             'text-red-700': loginMessage()?.type === 'error',
-            'text-green-700': loginMessage()?.type === 'success'
+            'text-green-700': loginMessage()?.type === 'success',
+            'text-blue-700': loginMessage()?.type === 'info'
           }">
             {{ loginMessage()?.message }}
           </p>
+
+          <!-- Spinner durante redirect -->
+          @if (loginMessage()?.type === 'info') {
+            <div class="loading-spinner-sm mt-2" aria-hidden="true"></div>
+          }
         </div>
       </div>
     }
 <!-- FOOTER CON EMAIL DINÁMICO -->
 <div class="text-center mt-6 animate-fadeInUp">
   <p class="text-sm text-slate-600 mb-2">¿Problemas de acceso?</p>
-  <a 
-    [href]="'mailto:' + adminContactEmail()" 
-    class="text-blue-600 hover:text-blue-700 font-semibold text-sm transition-colors inline-block">
-    {{ adminContactEmail() }}
-  </a>
+  @if (!appConfigService.isLoaded()) {
+    <div class="h-5 bg-slate-200 rounded-lg mx-auto animate-pulse" style="width: 200px;"></div>
+  } @else {
+    <a
+      [href]="'mailto:' + adminContactEmail()"
+      class="text-blue-600 hover:text-blue-700 font-semibold text-sm transition-colors inline-block">
+      {{ adminContactEmail() || 'soporte@empresa.com' }}
+    </a>
+  }
 </div>
 
 </div>

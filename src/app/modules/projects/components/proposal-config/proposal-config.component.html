@@ -1,368 +1,209 @@
-<!-- proposal-config.component.html -->
+<!-- proposal-config.component.html - DISEÑO COMPACTO -->
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[1200px] mx-auto p-5">
+<div class="config-container">
 
-    <!-- ========== HEADER ========== -->
-    <header class="page-header mb-8">
-      <div class="flex items-center justify-between gap-5">
-        <div class="flex items-center gap-4">
-          <button
-            mat-icon-button
-            (click)="goBack()"
-            class="icon-btn">
-            <mat-icon>arrow_back</mat-icon>
-          </button>
-          <div>
-            <h1 class="text-3xl font-bold text-slate-800 flex items-center gap-3">
-              <mat-icon class="!text-3xl text-blue-600">swap_horiz</mat-icon>
-              Mapeo de Campos del Cliente
-            </h1>
-            <p class="text-sm text-slate-500 mt-1">
-              Conecta los campos del cliente con los del estimado
-            </p>
-          </div>
+  <!-- ========== HEADER COMPACTO ========== -->
+  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
+    <div class="flex items-center gap-4">
+      <button type="button" class="back-btn" (click)="goBack()" title="Volver">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-icon-box blue">
+        <mat-icon>settings</mat-icon>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-slate-800">Configuración de Estimados</h1>
+        <p class="text-xs text-slate-500">Mapeo de campos y valores por defecto</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== INFO BOX ========== -->
+  <div class="info-box animate-fadeIn" style="animation-delay: 0.05s">
+    <mat-icon>lightbulb</mat-icon>
+    <div>
+      <h3>¿Cómo funciona?</h3>
+      <p>Cuando actives "Usar misma dirección del cliente" en el formulario de estimados, el sistema copiará automáticamente los datos usando este mapeo.</p>
+    </div>
+  </div>
+
+  <form [formGroup]="configForm" class="space-y-5">
+
+    <!-- ========== CAMPOS BÁSICOS DEL CLIENTE ========== -->
+    <div class="config-section animate-fadeIn" style="animation-delay: 0.1s">
+      <div class="section-header">
+        <div class="section-icon blue">
+          <mat-icon>person</mat-icon>
+        </div>
+        <div>
+          <h2>Campos Básicos del Cliente</h2>
+          <p>Mapea los campos del Cliente con los del Estimado</p>
         </div>
       </div>
-    </header>
 
-    <!-- ========== INFORMACIÓN ========== -->
-    <div class="card-modern p-5 mb-6 bg-blue-50 border-2 border-blue-200">
-      <div class="flex items-start gap-4">
-        <mat-icon class="text-blue-600 !text-2xl mt-0.5">lightbulb</mat-icon>
-        <div class="flex-1">
-          <h3 class="text-lg font-bold text-blue-900 mb-2">¿Cómo funciona?</h3>
-          <p class="text-sm text-blue-800 mb-3">
-            Cuando actives <strong>"Usar misma dirección del cliente"</strong> en el formulario de estimados,
-            el sistema copiará automáticamente los datos usando este mapeo.
-          </p>
-          <div class="flex items-center gap-2 text-xs text-blue-700 bg-blue-100 rounded px-3 py-2">
-            <mat-icon class="!text-sm">info</mat-icon>
-            <span><strong>Selecciona de qué campo del cliente</strong> quieres obtener cada dato del estimado</span>
+      <div class="mapping-grid">
+        @for (mapping of basicFieldMappings; track mapping.formControlName) {
+          <div class="mapping-row">
+            <div class="mapping-source">
+              <mat-icon class="field-icon">{{ mapping.icon }}</mat-icon>
+              <select [formControlName]="mapping.formControlName" required class="mapping-select">
+                @for (field of availableFields(); track field.name) {
+                  <option [value]="field.name">{{ field.label }}</option>
+                }
+              </select>
+            </div>
+            <div class="mapping-arrow">
+              <mat-icon>arrow_forward</mat-icon>
+            </div>
+            <div class="mapping-target">
+              <mat-icon>{{ mapping.destinationIcon || mapping.icon }}</mat-icon>
+              <span>{{ mapping.label }}</span>
+            </div>
           </div>
+        }
+      </div>
+    </div>
+
+    <!-- ========== CAMPOS DE DIRECCIÓN ========== -->
+    <div class="config-section animate-fadeIn" style="animation-delay: 0.15s">
+      <div class="section-header">
+        <div class="section-icon purple">
+          <mat-icon>location_on</mat-icon>
+        </div>
+        <div>
+          <h2>Campos de Dirección</h2>
+          <p>Mapea los campos de dirección del Cliente con los del Estimado</p>
+        </div>
+      </div>
+
+      <div class="mapping-grid">
+        @for (mapping of addressFieldMappings; track mapping.formControlName) {
+          <div class="mapping-row">
+            <div class="mapping-source">
+              <mat-icon class="field-icon">{{ mapping.icon }}</mat-icon>
+              <select [formControlName]="mapping.formControlName" required class="mapping-select">
+                @for (field of availableFields(); track field.name) {
+                  <option [value]="field.name">{{ field.label }}</option>
+                }
+              </select>
+            </div>
+            <div class="mapping-arrow">
+              <mat-icon>arrow_forward</mat-icon>
+            </div>
+            <div class="mapping-target">
+              <mat-icon>{{ mapping.destinationIcon || mapping.icon }}</mat-icon>
+              <span>{{ mapping.label }}</span>
+              @if (mapping.badge) {
+                <span class="field-badge">{{ mapping.badge }}</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ========== VALORES POR DEFECTO ========== -->
+    <div class="config-section animate-fadeIn" style="animation-delay: 0.2s">
+      <div class="section-header">
+        <div class="section-icon amber">
+          <mat-icon>tune</mat-icon>
+        </div>
+        <div>
+          <h2>Valores Por Defecto</h2>
+          <p>Define valores predeterminados para nuevos estimados</p>
+        </div>
+      </div>
+
+      <div class="defaults-grid">
+        <!-- Impuesto por defecto -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>percent</mat-icon>
+            Impuesto por Defecto (%)
+          </label>
+          <input
+            type="number"
+            formControlName="defaultTaxPercentage"
+            min="0"
+            max="100"
+            step="0.01"
+            class="form-input"
+            placeholder="0">
+        </div>
+
+        <!-- Días de validez -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>event</mat-icon>
+            Validez por Defecto (días)
+          </label>
+          <input
+            type="number"
+            formControlName="defaultValidityDays"
+            min="1"
+            step="1"
+            class="form-input"
+            placeholder="30">
+        </div>
+
+        <!-- Tipo de trabajo -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>business</mat-icon>
+            Tipo de Trabajo por Defecto
+          </label>
+          <select formControlName="defaultWorkType" class="form-input">
+            <option value="residential">Residencial</option>
+            <option value="commercial">Comercial</option>
+          </select>
         </div>
       </div>
     </div>
 
-    <form [formGroup]="configForm" class="space-y-6">
-
-      <!-- ========== CAMPOS BÁSICOS DEL CLIENTE ========== -->
-      <div class="card-modern p-6">
-        <div class="mb-6 pb-4 border-b-2 border-slate-100">
-          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
-            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <mat-icon class="text-blue-600 !text-xl">person</mat-icon>
-            </div>
-            Campos Básicos del Cliente
-          </h2>
-          <p class="text-sm text-slate-500 mt-2 ml-13">
-            Mapea los campos básicos del <strong>Cliente</strong> (izquierda) con los del <strong>Estimado</strong> (derecha)
-          </p>
+    <!-- ========== TÉRMINOS Y CONDICIONES ========== -->
+    <div class="config-section animate-fadeIn" style="animation-delay: 0.25s">
+      <div class="section-header">
+        <div class="section-icon green">
+          <mat-icon>description</mat-icon>
         </div>
-
-        <!-- ENCABEZADOS DE COLUMNAS -->
-        <div class="grid grid-cols-12 gap-4 mb-4">
-          <div class="col-span-5">
-            <div class="flex items-center gap-2 text-sm font-bold text-slate-700 bg-blue-50 rounded-lg px-4 py-3 border-2 border-blue-200">
-              <mat-icon class="!text-lg text-blue-600">person</mat-icon>
-              <span>Campo del Cliente (Origen)</span>
-            </div>
-          </div>
-          <div class="col-span-2 flex items-center justify-center">
-            <mat-icon class="!text-3xl text-slate-400">arrow_forward</mat-icon>
-          </div>
-          <div class="col-span-5">
-            <div class="flex items-center gap-2 text-sm font-bold text-slate-700 bg-purple-50 rounded-lg px-4 py-3 border-2 border-purple-200">
-              <mat-icon class="!text-lg text-purple-600">description</mat-icon>
-              <span>Campo del Estimado (Destino)</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- FILAS DE MAPEO CAMPOS BÁSICOS -->
-        <div class="space-y-4">
-          @for (mapping of basicFieldMappings; track mapping.formControlName) {
-            <div class="grid grid-cols-12 gap-4 items-center bg-white rounded-lg p-4 border-2 border-slate-200 hover:border-blue-300 transition-all">
-              <!-- Campo Origen (Cliente) -->
-              <div class="col-span-5">
-                <div class="relative">
-                  <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg z-10">{{ mapping.icon }}</mat-icon>
-                  <select
-                    [formControlName]="mapping.formControlName"
-                    required
-                    class="w-full pl-11 pr-10 py-3 text-sm border-2 border-blue-200 rounded-lg
-                           focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                           transition-all bg-blue-50 text-slate-800 hover:border-blue-400 cursor-pointer
-                           appearance-none font-semibold">
-                    @for (field of availableFields(); track field.name) {
-                      <option [value]="field.name">{{ field.label }}</option>
-                    }
-                  </select>
-                  <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg pointer-events-none">expand_more</mat-icon>
-                </div>
-                <p class="text-xs text-blue-600 mt-1.5 font-medium pl-11">
-                  Campo: <strong>{{ configForm.get(mapping.formControlName)?.value }}</strong>
-                </p>
-              </div>
-
-              <!-- Flecha -->
-              <div class="col-span-2 flex items-center justify-center">
-                <div class="flex flex-col items-center">
-                  <mat-icon class="!text-2xl text-{{ mapping.targetTheme }}-600">arrow_forward</mat-icon>
-                  <span class="text-xs text-slate-500 font-semibold mt-1">mapea a</span>
-                </div>
-              </div>
-
-              <!-- Campo Destino (Estimado) - FIJO -->
-              <div class="col-span-5">
-                <div class="flex items-center gap-3 p-3 bg-{{ mapping.targetTheme }}-50 border-2 border-{{ mapping.targetTheme }}-200 rounded-lg">
-                  <mat-icon class="text-{{ mapping.targetTheme }}-600 !text-lg">{{ mapping.destinationIcon || mapping.icon }}</mat-icon>
-                  <div class="flex-1">
-                    <p class="text-sm font-bold text-{{ mapping.targetTheme }}-900">{{ mapping.label }}</p>
-                    <p class="text-xs text-{{ mapping.targetTheme }}-700">Campo fijo del estimado</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- ========== CAMPOS DE DIRECCIÓN ========== -->
-      <div class="card-modern p-6">
-        <div class="mb-6 pb-4 border-b-2 border-slate-100">
-          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
-            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <mat-icon class="text-blue-600 !text-xl">location_on</mat-icon>
-            </div>
-            Campos de Dirección
-          </h2>
-          <p class="text-sm text-slate-500 mt-2 ml-13">
-            Mapea los campos de dirección del <strong>Cliente</strong> (izquierda) con los del <strong>Estimado</strong> (derecha)
-          </p>
-        </div>
-
-        <!-- ENCABEZADOS DE COLUMNAS -->
-        <div class="grid grid-cols-12 gap-4 mb-4">
-          <div class="col-span-5">
-            <div class="flex items-center gap-2 text-sm font-bold text-slate-700 bg-blue-50 rounded-lg px-4 py-3 border-2 border-blue-200">
-              <mat-icon class="!text-lg text-blue-600">person</mat-icon>
-              <span>Campo del Cliente (Origen)</span>
-            </div>
-          </div>
-          <div class="col-span-2 flex items-center justify-center">
-            <mat-icon class="!text-3xl text-slate-400">arrow_forward</mat-icon>
-          </div>
-          <div class="col-span-5">
-            <div class="flex items-center gap-2 text-sm font-bold text-slate-700 bg-purple-50 rounded-lg px-4 py-3 border-2 border-purple-200">
-              <mat-icon class="!text-lg text-purple-600">description</mat-icon>
-              <span>Campo del Estimado (Destino)</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- FILAS DE MAPEO -->
-        <div class="space-y-4">
-          @for (mapping of addressFieldMappings; track mapping.formControlName) {
-            <div class="grid grid-cols-12 gap-4 items-center bg-white rounded-lg p-4 border-2 border-slate-200 hover:border-blue-300 transition-all">
-              <!-- Campo Origen (Cliente) -->
-              <div class="col-span-5">
-                <div class="relative">
-                  <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg z-10">{{ mapping.icon }}</mat-icon>
-                  <select
-                    [formControlName]="mapping.formControlName"
-                    required
-                    class="w-full pl-11 pr-10 py-3 text-sm border-2 border-blue-200 rounded-lg
-                           focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none
-                           transition-all bg-blue-50 text-slate-800 hover:border-blue-400 cursor-pointer
-                           appearance-none font-semibold">
-                    @for (field of availableFields(); track field.name) {
-                      <option [value]="field.name">{{ field.label }}</option>
-                    }
-                  </select>
-                  <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 !text-lg pointer-events-none">expand_more</mat-icon>
-                </div>
-                <p class="text-xs text-blue-600 mt-1.5 font-medium pl-11">
-                  Campo: <strong>{{ configForm.get(mapping.formControlName)?.value }}</strong>
-                </p>
-              </div>
-
-              <!-- Flecha -->
-              <div class="col-span-2 flex items-center justify-center">
-                <div class="flex flex-col items-center">
-                  <mat-icon class="!text-2xl text-{{ mapping.targetTheme }}-600">arrow_forward</mat-icon>
-                  <span class="text-xs text-slate-500 font-semibold mt-1">mapea a</span>
-                </div>
-              </div>
-
-              <!-- Campo Destino (Estimado) - FIJO -->
-              <div class="col-span-5">
-                <div class="flex items-center gap-3 p-3 bg-{{ mapping.targetTheme }}-50 border-2 border-{{ mapping.targetTheme }}-200 rounded-lg">
-                  <mat-icon class="text-{{ mapping.targetTheme }}-600 !text-lg">{{ mapping.destinationIcon || mapping.icon }}</mat-icon>
-                  <div class="flex-1">
-                    <p class="text-sm font-bold text-{{ mapping.targetTheme }}-900">{{ mapping.label }}</p>
-                    <p class="text-xs text-{{ mapping.targetTheme }}-700">Campo fijo del estimado</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- ========== VALORES POR DEFECTO ========== -->
-      <div class="card-modern p-6">
-        <div class="mb-6 pb-4 border-b-2 border-slate-100">
-          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
-            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <mat-icon class="text-purple-600 !text-xl">tune</mat-icon>
-            </div>
-            Valores Por Defecto
-          </h2>
-          <p class="text-sm text-slate-500 mt-2 ml-13">
-            Define valores predeterminados para nuevos estimados
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-
-          <!-- Impuesto por defecto -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">
-              Impuesto por Defecto (%)
-            </label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">percent</mat-icon>
-              <input
-                type="number"
-                formControlName="defaultTaxPercentage"
-                min="0"
-                max="100"
-                step="0.01"
-                class="w-full pl-11 pr-12 py-3 text-sm border-2 border-slate-200 rounded-lg
-                       focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none
-                       transition-all bg-white text-slate-800 hover:border-slate-300 font-semibold"
-                placeholder="0">
-              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 font-bold">%</span>
-            </div>
-          </div>
-
-          <!-- Días de validez por defecto -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">
-              Validez por Defecto (días)
-            </label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">event</mat-icon>
-              <input
-                type="number"
-                formControlName="defaultValidityDays"
-                min="1"
-                step="1"
-                class="w-full pl-11 pr-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                       focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none
-                       transition-all bg-white text-slate-800 hover:border-slate-300 font-semibold"
-                placeholder="30">
-            </div>
-          </div>
-
-          <!-- Tipo de trabajo por defecto -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">
-              Tipo de Trabajo por Defecto
-            </label>
-            <div class="relative">
-              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg">business</mat-icon>
-              <select
-                formControlName="defaultWorkType"
-                class="w-full pl-11 pr-10 py-3 text-sm border-2 border-slate-200 rounded-lg
-                       focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none
-                       transition-all bg-white text-slate-800 hover:border-slate-300 cursor-pointer
-                       appearance-none">
-                <option value="residential">Residencial</option>
-                <option value="commercial">Comercial</option>
-              </select>
-              <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 !text-lg pointer-events-none">expand_more</mat-icon>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- ========== TÉRMINOS Y CONDICIONES POR DEFECTO ========== -->
-      <div class="card-modern p-6">
-        <div class="mb-6 pb-4 border-b-2 border-slate-100">
-          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
-            <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-              <mat-icon class="text-orange-600 !text-xl">description</mat-icon>
-            </div>
-            Términos y Condiciones por Defecto
-          </h2>
-          <p class="text-sm text-slate-500 mt-2 ml-13">
-            Este texto aparecerá automáticamente en la sección de términos de todos los nuevos estimados
-          </p>
-        </div>
-
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-2">
-            Texto de Términos y Condiciones
-          </label>
-          <textarea
-            formControlName="defaultTerms"
-            rows="12"
-            class="w-full px-4 py-3 text-sm border-2 border-slate-200 rounded-lg
-                   focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none
-                   transition-all bg-white text-slate-800 hover:border-slate-300 resize-y
-                   font-mono"
-            placeholder="Ingresa los términos y condiciones por defecto..."></textarea>
-          <p class="text-xs text-slate-500 mt-2">
-            Puedes editar este texto para cada estimado individual. Este es solo el valor por defecto.
-          </p>
+          <h2>Términos y Condiciones</h2>
+          <p>Este texto aparecerá automáticamente en todos los nuevos estimados</p>
         </div>
       </div>
 
-      <!-- ========== BOTONES DE ACCIÓN ========== -->
-      <div class="sticky bottom-0 bg-gradient-to-r from-slate-100 to-slate-200 p-6 rounded-xl shadow-lg border-2 border-slate-300 flex justify-between items-center gap-4">
-        <div class="flex gap-3">
-          <button
-            mat-stroked-button
-            type="button"
-            (click)="goBack()"
-            [disabled]="isSaving()"
-            class="!px-6 !py-3 !border-2">
-            <mat-icon>close</mat-icon>
-            Cancelar
-          </button>
-          <button
-            mat-stroked-button
-            type="button"
-            color="warn"
-            (click)="resetToDefaults()"
-            [disabled]="isSaving()"
-            matTooltip="Restablecer a sugerencias automáticas"
-            class="!px-6 !py-3 !border-2">
-            <mat-icon>refresh</mat-icon>
-            Restablecer
-          </button>
-        </div>
+      <div class="form-group">
+        <textarea
+          formControlName="defaultTerms"
+          rows="10"
+          class="form-textarea"
+          placeholder="Ingresa los términos y condiciones por defecto..."></textarea>
+      </div>
+    </div>
 
-        <button
-          mat-raised-button
-          color="primary"
-          type="button"
-          (click)="saveConfig()"
-          [disabled]="isSaving() || configForm.invalid"
-          class="!px-8 !py-3 !text-base">
-          @if (isSaving()) {
-            <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
-          } @else {
-            <mat-icon>save</mat-icon>
-          }
-          Guardar Configuración
+    <!-- ========== BOTONES DE ACCIÓN ========== -->
+    <div class="actions-bar animate-fadeIn" style="animation-delay: 0.3s">
+      <div class="flex gap-2">
+        <button type="button" class="btn-cancel" (click)="goBack()" [disabled]="isSaving()">
+          <mat-icon>close</mat-icon>
+          <span>Cancelar</span>
+        </button>
+        <button type="button" class="btn-secondary" (click)="resetToDefaults()" [disabled]="isSaving()">
+          <mat-icon>refresh</mat-icon>
+          <span>Restablecer</span>
         </button>
       </div>
 
-    </form>
+      <button type="button" class="btn-save" (click)="saveConfig()" [disabled]="isSaving() || configForm.invalid">
+        @if (isSaving()) {
+          <div class="btn-spinner"></div>
+        } @else {
+          <mat-icon>save</mat-icon>
+        }
+        <span>Guardar Configuración</span>
+      </button>
+    </div>
 
-  </div>
+  </form>
+
 </div>

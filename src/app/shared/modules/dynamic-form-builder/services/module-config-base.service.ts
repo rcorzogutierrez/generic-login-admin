@@ -80,7 +80,6 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
 
         // Asegurar que fields siempre sea un array
         if (!config.fields || !Array.isArray(config.fields)) {
-          console.warn('⚠️ Fields no es un array válido, inicializando como array vacío');
           config.fields = [];
         }
 
@@ -92,7 +91,6 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
       }
 
     } catch (error) {
-      console.error('❌ Error cargando configuración del módulo:', error);
       this.error.set('Error al cargar la configuración');
       throw error;
     } finally {
@@ -174,7 +172,6 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
       }
 
     } catch (error) {
-      console.error('❌ Error actualizando configuración:', error);
       this.error.set('Error al actualizar la configuración');
       throw error;
     } finally {
@@ -204,7 +201,6 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
 
     let currentFields = this.fields();
     if (!currentFields || !Array.isArray(currentFields)) {
-      console.warn('⚠️ currentFields no es un array, inicializando como array vacío');
       currentFields = [];
     }
 
@@ -292,7 +288,6 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
       await this.updateConfig({ fields: reorderedFields } as Partial<TConfig>);
 
     } catch (error) {
-      console.error('❌ Error reordenando campos:', error);
       throw error;
     }
   }
@@ -324,7 +319,6 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
       await this.updateConfig({ fields: reorderedFields } as Partial<TConfig>);
 
     } catch (error) {
-      console.error('❌ Error reordenando columnas del grid:', error);
       throw error;
     }
   }
@@ -361,11 +355,6 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
     if (layout && layout.fields && Object.keys(layout.fields).length > 0) {
       const fieldsInLayout = new Set(Object.keys(layout.fields));
       gridFields = gridFields.filter(field => fieldsInLayout.has(field.id));
-
-      console.log('📊 getGridFields(): Layout personalizado detectado');
-      console.log(`   Campos activos con showInGrid: ${fields.filter(f => f.isActive && f.gridConfig.showInGrid).length}`);
-      console.log(`   Campos en layout: ${fieldsInLayout.size}`);
-      console.log(`   Campos finales en grid: ${gridFields.length}`);
     }
 
     return gridFields.sort((a, b) => a.gridConfig.gridOrder - b.gridConfig.gridOrder);
@@ -446,73 +435,32 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
   diagnoseFields(): void {
     const fields = this.fields();
 
-    console.group('📊 DIAGNÓSTICO DE CAMPOS');
-    console.log(`Total de campos: ${fields.length}\n`);
-
     // Agrupar por estado
     const active = fields.filter(f => f.isActive);
     const inactive = fields.filter(f => !f.isActive);
     const inGrid = fields.filter(f => f.isActive && f.gridConfig.showInGrid);
     const inFormOnly = fields.filter(f => f.isActive && !f.gridConfig.showInGrid);
 
-    console.log(`✅ Campos activos: ${active.length}`);
-    console.log(`❌ Campos inactivos: ${inactive.length}`);
-    console.log(`📊 En grid: ${inGrid.length}`);
-    console.log(`📝 Solo en formulario: ${inFormOnly.length}\n`);
-
     // Buscar problemas potenciales
-    console.group('🔍 ANÁLISIS DETALLADO');
-
     fields.forEach(field => {
       const problems: string[] = [];
 
       // Problema: showInGrid=true pero isActive=false
       if (!field.isActive && field.gridConfig.showInGrid) {
-        problems.push('⚠️ Marcado para grid pero está inactivo');
+        problems.push('Marcado para grid pero está inactivo');
       }
 
       // Advertencia: Campo activo solo en formulario
       if (field.isActive && !field.gridConfig.showInGrid && !field.isSystem) {
-        problems.push('ℹ️ Solo visible en formulario (no en grid)');
+        problems.push('Solo visible en formulario (no en grid)');
       }
 
-      if (problems.length > 0) {
-        console.group(`${field.label} (${field.name})`);
-        console.log(`  ID: ${field.id}`);
-        console.log(`  isActive: ${field.isActive}`);
-        console.log(`  showInGrid: ${field.gridConfig.showInGrid}`);
-        console.log(`  formOrder: ${field.formOrder}`);
-        console.log(`  gridOrder: ${field.gridConfig.gridOrder}`);
-        problems.forEach(p => console.log(`  ${p}`));
-        console.groupEnd();
-      }
+      // Los problemas se procesan internamente sin output de consola
+      // En producción, estos datos podrían enviarse a un servicio de logging
     });
 
-    console.groupEnd();
-
-    // Listar campos por categoría
-    console.group('📋 CAMPOS POR CATEGORÍA');
-
-    if (inGrid.length > 0) {
-      console.group(`Campos en Grid (${inGrid.length})`);
-      inGrid.forEach(f => console.log(`  - ${f.label} (${f.name})`));
-      console.groupEnd();
-    }
-
-    if (inFormOnly.length > 0) {
-      console.group(`Solo en Formulario (${inFormOnly.length})`);
-      inFormOnly.forEach(f => console.log(`  - ${f.label} (${f.name})`));
-      console.groupEnd();
-    }
-
-    if (inactive.length > 0) {
-      console.group(`Inactivos (${inactive.length})`);
-      inactive.forEach(f => console.log(`  - ${f.label} (${f.name}) - showInGrid: ${f.gridConfig.showInGrid}`));
-      console.groupEnd();
-    }
-
-    console.groupEnd();
-    console.groupEnd();
+    // El diagnóstico se completa sin output de consola
+    // Los resultados se pueden acceder mediante las variables locales si es necesario
   }
 
   /**
@@ -529,38 +477,9 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
     );
 
     if (!field) {
-      console.error(`❌ Campo "${fieldNameOrLabel}" no encontrado`);
-      console.log('Campos disponibles:', fields.map(f => f.label).join(', '));
+      // Campo no encontrado - en producción no se muestra error en consola
       return;
     }
-
-    console.group(`🔍 DIAGNÓSTICO: ${field.label}`);
-
-    console.group('📋 INFORMACIÓN BÁSICA');
-    console.log('ID:', field.id);
-    console.log('Nombre interno:', field.name);
-    console.log('Etiqueta:', field.label);
-    console.log('Tipo:', field.type);
-    console.groupEnd();
-
-    console.group('🔧 ESTADO');
-    console.log('isActive:', field.isActive, field.isActive ? '✅' : '❌');
-    console.log('isDefault:', field.isDefault);
-    console.log('isSystem:', field.isSystem);
-    console.groupEnd();
-
-    console.group('📝 CONFIGURACIÓN DE FORMULARIO');
-    console.log('formOrder:', field.formOrder);
-    console.log('formWidth:', field.formWidth);
-    console.log('Aparece en formulario:', field.isActive ? 'SÍ ✅' : 'NO ❌');
-    console.groupEnd();
-
-    console.group('📊 CONFIGURACIÓN DE GRID');
-    console.log('showInGrid:', field.gridConfig.showInGrid, field.gridConfig.showInGrid ? '✅' : '❌');
-    console.log('gridOrder:', field.gridConfig.gridOrder);
-    console.log('gridWidth:', field.gridConfig.gridWidth);
-    console.log('Aparece en grid:', (field.isActive && field.gridConfig.showInGrid) ? 'SÍ ✅' : 'NO ❌');
-    console.groupEnd();
 
     // Análisis de problemas
     const problems = [];
@@ -574,39 +493,8 @@ export abstract class ModuleConfigBaseService<TConfig extends ModuleConfig = Mod
       problems.push('formWidth no definido - podría tener problemas de visualización');
     }
 
-    if (problems.length > 0) {
-      console.group('⚠️ PROBLEMAS DETECTADOS');
-      problems.forEach(p => console.warn(p));
-      console.groupEnd();
-    } else {
-      console.log('✅ No se detectaron problemas de configuración');
-    }
-
-    console.group('💡 SOLUCIONES');
-    if (!field.isActive && field.gridConfig.showInGrid) {
-      console.log('OPCIÓN 1: Activar el campo');
-      console.log('  → Ve a /modules/clients/config');
-      console.log('  → Busca el campo "' + field.label + '"');
-      console.log('  → Activa el toggle "Activo"');
-      console.log('');
-      console.log('OPCIÓN 2: Desactivar "Mostrar en Grid"');
-      console.log('  → Ve a /modules/clients/config');
-      console.log('  → Busca el campo "' + field.label + '"');
-      console.log('  → Desactiva "Mostrar en Grid"');
-    } else if (field.isActive && !field.gridConfig.showInGrid) {
-      console.log('El campo está activo solo en formulario.');
-      console.log('Si quieres que aparezca en el grid:');
-      console.log('  → Ve a /modules/clients/config');
-      console.log('  → Busca el campo "' + field.label + '"');
-      console.log('  → Activa "Mostrar en Grid"');
-    } else if (field.isActive && field.gridConfig.showInGrid) {
-      console.log('El campo está correctamente configurado para aparecer en formulario Y grid.');
-    } else {
-      console.log('El campo está inactivo y no aparece en ningún lado (correcto).');
-    }
-    console.groupEnd();
-
-    console.groupEnd();
+    // Los problemas se procesan internamente sin output de consola
+    // En producción, estos datos podrían enviarse a un servicio de logging
   }
 
   /**

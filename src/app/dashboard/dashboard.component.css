@@ -1,73 +1,494 @@
-/* dashboard.component.css - MINIMALISTA CON FIX DE ICONOS */
+/* dashboard.component.css - DISEÑO COMPACTO */
 
 /* ============================================
-   ESTILOS ÚNICOS DEL DASHBOARD
-   TODO LO DEMÁS USA TAILWIND O CLASES GLOBALES
+   HOST & CONTAINER
    ============================================ */
 
-/* Host background */
 :host {
   display: block;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
 }
 
-/* Animación de entrada para las tarjetas (stagger effect) */
-.card-corporate {
-  animation: slideInUp 0.4s ease-out backwards;
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
-
-.card-corporate:nth-child(1) { animation-delay: 0.05s; }
-.card-corporate:nth-child(2) { animation-delay: 0.1s; }
-.card-corporate:nth-child(3) { animation-delay: 0.15s; }
-.card-corporate:nth-child(4) { animation-delay: 0.2s; }
-
-/* Reutiliza slideInUp de styles.css */
-
-/* Animación para los items de actividad */
-.space-y-5 > div {
-  animation: fadeInLeft 0.3s ease-out backwards;
-}
-
-.space-y-5 > div:nth-child(1) { animation-delay: 0.1s; }
-.space-y-5 > div:nth-child(2) { animation-delay: 0.2s; }
-.space-y-5 > div:nth-child(3) { animation-delay: 0.3s; }
-.space-y-5 > div:nth-child(4) { animation-delay: 0.4s; }
-.space-y-5 > div:nth-child(5) { animation-delay: 0.5s; }
-
-/* Reutiliza fadeInLeft de styles.css */
 
 /* ============================================
-   ESTILOS PARA ICONOS DE ACTIVIDAD
-   FIX: Asegurar que siempre tengan color de fondo
+   ANIMATIONS
    ============================================ */
 
-/* Icono primario (azul) - color por defecto */
-.activity-icon-primary {
-  background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* ============================================
+   HEADER STYLES
+   ============================================ */
+
+.header-icon-box {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.header-icon-box mat-icon {
+  color: white;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Status Dot */
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: #94a3b8;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.recent {
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+}
+
+/* Stats Chips */
+.stat-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 6px 14px;
+  min-width: 70px;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 10px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+/* Notification Button */
+.notification-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.notification-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.notification-btn mat-icon {
+  color: #64748b;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
+
+/* ============================================
+   LOADING SPINNER
+   ============================================ */
+
+
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+.empty-state {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 60px 30px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-icon-box {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-icon-box mat-icon {
+  color: #dc2626;
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+/* Primary Button */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.btn-primary mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* ============================================
+   ACTION CARDS
+   ============================================ */
+
+.action-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  animation: fadeInUp 0.4s ease-out backwards;
+}
+
+.action-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
+  transform: translateY(-2px);
+}
+
+.action-icon-box {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
 }
 
-/* Icono de éxito (verde) */
-.activity-icon-success {
-  background: linear-gradient(135deg, #10b981, #059669) !important;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+.action-icon-box mat-icon {
+  color: white;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
 }
 
-/* Icono de advertencia (ámbar) */
-.activity-icon-warning {
-  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+.action-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
 }
 
-/* Icono de peligro (rojo) */
-.activity-icon-danger {
-  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+.action-content {
+  flex: 1;
+  min-width: 0;
 }
 
-/* Fallback para todos los iconos de actividad sin clase específica */
-.space-y-5 > div > .flex > div:first-child {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+.action-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 3px 0;
+}
+
+.action-description {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+.action-arrow {
+  color: #cbd5e1;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  transition: all 0.2s ease;
+}
+
+.action-card:hover .action-arrow {
+  color: #3b82f6;
+  transform: translateX(3px);
+}
+
+/* ============================================
+   CONTENT CARDS
+   ============================================ */
+
+.content-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-icon.cyan {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+}
+
+.card-icon.green {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.card-icon mat-icon {
+  color: white;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.card-subtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin: 2px 0 0 0;
+}
+
+/* ============================================
+   METRICS
+   ============================================ */
+
+.metric-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  transition: all 0.2s ease;
+}
+
+.metric-card:hover {
+  background: white;
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.metric-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.metric-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  color: #3b82f6;
+}
+
+.metric-label {
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.metric-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.metric-change {
+  font-size: 11px;
+  color: #22c55e;
+  font-weight: 500;
+}
+
+/* ============================================
+   SECTION TITLES
+   ============================================ */
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin: 0 0 12px 0;
+}
+
+.section-title mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #3b82f6;
+}
+
+/* ============================================
+   TAGS
+   ============================================ */
+
+.tag-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  transition: all 0.2s ease;
+}
+
+.tag-item:hover {
+  background: white;
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+}
+
+.tag-item mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: #3b82f6;
+}
+
+.tag-item.warning {
+  background: #fffbeb;
+  border-color: #fcd34d;
+  color: #b45309;
+}
+
+.tag-item.warning mat-icon {
+  color: #f59e0b;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 640px) {
+  .dashboard-container {
+    padding: 15px;
+  }
+
+  .action-card {
+    padding: 14px;
+  }
+
+  .content-card {
+    padding: 16px;
+  }
+
+  .metric-value {
+    font-size: 20px;
+  }
 }

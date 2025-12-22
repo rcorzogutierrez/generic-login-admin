@@ -1,207 +1,165 @@
 <!-- manage-roles.component.html -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[1400px] mx-auto p-5">
+  <div class="max-w-[1200px] mx-auto p-5">
 
-    <!-- ============================================
-         HEADER
-         ============================================ -->
-    <header class="page-header">
-      <div class="flex items-center justify-between gap-5 flex-wrap">
+    <!-- HEADER COMPACTO -->
+    <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
 
         <!-- Left Section -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
           <button
             mat-icon-button
-            class="icon-btn"
-            (click)="goBack()"
-            [disabled]="isLoading"
-            matTooltip="Volver al panel de admin"
-            aria-label="Volver al panel de admin">
+            class="!bg-slate-100 hover:!bg-slate-200"
+            (click)="viewMode === 'list' ? goBack() : backToList()"
+            matTooltip="{{ viewMode === 'list' ? 'Volver al panel de admin' : 'Volver al listado' }}">
             <mat-icon>arrow_back</mat-icon>
           </button>
 
-          <div class="header-icon-container">
+          <div class="header-icon-box">
             <mat-icon>admin_panel_settings</mat-icon>
           </div>
 
           <div>
-            <h1 class="text-2xl font-bold text-slate-800 mb-1">
+            <h1 class="text-lg font-bold text-slate-800">
               @if (viewMode === 'list') {
                 Gestión de Roles
               } @else if (viewMode === 'add') {
-                Agregar Nuevo Rol
+                Nuevo Rol
               } @else {
                 Editar Rol
               }
             </h1>
-            <p class="text-sm text-slate-600 flex items-center gap-2 font-medium">
-              <span class="status-dot"></span>
+            <p class="text-xs text-slate-500">
               @if (viewMode === 'list') {
                 Administra los roles del sistema
               } @else if (viewMode === 'add') {
-                Define un nuevo rol con permisos personalizados
+                Define un nuevo rol con permisos
               } @else {
-                Modifica la configuración del rol seleccionado
+                Modifica la configuración del rol
               }
             </p>
           </div>
         </div>
 
-        <!-- Right Section -->
+        <!-- Stats Inline (solo en modo lista) -->
         @if (viewMode === 'list') {
-          <div class="flex items-center gap-3">
+          <div class="hidden md:flex items-center gap-3">
+            <div class="stat-chip">
+              <span class="stat-value">{{ roles.length }}</span>
+              <span class="stat-label">Total</span>
+            </div>
+            <div class="stat-chip active">
+              <span class="stat-value">{{ getActiveRolesCount() }}</span>
+              <span class="stat-label">Activos</span>
+            </div>
+            <div class="stat-chip users">
+              <span class="stat-value">{{ getTotalUsersCount() }}</span>
+              <span class="stat-label">Usuarios</span>
+            </div>
+          </div>
+        }
+
+        <!-- Right Section -->
+        <div class="flex items-center gap-2">
+          @if (viewMode === 'list') {
+            <button
+              mat-icon-button
+              class="!bg-slate-100 hover:!bg-slate-200"
+              (click)="loadData()"
+              [disabled]="isLoading"
+              matTooltip="Recargar roles">
+              <mat-icon [class.animate-spin]="isLoading">refresh</mat-icon>
+            </button>
+
             <button
               mat-raised-button
-              color="primary"
+              class="!bg-blue-600 !text-white"
               (click)="showAddRole()"
               [disabled]="isLoading">
               <mat-icon>add</mat-icon>
-              Agregar Rol
+              Nuevo Rol
             </button>
-          </div>
-        }
+          }
+        </div>
       </div>
     </header>
 
-    <!-- ============================================
-         CONTENT
-         ============================================ -->
-    <div class="mt-6">
+    <!-- CONTENT -->
+    <div>
 
-    <!-- ============================================
-         MODO LISTA - VER TODOS LOS ROLES
-         ============================================ -->
+    <!-- MODO LISTA -->
     @if (viewMode === 'list') {
-      <div class="card-modern">
-        <!-- Info -->
-        <div class="mb-6">
-          <p class="text-slate-600 text-sm font-medium">
-            {{ roles.length }} rol{{ roles.length !== 1 ? 'es' : '' }} en el sistema
-          </p>
-        </div>
-
-        <!-- Roles Grid -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
         @if (isLoading) {
           <div class="flex justify-center items-center py-20">
-            <mat-spinner diameter="50"></mat-spinner>
+            <mat-spinner diameter="40"></mat-spinner>
           </div>
         } @else {
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="roles-list flex flex-col gap-2">
             @for (role of roles; track role.id) {
-              <div class="role-card-item bg-white border-2 rounded-xl p-5 hover:shadow-lg transition-all"
-                   [class.border-red-200]="role.value === 'admin'"
-                   [class.border-blue-200]="role.value === 'user'"
-                   [class.border-green-200]="role.value === 'viewer'"
-                   [class.border-purple-200]="!role.isSystemRole">
+              <div class="role-row group"
+                   [class.inactive]="!role.isActive">
 
-                <!-- Header -->
-                <div class="flex justify-between items-start mb-4">
-                  <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center"
-                         [class.bg-red-100]="role.value === 'admin'"
-                         [class.bg-blue-100]="role.value === 'user'"
-                         [class.bg-green-100]="role.value === 'viewer'"
-                         [class.bg-purple-100]="!role.isSystemRole">
-                      <mat-icon class="!text-2xl"
-                                [class.text-red-600]="role.value === 'admin'"
-                                [class.text-blue-600]="role.value === 'user'"
-                                [class.text-green-600]="role.value === 'viewer'"
-                                [class.text-purple-600]="!role.isSystemRole">
-                        {{ getRoleIcon(role.value) }}
-                      </mat-icon>
-                    </div>
-                    <div>
-                      <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        {{ role.label }}
-                        @if (role.isSystemRole) {
-                          <span class="px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-700 rounded-full">
-                            Sistema
-                          </span>
-                        }
-                      </h3>
-                      <p class="text-xs text-slate-500 font-mono">{{ role.value }}</p>
-                    </div>
-                  </div>
-
-                  <!-- Actions Menu -->
-                  <button mat-icon-button [matMenuTriggerFor]="roleMenu" aria-label="Abrir menú de opciones del rol">
-                    <mat-icon>more_vert</mat-icon>
-                  </button>
-                  <mat-menu #roleMenu="matMenu">
-                    <button mat-menu-item (click)="showEditRole(role)">
-                      <mat-icon>edit</mat-icon>
-                      <span>Editar</span>
-                    </button>
-                    @if (!role.isSystemRole) {
-                      <button mat-menu-item (click)="deleteRole(role)">
-                        <mat-icon class="text-red-500">delete</mat-icon>
-                        <span class="text-red-500">Eliminar</span>
-                      </button>
-                    }
-                  </mat-menu>
+                <!-- Role Icon -->
+                <div class="role-icon"
+                     [class.admin]="role.value === 'admin'"
+                     [class.user]="role.value === 'user'"
+                     [class.viewer]="role.value === 'viewer'"
+                     [class.custom]="!role.isSystemRole">
+                  <mat-icon>{{ getRoleIcon(role.value) }}</mat-icon>
                 </div>
 
-                <!-- Description -->
-                <p class="text-sm text-slate-600 mb-4">{{ role.description }}</p>
+                <!-- Role Info -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-0.5">
+                    <h3 class="text-sm font-bold text-slate-800 truncate">
+                      {{ role.label }}
+                    </h3>
+                    @if (!role.isActive) {
+                      <span class="badge-sm inactive">Inactivo</span>
+                    }
+                  </div>
+                  <p class="text-xs text-slate-500 truncate">{{ role.description }}</p>
+                </div>
 
-                <mat-divider class="my-4"></mat-divider>
-
-                <!-- Permissions -->
-                <div class="mb-4">
-                  <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">
-                    Permisos ({{ role.permissions.length }})
+                <!-- Meta Info -->
+                <div class="hidden md:flex items-center gap-3">
+                  <span class="meta-info">
+                    <mat-icon>code</mat-icon>
+                    <code>{{ role.value }}</code>
                   </span>
-                  <mat-chip-set class="flex flex-wrap gap-1.5">
-                    @for (perm of role.permissions; track perm) {
-                      <mat-chip class="!bg-blue-50 !text-blue-700 !text-xs !font-semibold">
-                        <mat-icon class="!text-sm" matChipAvatar>{{ getPermissionIcon(perm) }}</mat-icon>
-                        {{ getPermissionLabel(perm) }}
-                      </mat-chip>
-                    }
-                  </mat-chip-set>
+                  <span class="meta-info">
+                    <mat-icon>security</mat-icon>
+                    {{ role.permissions.length }} permisos
+                  </span>
+                  <span class="meta-info users">
+                    <mat-icon>people</mat-icon>
+                    {{ role.userCount || 0 }}
+                  </span>
                 </div>
 
-                <!-- Users Count -->
-                <div class="flex items-center justify-between pt-3 border-t border-slate-100">
-                  <div class="flex items-center gap-2">
-                    <mat-icon class="!text-[18px] text-slate-400">people</mat-icon>
-                    <span class="text-sm font-semibold text-slate-700">
-                      {{ role.userCount || 0 }} usuario{{ (role.userCount || 0) !== 1 ? 's' : '' }}
-                    </span>
-                  </div>
+                <!-- Actions -->
+                <div class="flex items-center gap-1">
+                  <button
+                    mat-icon-button
+                    class="action-btn"
+                    (click)="showEditRole(role)"
+                    matTooltip="Editar">
+                    <mat-icon>edit</mat-icon>
+                  </button>
 
-                  @if (!role.isActive) {
-                    <span class="px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full">
-                      Inactivo
-                    </span>
+                  @if (!role.isSystemRole) {
+                    <button
+                      mat-icon-button
+                      class="action-btn delete"
+                      (click)="deleteRole(role)"
+                      matTooltip="Eliminar">
+                      <mat-icon>delete</mat-icon>
+                    </button>
                   }
                 </div>
 
-                <!-- Users List (if any) -->
-                @if (getUsersByRole(role.value).length > 0) {
-                  <div class="mt-3 pt-3 border-t border-slate-100">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">
-                      Usuarios asignados
-                    </span>
-                    <div class="flex flex-wrap gap-2">
-                      @for (user of getUsersByRole(role.value).slice(0, 5); track user.uid) {
-                        <div class="flex items-center gap-2 px-2.5 py-1.5 bg-slate-50 rounded-lg border border-slate-200">
-                          <div class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-semibold">
-                            {{ user.displayName.charAt(0) || user.email.charAt(0) }}
-                          </div>
-                          <span class="text-xs font-medium text-slate-700">
-                            {{ user.displayName || user.email }}
-                          </span>
-                        </div>
-                      }
-                      @if (getUsersByRole(role.value).length > 5) {
-                        <span class="px-2.5 py-1.5 text-xs font-semibold text-slate-500">
-                          +{{ getUsersByRole(role.value).length - 5 }} más
-                        </span>
-                      }
-                    </div>
-                  </div>
-                }
               </div>
             }
           </div>
@@ -372,55 +330,31 @@
 
   </div>
 
-  <!-- ============================================
-       FOOTER
-       ============================================ -->
-  <div class="dialog-modern-footer m-0 p-0 border-t border-slate-200 bg-slate-50">
-    <div class="footer-content flex justify-between items-center px-8 py-6 gap-4">
-
-      <!-- Back button (solo en modo add/edit) -->
-      <div class="footer-navigation flex-1">
-        @if (viewMode !== 'list') {
-          <button
-            mat-button
-            (click)="backToList()"
-            [disabled]="isLoading"
-            class="nav-button flex items-center gap-2 text-slate-500 font-medium px-4 py-2 rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all">
-            <mat-icon>arrow_back</mat-icon>
-            Volver
-          </button>
-        }
-      </div>
-
-      <!-- Actions -->
-      <div class="footer-actions flex items-center gap-3">
+  <!-- FOOTER (solo en modo add/edit) -->
+  @if (viewMode !== 'list') {
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-50">
+      <div class="max-w-[1200px] mx-auto px-5 py-4 flex justify-end gap-3">
         <button
           mat-button
-          (click)="goBack()"
+          (click)="backToList()"
           [disabled]="isLoading"
-          class="cancel-button-modern text-slate-500 font-medium px-5 py-2 rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all">
-          Cerrar
+          class="text-slate-600 font-medium">
+          Cancelar
         </button>
-
-        @if (viewMode !== 'list') {
-          <button
-            mat-raised-button
-            type="button"
-            (click)="saveRole()"
-            [disabled]="roleForm.invalid || isLoading"
-            class="create-button-modern flex items-center gap-2 font-semibold px-7 py-3 rounded-lg !bg-gradient-to-br !from-green-500 !to-green-600 !text-white !shadow-[0_4px_12px_rgba(34,197,94,0.3)] hover:!shadow-[0_8px_20px_rgba(34,197,94,0.4)] hover:!-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-            color="primary">
-            @if (!isLoading) {
-              <mat-icon>{{ viewMode === 'add' ? 'add' : 'save' }}</mat-icon>
-            }
-            @if (isLoading) {
-              <mat-spinner diameter="20" class="button-spinner inline-block"></mat-spinner>
-            }
-            {{ isLoading ? 'Guardando...' : (viewMode === 'add' ? 'Crear Rol' : 'Guardar Cambios') }}
-          </button>
-        }
+        <button
+          mat-raised-button
+          (click)="saveRole()"
+          [disabled]="roleForm.invalid || isLoading"
+          class="!bg-blue-600 !text-white font-semibold">
+          @if (isLoading) {
+            <mat-spinner diameter="18" class="inline-block mr-2"></mat-spinner>
+          } @else {
+            <mat-icon>{{ viewMode === 'add' ? 'add' : 'save' }}</mat-icon>
+          }
+          {{ isLoading ? 'Guardando...' : (viewMode === 'add' ? 'Crear Rol' : 'Guardar') }}
+        </button>
       </div>
     </div>
-  </div>
+  }
 
 </div>

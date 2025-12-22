@@ -1,126 +1,222 @@
-/* client-config.component.css */
+/* client-config.component.css - DISEÑO COMPACTO */
 
 /* ============================================
-   ESTILOS ESPECÍFICOS DE CLIENT CONFIG
-   Usa animaciones globales desde styles.css
-   Mantiene estilos únicos de drag & drop
+   HOST & CONTAINER
    ============================================ */
 
+:host {
+  display: block;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+}
+
+.config-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
 /* ============================================
-   FIELD CARDS - Mejorados
+   ANIMATIONS
    ============================================ */
+
+
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+
+/* ============================================
+   HEADER ELEMENTS
+   ============================================ */
+
+.back-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateX(-2px);
+}
+
+.back-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #64748b;
+}
+
+.header-icon-box {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.header-icon-box mat-icon {
+  color: white;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.stat-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 6px 14px;
+  min-width: 70px;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 10px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #64748b;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+.empty-state {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 60px 30px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   FIELD CARDS (para el form-designer)
+   ============================================ */
+
 .field-card {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1rem;
   background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 20px;
-  padding: 1.5rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px;
+  transition: all 0.2s ease;
   position: relative;
-  overflow: hidden;
-}
-
-/* Efecto de brillo sutil en hover */
-.field-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.05), transparent);
-  transition: left 0.5s ease;
-}
-
-.field-card:hover::before {
-  left: 100%;
 }
 
 .field-card:hover {
   border-color: #a78bfa;
-  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.15), 0 2px 8px rgba(0, 0, 0, 0.05);
-  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.15);
+  transform: translateY(-2px);
 }
 
 .field-card.inactive {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  opacity: 0.8;
+  background: #f8fafc;
+  opacity: 0.7;
 }
 
 .field-card.system-field {
-  background: linear-gradient(135deg, #fefce8 0%, #ffffff 100%);
-  border-left: 5px solid #eab308;
-  position: relative;
-}
-
-.field-card.system-field::after {
-  content: 'SISTEMA';
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  color: #ca8a04;
-  background: #fef9c3;
-  padding: 2px 8px;
-  border-radius: 4px;
-  opacity: 0.6;
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+  border-left: 4px solid #f59e0b;
 }
 
 /* ============================================
-   DRAG & DROP STYLES (CDK específico) - Mejorados
+   DRAG & DROP
    ============================================ */
+
 .cdk-drag-preview {
-  box-shadow: 0 15px 50px rgba(139, 92, 246, 0.3), 0 5px 15px rgba(0, 0, 0, 0.1) !important;
-  border: 3px solid #8b5cf6 !important;
+  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.25) !important;
+  border: 2px solid #8b5cf6 !important;
   opacity: 0.95 !important;
-  transform: rotate(3deg);
 }
 
 .cdk-drag-animating {
-  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.field-card.cdk-drop-list-dragging {
-  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 300ms ease;
 }
 
 .cdk-drag-placeholder {
-  opacity: 0;
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  border: 3px dashed #a78bfa;
-  border-radius: 20px;
-  position: relative;
+  opacity: 0.3;
+  background: #f1f5f9;
+  border: 2px dashed #a78bfa;
+  border-radius: 14px;
 }
 
-.cdk-drag-placeholder::before {
-  content: 'Suelta aquí';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #8b5cf6;
-  font-weight: 700;
-  font-size: 14px;
-  opacity: 0.5;
-}
-
-/* ============================================
-   FIELD CARD PARTS - Mejorados
-   ============================================ */
 .drag-handle {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
   cursor: grab;
-  padding: 0.75rem;
-  border-radius: 12px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  background: transparent;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
 .drag-handle:active {
@@ -128,63 +224,47 @@
 }
 
 .drag-handle:hover {
-  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-  transform: scale(1.1);
+  background: #f1f5f9;
 }
 
 .drag-handle mat-icon {
-  transition: color 0.2s ease;
+  color: #94a3b8;
 }
 
 .drag-handle:hover mat-icon {
-  color: #8b5cf6 !important;
+  color: #8b5cf6;
 }
 
+/* ============================================
+   FIELD ICON
+   ============================================ */
+
 .field-icon {
-  width: 64px;
-  height: 64px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
-  border-radius: 18px;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-}
-
-/* Brillo interno del ícono */
-.field-icon::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), transparent 50%);
-  border-radius: 18px;
-  opacity: 0.5;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
 }
 
 .field-icon mat-icon {
-  font-size: 32px !important;
-  width: 32px !important;
-  height: 32px !important;
+  font-size: 24px !important;
+  width: 24px !important;
+  height: 24px !important;
   color: white;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-  z-index: 1;
 }
 
 .field-icon.inactive-icon {
-  background: linear-gradient(135deg, #94a3b8 0%, #64748b 50%, #475569 100%);
-  box-shadow: 0 6px 20px rgba(100, 116, 139, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
 }
 
-.field-card:hover .field-icon {
-  transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 8px 28px rgba(139, 92, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
+/* ============================================
+   FIELD CONTENT
+   ============================================ */
 
 .field-content {
   flex: 1;
@@ -192,12 +272,10 @@
 }
 
 .field-title {
-  font-size: 17px;
-  font-weight: 700;
-  color: #0f172a;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
   margin: 0;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
 }
 
 .field-card.inactive .field-title {
@@ -206,184 +284,71 @@
 
 .field-actions {
   display: flex;
-  gap: 0.5rem;
-  flex-shrink: 0;
+  gap: 4px;
   opacity: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  transform: translateX(10px);
+  transition: opacity 0.2s ease;
 }
 
 .field-card:hover .field-actions {
   opacity: 1;
-  transform: translateX(0);
-}
-
-/* Mejor estilo para los chips */
-::ng-deep .field-card mat-chip {
-  font-weight: 600 !important;
-  border-radius: 8px !important;
-  padding: 4px 10px !important;
-  transition: all 0.2s ease !important;
-}
-
-::ng-deep .field-card mat-chip:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-::ng-deep .field-card mat-chip mat-icon {
-  font-size: 14px !important;
-  width: 14px !important;
-  height: 14px !important;
-  margin-right: 4px !important;
 }
 
 /* ============================================
-   ANIMATIONS (stagger effect) - Mejoradas
+   ANIMATIONS (stagger)
    ============================================ */
+
+
 .field-card {
-  animation: fadeInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  animation: fadeInScale 0.3s ease-out backwards;
 }
 
-/* Animación personalizada con scale - única para este componente */
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.field-card:nth-child(1) { animation-delay: 0.05s; }
-.field-card:nth-child(2) { animation-delay: 0.1s; }
-.field-card:nth-child(3) { animation-delay: 0.15s; }
-.field-card:nth-child(4) { animation-delay: 0.2s; }
-.field-card:nth-child(5) { animation-delay: 0.25s; }
-.field-card:nth-child(6) { animation-delay: 0.3s; }
-.field-card:nth-child(7) { animation-delay: 0.35s; }
-.field-card:nth-child(8) { animation-delay: 0.4s; }
-
-/* ============================================
-   METADATA MEJORADA
-   ============================================ */
-.field-content .text-xs {
-  padding: 8px 0;
-  background: linear-gradient(to right, transparent, #f8fafc 10%, #f8fafc 90%, transparent);
-  border-radius: 8px;
-  margin-top: 8px;
-}
-
-.field-content .text-xs span {
-  padding: 4px 8px;
-  background: white;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-
-.field-content .text-xs span:hover {
-  background: #f1f5f9;
-  color: #8b5cf6;
-  transform: translateY(-1px);
-}
+.field-card:nth-child(1) { animation-delay: 0.03s; }
+.field-card:nth-child(2) { animation-delay: 0.06s; }
+.field-card:nth-child(3) { animation-delay: 0.09s; }
+.field-card:nth-child(4) { animation-delay: 0.12s; }
+.field-card:nth-child(5) { animation-delay: 0.15s; }
+.field-card:nth-child(6) { animation-delay: 0.18s; }
 
 /* ============================================
    RESPONSIVE
    ============================================ */
+
 @media (max-width: 768px) {
-  .field-card {
-    flex-wrap: wrap;
-    gap: 1rem;
-    padding: 1.25rem;
+  .config-container {
+    padding: 15px;
   }
 
-  .drag-handle {
-    order: -1;
-    width: 100%;
+  .field-card {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px;
   }
 
   .field-icon {
-    width: 52px;
-    height: 52px;
+    width: 40px;
+    height: 40px;
   }
 
   .field-icon mat-icon {
-    font-size: 26px !important;
-    width: 26px !important;
-    height: 26px !important;
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
   }
 
   .field-actions {
     opacity: 1;
-    transform: translateX(0);
   }
-}
-
-/* ============================================
-   TABS CUSTOMIZATION
-   ============================================ */
-.config-tabs {
-  background: white;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
-
-::ng-deep .config-tabs .mat-mdc-tab-labels {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-bottom: 2px solid #e2e8f0;
-  padding: 8px 16px 0 16px;
-}
-
-::ng-deep .config-tabs .mat-mdc-tab {
-  min-width: 160px;
-  height: 56px;
-  font-weight: 600;
-  font-size: 14px;
-  color: #64748b;
-  border-radius: 12px 12px 0 0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-::ng-deep .config-tabs .mat-mdc-tab:hover {
-  background: rgba(139, 92, 246, 0.05);
-  color: #8b5cf6;
-}
-
-::ng-deep .config-tabs .mat-mdc-tab.mdc-tab--active {
-  background: white;
-  color: #8b5cf6;
-  box-shadow: 0 -2px 8px rgba(139, 92, 246, 0.1);
-}
-
-::ng-deep .config-tabs .mat-mdc-tab .mdc-tab__text-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-::ng-deep .config-tabs .mat-mdc-tab-body-content {
-  padding: 0 24px 24px 24px;
-}
-
-::ng-deep .config-tabs .mdc-tab-indicator__content--underline {
-  border-color: #8b5cf6;
-  border-width: 3px;
-  border-radius: 3px 3px 0 0;
 }
 
 /* ============================================
    ACCESSIBILITY
    ============================================ */
+
 @media (prefers-reduced-motion: reduce) {
   .field-card,
-  .field-icon,
   .cdk-drag-animating,
-  .field-card::before,
-  .field-actions,
-  .config-tabs .mat-mdc-tab {
+  .animate-fadeIn,
+  .animate-fadeInUp {
     animation: none !important;
     transition: none !important;
   }

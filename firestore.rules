@@ -230,7 +230,8 @@ service cloud.firestore {
     // MODULE CONFIGURATIONS (Generic)
     // ============================================
 
-    match /module_configs/{moduleId} {
+    // moduleConfigs - Dynamic form configurations (clients, materials, etc.)
+    match /moduleConfigs/{moduleId} {
       allow read: if canRead();
       allow write: if isAdmin();
     }

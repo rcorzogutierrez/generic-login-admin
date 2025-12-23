@@ -87,11 +87,12 @@ service cloud.firestore {
         resource.data.isSystemRole != true; // Prevent deleting system roles
     }
 
-    // Admin Logs - Append only, admins can read
+    // Admin Logs - Append only, admins can read and delete
     match /admin_logs/{logId} {
       allow read: if isAdmin();
       allow create: if isActiveUser();
-      allow update, delete: if false; // Logs are immutable
+      allow update: if false; // Logs cannot be modified
+      allow delete: if isAdmin(); // Admins can delete logs
     }
 
     // ============================================

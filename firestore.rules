@@ -90,7 +90,7 @@ service cloud.firestore {
     // Admin Logs - Append only, admins can read and delete
     match /admin_logs/{logId} {
       allow read: if isAdmin();
-      allow create: if isActiveUser();
+      allow create: if isAuthenticated(); // Permite logging de login_failed para usuarios no registrados
       allow update: if false; // Logs cannot be modified
       allow delete: if isAdmin(); // Admins can delete logs
     }

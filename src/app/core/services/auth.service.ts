@@ -108,8 +108,12 @@ export class AuthService {
           if (authResult.authorized) {
             // ✅ ACTUALIZAR LASTLOGIN DESPUÉS DE LOGIN EXITOSO
             await this.updateUserLastLogin(result.user.email!);
+            // ✅ REGISTRAR LOGIN EXITOSO
+            await this.logLoginSuccess(result.user.uid, result.user.email!);
             return { success: true, message: 'Login exitoso' };
           } else {
+            // ✅ REGISTRAR LOGIN FALLIDO
+            await this.logLoginFailed(result.user.email!, authResult.message || 'No autorizado');
             await this.logout();
             return { success: false, message: authResult.message || 'No autorizado' };
           }
@@ -166,9 +170,13 @@ export class AuthService {
 
           if (authResult.authorized) {
             await this.updateUserLastLogin(result.user.email!);
+            // ✅ REGISTRAR LOGIN EXITOSO (redirect)
+            await this.logLoginSuccess(result.user.uid, result.user.email!);
             this.logger.info('Autenticación por redirect completada exitosamente');
             // El navigation service se encargará de redirigir al dashboard
           } else {
+            // ✅ REGISTRAR LOGIN FALLIDO (redirect)
+            await this.logLoginFailed(result.user.email!, authResult.message || 'No autorizado');
             this.logger.warn('Usuario no autorizado después de redirect');
             await this.logout();
           }
@@ -282,9 +290,80 @@ export class AuthService {
     }
   }
 
+  /**
+   * Registra login exitoso en admin_logs
+   */
+  private async logLoginSuccess(uid: string, email: string): Promise<void> {
+    try {
+      await addDoc(collection(this.firestore, 'admin_logs'), {
+        action: 'login_success',
+        targetUserId: uid,
+        targetUserEmail: email,
+        performedBy: uid,
+        performedByEmail: email,
+        timestamp: new Date(),
+        details: JSON.stringify({ event: 'login_with_google', method: 'google_oauth' }),
+        ip: 'unknown'
+      });
+    } catch (error) {
+      this.logger.warn('Error logging login success', error);
+    }
+  }
+
+  /**
+   * Registra login fallido en admin_logs
+   */
+  private async logLoginFailed(email: string, reason: string): Promise<void> {
+    try {
+      await addDoc(collection(this.firestore, 'admin_logs'), {
+        action: 'login_failed',
+        targetUserId: 'unknown',
+        targetUserEmail: email,
+        performedBy: 'system',
+        performedByEmail: email,
+        timestamp: new Date(),
+        details: JSON.stringify({ event: 'login_failed', reason, method: 'google_oauth' }),
+        ip: 'unknown'
+      });
+    } catch (error) {
+      this.logger.warn('Error logging login failed', error);
+    }
+  }
+
+  /**
+   * Registra logout en admin_logs
+   */
+  private async logLogout(uid: string, email: string): Promise<void> {
+    try {
+      await addDoc(collection(this.firestore, 'admin_logs'), {
+        action: 'logout',
+        targetUserId: uid,
+        targetUserEmail: email,
+        performedBy: uid,
+        performedByEmail: email,
+        timestamp: new Date(),
+        details: JSON.stringify({ event: 'user_logout' }),
+        ip: 'unknown'
+      });
+    } catch (error) {
+      this.logger.warn('Error logging logout', error);
+    }
+  }
+
   async logout(): Promise<void> {
     try {
+      // Guardar datos del usuario antes de cerrar sesión para el log
+      const currentUser = this._authorizedUser();
+      const uid = currentUser?.uid || this._user()?.uid || 'unknown';
+      const email = currentUser?.email || this._user()?.email || 'unknown';
+
       this.logger.info('Usuario cerrando sesión');
+
+      // ✅ REGISTRAR LOGOUT (solo si hay un usuario autenticado)
+      if (uid !== 'unknown') {
+        await this.logLogout(uid, email);
+      }
+
       await signOut(this.auth);
       this.clearUserState();
       this.router.navigate(['/login']);

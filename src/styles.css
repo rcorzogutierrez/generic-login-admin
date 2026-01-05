@@ -1057,15 +1057,7 @@ mat-icon {
   color: white !important;
 }
 
-/* Log Details Dialog - estilos específicos usando panelClass */
-.log-details-dialog .mat-mdc-dialog-content {
-  padding: 0 !important;
-}
-
-.log-details-dialog .mat-mdc-dialog-actions {
-  padding: 0 !important;
-  min-height: auto !important;
-}
+/* Log Details Dialog - usa padding de Tailwind en el HTML */
 
 /* Delete dialog button labels */
 .delete-btn .mdc-button__label {

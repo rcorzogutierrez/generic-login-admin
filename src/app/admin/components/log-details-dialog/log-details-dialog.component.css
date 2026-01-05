@@ -111,18 +111,4 @@
     }
   }
   
-  /* ============================================
-     MATERIAL OVERRIDES
-     ============================================ */
-  ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
-    border-radius: 20px;
-  }
-  
-  ::ng-deep .mat-mdc-dialog-content {
-    padding: 0 !important;
-  }
-  
-  ::ng-deep .mat-mdc-dialog-actions {
-    padding: 0 !important;
-    min-height: auto !important;
-  }
+  /* Material overrides movidos a styles.css global */

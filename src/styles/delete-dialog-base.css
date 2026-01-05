@@ -292,22 +292,7 @@
   margin-right: 8px;
 }
 
-/* ============================================
-   MATERIAL OVERRIDES
-   ============================================ */
-::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
-  border-radius: 20px;
-}
-
-::ng-deep .delete-btn .mdc-button__label {
-  color: white !important;
-  font-size: 15px !important;
-  font-weight: 600 !important;
-}
-
-::ng-deep .cancel-btn .mdc-button__label {
-  font-size: 15px !important;
-}
+/* Material overrides movidos a styles.css global */
 
 /* ============================================
    RESPONSIVE

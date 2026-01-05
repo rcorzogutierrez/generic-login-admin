@@ -37,38 +37,7 @@
     background: #fee2e2;
   }
   
-  /* ============================================
-     ESTADOS SELECCIONADOS (MATERIAL RADIO)
-     ============================================ */
-  ::ng-deep .option-card.mat-mdc-radio-button.mat-mdc-radio-checked:not([disabled]) {
-    border-color: #8b5cf6;
-    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
-  }
-  
-  ::ng-deep .option-card.danger-option.mat-mdc-radio-button.mat-mdc-radio-checked:not([disabled]) {
-    border-color: #dc2626;
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
-  }
-  
-  /* ============================================
-     ESTADOS DESHABILITADOS
-     ============================================ */
-  ::ng-deep .mat-mdc-radio-button.mat-mdc-radio-disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
-  ::ng-deep .option-card.mat-mdc-radio-button.mat-mdc-radio-disabled {
-    cursor: not-allowed;
-    background: #f8fafc;
-    border-color: #e2e8f0;
-  }
-  
-  ::ng-deep .option-card.mat-mdc-radio-button.mat-mdc-radio-disabled:hover {
-    transform: none;
-  }
+  /* Estados de radio buttons movidos a styles.css global */
   
   /* ============================================
      ICONOS DENTRO DE LAS OPCIONES

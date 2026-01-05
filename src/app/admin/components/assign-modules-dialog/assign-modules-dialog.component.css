@@ -63,16 +63,7 @@ mat-dialog-content::-webkit-scrollbar-thumb:hover {
   background: var(--slate-400);
 }
 
-/* ============================================
-   MATERIAL OVERRIDES ESPECÍFICOS
-   ============================================ */
-::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-disabled {
-  opacity: 0.5;
-}
-
-::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
-  border-radius: 20px;
-}
+/* Material overrides movidos a styles.css global */
 
 /* ============================================
    RESPONSIVE

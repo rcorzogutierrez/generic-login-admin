@@ -1,5 +1,5 @@
 // src/app/admin/components/delete-logs-dialog/delete-logs-dialog.component.ts
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -38,6 +38,7 @@ export class DeleteLogsDialogComponent implements OnInit {
   // ============================================
   public dialogRef = inject(MatDialogRef<DeleteLogsDialogComponent>);
   private logsService = inject(AdminLogsService);
+  private cdr = inject(ChangeDetectorRef);
 
   // ============================================
   // STATE
@@ -62,6 +63,7 @@ export class DeleteLogsDialogComponent implements OnInit {
       this.totalLogs = 0;
     } finally {
       this.isLoadingCount = false;
+      this.cdr.markForCheck();
     }
   }
 

@@ -1057,12 +1057,12 @@ mat-icon {
   color: white !important;
 }
 
-/* Dialog content/actions padding overrides */
-.mat-mdc-dialog-content {
+/* Log Details Dialog - estilos específicos usando panelClass */
+.log-details-dialog .mat-mdc-dialog-content {
   padding: 0 !important;
 }
 
-.mat-mdc-dialog-actions {
+.log-details-dialog .mat-mdc-dialog-actions {
   padding: 0 !important;
   min-height: auto !important;
 }

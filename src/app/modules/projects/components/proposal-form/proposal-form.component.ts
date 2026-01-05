@@ -753,19 +753,34 @@ export class ProposalFormComponent implements OnInit {
 
       if (this.isEditMode() && this.proposalId()) {
         await this.proposalsService.updateProposal(this.proposalId()!, proposalData);
-        this.snackBar.open(
+        const snackBarRef = this.snackBar.open(
           asDraft ? 'Borrador guardado exitosamente' : 'Estimado actualizado exitosamente',
-          'Cerrar',
-          { duration: 3000 }
+          'Ver Lista',
+          { duration: 5000 }
         );
+
+        // Si hace clic en "Ver Lista", navegar a la lista
+        snackBarRef.onAction().subscribe(() => {
+          this.router.navigate(['/modules/projects']);
+        });
       } else {
+        // Crear nuevo estimado
         const newProposal = await this.proposalsService.createProposal(proposalData);
-        this.snackBar.open(
-          asDraft ? 'Borrador guardado exitosamente' : 'Estimado creado exitosamente',
-          'Cerrar',
-          { duration: 3000 }
+
+        // Navegar a la lista
+        this.router.navigate(['/modules/projects']);
+
+        // Mostrar snackbar con opción de ver el estimado creado
+        const snackBarRef = this.snackBar.open(
+          asDraft ? 'Borrador guardado exitosamente' : `Estimado ${newProposal.proposalNumber} creado exitosamente`,
+          'Ver Estimado',
+          { duration: 5000 }
         );
-        this.router.navigate(['/modules/projects', newProposal.id]);
+
+        // Si hace clic en "Ver Estimado", navegar al detalle
+        snackBarRef.onAction().subscribe(() => {
+          this.router.navigate(['/modules/projects', newProposal.id]);
+        });
         return;
       }
 

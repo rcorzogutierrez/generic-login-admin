@@ -1,9 +1,10 @@
 // src/app/modules/projects/components/proposals-list/proposals-list.component.ts
 
-import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { filter, Subject, takeUntil } from 'rxjs';
 
 // Material imports
 import { MatButtonModule } from '@angular/material/button';
@@ -51,13 +52,14 @@ import { GenericModuleConfig, GenericFieldConfig } from '../../../../shared/mode
   styleUrl: './proposals-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProposalsListComponent implements OnInit {
+export class ProposalsListComponent implements OnInit, OnDestroy {
   private proposalsService = inject(ProposalsService);
   private authService = inject(AuthService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
   private dialog = inject(MatDialog);
+  private destroy$ = new Subject<void>();
 
   // Signals del servicio
   proposals = this.proposalsService.proposals;
@@ -202,6 +204,23 @@ export class ProposalsListComponent implements OnInit {
 
   async ngOnInit() {
     await this.loadData();
+
+    // Escuchar eventos de navegación para forzar actualización cuando se vuelve a esta ruta
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        filter((event: NavigationEnd) => event.url === '/modules/projects'),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        // Forzar detección de cambios cuando navegamos de vuelta a la lista
+        this.cdr.markForCheck();
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   /**
@@ -209,13 +228,27 @@ export class ProposalsListComponent implements OnInit {
    */
   async loadData() {
     try {
-      
+
       await this.proposalsService.initialize();
 
       this.cdr.markForCheck();
     } catch (error) {
       console.error('❌ Error cargando datos:', error);
       this.snackBar.open('Error al cargar los datos', 'Cerrar', { duration: 3000 });
+    }
+  }
+
+  /**
+   * Refrescar lista manualmente
+   */
+  async refresh() {
+    try {
+      await this.proposalsService.reload();
+      this.cdr.markForCheck();
+      this.snackBar.open('Lista actualizada', 'Cerrar', { duration: 2000 });
+    } catch (error) {
+      console.error('❌ Error refrescando datos:', error);
+      this.snackBar.open('Error al actualizar la lista', 'Cerrar', { duration: 3000 });
     }
   }
 

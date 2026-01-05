@@ -112,7 +112,15 @@ export class ProposalsService {
 
     await this.loadProposals();
     this.isInitialized = true;
-    
+
+  }
+
+  /**
+   * Forzar recarga de proposals (ignora flag isInitialized)
+   * Útil cuando necesitas actualizar la lista después de crear/editar un proposal
+   */
+  async reload(): Promise<void> {
+    await this.loadProposals();
   }
 
   /**

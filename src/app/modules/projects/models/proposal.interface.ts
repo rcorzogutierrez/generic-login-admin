@@ -25,7 +25,8 @@ export interface MaterialUsed {
   id: string;                          // ID único
   material: string;                    // Nombre del material
   amount: number;                      // Cantidad usada
-  price: number;                       // Precio del material
+  price: number;                       // Precio final del material (con markup aplicado)
+  basePrice?: number;                  // Precio base original (sin markup) - opcional para compatibilidad con facturas antiguas
 }
 
 /**

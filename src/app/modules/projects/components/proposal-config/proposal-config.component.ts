@@ -278,6 +278,50 @@ export class ProposalConfigComponent implements OnInit {
       return;
     }
 
+    // Validar categorías de markup antes de guardar
+    const categories = this.markupCategories();
+    if (categories.length > 0) {
+      // Validar nombres duplicados
+      const names = categories.map(c => c.name.toLowerCase().trim());
+      const uniqueNames = new Set(names);
+      if (names.length !== uniqueNames.size) {
+        this.snackBar.open('No puede haber categorías con el mismo nombre', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+        return;
+      }
+
+      // Validar porcentajes duplicados
+      const percentages = categories.map(c => c.percentage);
+      const uniquePercentages = new Set(percentages);
+      if (percentages.length !== uniquePercentages.size) {
+        this.snackBar.open('No puede haber categorías con el mismo porcentaje', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+        return;
+      }
+
+      // Validar nombres vacíos
+      if (categories.some(c => !c.name.trim())) {
+        this.snackBar.open('Todas las categorías deben tener un nombre', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+        return;
+      }
+
+      // Validar porcentajes válidos
+      if (categories.some(c => c.percentage < 0 || c.percentage > 1000)) {
+        this.snackBar.open('Los porcentajes deben estar entre 0 y 1000', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+        return;
+      }
+    }
+
     try {
       this.isSaving.set(true);
 
@@ -412,20 +456,75 @@ export class ProposalConfigComponent implements OnInit {
    * Actualizar nombre de categoría
    */
   updateCategoryName(categoryId: string, name: string) {
-    const categories = this.markupCategories().map(c =>
-      c.id === categoryId ? { ...c, name } : c
+    // Validar que el nombre no esté vacío
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      this.snackBar.open('El nombre no puede estar vacío', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
+    // Validar que no haya otro con el mismo nombre
+    const categories = this.markupCategories();
+    const duplicate = categories.find(c =>
+      c.id !== categoryId && c.name.toLowerCase() === trimmedName.toLowerCase()
     );
-    this.markupCategories.set(categories);
+
+    if (duplicate) {
+      this.snackBar.open('Ya existe una categoría con ese nombre', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
+    const updated = categories.map(c =>
+      c.id === categoryId ? { ...c, name: trimmedName } : c
+    );
+    this.markupCategories.set(updated);
   }
 
   /**
    * Actualizar porcentaje de categoría
    */
   updateCategoryPercentage(categoryId: string, percentage: number) {
-    const categories = this.markupCategories().map(c =>
+    // Validar que el porcentaje sea válido
+    if (percentage < 0) {
+      this.snackBar.open('El porcentaje no puede ser negativo', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
+    if (percentage > 1000) {
+      this.snackBar.open('El porcentaje no puede ser mayor a 1000%', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
+    // Validar que no haya otro con el mismo porcentaje
+    const categories = this.markupCategories();
+    const duplicate = categories.find(c =>
+      c.id !== categoryId && c.percentage === percentage
+    );
+
+    if (duplicate) {
+      this.snackBar.open('Ya existe una categoría con ese porcentaje', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
+    const updated = categories.map(c =>
       c.id === categoryId ? { ...c, percentage } : c
     );
-    this.markupCategories.set(categories);
+    this.markupCategories.set(updated);
   }
 
   /**

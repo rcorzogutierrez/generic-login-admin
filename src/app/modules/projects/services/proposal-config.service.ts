@@ -263,14 +263,14 @@ export class ProposalConfigService {
   }
 
   /**
-   * Obtener categorías activas de markup
+   * Obtener todas las categorías de markup disponibles
+   * Nota: 'isActive' indica cuál es la categoría por defecto, no si está habilitada
    */
   getActiveMarkupCategories() {
     const markupConfig = this.getMaterialMarkupConfig();
     if (!markupConfig) return [];
-    return markupConfig.categories
-      .filter(cat => cat.isActive)
-      .sort((a, b) => a.order - b.order);
+    // Devolver TODAS las categorías ordenadas, no solo las activas
+    return markupConfig.categories.sort((a, b) => a.order - b.order);
   }
 
   /**

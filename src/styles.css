@@ -1057,15 +1057,11 @@ mat-icon {
   color: white !important;
 }
 
-/* Dialog content/actions padding overrides */
-.mat-mdc-dialog-content {
-  padding: 0 !important;
-}
-
-.mat-mdc-dialog-actions {
-  padding: 0 !important;
-  min-height: auto !important;
-}
+/*
+ * NOTA: Los estilos de padding para dialog-content y dialog-actions
+ * se manejan individualmente en cada componente con Tailwind.
+ * NO usar padding: 0 global aquí ya que afecta todos los diálogos.
+ */
 
 /* Delete dialog button labels */
 .delete-btn .mdc-button__label {

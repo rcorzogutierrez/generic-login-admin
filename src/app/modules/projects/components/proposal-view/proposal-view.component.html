@@ -381,20 +381,6 @@
               <span class="value amber">{{ calculateMaterialsTotal() | currencyFormatter }}</span>
             </div>
 
-            @if (hasMarkupApplied()) {
-              <div class="total-row markup-row">
-                <span class="markup-label">
-                  <mat-icon class="markup-icon">trending_up</mat-icon>
-                  Markup: {{ proposal()!.materialMarkupCategoryName }} (+{{ proposal()!.materialMarkupPercentage }}%)
-                </span>
-                <span class="value orange">+ {{ (calculateMaterialsTotalWithMarkup() - calculateMaterialsTotal()) | currencyFormatter }}</span>
-              </div>
-              <div class="total-row bold">
-                <span>Materiales con Markup</span>
-                <span class="value amber">{{ calculateMaterialsTotalWithMarkup() | currencyFormatter }}</span>
-              </div>
-            }
-
             <div class="total-divider"></div>
 
             <div class="total-row bold">

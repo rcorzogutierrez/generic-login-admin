@@ -282,7 +282,8 @@ export class ProposalViewComponent implements OnInit {
   }
 
   /**
-   * Calcular el total de materiales usados usando el servicio centralizado (sin markup)
+   * Calcular el total de materiales usados usando el servicio centralizado
+   * Nota: Los precios de materiales ya incluyen cualquier markup aplicado
    */
   calculateMaterialsTotal(): number {
     const proposal = this.proposal();
@@ -290,27 +291,8 @@ export class ProposalViewComponent implements OnInit {
   }
 
   /**
-   * Calcular el total de materiales con markup aplicado
-   */
-  calculateMaterialsTotalWithMarkup(): number {
-    const proposal = this.proposal();
-    if (!proposal) return 0;
-    return this.proposalCalculator.calculateMaterialsTotalWithMarkup(
-      proposal.materialsUsed,
-      proposal.materialMarkupPercentage
-    );
-  }
-
-  /**
-   * Verificar si el proposal tiene markup aplicado
-   */
-  hasMarkupApplied(): boolean {
-    const proposal = this.proposal();
-    return !!(proposal?.materialMarkupPercentage && proposal.materialMarkupPercentage > 0);
-  }
-
-  /**
    * Calcular el subtotal combinado (trabajo + materiales) usando el servicio centralizado
+   * Nota: Los precios de materiales ya incluyen cualquier markup aplicado
    */
   calculateCombinedSubtotal(): number {
     const proposal = this.proposal();

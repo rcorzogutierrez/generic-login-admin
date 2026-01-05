@@ -108,6 +108,28 @@
       </div>
     </div>
 
+    <!-- Categoría de Markup (solo si está habilitado) - ANTES de materiales -->
+    @if (markupEnabled() && markupCategories().length > 0) {
+      <div class="section section-markup-subtle">
+        <div class="form-group">
+          <label class="form-label-small">
+            <mat-icon class="label-icon">local_offer</mat-icon>
+            Ajuste de precios
+          </label>
+          <select
+            [(ngModel)]="selectedMarkupCategoryId"
+            class="form-select-small">
+            @for (category of markupCategories(); track category.id) {
+              <option [value]="category.id">
+                {{ category.name }} (+{{ category.percentage }}%)
+              </option>
+            }
+          </select>
+          <p class="helper-text">Los precios de materiales se ajustarán según la categoría seleccionada</p>
+        </div>
+      </div>
+    }
+
     <!-- Materiales Usados -->
     <div class="section">
       <div class="section-header">
@@ -150,7 +172,19 @@
                   placeholder="0">
               </div>
               <div class="item-input-group">
-                <label class="item-label">Precio</label>
+                <label class="item-label">P. Base</label>
+                <div class="price-input-wrapper readonly">
+                  <span class="price-symbol">$</span>
+                  <input
+                    type="number"
+                    [value]="material.basePrice"
+                    readonly
+                    class="item-input price-input readonly"
+                    placeholder="0.00">
+                </div>
+              </div>
+              <div class="item-input-group">
+                <label class="item-label">P. Final</label>
                 <div class="price-input-wrapper">
                   <span class="price-symbol">$</span>
                   <input
@@ -176,39 +210,6 @@
         }
       </div>
     </div>
-
-    <!-- Categoría de Markup (solo si está habilitado) -->
-    @if (markupEnabled() && markupCategories().length > 0) {
-      <div class="section section-markup">
-        <div class="section-header">
-          <div class="section-icon icon-orange">
-            <mat-icon>trending_up</mat-icon>
-          </div>
-          <h3 class="section-title">Categoría de Markup</h3>
-          <span class="info-badge">Afecta el costo de materiales</span>
-        </div>
-
-        <div class="markup-info-box">
-          <mat-icon>info</mat-icon>
-          <p>Selecciona la categoría de markup para aplicar al costo de los materiales. El porcentaje se sumará automáticamente al total.</p>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">
-            Selecciona una categoría
-          </label>
-          <select
-            [(ngModel)]="selectedMarkupCategoryId"
-            class="form-select markup-select">
-            @for (category of markupCategories(); track category.id) {
-              <option [value]="category.id">
-                {{ category.name }} (+{{ category.percentage }}%)
-              </option>
-            }
-          </select>
-        </div>
-      </div>
-    }
 
     <!-- Trabajadores -->
     <div class="section">

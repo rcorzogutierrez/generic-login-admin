@@ -26,7 +26,8 @@ interface SelectedMaterial {
   materialId: string;
   materialName: string;
   amount: number;
-  price: number;
+  basePrice: number;      // Precio original del material (sin modificar)
+  price: number;          // Precio aplicado (con markup o editado manualmente)
 }
 
 interface SelectedWorker {
@@ -174,7 +175,8 @@ export class InvoiceEditDialogComponent implements OnInit {
         materialId: m.id,
         materialName: m.material,
         amount: m.amount,
-        price: m.price
+        basePrice: m.price,  // Al cargar, asumimos que el precio guardado es el aplicado
+        price: m.price       // El precio que se muestra y edita
       }));
 
     } else {
@@ -219,9 +221,9 @@ export class InvoiceEditDialogComponent implements OnInit {
       return;
     }
 
-    // Obtener nombre y precio del material usando campos dinámicos
+    // Obtener nombre y precio base del material usando campos dinámicos
     const materialName = this.getMaterialName(material);
-    const materialPrice = this.getMaterialPrice(material);
+    const basePrice = this.getMaterialPrice(material);
 
     // Verificar si ya está agregado
     const exists = this.selectedMaterials.find(m => m.materialId === materialId);
@@ -231,11 +233,22 @@ export class InvoiceEditDialogComponent implements OnInit {
       return;
     }
 
+    // Calcular precio con markup si hay categoría seleccionada
+    let appliedPrice = basePrice;
+    if (this.markupEnabled() && this.selectedMarkupCategoryId) {
+      const selectedCategory = this.markupCategories().find(c => c.id === this.selectedMarkupCategoryId);
+      if (selectedCategory && selectedCategory.percentage > 0) {
+        const markupAmount = (basePrice * selectedCategory.percentage) / 100;
+        appliedPrice = basePrice + markupAmount;
+      }
+    }
+
     this.selectedMaterials.push({
       materialId: material.id!,
       materialName: materialName,
       amount: 1,
-      price: materialPrice
+      basePrice: basePrice,        // Precio original
+      price: appliedPrice           // Precio con markup (editable)
     });
 
   }
@@ -389,19 +402,19 @@ export class InvoiceEditDialogComponent implements OnInit {
           id: m.materialId,
           material: m.materialName,
           amount: m.amount,
-          price: m.price
+          price: m.price  // El precio ya tiene el markup aplicado (si corresponde)
         })),
         workTime: this.workTime || null,
         status: 'converted_to_invoice' // Cambiar el estado al guardar
       };
 
-      // Agregar información de categoría de markup si está habilitada y seleccionada
+      // Guardar información de categoría de markup solo para registro histórico (NO se usa en cálculos)
       if (this.markupEnabled() && this.selectedMarkupCategoryId) {
         const selectedCategory = this.markupCategories().find(c => c.id === this.selectedMarkupCategoryId);
         if (selectedCategory) {
           updateData.materialMarkupCategoryId = selectedCategory.id;
           updateData.materialMarkupCategoryName = selectedCategory.name;
-          updateData.materialMarkupPercentage = selectedCategory.percentage;
+          // NO guardamos materialMarkupPercentage para evitar que se aplique nuevamente en cálculos
         }
       }
 

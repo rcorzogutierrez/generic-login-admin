@@ -744,6 +744,68 @@
   outline-offset: 2px;
 }
 
+/* ============================================
+   MARKUP SECTION
+   ============================================ */
+
+.section-markup {
+  border: 2px solid #fdba74;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+}
+
+.icon-orange {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: white;
+}
+
+.info-badge {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 0.25rem 0.625rem;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 6px;
+  margin-left: auto;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.markup-info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.markup-info-box mat-icon {
+  color: #f59e0b;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.markup-info-box p {
+  font-size: 0.8125rem;
+  color: #78350f;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.markup-select {
+  border: 2px solid #f97316;
+  font-weight: 500;
+}
+
+.markup-select:focus {
+  border-color: #ea580c;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

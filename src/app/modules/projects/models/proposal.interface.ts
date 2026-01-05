@@ -132,6 +132,11 @@ export interface Proposal {
   workEndDate?: Timestamp;         // Fecha de finalización del trabajo
   workTime?: number;               // Tiempo de trabajo (en horas)
   workers?: Worker[];              // Trabajadores que participaron
+
+  // ========== Markup de Materiales ==========
+  materialMarkupCategoryId?: string;    // ID de la categoría de markup seleccionada
+  materialMarkupCategoryName?: string;  // Nombre de la categoría (para histórico)
+  materialMarkupPercentage?: number;    // Porcentaje de markup aplicado (para histórico)
 }
 
 /**
@@ -184,6 +189,10 @@ export interface UpdateProposalData extends Partial<CreateProposalData> {
   workEndDate?: Timestamp;
   workTime?: number;
   workers?: Worker[];
+  // Campos de markup de materiales
+  materialMarkupCategoryId?: string;
+  materialMarkupCategoryName?: string;
+  materialMarkupPercentage?: number;
 }
 
 /**

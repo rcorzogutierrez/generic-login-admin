@@ -10,12 +10,14 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { Proposal } from '../../models';
 import { ProposalsService } from '../../services/proposals.service';
+import { ProposalConfigService } from '../../services/proposal-config.service';
 import { MaterialsService } from '../../../materials/services/materials.service';
 import { MaterialsConfigService } from '../../../materials/services/materials-config.service';
 import { WorkersService } from '../../../workers/services/workers.service';
 import { LanguageService } from '../../../../core/services/language.service';
 import { Material } from '../../../materials/models';
 import { Worker } from '../../../workers/models';
+import { MaterialMarkupCategory } from '../../models';
 import { FieldType } from '../../../materials/models';
 import { getFieldValue } from '../../../../shared/modules/dynamic-form-builder/utils';
 import { Timestamp } from 'firebase/firestore';
@@ -49,6 +51,7 @@ interface SelectedWorker {
 export class InvoiceEditDialogComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<InvoiceEditDialogComponent>);
   private proposalsService = inject(ProposalsService);
+  private proposalConfigService = inject(ProposalConfigService);
   private materialsService = inject(MaterialsService);
   private materialsConfigService = inject(MaterialsConfigService);
   private workersService = inject(WorkersService);
@@ -60,6 +63,8 @@ export class InvoiceEditDialogComponent implements OnInit {
   isSaving = signal(false);
   availableMaterials = signal<Material[]>([]);
   availableWorkers = signal<Worker[]>([]);
+  markupCategories = signal<MaterialMarkupCategory[]>([]);
+  markupEnabled = signal<boolean>(false);
 
   // Form data
   language: 'es' | 'en' = 'es'; // Idioma del documento
@@ -69,6 +74,7 @@ export class InvoiceEditDialogComponent implements OnInit {
   workTime: number | null = null;
   selectedMaterials: SelectedMaterial[] = [];
   selectedWorkers: SelectedWorker[] = [];
+  selectedMarkupCategoryId: string | null = null;
 
   async ngOnInit() {
 
@@ -89,6 +95,7 @@ export class InvoiceEditDialogComponent implements OnInit {
       // Inicializar servicios en paralelo (como lo hace proposal-form)
 
       await Promise.all([
+        this.proposalConfigService.initialize(),
         this.materialsConfigService.initialize(),
         this.materialsService.initialize(),
         this.workersService.initialize()
@@ -108,6 +115,13 @@ export class InvoiceEditDialogComponent implements OnInit {
 
       this.availableMaterials.set(materials);
       this.availableWorkers.set(workers);
+
+      // Cargar configuración de markup
+      this.markupEnabled.set(this.proposalConfigService.isMarkupEnabled());
+      if (this.markupEnabled()) {
+        const activeCategories = this.proposalConfigService.getActiveMarkupCategories();
+        this.markupCategories.set(activeCategories);
+      }
 
     } catch (error) {
       console.error('❌ Error cargando datos:', error);
@@ -176,6 +190,15 @@ export class InvoiceEditDialogComponent implements OnInit {
 
     } else {
 
+    }
+
+    // Categoría de markup
+    if (proposal.materialMarkupCategoryId) {
+      this.selectedMarkupCategoryId = proposal.materialMarkupCategoryId;
+    } else if (this.markupEnabled()) {
+      // Si no hay categoría seleccionada, usar la por defecto
+      const defaultCategory = this.proposalConfigService.getDefaultMarkupCategory();
+      this.selectedMarkupCategoryId = defaultCategory?.id || null;
     }
 
   }
@@ -371,6 +394,16 @@ export class InvoiceEditDialogComponent implements OnInit {
         workTime: this.workTime || null,
         status: 'converted_to_invoice' // Cambiar el estado al guardar
       };
+
+      // Agregar información de categoría de markup si está habilitada y seleccionada
+      if (this.markupEnabled() && this.selectedMarkupCategoryId) {
+        const selectedCategory = this.markupCategories().find(c => c.id === this.selectedMarkupCategoryId);
+        if (selectedCategory) {
+          updateData.materialMarkupCategoryId = selectedCategory.id;
+          updateData.materialMarkupCategoryName = selectedCategory.name;
+          updateData.materialMarkupPercentage = selectedCategory.percentage;
+        }
+      }
 
       // Convertir fechas a Timestamp si existen
       if (this.invoiceDate) {

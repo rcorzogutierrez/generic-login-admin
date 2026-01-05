@@ -63,6 +63,27 @@ export interface ProposalAddressMapping {
 }
 
 /**
+ * Categoría de markup para materiales
+ * Define un nivel de markup (ej: Oro, Plata, Bronce)
+ */
+export interface MaterialMarkupCategory {
+  id: string;                  // ID único de la categoría
+  name: string;                // Nombre de la categoría (ej: "Oro", "Plata")
+  percentage: number;          // Porcentaje de markup (0-100)
+  order: number;               // Orden de visualización
+  isActive: boolean;           // Si está activa o no
+}
+
+/**
+ * Configuración del sistema de markup de materiales
+ */
+export interface MaterialMarkupConfig {
+  enabled: boolean;                           // Si el sistema está habilitado
+  categories: MaterialMarkupCategory[];       // Lista de categorías disponibles
+  defaultCategoryId?: string;                 // ID de la categoría por defecto
+}
+
+/**
  * Configuración del módulo de Proposals/Estimados
  */
 export interface ProposalModuleConfig {
@@ -81,6 +102,9 @@ export interface ProposalModuleConfig {
   defaultWorkType?: 'residential' | 'commercial';  // Tipo de trabajo por defecto
   defaultTerms?: string;                // Términos y condiciones por defecto
 
+  // Configuración de markup de materiales
+  materialMarkupConfig?: MaterialMarkupConfig;  // Sistema de categorías de markup
+
   // Metadata del sistema
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -98,6 +122,7 @@ export interface CreateProposalConfigData {
   defaultValidityDays?: number;
   defaultWorkType?: 'residential' | 'commercial';
   defaultTerms?: string;
+  materialMarkupConfig?: MaterialMarkupConfig;
 }
 
 /**
@@ -136,5 +161,25 @@ export const DEFAULT_PROPOSAL_CONFIG: Omit<ProposalModuleConfig, 'id' | 'created
 
 5. Este estimado es válido por el periodo especificado. Después de esta fecha, los precios están sujetos a cambios.
 
-6. La empresa no se hace responsable por daños a estructuras ocultas o no visibles durante la inspección inicial.`
+6. La empresa no se hace responsable por daños a estructuras ocultas o no visibles durante la inspección inicial.`,
+  materialMarkupConfig: {
+    enabled: false,
+    categories: [
+      {
+        id: 'standard',
+        name: 'Estándar',
+        percentage: 15,
+        order: 1,
+        isActive: true
+      },
+      {
+        id: 'premium',
+        name: 'Premium',
+        percentage: 25,
+        order: 2,
+        isActive: true
+      }
+    ],
+    defaultCategoryId: 'standard'
+  }
 };

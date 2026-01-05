@@ -160,8 +160,113 @@
       </div>
     </div>
 
+    <!-- ========== MARKUP DE MATERIALES ========== -->
+    <div class="config-section animate-fadeIn" style="animation-delay: 0.225s">
+      <div class="section-header">
+        <div class="section-icon orange">
+          <mat-icon>trending_up</mat-icon>
+        </div>
+        <div>
+          <h2>Categorías de Markup de Materiales</h2>
+          <p>Sistema de markup por categorías para el costo de materiales en facturas</p>
+        </div>
+        <mat-slide-toggle
+          [checked]="markupEnabled()"
+          (change)="toggleMarkupEnabled()"
+          color="primary"
+          class="ml-auto">
+          {{ markupEnabled() ? 'Habilitado' : 'Deshabilitado' }}
+        </mat-slide-toggle>
+      </div>
+
+      @if (markupEnabled()) {
+        <div class="markup-config-content">
+          <!-- Info Box -->
+          <div class="info-box-small mb-4">
+            <mat-icon>info</mat-icon>
+            <p>Al convertir un estimado a factura, se podrá seleccionar una categoría para aplicar un porcentaje de markup al costo de los materiales.</p>
+          </div>
+
+          <!-- Lista de Categorías -->
+          <div class="categories-list">
+            @for (category of markupCategories(); track category.id) {
+              <div class="category-item" [class.active]="category.isActive">
+                <div class="category-content">
+                  <!-- Radio button para seleccionar por defecto -->
+                  <mat-checkbox
+                    [checked]="category.isActive"
+                    (change)="toggleCategoryActive(category.id)"
+                    color="primary"
+                    matTooltip="Categoría por defecto">
+                  </mat-checkbox>
+
+                  <!-- Nombre de la categoría -->
+                  <div class="category-field">
+                    <label>Nombre</label>
+                    <input
+                      type="text"
+                      [value]="category.name"
+                      (input)="updateCategoryName(category.id, $any($event.target).value)"
+                      class="category-input"
+                      placeholder="Ej: Oro, Plata, Bronce">
+                  </div>
+
+                  <!-- Porcentaje -->
+                  <div class="category-field percentage">
+                    <label>Markup (%)</label>
+                    <input
+                      type="number"
+                      [value]="category.percentage"
+                      (input)="updateCategoryPercentage(category.id, +$any($event.target).value)"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      class="category-input"
+                      placeholder="15">
+                  </div>
+
+                  <!-- Botón eliminar -->
+                  <button
+                    type="button"
+                    class="delete-category-btn"
+                    (click)="deleteMarkupCategory(category.id)"
+                    matTooltip="Eliminar categoría">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+
+                @if (category.isActive) {
+                  <div class="default-badge">
+                    <mat-icon>check_circle</mat-icon>
+                    <span>Por defecto</span>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (markupCategories().length === 0) {
+              <div class="empty-state">
+                <mat-icon>category</mat-icon>
+                <p>No hay categorías configuradas</p>
+                <small>Haz clic en "Agregar Categoría" para comenzar</small>
+              </div>
+            }
+          </div>
+
+          <!-- Botón agregar categoría -->
+          <button
+            type="button"
+            class="btn-add-category"
+            (click)="addMarkupCategory()">
+            <mat-icon>add</mat-icon>
+            <span>Agregar Categoría</span>
+          </button>
+        </div>
+      }
+    </div>
+
     <!-- ========== TÉRMINOS Y CONDICIONES ========== -->
-    <div class="config-section animate-fadeIn" style="animation-delay: 0.25s">
+    <div class="config-section animate-fadeIn" style="animation-delay: 0.275s">
       <div class="section-header">
         <div class="section-icon green">
           <mat-icon>description</mat-icon>

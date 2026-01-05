@@ -1223,3 +1223,36 @@
     max-width: 100%;
   }
 }
+
+/* ============================================
+   MARKUP STYLES
+   ============================================ */
+
+.markup-row {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border-left: 3px solid #f97316;
+  padding-left: 1rem !important;
+  margin: 0.25rem 0;
+}
+
+.markup-label {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ea580c;
+}
+
+.markup-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #f97316;
+}
+
+.value.orange {
+  color: #f97316;
+  font-weight: 600;
+}
+

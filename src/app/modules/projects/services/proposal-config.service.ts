@@ -247,6 +247,60 @@ export class ProposalConfigService {
   }
 
   /**
+   * Obtener configuración de markup de materiales
+   */
+  getMaterialMarkupConfig() {
+    const config = this.config();
+    return config?.materialMarkupConfig ?? DEFAULT_PROPOSAL_CONFIG.materialMarkupConfig;
+  }
+
+  /**
+   * Verificar si el sistema de markup está habilitado
+   */
+  isMarkupEnabled(): boolean {
+    const markupConfig = this.getMaterialMarkupConfig();
+    return markupConfig?.enabled ?? false;
+  }
+
+  /**
+   * Obtener categorías activas de markup
+   */
+  getActiveMarkupCategories() {
+    const markupConfig = this.getMaterialMarkupConfig();
+    if (!markupConfig) return [];
+    return markupConfig.categories
+      .filter(cat => cat.isActive)
+      .sort((a, b) => a.order - b.order);
+  }
+
+  /**
+   * Obtener categoría de markup por ID
+   */
+  getMarkupCategoryById(categoryId: string) {
+    const markupConfig = this.getMaterialMarkupConfig();
+    if (!markupConfig) return null;
+    return markupConfig.categories.find(cat => cat.id === categoryId) ?? null;
+  }
+
+  /**
+   * Obtener categoría de markup por defecto
+   */
+  getDefaultMarkupCategory() {
+    const markupConfig = this.getMaterialMarkupConfig();
+    if (!markupConfig || !markupConfig.defaultCategoryId) return null;
+    return this.getMarkupCategoryById(markupConfig.defaultCategoryId);
+  }
+
+  /**
+   * Actualizar configuración de markup de materiales
+   */
+  async updateMaterialMarkupConfig(markupConfig: any): Promise<void> {
+    await this.updateConfig({
+      materialMarkupConfig: markupConfig
+    });
+  }
+
+  /**
    * Refrescar la configuración desde Firestore
    */
   async refresh(): Promise<void> {

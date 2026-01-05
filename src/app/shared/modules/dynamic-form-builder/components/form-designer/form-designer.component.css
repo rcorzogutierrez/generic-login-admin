@@ -250,33 +250,7 @@
   border: 1px solid #fed7aa;
 }
 
-/* Material Button Toggle Overrides */
-:host ::ng-deep .columns-toggle .mat-button-toggle,
-:host ::ng-deep .spacing-toggle .mat-button-toggle {
-  border-radius: 8px !important;
-  border: 1px solid var(--border-gray) !important;
-  font-weight: 600 !important;
-  font-size: 12px !important;
-  transition: var(--transition-base) !important;
-}
-
-:host ::ng-deep .columns-toggle .mat-button-toggle-checked,
-:host ::ng-deep .spacing-toggle .mat-button-toggle-checked {
-  background: var(--primary-purple) !important;
-  color: white !important;
-  border-color: var(--primary-purple) !important;
-}
-
-:host ::ng-deep .columns-toggle .mat-button-toggle:not(.mat-button-toggle-checked):hover,
-:host ::ng-deep .spacing-toggle .mat-button-toggle:not(.mat-button-toggle-checked):hover {
-  background: var(--bg-gray-50) !important;
-  border-color: var(--primary-purple-light) !important;
-}
-
-:host ::ng-deep .mat-button-toggle-label-content {
-  padding: 0 10px !important;
-  line-height: 32px !important;
-}
+/* Material Button Toggle styles movidos a styles.css global */
 
 /* ============================================
    FIELDS PALETTE
@@ -996,12 +970,7 @@
   flex-direction: row;
 }
 
-/* ============================================
-   DIVIDER OVERRIDE
-   ============================================ */
-:host ::ng-deep mat-divider {
-  margin: 16px 0 !important;
-}
+/* Divider styles movidos a styles.css global */
 
 /* ============================================
    DRAG & DROP CDK

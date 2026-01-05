@@ -1234,12 +1234,4 @@
   }
 }
 
-/* ========== SNACKBAR ========== */
-::ng-deep .error-snackbar {
-  background-color: #ef4444 !important;
-  color: white !important;
-}
-
-::ng-deep .error-snackbar .mat-mdc-snack-bar-label {
-  color: white !important;
-}
+/* Snackbar styles movidos a styles.css global */

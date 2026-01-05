@@ -42,17 +42,7 @@
     background: #fee2e2;
   }
   
-  ::ng-deep .option-card.mat-mdc-radio-button.mat-mdc-radio-checked {
-    border-color: #8b5cf6;
-    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
-  }
-  
-  ::ng-deep .option-card.danger-option.mat-mdc-radio-button.mat-mdc-radio-checked {
-    border-color: #dc2626;
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
-  }
+  /* Radio button selected styles movidos a styles.css global */
   
   .option-icon.danger {
     color: #dc2626;

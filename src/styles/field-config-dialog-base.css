@@ -339,7 +339,7 @@ select.input-field {
 /* ============================================
    DIVIDERS
    ============================================ */
-::ng-deep .field-config-dialog mat-divider {
+.field-config-dialog mat-divider {
   margin: 0 !important;
   border-top-color: transparent !important;
   height: 0 !important;

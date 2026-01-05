@@ -71,41 +71,22 @@ export class ProposalCalculatorService {
   }
 
   /**
-   * Calcula el total de materiales usados aplicando markup
-   *
-   * @param materials - Array de materiales con amount y price
-   * @param markupPercentage - Porcentaje de markup a aplicar (0-100)
-   * @returns Total de materiales con markup aplicado
-   */
-  calculateMaterialsTotalWithMarkup(materials?: MaterialUsed[], markupPercentage?: number): number {
-    const baseTotal = this.calculateMaterialsTotal(materials);
-
-    if (!markupPercentage || markupPercentage <= 0) {
-      return baseTotal;
-    }
-
-    const markup = (baseTotal * markupPercentage) / 100;
-    return baseTotal + markup;
-  }
-
-  /**
    * Calcula el subtotal combinado (trabajo + materiales)
+   * Nota: Los precios de materiales ya incluyen cualquier markup aplicado previamente
    *
    * @param workSubtotal - Subtotal del trabajo
    * @param materials - Array de materiales
-   * @param markupPercentage - Porcentaje de markup a aplicar a materiales (opcional)
    * @returns Subtotal combinado
    */
-  calculateCombinedSubtotal(workSubtotal: number, materials?: MaterialUsed[], markupPercentage?: number): number {
-    const materialsTotal = markupPercentage
-      ? this.calculateMaterialsTotalWithMarkup(materials, markupPercentage)
-      : this.calculateMaterialsTotal(materials);
+  calculateCombinedSubtotal(workSubtotal: number, materials?: MaterialUsed[]): number {
+    const materialsTotal = this.calculateMaterialsTotal(materials);
     return workSubtotal + materialsTotal;
   }
 
   /**
    * Calcula el impuesto para un proposal (con o sin materiales)
    * Si hay materiales, recalcula sobre el subtotal combinado
+   * Nota: Los precios de materiales ya incluyen cualquier markup aplicado
    *
    * @param proposal - El proposal con todos sus datos
    * @returns Monto del impuesto
@@ -118,11 +99,10 @@ export class ProposalCalculatorService {
       return proposal.tax || 0;
     }
 
-    // Con materiales: recalcular sobre el subtotal combinado (con markup si aplica)
+    // Con materiales: recalcular sobre el subtotal combinado
     const combinedSubtotal = this.calculateCombinedSubtotal(
       proposal.subtotal || 0,
-      proposal.materialsUsed,
-      proposal.materialMarkupPercentage
+      proposal.materialsUsed
     );
     return this.calculateTax(combinedSubtotal, proposal.taxPercentage || 0);
   }
@@ -130,6 +110,7 @@ export class ProposalCalculatorService {
   /**
    * Calcula el descuento para un proposal (con o sin materiales)
    * Si hay materiales, recalcula sobre el subtotal combinado
+   * Nota: Los precios de materiales ya incluyen cualquier markup aplicado
    *
    * @param proposal - El proposal con todos sus datos
    * @returns Monto del descuento
@@ -142,17 +123,17 @@ export class ProposalCalculatorService {
       return proposal.discount || 0;
     }
 
-    // Con materiales: recalcular sobre el subtotal combinado (con markup si aplica)
+    // Con materiales: recalcular sobre el subtotal combinado
     const combinedSubtotal = this.calculateCombinedSubtotal(
       proposal.subtotal || 0,
-      proposal.materialsUsed,
-      proposal.materialMarkupPercentage
+      proposal.materialsUsed
     );
     return this.calculateDiscount(combinedSubtotal, proposal.discountPercentage || 0);
   }
 
   /**
    * Calcula el gran total de un proposal (con o sin materiales)
+   * Nota: Los precios de materiales ya incluyen cualquier markup aplicado
    *
    * @param proposal - El proposal con todos sus datos
    * @returns Gran total
@@ -165,11 +146,10 @@ export class ProposalCalculatorService {
       return proposal.total || 0;
     }
 
-    // Con materiales: calcular el gran total con impuestos y descuentos recalculados (con markup si aplica)
+    // Con materiales: calcular el gran total con impuestos y descuentos recalculados
     const combinedSubtotal = this.calculateCombinedSubtotal(
       proposal.subtotal || 0,
-      proposal.materialsUsed,
-      proposal.materialMarkupPercentage
+      proposal.materialsUsed
     );
     const tax = this.calculateProposalTax(proposal);
     const discount = this.calculateProposalDiscount(proposal);
@@ -180,6 +160,7 @@ export class ProposalCalculatorService {
   /**
    * Calcula todos los totales de un proposal en un solo objeto
    * Útil para obtener todos los cálculos de una vez
+   * Nota: Los precios de materiales ya incluyen cualquier markup aplicado
    *
    * @param proposal - El proposal con todos sus datos
    * @returns Objeto con todos los totales calculados
@@ -187,20 +168,14 @@ export class ProposalCalculatorService {
   calculateAllTotals(proposal: Partial<Proposal>) {
     const hasMaterials = proposal.materialsUsed && proposal.materialsUsed.length > 0;
     const materialsTotal = this.calculateMaterialsTotal(proposal.materialsUsed);
-    const materialsTotalWithMarkup = proposal.materialMarkupPercentage
-      ? this.calculateMaterialsTotalWithMarkup(proposal.materialsUsed, proposal.materialMarkupPercentage)
-      : materialsTotal;
     const combinedSubtotal = this.calculateCombinedSubtotal(
       proposal.subtotal || 0,
-      proposal.materialsUsed,
-      proposal.materialMarkupPercentage
+      proposal.materialsUsed
     );
 
     return {
       workSubtotal: proposal.subtotal || 0,
       materialsTotal,
-      materialsTotalWithMarkup,
-      materialMarkupPercentage: proposal.materialMarkupPercentage || 0,
       combinedSubtotal,
       tax: this.calculateProposalTax(proposal),
       discount: this.calculateProposalDiscount(proposal),

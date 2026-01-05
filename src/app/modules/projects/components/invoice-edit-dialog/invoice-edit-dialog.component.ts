@@ -88,6 +88,35 @@ export class InvoiceEditDialogComponent implements OnInit {
   }
 
   /**
+   * Cuando cambia la categoría de markup, recalcular precios de materiales
+   */
+  onMarkupCategoryChange() {
+    if (!this.markupEnabled() || !this.selectedMarkupCategoryId) {
+      return;
+    }
+
+    const selectedCategory = this.markupCategories().find(c => c.id === this.selectedMarkupCategoryId);
+    if (!selectedCategory) {
+      return;
+    }
+
+    // Recalcular precio de cada material basado en su basePrice
+    this.selectedMaterials = this.selectedMaterials.map(material => {
+      let newPrice = material.basePrice;
+
+      if (selectedCategory.percentage > 0) {
+        const markupAmount = (material.basePrice * selectedCategory.percentage) / 100;
+        newPrice = material.basePrice + markupAmount;
+      }
+
+      return {
+        ...material,
+        price: newPrice
+      };
+    });
+  }
+
+  /**
    * Cargar materiales y trabajadores disponibles
    */
   async loadData() {
@@ -175,8 +204,9 @@ export class InvoiceEditDialogComponent implements OnInit {
         materialId: m.id,
         materialName: m.material,
         amount: m.amount,
-        basePrice: m.price,  // Al cargar, asumimos que el precio guardado es el aplicado
-        price: m.price       // El precio que se muestra y edita
+        // Si existe basePrice guardado (nuevo sistema), usarlo; sino usar price como fallback (facturas antiguas)
+        basePrice: (m as any).basePrice !== undefined ? (m as any).basePrice : m.price,
+        price: m.price  // El precio que se muestra y edita
       }));
 
     } else {
@@ -402,7 +432,8 @@ export class InvoiceEditDialogComponent implements OnInit {
           id: m.materialId,
           material: m.materialName,
           amount: m.amount,
-          price: m.price  // El precio ya tiene el markup aplicado (si corresponde)
+          price: m.price,  // El precio ya tiene el markup aplicado (si corresponde)
+          basePrice: m.basePrice  // Guardar precio base para futuras ediciones
         })),
         workTime: this.workTime || null,
         status: 'converted_to_invoice' // Cambiar el estado al guardar

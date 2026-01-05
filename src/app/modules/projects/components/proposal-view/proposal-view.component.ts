@@ -282,11 +282,31 @@ export class ProposalViewComponent implements OnInit {
   }
 
   /**
-   * Calcular el total de materiales usados usando el servicio centralizado
+   * Calcular el total de materiales usados usando el servicio centralizado (sin markup)
    */
   calculateMaterialsTotal(): number {
     const proposal = this.proposal();
     return this.proposalCalculator.calculateMaterialsTotal(proposal?.materialsUsed);
+  }
+
+  /**
+   * Calcular el total de materiales con markup aplicado
+   */
+  calculateMaterialsTotalWithMarkup(): number {
+    const proposal = this.proposal();
+    if (!proposal) return 0;
+    return this.proposalCalculator.calculateMaterialsTotalWithMarkup(
+      proposal.materialsUsed,
+      proposal.materialMarkupPercentage
+    );
+  }
+
+  /**
+   * Verificar si el proposal tiene markup aplicado
+   */
+  hasMarkupApplied(): boolean {
+    const proposal = this.proposal();
+    return !!(proposal?.materialMarkupPercentage && proposal.materialMarkupPercentage > 0);
   }
 
   /**

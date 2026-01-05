@@ -13,6 +13,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // Services
 import { ProposalConfigService } from '../../services/proposal-config.service';
@@ -20,7 +22,7 @@ import { ClientsService } from '../../../clients/services/clients.service';
 import { ClientConfigServiceRefactored } from '../../../clients/services/client-config-refactored.service';
 
 // Models
-import { ProposalClientFieldsMapping, ProposalAddressMapping } from '../../models';
+import { ProposalClientFieldsMapping, ProposalAddressMapping, MaterialMarkupCategory } from '../../models';
 import { FieldConfig } from '../../../clients/models/field-config.interface';
 
 /**
@@ -47,7 +49,9 @@ interface FieldMappingConfig {
     MatSnackBarModule,
     MatDividerModule,
     MatTooltipModule,
-    MatCardModule
+    MatCardModule,
+    MatSlideToggleModule,
+    MatCheckboxModule
   ],
   templateUrl: './proposal-config.component.html',
   styleUrl: './proposal-config.component.css',
@@ -65,6 +69,8 @@ export class ProposalConfigComponent implements OnInit {
   isLoading = signal<boolean>(false);
   isSaving = signal<boolean>(false);
   availableFields = signal<FieldConfig[]>([]);
+  markupCategories = signal<MaterialMarkupCategory[]>([]);
+  markupEnabled = signal<boolean>(false);
 
   // Form
   configForm!: FormGroup;
@@ -228,6 +234,12 @@ export class ProposalConfigComponent implements OnInit {
         defaultTerms: config.defaultTerms || this.proposalConfigService.getDefaultTerms()
       });
 
+      // Cargar configuración de markup
+      if (config.materialMarkupConfig) {
+        this.markupEnabled.set(config.materialMarkupConfig.enabled);
+        this.markupCategories.set([...config.materialMarkupConfig.categories]);
+      }
+
     } else {
       // No hay configuración, usar sugerencias inteligentes
       this.configForm.patchValue({
@@ -245,6 +257,12 @@ export class ProposalConfigComponent implements OnInit {
         defaultTerms: this.proposalConfigService.getDefaultTerms()
       });
 
+      // Cargar configuración de markup por defecto
+      const markupConfig = this.proposalConfigService.getMaterialMarkupConfig();
+      if (markupConfig) {
+        this.markupEnabled.set(markupConfig.enabled);
+        this.markupCategories.set([...markupConfig.categories]);
+      }
     }
   }
 
@@ -279,13 +297,22 @@ export class ProposalConfigComponent implements OnInit {
         zipCode: formValue.zipCode
       };
 
+      // Preparar configuración de markup
+      const categories = this.markupCategories();
+      const defaultCategory = categories.find(c => c.isActive);
+
       await this.proposalConfigService.updateConfig({
         clientFieldsMapping: clientFieldsMapping,
         clientAddressMapping: addressMapping,
         defaultTaxPercentage: formValue.defaultTaxPercentage,
         defaultValidityDays: formValue.defaultValidityDays,
         defaultWorkType: formValue.defaultWorkType,
-        defaultTerms: formValue.defaultTerms
+        defaultTerms: formValue.defaultTerms,
+        materialMarkupConfig: {
+          enabled: this.markupEnabled(),
+          categories: categories,
+          defaultCategoryId: defaultCategory?.id
+        }
       });
 
       this.snackBar.open('✅ Configuración guardada exitosamente', 'Cerrar', {
@@ -341,5 +368,74 @@ export class ProposalConfigComponent implements OnInit {
   getFieldLabel(fieldName: string): string {
     const field = this.availableFields().find(f => f.name === fieldName);
     return field ? field.label : fieldName;
+  }
+
+  /**
+   * Toggle habilitar/deshabilitar markup
+   */
+  toggleMarkupEnabled() {
+    this.markupEnabled.set(!this.markupEnabled());
+  }
+
+  /**
+   * Agregar nueva categoría de markup
+   */
+  addMarkupCategory() {
+    const categories = this.markupCategories();
+    const newOrder = categories.length + 1;
+    const newId = `category_${Date.now()}`;
+
+    const newCategory: MaterialMarkupCategory = {
+      id: newId,
+      name: `Categoría ${newOrder}`,
+      percentage: 10,
+      order: newOrder,
+      isActive: categories.length === 0 // Primera categoría es activa por defecto
+    };
+
+    this.markupCategories.set([...categories, newCategory]);
+  }
+
+  /**
+   * Eliminar categoría de markup
+   */
+  deleteMarkupCategory(categoryId: string) {
+    const categories = this.markupCategories().filter(c => c.id !== categoryId);
+    // Reordenar
+    categories.forEach((cat, index) => {
+      cat.order = index + 1;
+    });
+    this.markupCategories.set([...categories]);
+  }
+
+  /**
+   * Actualizar nombre de categoría
+   */
+  updateCategoryName(categoryId: string, name: string) {
+    const categories = this.markupCategories().map(c =>
+      c.id === categoryId ? { ...c, name } : c
+    );
+    this.markupCategories.set(categories);
+  }
+
+  /**
+   * Actualizar porcentaje de categoría
+   */
+  updateCategoryPercentage(categoryId: string, percentage: number) {
+    const categories = this.markupCategories().map(c =>
+      c.id === categoryId ? { ...c, percentage } : c
+    );
+    this.markupCategories.set(categories);
+  }
+
+  /**
+   * Toggle activo de categoría (solo una puede ser activa)
+   */
+  toggleCategoryActive(categoryId: string) {
+    const categories = this.markupCategories().map(c => ({
+      ...c,
+      isActive: c.id === categoryId
+    }));
+    this.markupCategories.set(categories);
   }
 }

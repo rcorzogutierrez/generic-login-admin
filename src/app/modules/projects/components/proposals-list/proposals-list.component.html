@@ -75,7 +75,7 @@
       <div class="flex items-center gap-3 flex-1">
         <mat-icon class="text-blue-600">date_range</mat-icon>
 
-        <mat-form-field appearance="outline" class="date-field">
+        <mat-form-field appearance="outline" class="date-field" subscriptSizing="dynamic">
           <mat-label>Desde</mat-label>
           <input matInput
                  [matDatepicker]="pickerFrom"
@@ -88,7 +88,7 @@
 
         <span class="text-slate-400">—</span>
 
-        <mat-form-field appearance="outline" class="date-field">
+        <mat-form-field appearance="outline" class="date-field" subscriptSizing="dynamic">
           <mat-label>Hasta</mat-label>
           <input matInput
                  [matDatepicker]="pickerTo"

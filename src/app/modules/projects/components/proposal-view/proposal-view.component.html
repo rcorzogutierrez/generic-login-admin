@@ -92,6 +92,13 @@
               </button>
             }
 
+            @if (proposal()!.status === 'converted_to_invoice') {
+              <button mat-menu-item (click)="markAsPaid()">
+                <mat-icon class="text-emerald-600">payments</mat-icon>
+                <span>{{ 'projects.proposal.view.markAsPaid' | translate }}</span>
+              </button>
+            }
+
             <mat-divider></mat-divider>
 
             <button mat-menu-item (click)="deleteProposal()" class="text-red-600">

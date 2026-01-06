@@ -163,6 +163,78 @@ export class ProposalViewComponent implements OnInit {
   }
 
   /**
+   * Marcar factura como pagada
+   */
+  async markAsPaid() {
+    const proposal = this.proposal();
+    if (!proposal) {
+      console.error('No hay proposal disponible');
+      return;
+    }
+
+    // Validar que la factura tenga datos completos
+    const validation = this.validateInvoiceComplete(proposal);
+    if (!validation.isValid) {
+      this.snackBar.open(validation.message, 'Cerrar', { duration: 5000 });
+      return;
+    }
+
+    try {
+      await this.proposalsService.updateProposalStatus(proposal.id, 'paid');
+      await this.loadProposal(proposal.id);
+      this.snackBar.open('Factura marcada como pagada exitosamente', 'Cerrar', { duration: 3000 });
+    } catch (error) {
+      console.error('Error marcando factura como pagada:', error);
+      this.snackBar.open('Error al marcar como pagada', 'Cerrar', { duration: 3000 });
+    }
+  }
+
+  /**
+   * Validar que la factura tenga datos completos
+   */
+  private validateInvoiceComplete(proposal: Proposal): { isValid: boolean; message: string } {
+    const errors: string[] = [];
+
+    // Validar que tenga fecha de factura
+    if (!proposal.invoiceDate) {
+      errors.push('Falta la fecha de factura');
+    }
+
+    // Validar que tenga fechas de trabajo
+    if (!proposal.workStartDate) {
+      errors.push('Falta la fecha de inicio del trabajo');
+    }
+
+    if (!proposal.workEndDate) {
+      errors.push('Falta la fecha de finalización del trabajo');
+    }
+
+    // Validar que tenga horas de trabajo
+    if (!proposal.workTime || proposal.workTime <= 0) {
+      errors.push('Faltan las horas trabajadas');
+    }
+
+    // Validar que tenga trabajadores
+    if (!proposal.workers || proposal.workers.length === 0) {
+      errors.push('Debe agregar al menos un trabajador');
+    }
+
+    // Validar que tenga materiales
+    if (!proposal.materialsUsed || proposal.materialsUsed.length === 0) {
+      errors.push('Debe agregar al menos un material');
+    }
+
+    if (errors.length > 0) {
+      return {
+        isValid: false,
+        message: `No se puede marcar como pagado. Por favor, complete los datos de la factura:\n\n${errors.join('\n')}\n\nUse el botón "Editar Datos" para completar la información.`
+      };
+    }
+
+    return { isValid: true, message: '' };
+  }
+
+  /**
    * Eliminar proposal
    */
   async deleteProposal() {

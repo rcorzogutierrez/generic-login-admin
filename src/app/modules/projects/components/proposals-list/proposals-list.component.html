@@ -72,7 +72,7 @@
     <div class="flex items-center justify-between gap-4 flex-wrap">
 
       <!-- Left: Date Range Inputs -->
-      <div class="flex items-center gap-3 flex-1">
+      <div class="flex items-center gap-3 flex-1 flex-wrap">
         <mat-icon class="text-blue-600">date_range</mat-icon>
 
         <div class="flex flex-col">
@@ -82,6 +82,7 @@
             id="dateFrom"
             [value]="dateFrom()"
             (change)="onDateFromChange($event)"
+            placeholder="Seleccionar fecha"
             class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-slate-400 transition-colors cursor-pointer"
             style="width: 160px;">
         </div>
@@ -95,16 +96,28 @@
             id="dateTo"
             [value]="dateTo()"
             (change)="onDateToChange($event)"
+            placeholder="Seleccionar fecha"
             class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-slate-400 transition-colors cursor-pointer"
             style="width: 160px;">
         </div>
 
-        <button type="button"
-                class="icon-btn mt-5"
-                (click)="resetDateFilter()"
-                title="Restablecer a últimos 30 días">
-          <mat-icon>refresh</mat-icon>
-        </button>
+        <div class="flex gap-2 mt-5">
+          <button type="button"
+                  class="px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium hover:bg-blue-100 transition-colors border border-blue-200"
+                  (click)="setLast30Days()"
+                  title="Filtrar últimos 30 días">
+            <span>Últimos 30 días</span>
+          </button>
+
+          @if (!isDefaultDateRange()) {
+            <button type="button"
+                    class="icon-btn"
+                    (click)="resetDateFilter()"
+                    title="Limpiar filtro (mostrar todos)">
+              <mat-icon>clear</mat-icon>
+            </button>
+          }
+        </div>
       </div>
 
       <!-- Right: Info Message -->

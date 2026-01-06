@@ -7,7 +7,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { Timestamp } from '@angular/fire/firestore';
+import { MatDividerModule } from '@angular/material/divider';
+import { Timestamp } from 'firebase/firestore';
 
 import { WorkPlansService } from '../../services/work-plans.service';
 import { WorkPlansConfigService } from '../../services/work-plans-config.service';
@@ -29,7 +30,8 @@ type ViewMode = 'calendar' | 'list' | 'timeline';
     MatDialogModule,
     MatTooltipModule,
     MatMenuModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatDividerModule
   ],
   templateUrl: './work-plans-list.component.html',
   styleUrl: './work-plans-list.component.css'
@@ -235,6 +237,13 @@ export class WorkPlansListComponent implements OnInit {
     } else {
       this.selectedPlans.set(new Set(plans.map(p => p.id)));
     }
+  }
+
+  /**
+   * Limpiar selección
+   */
+  clearSelection() {
+    this.selectedPlans.set(new Set());
   }
 
   /**

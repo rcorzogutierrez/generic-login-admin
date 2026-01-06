@@ -60,11 +60,23 @@
 
 /* Form Grid */
 .form-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  @apply grid grid-cols-1 gap-4;
+}
+
+@media (min-width: 768px) {
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .col-span-2 {
-  @apply md:col-span-2;
+  grid-column: span 1;
+}
+
+@media (min-width: 768px) {
+  .col-span-2 {
+    grid-column: span 2;
+  }
 }
 
 /* Duration Controls */

@@ -121,7 +121,7 @@ export class WorkPlanFormComponent implements OnInit {
    */
   private async loadWorkers() {
     try {
-      await this.workersService.loadWorkers();
+      await this.workersService.initialize();
       const allWorkers = this.workersService.workers();
       this.workers.set(allWorkers.filter(w => w.isActive));
     } catch (error) {

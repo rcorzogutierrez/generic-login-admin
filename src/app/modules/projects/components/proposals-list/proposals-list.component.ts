@@ -78,9 +78,10 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   selectedProposals = signal<string[]>([]);
   statusFilter = signal<ProposalStatus | 'all'>('all');
 
-  // Filtros de fecha - por defecto últimos 30 días (formato ISO: YYYY-MM-DD)
-  dateFrom = signal<string>(this.getLast30DaysDateISO());
-  dateTo = signal<string>(this.getTodayISO());
+  // Filtros de fecha - por defecto vacío (muestra todos)
+  dateFrom = signal<string>('');
+  dateTo = signal<string>('');
+  isDefaultDateRange = signal<boolean>(true); // Para saber si es el rango por defecto
 
   // Paginación
   currentPage = signal<number>(0);
@@ -688,10 +689,9 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
    */
   onDateFromChange(event: Event) {
     const value = (event.target as HTMLInputElement).value;
-    if (value) {
-      this.dateFrom.set(value);
-      this.currentPage.set(0);
-    }
+    this.dateFrom.set(value);
+    this.isDefaultDateRange.set(false);
+    this.currentPage.set(0);
   }
 
   /**
@@ -699,18 +699,28 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
    */
   onDateToChange(event: Event) {
     const value = (event.target as HTMLInputElement).value;
-    if (value) {
-      this.dateTo.set(value);
-      this.currentPage.set(0);
-    }
+    this.dateTo.set(value);
+    this.isDefaultDateRange.set(false);
+    this.currentPage.set(0);
   }
 
   /**
-   * Resetear filtro de fechas a últimos 30 días
+   * Establecer filtro a últimos 30 días
    */
-  resetDateFilter() {
+  setLast30Days() {
     this.dateFrom.set(this.getLast30DaysDateISO());
     this.dateTo.set(this.getTodayISO());
+    this.isDefaultDateRange.set(false);
+    this.currentPage.set(0);
+  }
+
+  /**
+   * Limpiar filtro de fechas (mostrar todos)
+   */
+  resetDateFilter() {
+    this.dateFrom.set('');
+    this.dateTo.set('');
+    this.isDefaultDateRange.set(true);
     this.currentPage.set(0);
   }
 
@@ -721,7 +731,21 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
     const from = this.dateFrom();
     const to = this.dateTo();
 
-    if (!from || !to) return '';
+    if (!from && !to) {
+      return 'Mostrando todos los registros';
+    }
+
+    if (!from && to) {
+      const toDate = new Date(to);
+      const toStr = toDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+      return `Mostrando registros hasta el ${toStr}`;
+    }
+
+    if (from && !to) {
+      const fromDate = new Date(from);
+      const fromStr = fromDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+      return `Mostrando registros desde el ${fromStr}`;
+    }
 
     const fromDate = new Date(from);
     const toDate = new Date(to);

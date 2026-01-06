@@ -18,6 +18,10 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 // Services
 import { ProposalsService } from '../../services/proposals.service';
@@ -47,7 +51,11 @@ import { GenericModuleConfig, GenericFieldConfig } from '../../../../shared/mode
     MatChipsModule,
     MatDividerModule,
     MatDialogModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   templateUrl: './proposals-list.component.html',
   styleUrl: './proposals-list.component.css',
@@ -78,6 +86,10 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   selectedProposals = signal<string[]>([]);
   statusFilter = signal<ProposalStatus | 'all'>('all');
 
+  // Filtros de fecha - por defecto últimos 30 días
+  dateFrom = signal<Date>(this.getLast30DaysDate());
+  dateTo = signal<Date>(new Date());
+
   // Paginación
   currentPage = signal<number>(0);
   itemsPerPage = signal<number>(25);
@@ -91,8 +103,25 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
     const search = this.searchTerm().toLowerCase();
     const statusFilterValue = this.statusFilter();
     const sort = this.currentSort();
+    const fromDate = this.dateFrom();
+    const toDate = this.dateTo();
 
     let filtered = proposals;
+
+    // Filtrar por rango de fechas (filtro principal)
+    if (fromDate && toDate) {
+      // Normalizar las fechas para comparar solo día/mes/año
+      const from = new Date(fromDate);
+      from.setHours(0, 0, 0, 0);
+      const to = new Date(toDate);
+      to.setHours(23, 59, 59, 999);
+
+      filtered = filtered.filter(p => {
+        if (!p.date) return false;
+        const proposalDate = p.date.toDate ? p.date.toDate() : new Date(p.date);
+        return proposalDate >= from && proposalDate <= to;
+      });
+    }
 
     // Filtrar por status
     if (statusFilterValue !== 'all') {
@@ -643,6 +672,60 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
 
     // Es un estimado o factura sin materiales, retornar total normal
     return proposal.total || 0;
+  }
+
+  /**
+   * Obtener fecha de hace 30 días
+   */
+  private getLast30DaysDate(): Date {
+    const date = new Date();
+    date.setDate(date.getDate() - 30);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+
+  /**
+   * Cambiar fecha inicial
+   */
+  onDateFromChange(date: Date | null) {
+    if (date) {
+      this.dateFrom.set(date);
+      this.currentPage.set(0);
+    }
+  }
+
+  /**
+   * Cambiar fecha final
+   */
+  onDateToChange(date: Date | null) {
+    if (date) {
+      this.dateTo.set(date);
+      this.currentPage.set(0);
+    }
+  }
+
+  /**
+   * Resetear filtro de fechas a últimos 30 días
+   */
+  resetDateFilter() {
+    this.dateFrom.set(this.getLast30DaysDate());
+    this.dateTo.set(new Date());
+    this.currentPage.set(0);
+  }
+
+  /**
+   * Obtener mensaje del rango de fechas seleccionado
+   */
+  getDateRangeMessage(): string {
+    const from = this.dateFrom();
+    const to = this.dateTo();
+
+    if (!from || !to) return '';
+
+    const fromStr = from.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+    const toStr = to.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    return `Mostrando resultados del ${fromStr} al ${toStr}`;
   }
 
   /**

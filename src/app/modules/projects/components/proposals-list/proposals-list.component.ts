@@ -463,19 +463,6 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Refrescar lista
-   */
-  async refresh() {
-    try {
-      await this.proposalsService.refresh();
-      this.snackBar.open('Lista actualizada', 'Cerrar', { duration: 2000 });
-    } catch (error) {
-      console.error('Error refrescando lista:', error);
-      this.snackBar.open('Error al actualizar', 'Cerrar', { duration: 3000 });
-    }
-  }
-
-  /**
    * Cambiar página
    */
   goToPage(page: number) {

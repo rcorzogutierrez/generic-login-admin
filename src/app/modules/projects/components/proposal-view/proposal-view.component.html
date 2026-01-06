@@ -19,19 +19,19 @@
           <button type="button" class="back-btn" (click)="back()" title="Volver">
             <mat-icon>arrow_back</mat-icon>
           </button>
-          <div class="header-icon-box" [class.blue]="proposal()!.status !== 'converted_to_invoice'" [class.green]="proposal()!.status === 'converted_to_invoice'">
-            <mat-icon>{{ proposal()!.status === 'converted_to_invoice' ? 'receipt_long' : 'description' }}</mat-icon>
+          <div class="header-icon-box" [class.blue]="proposal()!.status !== 'converted_to_invoice' && proposal()!.status !== 'paid'" [class.green]="proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid'">
+            <mat-icon>{{ (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') ? 'receipt_long' : 'description' }}</mat-icon>
           </div>
           <div>
             <h1 class="text-lg font-bold text-slate-800">
-              @if (proposal()!.status === 'converted_to_invoice') {
+              @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
                 {{ 'projects.proposal.view.invoice' | translate }} {{ proposal()!.proposalNumber }}
               } @else {
                 {{ 'projects.proposal.view.estimate' | translate }} {{ proposal()!.proposalNumber }}
               }
             </h1>
             <p class="text-xs text-slate-500">
-              @if (proposal()!.status === 'converted_to_invoice') {
+              @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
                 {{ 'projects.proposal.view.detailedViewInvoice' | translate }}
               } @else {
                 {{ 'projects.proposal.view.detailedView' | translate }}
@@ -43,7 +43,7 @@
         <!-- Right: Actions -->
         <div class="flex items-center gap-2 flex-wrap">
           <!-- Toggle para mostrar detalles del estimado (solo en facturas) -->
-          @if (proposal()!.status === 'converted_to_invoice') {
+          @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
             <label class="details-toggle" [class.active]="showProposalDetails()">
               <input type="checkbox" [checked]="showProposalDetails()" (change)="toggleProposalDetails()">
               <mat-icon>{{ showProposalDetails() ? 'visibility' : 'visibility_off' }}</mat-icon>
@@ -55,7 +55,7 @@
             <mat-icon>print</mat-icon>
           </button>
 
-          @if (proposal()!.status !== 'converted_to_invoice') {
+          @if (proposal()!.status !== 'converted_to_invoice' && proposal()!.status !== 'paid') {
             <button type="button" class="btn-primary" (click)="editProposal()">
               <mat-icon>edit</mat-icon>
               <span>{{ 'projects.proposal.view.editEstimate' | translate }}</span>
@@ -108,7 +108,7 @@
     <div class="document-card animate-fadeIn" style="animation-delay: 0.05s">
 
       <!-- Encabezado del documento -->
-      <div class="document-header" [class.invoice]="proposal()!.status === 'converted_to_invoice'">
+      <div class="document-header" [class.invoice]="proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid'">
         <div class="grid grid-cols-12 gap-4">
 
           <!-- Columna Izquierda: Info del Cliente -->
@@ -123,14 +123,14 @@
             </p>
             <p class="doc-info-row">
               <span class="doc-label">
-                @if (proposal()!.status === 'converted_to_invoice') {
+                @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
                   {{ 'projects.proposal.view.invoiceDate' | translate }}
                 } @else {
                   {{ 'projects.proposal.view.date' | translate }}
                 }
               </span>
               <span class="doc-value font-semibold">
-                @if (proposal()!.status === 'converted_to_invoice') {
+                @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
                   {{ proposal()!.invoiceDate ? formatDate(proposal()!.invoiceDate) : formatDate(proposal()!.date) }}
                 } @else {
                   {{ formatDate(proposal()!.date) }}
@@ -142,7 +142,7 @@
           <!-- Columna Central: Número -->
           <div class="col-span-3 flex items-start justify-center">
             <div class="document-number-box">
-              @if (proposal()!.status === 'converted_to_invoice') {
+              @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
                 <span class="doc-type-label">{{ 'projects.proposal.view.invoice' | translate }}</span>
               } @else {
                 <span class="doc-type-label">{{ 'projects.proposal.view.estimate' | translate }}</span>
@@ -191,7 +191,7 @@
       </div>
 
       <!-- ========== DETALLES DEL ESTIMADO ORIGINAL ========== -->
-      @if (proposal()!.status !== 'converted_to_invoice' || showProposalDetails()) {
+      @if ((proposal()!.status !== 'converted_to_invoice' && proposal()!.status !== 'paid') || showProposalDetails()) {
 
         <!-- Items Incluidos -->
         @if (proposal()!.includes && proposal()!.includes.length > 0) {
@@ -263,7 +263,7 @@
       }
 
       <!-- ========== SECCIÓN DE FACTURA ========== -->
-      @if (proposal()!.status === 'converted_to_invoice') {
+      @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
         <div class="invoice-section">
           <div class="invoice-header">
             <h2>

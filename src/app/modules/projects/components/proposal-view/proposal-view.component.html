@@ -320,6 +320,7 @@
                     <th class="text-left">Material</th>
                     <th class="text-center">Cant.</th>
                     <th class="text-right">Precio</th>
+                    <th class="text-right">Subtotal</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -327,7 +328,8 @@
                     <tr>
                       <td>{{ material.material }}</td>
                       <td class="text-center">{{ material.amount }}</td>
-                      <td class="text-right font-semibold">{{ material.price | currencyFormatter }}</td>
+                      <td class="text-right">{{ material.price | currencyFormatter }}</td>
+                      <td class="text-right font-semibold">{{ (material.amount * material.price) | currencyFormatter }}</td>
                     </tr>
                   }
                 </tbody>

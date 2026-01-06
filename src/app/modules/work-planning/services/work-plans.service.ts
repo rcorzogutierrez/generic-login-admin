@@ -1,10 +1,9 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
+import { Firestore } from '@angular/fire/firestore';
 import {
-  Firestore,
   collection,
   addDoc,
   updateDoc,
-  deleteDoc,
   doc,
   query,
   where,
@@ -12,10 +11,8 @@ import {
   getDocs,
   getDoc,
   Timestamp,
-  DocumentReference,
-  Query,
   QueryConstraint
-} from '@angular/fire/firestore';
+} from 'firebase/firestore';
 import { AuthService } from '../../../core/services/auth.service';
 import {
   WorkPlan,
@@ -106,7 +103,7 @@ export class WorkPlansService {
       const q = query(this.getCollection(), ...constraints);
       const querySnapshot = await getDocs(q);
 
-      let plans: WorkPlan[] = querySnapshot.docs.map(doc => ({
+      let plans: WorkPlan[] = querySnapshot.docs.map((doc: any) => ({
         id: doc.id,
         ...doc.data()
       } as WorkPlan));
@@ -174,6 +171,7 @@ export class WorkPlansService {
 
       return {
         success: true,
+        message: 'Plan de trabajo obtenido exitosamente',
         data: workPlan
       };
     } catch (error: any) {
@@ -190,7 +188,7 @@ export class WorkPlansService {
    */
   async createWorkPlan(data: CreateWorkPlanData): Promise<OperationResult<WorkPlan>> {
     try {
-      const currentUser = this.authService.currentUser();
+      const currentUser = this.authService.authorizedUser();
       if (!currentUser) {
         return {
           success: false,
@@ -239,7 +237,7 @@ export class WorkPlansService {
     data: UpdateWorkPlanData
   ): Promise<OperationResult<WorkPlan>> {
     try {
-      const currentUser = this.authService.currentUser();
+      const currentUser = this.authService.authorizedUser();
       if (!currentUser) {
         return {
           success: false,
@@ -292,7 +290,7 @@ export class WorkPlansService {
    */
   async deleteWorkPlan(id: string): Promise<OperationResult<void>> {
     try {
-      const currentUser = this.authService.currentUser();
+      const currentUser = this.authService.authorizedUser();
       if (!currentUser) {
         return {
           success: false,
@@ -329,7 +327,7 @@ export class WorkPlansService {
    */
   async deleteMultipleWorkPlans(ids: string[]): Promise<OperationResult<void>> {
     try {
-      const currentUser = this.authService.currentUser();
+      const currentUser = this.authService.authorizedUser();
       if (!currentUser) {
         return {
           success: false,

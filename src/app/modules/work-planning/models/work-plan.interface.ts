@@ -1,4 +1,4 @@
-import { Timestamp } from '@angular/fire/firestore';
+import { Timestamp } from 'firebase/firestore';
 import { GenericEntity } from '../../../shared/models/generic-entity.interface';
 
 /**

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ModuleConfig } from '../../../shared/models/module-config.interface';
+import { ModuleConfig } from '../../../shared/modules/dynamic-form-builder/models/module-config.interface';
 
 @Injectable({
   providedIn: 'root'

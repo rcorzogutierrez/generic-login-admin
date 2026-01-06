@@ -302,8 +302,10 @@
             <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
             <span>Guardando...</span>
           } @else {
-            <mat-icon>{{ data.mode === 'create' ? 'add' : 'save' }}</mat-icon>
-            <span>{{ getSaveButtonText() }}</span>
+            <ng-container>
+              <mat-icon>{{ data.mode === 'create' ? 'add' : 'save' }}</mat-icon>
+              <span>{{ getSaveButtonText() }}</span>
+            </ng-container>
           }
         </button>
       </div>

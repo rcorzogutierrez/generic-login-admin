@@ -82,6 +82,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   dateFrom = signal<string>('');
   dateTo = signal<string>('');
   isDefaultDateRange = signal<boolean>(true); // Para saber si es el rango por defecto
+  dateRangePreset = signal<'all' | 'today' | 'yesterday' | 'last7days' | 'last30days' | 'custom'>('all');
 
   // Paginación
   currentPage = signal<number>(0);
@@ -702,11 +703,30 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Obtener fecha de ayer en formato ISO (YYYY-MM-DD)
+   */
+  private getYesterdayISO(): string {
+    const date = new Date();
+    date.setDate(date.getDate() - 1);
+    return date.toISOString().split('T')[0];
+  }
+
+  /**
+   * Obtener fecha de hace 7 días en formato ISO (YYYY-MM-DD)
+   */
+  private getLast7DaysDateISO(): string {
+    const date = new Date();
+    date.setDate(date.getDate() - 7);
+    return date.toISOString().split('T')[0];
+  }
+
+  /**
    * Cambiar fecha inicial
    */
   onDateFromChange(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.dateFrom.set(value);
+    this.dateRangePreset.set('custom');
     this.isDefaultDateRange.set(false);
     this.currentPage.set(0);
   }
@@ -717,6 +737,71 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   onDateToChange(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.dateTo.set(value);
+    this.dateRangePreset.set('custom');
+    this.isDefaultDateRange.set(false);
+    this.currentPage.set(0);
+  }
+
+  /**
+   * Manejar cambio de preset de rango de fechas
+   */
+  onDateRangePresetChange(event: Event) {
+    const value = (event.target as HTMLSelectElement).value as 'all' | 'today' | 'yesterday' | 'last7days' | 'last30days' | 'custom';
+    this.dateRangePreset.set(value);
+
+    switch (value) {
+      case 'all':
+        this.resetDateFilter();
+        break;
+      case 'today':
+        this.setToday();
+        break;
+      case 'yesterday':
+        this.setYesterday();
+        break;
+      case 'last7days':
+        this.setLast7Days();
+        break;
+      case 'last30days':
+        this.setLast30Days();
+        break;
+      case 'custom':
+        // No hacer nada, el usuario ingresará las fechas manualmente
+        break;
+    }
+  }
+
+  /**
+   * Establecer filtro a hoy
+   */
+  setToday() {
+    const today = this.getTodayISO();
+    this.dateFrom.set(today);
+    this.dateTo.set(today);
+    this.dateRangePreset.set('today');
+    this.isDefaultDateRange.set(false);
+    this.currentPage.set(0);
+  }
+
+  /**
+   * Establecer filtro a ayer
+   */
+  setYesterday() {
+    const yesterday = this.getYesterdayISO();
+    this.dateFrom.set(yesterday);
+    this.dateTo.set(yesterday);
+    this.dateRangePreset.set('yesterday');
+    this.isDefaultDateRange.set(false);
+    this.currentPage.set(0);
+  }
+
+  /**
+   * Establecer filtro a últimos 7 días
+   */
+  setLast7Days() {
+    this.dateFrom.set(this.getLast7DaysDateISO());
+    this.dateTo.set(this.getTodayISO());
+    this.dateRangePreset.set('last7days');
     this.isDefaultDateRange.set(false);
     this.currentPage.set(0);
   }
@@ -727,6 +812,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   setLast30Days() {
     this.dateFrom.set(this.getLast30DaysDateISO());
     this.dateTo.set(this.getTodayISO());
+    this.dateRangePreset.set('last30days');
     this.isDefaultDateRange.set(false);
     this.currentPage.set(0);
   }
@@ -737,6 +823,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   resetDateFilter() {
     this.dateFrom.set('');
     this.dateTo.set('');
+    this.dateRangePreset.set('all');
     this.isDefaultDateRange.set(true);
     this.currentPage.set(0);
   }

@@ -18,10 +18,6 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 
 // Services
 import { ProposalsService } from '../../services/proposals.service';
@@ -51,11 +47,7 @@ import { GenericModuleConfig, GenericFieldConfig } from '../../../../shared/mode
     MatChipsModule,
     MatDividerModule,
     MatDialogModule,
-    MatCheckboxModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatFormFieldModule,
-    MatInputModule
+    MatCheckboxModule
   ],
   templateUrl: './proposals-list.component.html',
   styleUrl: './proposals-list.component.css',
@@ -86,9 +78,9 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   selectedProposals = signal<string[]>([]);
   statusFilter = signal<ProposalStatus | 'all'>('all');
 
-  // Filtros de fecha - por defecto últimos 30 días
-  dateFrom = signal<Date>(this.getLast30DaysDate());
-  dateTo = signal<Date>(new Date());
+  // Filtros de fecha - por defecto últimos 30 días (formato ISO: YYYY-MM-DD)
+  dateFrom = signal<string>(this.getLast30DaysDateISO());
+  dateTo = signal<string>(this.getTodayISO());
 
   // Paginación
   currentPage = signal<number>(0);
@@ -110,7 +102,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
 
     // Filtrar por rango de fechas (filtro principal)
     if (fromDate && toDate) {
-      // Normalizar las fechas para comparar solo día/mes/año
+      // Convertir strings ISO a Date para comparación
       const from = new Date(fromDate);
       from.setHours(0, 0, 0, 0);
       const to = new Date(toDate);
@@ -676,21 +668,28 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Obtener fecha de hace 30 días
+   * Obtener fecha de hace 30 días en formato ISO (YYYY-MM-DD)
    */
-  private getLast30DaysDate(): Date {
+  private getLast30DaysDateISO(): string {
     const date = new Date();
     date.setDate(date.getDate() - 30);
-    date.setHours(0, 0, 0, 0);
-    return date;
+    return date.toISOString().split('T')[0];
+  }
+
+  /**
+   * Obtener fecha de hoy en formato ISO (YYYY-MM-DD)
+   */
+  private getTodayISO(): string {
+    return new Date().toISOString().split('T')[0];
   }
 
   /**
    * Cambiar fecha inicial
    */
-  onDateFromChange(date: Date | null) {
-    if (date) {
-      this.dateFrom.set(date);
+  onDateFromChange(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    if (value) {
+      this.dateFrom.set(value);
       this.currentPage.set(0);
     }
   }
@@ -698,9 +697,10 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   /**
    * Cambiar fecha final
    */
-  onDateToChange(date: Date | null) {
-    if (date) {
-      this.dateTo.set(date);
+  onDateToChange(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    if (value) {
+      this.dateTo.set(value);
       this.currentPage.set(0);
     }
   }
@@ -709,8 +709,8 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
    * Resetear filtro de fechas a últimos 30 días
    */
   resetDateFilter() {
-    this.dateFrom.set(this.getLast30DaysDate());
-    this.dateTo.set(new Date());
+    this.dateFrom.set(this.getLast30DaysDateISO());
+    this.dateTo.set(this.getTodayISO());
     this.currentPage.set(0);
   }
 
@@ -723,8 +723,11 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
 
     if (!from || !to) return '';
 
-    const fromStr = from.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
-    const toStr = to.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
+
+    const fromStr = fromDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+    const toStr = toDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
 
     return `Mostrando resultados del ${fromStr} al ${toStr}`;
   }

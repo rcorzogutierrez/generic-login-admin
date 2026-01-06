@@ -75,32 +75,32 @@
       <div class="flex items-center gap-3 flex-1">
         <mat-icon class="text-blue-600">date_range</mat-icon>
 
-        <mat-form-field appearance="outline" class="date-field" subscriptSizing="dynamic">
-          <mat-label>Desde</mat-label>
-          <input matInput
-                 [matDatepicker]="pickerFrom"
-                 [value]="dateFrom()"
-                 (dateChange)="onDateFromChange($event.value)"
-                 readonly>
-          <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
-          <mat-datepicker #pickerFrom></mat-datepicker>
-        </mat-form-field>
+        <div class="flex flex-col">
+          <label for="dateFrom" class="text-xs text-slate-600 mb-1 ml-1">Desde</label>
+          <input
+            type="date"
+            id="dateFrom"
+            [value]="dateFrom()"
+            (change)="onDateFromChange($event)"
+            class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-slate-400 transition-colors cursor-pointer"
+            style="width: 160px;">
+        </div>
 
-        <span class="text-slate-400">—</span>
+        <span class="text-slate-400 mt-5">—</span>
 
-        <mat-form-field appearance="outline" class="date-field" subscriptSizing="dynamic">
-          <mat-label>Hasta</mat-label>
-          <input matInput
-                 [matDatepicker]="pickerTo"
-                 [value]="dateTo()"
-                 (dateChange)="onDateToChange($event.value)"
-                 readonly>
-          <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
-          <mat-datepicker #pickerTo></mat-datepicker>
-        </mat-form-field>
+        <div class="flex flex-col">
+          <label for="dateTo" class="text-xs text-slate-600 mb-1 ml-1">Hasta</label>
+          <input
+            type="date"
+            id="dateTo"
+            [value]="dateTo()"
+            (change)="onDateToChange($event)"
+            class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-slate-400 transition-colors cursor-pointer"
+            style="width: 160px;">
+        </div>
 
         <button type="button"
-                class="icon-btn"
+                class="icon-btn mt-5"
                 (click)="resetDateFilter()"
                 title="Restablecer a últimos 30 días">
           <mat-icon>refresh</mat-icon>

@@ -53,9 +53,9 @@
                   class="input-field"
                   [class.input-error]="form.get('planDate')?.invalid && form.get('planDate')?.touched"
                   required>
-                <button type="button" class="datepicker-toggle" [matDatepickerToggleFor]="picker">
-                  <mat-icon>calendar_today</mat-icon>
-                </button>
+                <mat-datepicker-toggle class="datepicker-toggle" [for]="picker">
+                  <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
+                </mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
               </div>
               @if (form.get('planDate')?.invalid && form.get('planDate')?.touched) {

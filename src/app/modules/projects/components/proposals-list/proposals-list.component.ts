@@ -91,12 +91,10 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   // Math para templates
   Math = Math;
 
-  // Proposals filtrados y paginados
-  filteredProposals = computed(() => {
+  // Proposals filtrados SOLO por fecha (sin status ni búsqueda)
+  // Esto se usa para calcular las estadísticas de status correctamente
+  dateFilteredProposals = computed(() => {
     const proposals = this.proposals();
-    const search = this.searchTerm().toLowerCase();
-    const statusFilterValue = this.statusFilter();
-    const sort = this.currentSort();
     const fromDate = this.dateFrom();
     const toDate = this.dateTo();
 
@@ -130,6 +128,17 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
         return true;
       });
     }
+
+    return filtered;
+  });
+
+  // Proposals filtrados y paginados
+  filteredProposals = computed(() => {
+    // Comenzar con los proposals filtrados por fecha
+    let filtered = this.dateFilteredProposals();
+    const search = this.searchTerm().toLowerCase();
+    const statusFilterValue = this.statusFilter();
+    const sort = this.currentSort();
 
     // Filtrar por status
     if (statusFilterValue !== 'all') {
@@ -200,6 +209,47 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   // Estadísticas calculadas dinámicamente basadas en los proposals filtrados
   filteredStats = computed(() => {
     const proposals = this.filteredProposals();
+
+    const stats: ProposalStats = {
+      total: proposals.length,
+      byStatus: {
+        draft: proposals.filter(p => p.status === 'draft').length,
+        sent: proposals.filter(p => p.status === 'sent').length,
+        approved: proposals.filter(p => p.status === 'approved').length,
+        rejected: proposals.filter(p => p.status === 'rejected').length,
+        converted_to_invoice: proposals.filter(p => p.status === 'converted_to_invoice').length,
+        paid: proposals.filter(p => p.status === 'paid').length,
+        cancelled: proposals.filter(p => p.status === 'cancelled').length
+      },
+      totalValue: proposals.reduce((sum, p) => sum + this.getProposalTotal(p), 0),
+      averageValue: 0,
+      approvalRate: 0
+    };
+
+    // Calcular valor promedio
+    if (proposals.length > 0) {
+      stats.averageValue = stats.totalValue / proposals.length;
+    }
+
+    // Calcular tasa de aprobación
+    const sentOrApproved = proposals.filter(
+      p => ['sent', 'approved', 'converted_to_invoice'].includes(p.status)
+    ).length;
+
+    if (sentOrApproved > 0) {
+      const approved = proposals.filter(
+        p => ['approved', 'converted_to_invoice'].includes(p.status)
+      ).length;
+      stats.approvalRate = (approved / sentOrApproved) * 100;
+    }
+
+    return stats;
+  });
+
+  // Estadísticas calculadas SOLO con filtro de fecha (sin status ni búsqueda)
+  // Esto se usa para mostrar los contadores de cada status correctamente
+  dateFilteredStats = computed(() => {
+    const proposals = this.dateFilteredProposals();
 
     const stats: ProposalStats = {
       total: proposals.length,

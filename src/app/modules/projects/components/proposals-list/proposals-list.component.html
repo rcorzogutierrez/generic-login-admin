@@ -19,19 +19,19 @@
         <!-- Stats inline -->
         <div class="flex items-center gap-2 ml-2">
           <div class="stat-chip slate">
-            <span class="stat-value">{{ stats().total }}</span>
+            <span class="stat-value">{{ dateFilteredStats().total }}</span>
             <span class="stat-label">Total</span>
           </div>
           <div class="stat-chip amber">
-            <span class="stat-value">{{ stats().byStatus.sent }}</span>
+            <span class="stat-value">{{ dateFilteredStats().byStatus.sent }}</span>
             <span class="stat-label">Enviados</span>
           </div>
           <div class="stat-chip green">
-            <span class="stat-value">{{ stats().byStatus.approved }}</span>
+            <span class="stat-value">{{ dateFilteredStats().byStatus.approved }}</span>
             <span class="stat-label">Aprobados</span>
           </div>
           <div class="stat-chip purple">
-            <span class="stat-value">{{ stats().byStatus.converted_to_invoice }}</span>
+            <span class="stat-value">{{ dateFilteredStats().byStatus.converted_to_invoice }}</span>
             <span class="stat-label">Facturados</span>
           </div>
         </div>
@@ -140,7 +140,7 @@
          [class.active]="statusFilter() === 'all'"
          (click)="filterByStatus('all')">
       <mat-icon>description</mat-icon>
-      <span class="stat-card-value">{{ stats().total }}</span>
+      <span class="stat-card-value">{{ dateFilteredStats().total }}</span>
       <span class="stat-card-label">Total</span>
     </div>
 
@@ -149,7 +149,7 @@
          [class.active]="statusFilter() === 'draft'"
          (click)="filterByStatus('draft')">
       <mat-icon>edit</mat-icon>
-      <span class="stat-card-value">{{ stats().byStatus.draft }}</span>
+      <span class="stat-card-value">{{ dateFilteredStats().byStatus.draft }}</span>
       <span class="stat-card-label">Borradores</span>
     </div>
 
@@ -158,7 +158,7 @@
          [class.active]="statusFilter() === 'sent'"
          (click)="filterByStatus('sent')">
       <mat-icon>send</mat-icon>
-      <span class="stat-card-value">{{ stats().byStatus.sent }}</span>
+      <span class="stat-card-value">{{ dateFilteredStats().byStatus.sent }}</span>
       <span class="stat-card-label">Enviados</span>
     </div>
 
@@ -167,7 +167,7 @@
          [class.active]="statusFilter() === 'approved'"
          (click)="filterByStatus('approved')">
       <mat-icon>check_circle</mat-icon>
-      <span class="stat-card-value">{{ stats().byStatus.approved }}</span>
+      <span class="stat-card-value">{{ dateFilteredStats().byStatus.approved }}</span>
       <span class="stat-card-label">Aprobados</span>
     </div>
 
@@ -176,7 +176,7 @@
          [class.active]="statusFilter() === 'converted_to_invoice'"
          (click)="filterByStatus('converted_to_invoice')">
       <mat-icon>receipt_long</mat-icon>
-      <span class="stat-card-value">{{ stats().byStatus.converted_to_invoice }}</span>
+      <span class="stat-card-value">{{ dateFilteredStats().byStatus.converted_to_invoice }}</span>
       <span class="stat-card-label">Facturados</span>
     </div>
 
@@ -185,7 +185,7 @@
          [class.active]="statusFilter() === 'paid'"
          (click)="filterByStatus('paid')">
       <mat-icon>payments</mat-icon>
-      <span class="stat-card-value">{{ stats().byStatus.paid }}</span>
+      <span class="stat-card-value">{{ dateFilteredStats().byStatus.paid }}</span>
       <span class="stat-card-label">Pagados</span>
     </div>
 
@@ -194,7 +194,7 @@
          [class.active]="statusFilter() === 'rejected'"
          (click)="filterByStatus('rejected')">
       <mat-icon>cancel</mat-icon>
-      <span class="stat-card-value">{{ stats().byStatus.rejected }}</span>
+      <span class="stat-card-value">{{ dateFilteredStats().byStatus.rejected }}</span>
       <span class="stat-card-label">Rechazados</span>
     </div>
 
@@ -203,7 +203,7 @@
          [class.active]="statusFilter() === 'cancelled'"
          (click)="filterByStatus('cancelled')">
       <mat-icon>block</mat-icon>
-      <span class="stat-card-value">{{ stats().byStatus.cancelled }}</span>
+      <span class="stat-card-value">{{ dateFilteredStats().byStatus.cancelled }}</span>
       <span class="stat-card-label">Cancelados</span>
     </div>
 

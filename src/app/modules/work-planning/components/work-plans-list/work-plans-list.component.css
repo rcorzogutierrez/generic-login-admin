@@ -1,0 +1,308 @@
+/* Stat Chips */
+.stat-chip {
+  @apply flex items-center gap-3 px-4 py-3 rounded-xl border transition-all;
+}
+
+.stat-chip-slate {
+  @apply bg-slate-50 border-slate-200;
+}
+
+.stat-chip-blue {
+  @apply bg-blue-50 border-blue-200;
+}
+
+.stat-chip-amber {
+  @apply bg-amber-50 border-amber-200;
+}
+
+.stat-chip-green {
+  @apply bg-green-50 border-green-200;
+}
+
+.stat-chip-purple {
+  @apply bg-purple-50 border-purple-200;
+}
+
+.stat-icon {
+  @apply text-xl;
+}
+
+.stat-chip-slate .stat-icon {
+  @apply text-slate-600;
+}
+
+.stat-chip-blue .stat-icon {
+  @apply text-blue-600;
+}
+
+.stat-chip-amber .stat-icon {
+  @apply text-amber-600;
+}
+
+.stat-chip-green .stat-icon {
+  @apply text-green-600;
+}
+
+.stat-chip-purple .stat-icon {
+  @apply text-purple-600;
+}
+
+.stat-content {
+  @apply flex flex-col;
+}
+
+.stat-value {
+  @apply text-lg font-bold text-slate-800;
+}
+
+.stat-label {
+  @apply text-xs font-semibold text-slate-500 uppercase;
+}
+
+/* Vista Calendario */
+.calendar-view {
+  @apply animate-fadeIn;
+}
+
+.day-header {
+  @apply bg-white rounded-xl border border-slate-200 p-3 text-center transition-all;
+}
+
+.day-header.today {
+  @apply bg-purple-50 border-purple-300 shadow-sm;
+}
+
+.day-name {
+  @apply text-xs font-semibold text-slate-600 uppercase mb-1;
+}
+
+.day-number {
+  @apply text-2xl font-bold text-slate-800;
+}
+
+.day-header.today .day-number {
+  @apply text-purple-600;
+}
+
+.day-month {
+  @apply text-xs text-slate-500 mt-1;
+}
+
+.day-cell {
+  @apply bg-white rounded-xl border border-slate-200 p-3 min-h-[200px] transition-all hover:border-slate-300;
+}
+
+.day-cell.today {
+  @apply bg-purple-50/30 border-purple-200;
+}
+
+.empty-day {
+  @apply flex flex-col items-center justify-center h-full py-8 text-center;
+}
+
+/* Plan Card */
+.plan-card {
+  @apply relative bg-white rounded-lg border border-slate-200 p-3 mb-2 cursor-pointer transition-all;
+  @apply hover:shadow-md hover:border-slate-300;
+  border-left-width: 4px;
+}
+
+.plan-card:last-child {
+  @apply mb-0;
+}
+
+.plan-checkbox {
+  @apply absolute top-2 right-2;
+}
+
+.plan-content {
+  @apply pr-8;
+}
+
+.plan-title {
+  @apply text-sm font-semibold text-slate-800 mb-2 line-clamp-2;
+}
+
+.plan-detail {
+  @apply flex items-center gap-1.5 text-xs text-slate-600 mb-1;
+}
+
+.plan-detail mat-icon {
+  @apply text-base text-slate-400;
+}
+
+.plan-actions {
+  @apply absolute bottom-2 right-2;
+}
+
+/* Status Badge */
+.status-badge {
+  @apply inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.status-badge mat-icon {
+  @apply w-4 h-4 text-sm;
+}
+
+.badge-blue {
+  @apply bg-blue-100 text-blue-700;
+}
+
+.badge-amber {
+  @apply bg-amber-100 text-amber-700;
+}
+
+.badge-green {
+  @apply bg-green-100 text-green-700;
+}
+
+.badge-slate {
+  @apply bg-slate-100 text-slate-700;
+}
+
+/* Botones de vista */
+.view-mode-btn {
+  @apply px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-600;
+  @apply flex items-center gap-2 transition-all hover:bg-slate-50;
+}
+
+.view-mode-btn.active {
+  @apply bg-purple-50 border-purple-300 text-purple-700 font-semibold;
+}
+
+.view-mode-btn mat-icon {
+  @apply text-xl;
+}
+
+/* Botón Hoy */
+.today-btn {
+  @apply px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700;
+  @apply flex items-center gap-2 transition-all hover:bg-slate-50;
+}
+
+.today-btn mat-icon {
+  @apply text-xl;
+}
+
+/* Vista Timeline */
+.timeline-view {
+  @apply animate-fadeIn;
+}
+
+.timeline-item {
+  @apply relative pl-8 pb-8 border-l-4 border-slate-200 cursor-pointer transition-all;
+  @apply hover:border-opacity-80;
+}
+
+.timeline-item:last-child {
+  @apply pb-0 border-l-0;
+}
+
+.timeline-marker {
+  @apply absolute left-0 top-0 w-4 h-4 rounded-full transform -translate-x-[10px];
+  @apply ring-4 ring-white;
+}
+
+.timeline-content {
+  @apply bg-white rounded-xl border border-slate-200 p-4 shadow-sm;
+  @apply hover:shadow-md transition-all;
+}
+
+.timeline-date {
+  @apply text-sm font-semibold text-purple-600;
+}
+
+.timeline-title {
+  @apply text-lg font-bold text-slate-800 mb-3;
+}
+
+.timeline-details {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-2 mt-3;
+}
+
+.timeline-detail-item {
+  @apply flex items-center gap-2 text-sm text-slate-600;
+}
+
+.timeline-detail-item mat-icon {
+  @apply text-base text-slate-400;
+}
+
+/* Search Box */
+.search-box {
+  @apply relative;
+}
+
+.search-icon {
+  @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xl pointer-events-none;
+}
+
+.search-input {
+  @apply w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 bg-white;
+  @apply text-sm text-slate-700 placeholder-slate-400;
+  @apply focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent;
+  @apply transition-all;
+}
+
+/* Filter Buttons */
+.filter-btn {
+  @apply px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm text-slate-600;
+  @apply flex items-center gap-1.5 transition-all hover:bg-slate-50;
+}
+
+.filter-btn.active {
+  @apply bg-purple-50 border-purple-300 text-purple-700 font-semibold;
+}
+
+.filter-btn mat-icon {
+  @apply text-base;
+}
+
+/* Icon Buttons */
+.icon-btn-sm {
+  @apply w-8 h-8 flex items-center justify-center rounded-lg;
+  @apply text-slate-600 hover:bg-slate-100 transition-all;
+}
+
+.icon-btn-sm mat-icon {
+  @apply text-lg;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .day-cell {
+    @apply min-h-[150px];
+  }
+
+  .plan-card {
+    @apply p-2;
+  }
+
+  .plan-title {
+    @apply text-xs;
+  }
+
+  .plan-detail {
+    @apply text-xs;
+  }
+
+  .timeline-details {
+    @apply grid-cols-1;
+  }
+}

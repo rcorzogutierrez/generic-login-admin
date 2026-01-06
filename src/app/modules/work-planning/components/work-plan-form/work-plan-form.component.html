@@ -1,0 +1,312 @@
+<div class="work-plan-form-dialog">
+  <!-- Header -->
+  <div class="dialog-header">
+    <div class="flex items-center gap-3">
+      <div class="dialog-icon purple">
+        <mat-icon>{{ getIcon() }}</mat-icon>
+      </div>
+      <div>
+        <h2 class="dialog-title">{{ getTitle() }}</h2>
+        <p class="dialog-subtitle">Complete los campos para {{ data.mode === 'create' ? 'crear' : 'actualizar' }} el plan de trabajo</p>
+      </div>
+    </div>
+    <button
+      mat-icon-button
+      class="dialog-close-btn"
+      (click)="onCancel()"
+      [disabled]="isSaving()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p class="loading-text">Cargando datos...</p>
+    </div>
+  } @else {
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="dialog-content">
+        <!-- Fecha de Planificación -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>event</mat-icon>
+            Fecha y Duración
+          </h3>
+
+          <div class="form-grid">
+            <!-- Fecha -->
+            <mat-form-field appearance="outline" class="col-span-2">
+              <mat-label>Fecha del Plan</mat-label>
+              <input
+                matInput
+                [matDatepicker]="picker"
+                formControlName="planDate"
+                placeholder="Seleccione una fecha"
+                required>
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+              <mat-icon matPrefix>event</mat-icon>
+              @if (form.get('planDate')?.invalid && form.get('planDate')?.touched) {
+                <mat-error>{{ getErrorMessage('planDate') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <!-- Duración en Días -->
+            <mat-form-field appearance="outline">
+              <mat-label>Duración (Días)</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="durationDays"
+                placeholder="0"
+                min="0"
+                required>
+              <mat-icon matPrefix>calendar_today</mat-icon>
+              <div matSuffix class="duration-controls">
+                <button
+                  type="button"
+                  mat-icon-button
+                  class="duration-btn"
+                  (click)="decrementDays()"
+                  [disabled]="form.get('durationDays')?.value <= 0">
+                  <mat-icon>remove</mat-icon>
+                </button>
+                <button
+                  type="button"
+                  mat-icon-button
+                  class="duration-btn"
+                  (click)="incrementDays()">
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
+              @if (form.get('durationDays')?.invalid && form.get('durationDays')?.touched) {
+                <mat-error>{{ getErrorMessage('durationDays') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <!-- Duración en Horas -->
+            <mat-form-field appearance="outline">
+              <mat-label>Duración (Horas)</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="durationHours"
+                placeholder="0"
+                min="0"
+                max="23"
+                required>
+              <mat-icon matPrefix>schedule</mat-icon>
+              <div matSuffix class="duration-controls">
+                <button
+                  type="button"
+                  mat-icon-button
+                  class="duration-btn"
+                  (click)="decrementHours()"
+                  [disabled]="form.get('durationHours')?.value <= 0">
+                  <mat-icon>remove</mat-icon>
+                </button>
+                <button
+                  type="button"
+                  mat-icon-button
+                  class="duration-btn"
+                  (click)="incrementHours()"
+                  [disabled]="form.get('durationHours')?.value >= 23">
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
+              @if (form.get('durationHours')?.invalid && form.get('durationHours')?.touched) {
+                <mat-error>{{ getErrorMessage('durationHours') }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Asignaciones -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>assignment_ind</mat-icon>
+            Asignaciones
+            <span class="text-xs text-slate-500 font-normal ml-2">(Asigne al menos un trabajador o propuesta)</span>
+          </h3>
+
+          <div class="form-grid">
+            <!-- Trabajador -->
+            <mat-form-field appearance="outline" class="col-span-2">
+              <mat-label>Trabajador</mat-label>
+              <mat-select formControlName="workerId" placeholder="Seleccione un trabajador">
+                <mat-option [value]="''">Sin asignar</mat-option>
+                @for (worker of workers(); track worker.id) {
+                  <mat-option [value]="worker.id">
+                    {{ worker.fullName }}
+                    @if (worker.workerType === 'contractor' && worker.companyName) {
+                      <span class="text-xs text-slate-500"> - {{ worker.companyName }}</span>
+                    }
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>person</mat-icon>
+              <mat-hint>Trabajador asignado al plan</mat-hint>
+            </mat-form-field>
+
+            <!-- Propuesta/Estimado -->
+            <mat-form-field appearance="outline" class="col-span-2">
+              <mat-label>Propuesta/Estimado</mat-label>
+              <mat-select formControlName="proposalId" placeholder="Seleccione una propuesta">
+                <mat-option [value]="''">Sin asignar</mat-option>
+                @for (proposal of proposals(); track proposal.id) {
+                  <mat-option [value]="proposal.id">
+                    {{ proposal.proposalNumber }} - {{ proposal.ownerName }}
+                    <span class="text-xs text-slate-500"> ({{ proposal.total | currency }})</span>
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>description</mat-icon>
+              <mat-hint>Propuesta o estimado relacionado</mat-hint>
+            </mat-form-field>
+          </div>
+
+          @if (!hasAssignment() && form.touched) {
+            <div class="warning-message">
+              <mat-icon>warning</mat-icon>
+              <span>Se recomienda asignar al menos un trabajador o una propuesta</span>
+            </div>
+          }
+        </div>
+
+        <!-- Detalles -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>info</mat-icon>
+            Detalles del Trabajo
+          </h3>
+
+          <div class="form-grid">
+            <!-- Descripción -->
+            <mat-form-field appearance="outline" class="col-span-2">
+              <mat-label>Descripción</mat-label>
+              <textarea
+                matInput
+                formControlName="description"
+                placeholder="Descripción del trabajo a realizar"
+                rows="3"
+                maxlength="500"
+                required></textarea>
+              <mat-icon matPrefix>subject</mat-icon>
+              <mat-hint align="end">{{ form.get('description')?.value?.length || 0 }}/500</mat-hint>
+              @if (form.get('description')?.invalid && form.get('description')?.touched) {
+                <mat-error>{{ getErrorMessage('description') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <!-- Ubicación -->
+            <mat-form-field appearance="outline" class="col-span-2">
+              <mat-label>Ubicación</mat-label>
+              <input
+                matInput
+                formControlName="location"
+                placeholder="Dirección o ubicación del trabajo"
+                maxlength="200">
+              <mat-icon matPrefix>place</mat-icon>
+              <mat-hint>Dirección donde se realizará el trabajo</mat-hint>
+            </mat-form-field>
+
+            <!-- Notas -->
+            <mat-form-field appearance="outline" class="col-span-2">
+              <mat-label>Notas Adicionales</mat-label>
+              <textarea
+                matInput
+                formControlName="notes"
+                placeholder="Notas, comentarios o instrucciones especiales"
+                rows="3"
+                maxlength="1000"></textarea>
+              <mat-icon matPrefix>notes</mat-icon>
+              <mat-hint align="end">{{ form.get('notes')?.value?.length || 0 }}/1000</mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Estado y Color -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>settings</mat-icon>
+            Configuración
+          </h3>
+
+          <div class="form-grid">
+            <!-- Estado -->
+            <mat-form-field appearance="outline">
+              <mat-label>Estado</mat-label>
+              <mat-select formControlName="status" required>
+                @for (status of statuses; track status.value) {
+                  <mat-option [value]="status.value">
+                    <div class="flex items-center gap-2">
+                      <mat-icon>{{ status.icon }}</mat-icon>
+                      <span>{{ status.label }}</span>
+                    </div>
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>flag</mat-icon>
+              <mat-hint>Estado actual del plan</mat-hint>
+            </mat-form-field>
+
+            <!-- Color -->
+            <mat-form-field appearance="outline">
+              <mat-label>Color de Identificación</mat-label>
+              <mat-select formControlName="color">
+                @for (color of availableColors; track color.value) {
+                  <mat-option [value]="color.value">
+                    <div class="flex items-center gap-2">
+                      <div class="w-4 h-4 rounded" [ngClass]="color.class"></div>
+                      <span>{{ color.label }}</span>
+                    </div>
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>palette</mat-icon>
+              <mat-hint>Color para visualización en calendario</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <!-- Preview de color -->
+          <div class="color-preview">
+            <div class="preview-label">Vista previa del color:</div>
+            <div class="preview-bar" [style.background-color]="form.get('color')?.value">
+              <span class="preview-text">{{ form.get('description')?.value || 'Plan de trabajo' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="dialog-actions">
+        <button
+          type="button"
+          mat-stroked-button
+          class="btn-secondary"
+          (click)="onCancel()"
+          [disabled]="isSaving()">
+          <mat-icon>close</mat-icon>
+          <span>Cancelar</span>
+        </button>
+
+        <button
+          type="submit"
+          mat-raised-button
+          class="btn-primary"
+          [disabled]="form.invalid || isSaving()">
+          @if (isSaving()) {
+            <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+            <span>Guardando...</span>
+          } @else {
+            <mat-icon>{{ data.mode === 'create' ? 'add' : 'save' }}</mat-icon>
+            <span>{{ getSaveButtonText() }}</span>
+          }
+        </button>
+      </div>
+    </form>
+  }
+</div>

@@ -1,0 +1,616 @@
+<div class="work-plans-container p-6 max-w-[1600px] mx-auto">
+  <!-- Header con estadísticas -->
+  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
+    <div class="flex items-center justify-between gap-4 flex-wrap mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-purple">
+          <mat-icon class="text-white text-3xl">event_note</mat-icon>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-slate-800">Planificación de Trabajo</h1>
+          <p class="text-sm text-slate-500">Gestiona y organiza tu calendario de trabajo</p>
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <button
+          mat-raised-button
+          class="btn-primary"
+          (click)="openCreateDialog()">
+          <mat-icon>add</mat-icon>
+          <span>Nuevo Plan</span>
+        </button>
+
+        <button
+          mat-icon-button
+          class="icon-btn"
+          matTooltip="Recargar"
+          (click)="loadPlans()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div class="stat-chip stat-chip-slate">
+        <mat-icon class="stat-icon">event</mat-icon>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats().total }}</span>
+          <span class="stat-label">Total</span>
+        </div>
+      </div>
+
+      <div class="stat-chip stat-chip-blue">
+        <mat-icon class="stat-icon">schedule</mat-icon>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats().scheduled }}</span>
+          <span class="stat-label">Planificados</span>
+        </div>
+      </div>
+
+      <div class="stat-chip stat-chip-amber">
+        <mat-icon class="stat-icon">play_circle</mat-icon>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats().inProgress }}</span>
+          <span class="stat-label">En Progreso</span>
+        </div>
+      </div>
+
+      <div class="stat-chip stat-chip-green">
+        <mat-icon class="stat-icon">check_circle</mat-icon>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats().completed }}</span>
+          <span class="stat-label">Completados</span>
+        </div>
+      </div>
+
+      <div class="stat-chip stat-chip-purple">
+        <mat-icon class="stat-icon">schedule</mat-icon>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats().totalDays }}d {{ stats().totalHours }}h</span>
+          <span class="stat-label">Duración Total</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Barra de acciones masivas -->
+  @if (hasSelectedPlans()) {
+    <div class="bulk-actions-bar mb-4 animate-fadeIn">
+      <div class="bulk-icon">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <p class="text-sm font-bold text-purple-900">
+        {{ selectedCount() }} plan(es) seleccionado(s)
+      </p>
+      <div class="flex gap-2 ml-auto">
+        <button
+          mat-raised-button
+          class="btn-danger"
+          (click)="deleteSelectedPlans()">
+          <mat-icon>delete</mat-icon>
+          <span>Eliminar Seleccionados</span>
+        </button>
+        <button
+          mat-stroked-button
+          (click)="selectedPlans.set(new Set())">
+          <mat-icon>close</mat-icon>
+          <span>Cancelar</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Controles de vista -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 mb-4">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
+      <!-- Selector de vista -->
+      <div class="flex gap-2">
+        <button
+          class="view-mode-btn"
+          [class.active]="viewMode() === 'calendar'"
+          (click)="setViewMode('calendar')"
+          matTooltip="Vista Calendario">
+          <mat-icon>calendar_view_month</mat-icon>
+          <span class="hidden sm:inline">Calendario</span>
+        </button>
+        <button
+          class="view-mode-btn"
+          [class.active]="viewMode() === 'list'"
+          (click)="setViewMode('list')"
+          matTooltip="Vista Lista">
+          <mat-icon>view_list</mat-icon>
+          <span class="hidden sm:inline">Lista</span>
+        </button>
+        <button
+          class="view-mode-btn"
+          [class.active]="viewMode() === 'timeline'"
+          (click)="setViewMode('timeline')"
+          matTooltip="Vista Timeline">
+          <mat-icon>timeline</mat-icon>
+          <span class="hidden sm:inline">Timeline</span>
+        </button>
+      </div>
+
+      <!-- Navegación de semana (solo en vista calendario) -->
+      @if (viewMode() === 'calendar') {
+        <div class="flex items-center gap-2">
+          <button
+            mat-icon-button
+            class="icon-btn"
+            (click)="previousWeek()"
+            matTooltip="Semana anterior">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+
+          <button
+            mat-stroked-button
+            class="today-btn"
+            (click)="goToToday()">
+            <mat-icon>today</mat-icon>
+            <span>Hoy</span>
+          </button>
+
+          <button
+            mat-icon-button
+            class="icon-btn"
+            (click)="nextWeek()"
+            matTooltip="Semana siguiente">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+
+          <span class="text-sm font-semibold text-slate-700 ml-2">
+            {{ dateRange().start | date: 'MMM d' }} - {{ dateRange().end | date: 'MMM d, y' }}
+          </span>
+        </div>
+      }
+
+      <!-- Buscador -->
+      <div class="search-box flex-1 max-w-xs">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          type="text"
+          placeholder="Buscar por trabajador, proyecto, descripción..."
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="searchTerm.set($event)"
+          class="search-input">
+      </div>
+
+      <!-- Filtros de estado -->
+      <div class="flex gap-2">
+        <button
+          class="filter-btn"
+          [class.active]="filterStatus() === 'all'"
+          (click)="setFilterStatus('all')">
+          Todos
+        </button>
+        <button
+          class="filter-btn"
+          [class.active]="filterStatus() === 'scheduled'"
+          (click)="setFilterStatus('scheduled')">
+          <mat-icon class="text-blue-500">schedule</mat-icon>
+          Planificados
+        </button>
+        <button
+          class="filter-btn"
+          [class.active]="filterStatus() === 'in_progress'"
+          (click)="setFilterStatus('in_progress')">
+          <mat-icon class="text-amber-500">play_circle</mat-icon>
+          En Progreso
+        </button>
+        <button
+          class="filter-btn"
+          [class.active]="filterStatus() === 'completed'"
+          (click)="setFilterStatus('completed')">
+          <mat-icon class="text-green-500">check_circle</mat-icon>
+          Completados
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA CALENDARIO -->
+  @if (viewMode() === 'calendar') {
+    <div class="calendar-view">
+      <!-- Encabezados de días -->
+      <div class="grid grid-cols-7 gap-2 mb-2">
+        @for (day of weekDays(); track day) {
+          <div class="day-header"
+               [class.today]="isToday(day)">
+            <div class="day-name">{{ getDayName(day) }}</div>
+            <div class="day-number">{{ getDayNumber(day) }}</div>
+            <div class="day-month">{{ getMonthName(day) }}</div>
+          </div>
+        }
+      </div>
+
+      <!-- Celdas de días con planes -->
+      <div class="grid grid-cols-7 gap-2">
+        @for (day of weekDays(); track day) {
+          <div class="day-cell"
+               [class.today]="isToday(day)">
+            @for (plan of getPlansForDate(day); track plan.id) {
+              <div class="plan-card"
+                   [style.border-left-color]="plan.color || '#8b5cf6'"
+                   (click)="openEditDialog(plan)">
+                <!-- Checkbox de selección -->
+                <mat-checkbox
+                  class="plan-checkbox"
+                  [checked]="selectedPlans().has(plan.id)"
+                  (change)="togglePlanSelection(plan.id)"
+                  (click)="$event.stopPropagation()">
+                </mat-checkbox>
+
+                <!-- Contenido del plan -->
+                <div class="plan-content">
+                  <!-- Estado -->
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="status-badge" [ngClass]="getStatusBadgeClass(plan.status)">
+                      <mat-icon class="text-xs">{{ getStatusIcon(plan.status) }}</mat-icon>
+                      {{ getStatusLabel(plan.status) }}
+                    </span>
+                  </div>
+
+                  <!-- Descripción -->
+                  @if (plan.description) {
+                    <p class="plan-title">{{ plan.description }}</p>
+                  }
+
+                  <!-- Trabajador -->
+                  @if (plan.workerName) {
+                    <div class="plan-detail">
+                      <mat-icon>person</mat-icon>
+                      <span>{{ plan.workerName }}</span>
+                    </div>
+                  }
+
+                  <!-- Propuesta -->
+                  @if (plan.proposalNumber) {
+                    <div class="plan-detail">
+                      <mat-icon>description</mat-icon>
+                      <span>{{ plan.proposalNumber }}</span>
+                      @if (plan.proposalOwnerName) {
+                        <span class="text-slate-500">- {{ plan.proposalOwnerName }}</span>
+                      }
+                    </div>
+                  }
+
+                  <!-- Duración -->
+                  <div class="plan-detail">
+                    <mat-icon>schedule</mat-icon>
+                    <span>{{ formatDuration(plan) }}</span>
+                  </div>
+
+                  <!-- Ubicación -->
+                  @if (plan.location) {
+                    <div class="plan-detail">
+                      <mat-icon>place</mat-icon>
+                      <span>{{ plan.location }}</span>
+                    </div>
+                  }
+                </div>
+
+                <!-- Acciones -->
+                <div class="plan-actions">
+                  <button
+                    mat-icon-button
+                    [matMenuTriggerFor]="statusMenu"
+                    matTooltip="Cambiar estado"
+                    (click)="$event.stopPropagation()">
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+                  <mat-menu #statusMenu="matMenu">
+                    <button mat-menu-item (click)="updatePlanStatus(plan.id, 'scheduled')">
+                      <mat-icon class="text-blue-500">schedule</mat-icon>
+                      <span>Planificado</span>
+                    </button>
+                    <button mat-menu-item (click)="updatePlanStatus(plan.id, 'in_progress')">
+                      <mat-icon class="text-amber-500">play_circle</mat-icon>
+                      <span>En Progreso</span>
+                    </button>
+                    <button mat-menu-item (click)="updatePlanStatus(plan.id, 'completed')">
+                      <mat-icon class="text-green-500">check_circle</mat-icon>
+                      <span>Completado</span>
+                    </button>
+                    <button mat-menu-item (click)="updatePlanStatus(plan.id, 'cancelled')">
+                      <mat-icon class="text-slate-500">cancel</mat-icon>
+                      <span>Cancelado</span>
+                    </button>
+                    <mat-divider></mat-divider>
+                    <button mat-menu-item (click)="deletePlan(plan)">
+                      <mat-icon class="text-red-500">delete</mat-icon>
+                      <span>Eliminar</span>
+                    </button>
+                  </mat-menu>
+                </div>
+              </div>
+            }
+
+            <!-- Mensaje si no hay planes -->
+            @if (getPlansForDate(day).length === 0) {
+              <div class="empty-day">
+                <mat-icon class="text-slate-300">event_available</mat-icon>
+                <span class="text-xs text-slate-400">Sin planes</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- VISTA LISTA -->
+  @if (viewMode() === 'list') {
+    <div class="list-view">
+      @if (filteredPlans().length > 0) {
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="w-12">
+                  <mat-checkbox
+                    [checked]="selectedPlans().size === filteredPlans().length && filteredPlans().length > 0"
+                    [indeterminate]="selectedPlans().size > 0 && selectedPlans().size < filteredPlans().length"
+                    (change)="toggleSelectAll()">
+                  </mat-checkbox>
+                </th>
+                <th>Fecha</th>
+                <th>Descripción</th>
+                <th>Trabajador</th>
+                <th>Propuesta</th>
+                <th>Duración</th>
+                <th>Ubicación</th>
+                <th>Estado</th>
+                <th class="w-24">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (plan of filteredPlans(); track plan.id) {
+                <tr [class.selected]="selectedPlans().has(plan.id)">
+                  <td>
+                    <mat-checkbox
+                      [checked]="selectedPlans().has(plan.id)"
+                      (change)="togglePlanSelection(plan.id)">
+                    </mat-checkbox>
+                  </td>
+                  <td>
+                    <div class="font-medium text-slate-800">
+                      {{ formatDate(plan.planDate) }}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="font-medium text-slate-800">
+                      {{ plan.description || 'Sin descripción' }}
+                    </div>
+                    @if (plan.notes) {
+                      <div class="text-xs text-slate-500 mt-1">{{ plan.notes }}</div>
+                    }
+                  </td>
+                  <td>
+                    @if (plan.workerName) {
+                      <div class="flex items-center gap-2">
+                        <mat-icon class="text-slate-400 text-sm">person</mat-icon>
+                        <span>{{ plan.workerName }}</span>
+                      </div>
+                    } @else {
+                      <span class="text-slate-400 text-sm">No asignado</span>
+                    }
+                  </td>
+                  <td>
+                    @if (plan.proposalNumber) {
+                      <div>
+                        <div class="font-medium">{{ plan.proposalNumber }}</div>
+                        @if (plan.proposalOwnerName) {
+                          <div class="text-xs text-slate-500">{{ plan.proposalOwnerName }}</div>
+                        }
+                      </div>
+                    } @else {
+                      <span class="text-slate-400 text-sm">No asignado</span>
+                    }
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-1 text-sm">
+                      <mat-icon class="text-slate-400 text-sm">schedule</mat-icon>
+                      <span>{{ formatDuration(plan) }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    @if (plan.location) {
+                      <div class="flex items-center gap-1 text-sm">
+                        <mat-icon class="text-slate-400 text-sm">place</mat-icon>
+                        <span>{{ plan.location }}</span>
+                      </div>
+                    } @else {
+                      <span class="text-slate-400 text-sm">-</span>
+                    }
+                  </td>
+                  <td>
+                    <span class="status-badge" [ngClass]="getStatusBadgeClass(plan.status)">
+                      <mat-icon class="text-xs">{{ getStatusIcon(plan.status) }}</mat-icon>
+                      {{ getStatusLabel(plan.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="flex gap-1">
+                      <button
+                        mat-icon-button
+                        class="icon-btn-sm"
+                        matTooltip="Editar"
+                        (click)="openEditDialog(plan)">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        mat-icon-button
+                        [matMenuTriggerFor]="menu"
+                        class="icon-btn-sm"
+                        matTooltip="Más acciones">
+                        <mat-icon>more_vert</mat-icon>
+                      </button>
+                      <mat-menu #menu="matMenu">
+                        <button mat-menu-item (click)="updatePlanStatus(plan.id, 'scheduled')">
+                          <mat-icon class="text-blue-500">schedule</mat-icon>
+                          <span>Planificado</span>
+                        </button>
+                        <button mat-menu-item (click)="updatePlanStatus(plan.id, 'in_progress')">
+                          <mat-icon class="text-amber-500">play_circle</mat-icon>
+                          <span>En Progreso</span>
+                        </button>
+                        <button mat-menu-item (click)="updatePlanStatus(plan.id, 'completed')">
+                          <mat-icon class="text-green-500">check_circle</mat-icon>
+                          <span>Completado</span>
+                        </button>
+                        <mat-divider></mat-divider>
+                        <button mat-menu-item (click)="deletePlan(plan)">
+                          <mat-icon class="text-red-500">delete</mat-icon>
+                          <span>Eliminar</span>
+                        </button>
+                      </mat-menu>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="empty-state">
+          <div class="empty-state-icon purple">
+            <mat-icon>event_note</mat-icon>
+          </div>
+          <h3>No hay planes de trabajo</h3>
+          <p>Crea tu primer plan de trabajo para empezar a organizar tu calendario</p>
+          <button
+            mat-raised-button
+            class="btn-primary mt-4"
+            (click)="openCreateDialog()">
+            <mat-icon>add</mat-icon>
+            <span>Crear Primer Plan</span>
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- VISTA TIMELINE -->
+  @if (viewMode() === 'timeline') {
+    <div class="timeline-view">
+      @if (filteredPlans().length > 0) {
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          @for (plan of filteredPlans(); track plan.id) {
+            <div class="timeline-item"
+                 [style.border-left-color]="plan.color || '#8b5cf6'"
+                 (click)="openEditDialog(plan)">
+              <div class="timeline-marker" [style.background-color]="plan.color || '#8b5cf6'"></div>
+              <div class="timeline-content">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="timeline-date">{{ formatDate(plan.planDate) }}</span>
+                      <span class="status-badge" [ngClass]="getStatusBadgeClass(plan.status)">
+                        <mat-icon class="text-xs">{{ getStatusIcon(plan.status) }}</mat-icon>
+                        {{ getStatusLabel(plan.status) }}
+                      </span>
+                    </div>
+
+                    <h3 class="timeline-title">{{ plan.description || 'Sin descripción' }}</h3>
+
+                    <div class="timeline-details">
+                      @if (plan.workerName) {
+                        <div class="timeline-detail-item">
+                          <mat-icon>person</mat-icon>
+                          <span>{{ plan.workerName }}</span>
+                        </div>
+                      }
+
+                      @if (plan.proposalNumber) {
+                        <div class="timeline-detail-item">
+                          <mat-icon>description</mat-icon>
+                          <span>{{ plan.proposalNumber }}</span>
+                          @if (plan.proposalOwnerName) {
+                            <span class="text-slate-500">- {{ plan.proposalOwnerName }}</span>
+                          }
+                        </div>
+                      }
+
+                      <div class="timeline-detail-item">
+                        <mat-icon>schedule</mat-icon>
+                        <span>{{ formatDuration(plan) }}</span>
+                      </div>
+
+                      @if (plan.location) {
+                        <div class="timeline-detail-item">
+                          <mat-icon>place</mat-icon>
+                          <span>{{ plan.location }}</span>
+                        </div>
+                      }
+
+                      @if (plan.notes) {
+                        <div class="timeline-detail-item">
+                          <mat-icon>notes</mat-icon>
+                          <span>{{ plan.notes }}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="flex gap-1">
+                    <button
+                      mat-icon-button
+                      class="icon-btn-sm"
+                      matTooltip="Editar"
+                      (click)="openEditDialog(plan); $event.stopPropagation()">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button
+                      mat-icon-button
+                      [matMenuTriggerFor]="timelineMenu"
+                      class="icon-btn-sm"
+                      matTooltip="Más acciones"
+                      (click)="$event.stopPropagation()">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                    <mat-menu #timelineMenu="matMenu">
+                      <button mat-menu-item (click)="updatePlanStatus(plan.id, 'scheduled')">
+                        <mat-icon class="text-blue-500">schedule</mat-icon>
+                        <span>Planificado</span>
+                      </button>
+                      <button mat-menu-item (click)="updatePlanStatus(plan.id, 'in_progress')">
+                        <mat-icon class="text-amber-500">play_circle</mat-icon>
+                        <span>En Progreso</span>
+                      </button>
+                      <button mat-menu-item (click)="updatePlanStatus(plan.id, 'completed')">
+                        <mat-icon class="text-green-500">check_circle</mat-icon>
+                        <span>Completado</span>
+                      </button>
+                      <mat-divider></mat-divider>
+                      <button mat-menu-item (click)="deletePlan(plan)">
+                        <mat-icon class="text-red-500">delete</mat-icon>
+                        <span>Eliminar</span>
+                      </button>
+                    </mat-menu>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <div class="empty-state-icon purple">
+            <mat-icon>timeline</mat-icon>
+          </div>
+          <h3>No hay planes de trabajo</h3>
+          <p>Crea tu primer plan de trabajo para ver el timeline</p>
+          <button
+            mat-raised-button
+            class="btn-primary mt-4"
+            (click)="openCreateDialog()">
+            <mat-icon>add</mat-icon>
+            <span>Crear Primer Plan</span>
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

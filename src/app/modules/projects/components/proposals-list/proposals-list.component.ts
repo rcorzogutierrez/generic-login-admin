@@ -118,7 +118,8 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
 
       filtered = filtered.filter(p => {
         if (!p.date) return false;
-        const proposalDate = p.date.toDate ? p.date.toDate() : new Date(p.date);
+        // Convertir Timestamp de Firestore a Date de manera segura
+        const proposalDate = (p.date as any).toDate ? (p.date as any).toDate() : new Date(p.date as any);
         return proposalDate >= from && proposalDate <= to;
       });
     }

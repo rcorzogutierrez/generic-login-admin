@@ -11,7 +11,7 @@
       </div>
     </div>
     <button
-      mat-icon-button
+      type="button"
       class="dialog-close-btn"
       (click)="onCancel()"
       [disabled]="isSaving()">
@@ -22,14 +22,15 @@
   <!-- Loading State -->
   @if (isLoading()) {
     <div class="loading-container">
-      <mat-spinner diameter="40"></mat-spinner>
+      <div class="spinner"></div>
       <p class="loading-text">Cargando datos...</p>
     </div>
   } @else {
     <!-- Form -->
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div class="dialog-content">
-        <!-- Fecha de Planificación -->
+
+        <!-- Fecha y Duración -->
         <div class="form-section">
           <h3 class="section-title">
             <mat-icon>event</mat-icon>
@@ -37,90 +38,107 @@
           </h3>
 
           <div class="form-grid">
-            <!-- Fecha -->
-            <mat-form-field appearance="outline" class="col-span-2">
-              <mat-label>Fecha del Plan</mat-label>
-              <input
-                matInput
-                [matDatepicker]="picker"
-                formControlName="planDate"
-                placeholder="Seleccione una fecha"
-                required>
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-              <mat-icon matPrefix>event</mat-icon>
+            <!-- Fecha del Plan -->
+            <div class="col-span-2">
+              <label class="input-label">
+                <mat-icon class="label-icon">event</mat-icon>
+                Fecha del Plan
+                <span class="text-red-500">*</span>
+              </label>
+              <div class="input-wrapper">
+                <input
+                  [matDatepicker]="picker"
+                  formControlName="planDate"
+                  placeholder="Seleccione una fecha"
+                  class="input-field"
+                  [class.input-error]="form.get('planDate')?.invalid && form.get('planDate')?.touched"
+                  required>
+                <button type="button" class="datepicker-toggle" [matDatepickerToggleFor]="picker">
+                  <mat-icon>calendar_today</mat-icon>
+                </button>
+                <mat-datepicker #picker></mat-datepicker>
+              </div>
               @if (form.get('planDate')?.invalid && form.get('planDate')?.touched) {
-                <mat-error>{{ getErrorMessage('planDate') }}</mat-error>
+                <p class="error-message">{{ getErrorMessage('planDate') }}</p>
               }
-            </mat-form-field>
+            </div>
 
             <!-- Duración en Días -->
-            <mat-form-field appearance="outline">
-              <mat-label>Duración (Días)</mat-label>
-              <input
-                matInput
-                type="number"
-                formControlName="durationDays"
-                placeholder="0"
-                min="0"
-                required>
-              <mat-icon matPrefix>calendar_today</mat-icon>
-              <div matSuffix class="duration-controls">
-                <button
-                  type="button"
-                  mat-icon-button
-                  class="duration-btn"
-                  (click)="decrementDays()"
-                  [disabled]="form.get('durationDays')?.value <= 0">
-                  <mat-icon>remove</mat-icon>
-                </button>
-                <button
-                  type="button"
-                  mat-icon-button
-                  class="duration-btn"
-                  (click)="incrementDays()">
-                  <mat-icon>add</mat-icon>
-                </button>
+            <div>
+              <label class="input-label">
+                <mat-icon class="label-icon">calendar_today</mat-icon>
+                Duración (Días)
+                <span class="text-red-500">*</span>
+              </label>
+              <div class="number-input-wrapper">
+                <input
+                  type="number"
+                  formControlName="durationDays"
+                  placeholder="0"
+                  min="0"
+                  class="input-field pr-24"
+                  [class.input-error]="form.get('durationDays')?.invalid && form.get('durationDays')?.touched"
+                  required>
+                <div class="number-controls">
+                  <button
+                    type="button"
+                    class="control-btn"
+                    (click)="decrementDays()"
+                    [disabled]="form.get('durationDays')?.value <= 0">
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="control-btn"
+                    (click)="incrementDays()">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </div>
               </div>
               @if (form.get('durationDays')?.invalid && form.get('durationDays')?.touched) {
-                <mat-error>{{ getErrorMessage('durationDays') }}</mat-error>
+                <p class="error-message">{{ getErrorMessage('durationDays') }}</p>
               }
-            </mat-form-field>
+            </div>
 
             <!-- Duración en Horas -->
-            <mat-form-field appearance="outline">
-              <mat-label>Duración (Horas)</mat-label>
-              <input
-                matInput
-                type="number"
-                formControlName="durationHours"
-                placeholder="0"
-                min="0"
-                max="23"
-                required>
-              <mat-icon matPrefix>schedule</mat-icon>
-              <div matSuffix class="duration-controls">
-                <button
-                  type="button"
-                  mat-icon-button
-                  class="duration-btn"
-                  (click)="decrementHours()"
-                  [disabled]="form.get('durationHours')?.value <= 0">
-                  <mat-icon>remove</mat-icon>
-                </button>
-                <button
-                  type="button"
-                  mat-icon-button
-                  class="duration-btn"
-                  (click)="incrementHours()"
-                  [disabled]="form.get('durationHours')?.value >= 23">
-                  <mat-icon>add</mat-icon>
-                </button>
+            <div>
+              <label class="input-label">
+                <mat-icon class="label-icon">schedule</mat-icon>
+                Duración (Horas)
+                <span class="text-red-500">*</span>
+              </label>
+              <div class="number-input-wrapper">
+                <input
+                  type="number"
+                  formControlName="durationHours"
+                  placeholder="0"
+                  min="0"
+                  max="23"
+                  class="input-field pr-24"
+                  [class.input-error]="form.get('durationHours')?.invalid && form.get('durationHours')?.touched"
+                  required>
+                <div class="number-controls">
+                  <button
+                    type="button"
+                    class="control-btn"
+                    (click)="decrementHours()"
+                    [disabled]="form.get('durationHours')?.value <= 0">
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="control-btn"
+                    (click)="incrementHours()"
+                    [disabled]="form.get('durationHours')?.value >= 23">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </div>
               </div>
               @if (form.get('durationHours')?.invalid && form.get('durationHours')?.touched) {
-                <mat-error>{{ getErrorMessage('durationHours') }}</mat-error>
+                <p class="error-message">{{ getErrorMessage('durationHours') }}</p>
               }
-            </mat-form-field>
+              <p class="hint-text">Máximo 23 horas</p>
+            </div>
           </div>
         </div>
 
@@ -129,54 +147,63 @@
           <h3 class="section-title">
             <mat-icon>assignment_ind</mat-icon>
             Asignaciones
-            <span class="text-xs text-slate-500 font-normal ml-2">(Asigne al menos un trabajador o propuesta)</span>
+            <span class="text-xs text-slate-500 font-normal ml-2">(Opcional: Asigne trabajador y/o propuesta)</span>
           </h3>
 
           <div class="form-grid">
             <!-- Trabajador -->
-            <mat-form-field appearance="outline" class="col-span-2">
-              <mat-label>Trabajador</mat-label>
-              <mat-select formControlName="workerId" placeholder="Seleccione un trabajador">
-                <mat-option [value]="''">Sin asignar</mat-option>
-                @for (worker of workers(); track worker.id) {
-                  <mat-option [value]="worker.id">
-                    {{ worker.fullName }}
-                    @if (worker.workerType === 'contractor' && worker.companyName) {
-                      <span class="text-xs text-slate-500"> - {{ worker.companyName }}</span>
-                    }
-                  </mat-option>
-                }
-              </mat-select>
-              <mat-icon matPrefix>person</mat-icon>
-              <mat-hint>Trabajador asignado al plan</mat-hint>
-            </mat-form-field>
+            <div class="col-span-2">
+              <label class="input-label">
+                <mat-icon class="label-icon">person</mat-icon>
+                Trabajador
+              </label>
+              <div class="select-wrapper">
+                <select formControlName="workerId" class="select-field">
+                  <option value="">Sin asignar</option>
+                  @for (worker of workers(); track worker.id) {
+                    <option [value]="worker.id">
+                      {{ worker.fullName }}
+                      @if (worker.workerType === 'contractor' && worker.companyName) {
+                        - {{ worker.companyName }}
+                      }
+                    </option>
+                  }
+                </select>
+                <mat-icon class="select-icon">expand_more</mat-icon>
+              </div>
+              <p class="hint-text">Trabajador asignado al plan</p>
+            </div>
 
             <!-- Propuesta/Estimado -->
-            <mat-form-field appearance="outline" class="col-span-2">
-              <mat-label>Propuesta/Estimado</mat-label>
-              <mat-select formControlName="proposalId" placeholder="Seleccione una propuesta">
-                <mat-option [value]="''">Sin asignar</mat-option>
-                @for (proposal of proposals(); track proposal.id) {
-                  <mat-option [value]="proposal.id">
-                    {{ proposal.proposalNumber }} - {{ proposal.ownerName }}
-                    <span class="text-xs text-slate-500"> ({{ proposal.total | currency }})</span>
-                  </mat-option>
-                }
-              </mat-select>
-              <mat-icon matPrefix>description</mat-icon>
-              <mat-hint>Propuesta o estimado relacionado</mat-hint>
-            </mat-form-field>
+            <div class="col-span-2">
+              <label class="input-label">
+                <mat-icon class="label-icon">description</mat-icon>
+                Propuesta/Estimado
+              </label>
+              <div class="select-wrapper">
+                <select formControlName="proposalId" class="select-field">
+                  <option value="">Sin asignar</option>
+                  @for (proposal of proposals(); track proposal.id) {
+                    <option [value]="proposal.id">
+                      {{ proposal.proposalNumber }} - {{ proposal.ownerName }} ({{ proposal.total | currency }})
+                    </option>
+                  }
+                </select>
+                <mat-icon class="select-icon">expand_more</mat-icon>
+              </div>
+              <p class="hint-text">Propuesta o estimado relacionado</p>
+            </div>
           </div>
 
           @if (!hasAssignment() && form.touched) {
             <div class="warning-message">
-              <mat-icon>warning</mat-icon>
-              <span>Se recomienda asignar al menos un trabajador o una propuesta</span>
+              <mat-icon>info</mat-icon>
+              <span>Tip: Puedes asignar un trabajador y/o una propuesta para mejor organización</span>
             </div>
           }
         </div>
 
-        <!-- Detalles -->
+        <!-- Detalles del Trabajo -->
         <div class="form-section">
           <h3 class="section-title">
             <mat-icon>info</mat-icon>
@@ -185,46 +212,62 @@
 
           <div class="form-grid">
             <!-- Descripción -->
-            <mat-form-field appearance="outline" class="col-span-2">
-              <mat-label>Descripción</mat-label>
+            <div class="col-span-2">
+              <label class="input-label">
+                <mat-icon class="label-icon">subject</mat-icon>
+                Descripción
+                <span class="text-red-500">*</span>
+              </label>
               <textarea
-                matInput
                 formControlName="description"
                 placeholder="Descripción del trabajo a realizar"
                 rows="3"
                 maxlength="500"
+                class="textarea-field"
+                [class.input-error]="form.get('description')?.invalid && form.get('description')?.touched"
                 required></textarea>
-              <mat-icon matPrefix>subject</mat-icon>
-              <mat-hint align="end">{{ form.get('description')?.value?.length || 0 }}/500</mat-hint>
-              @if (form.get('description')?.invalid && form.get('description')?.touched) {
-                <mat-error>{{ getErrorMessage('description') }}</mat-error>
-              }
-            </mat-form-field>
+              <div class="flex justify-between items-center">
+                @if (form.get('description')?.invalid && form.get('description')?.touched) {
+                  <p class="error-message mb-0">{{ getErrorMessage('description') }}</p>
+                } @else {
+                  <p class="hint-text mb-0">Describe brevemente el trabajo</p>
+                }
+                <span class="char-count">{{ form.get('description')?.value?.length || 0 }}/500</span>
+              </div>
+            </div>
 
             <!-- Ubicación -->
-            <mat-form-field appearance="outline" class="col-span-2">
-              <mat-label>Ubicación</mat-label>
+            <div class="col-span-2">
+              <label class="input-label">
+                <mat-icon class="label-icon">place</mat-icon>
+                Ubicación
+              </label>
               <input
-                matInput
+                type="text"
                 formControlName="location"
                 placeholder="Dirección o ubicación del trabajo"
-                maxlength="200">
-              <mat-icon matPrefix>place</mat-icon>
-              <mat-hint>Dirección donde se realizará el trabajo</mat-hint>
-            </mat-form-field>
+                maxlength="200"
+                class="input-field">
+              <p class="hint-text">Dirección donde se realizará el trabajo</p>
+            </div>
 
             <!-- Notas -->
-            <mat-form-field appearance="outline" class="col-span-2">
-              <mat-label>Notas Adicionales</mat-label>
+            <div class="col-span-2">
+              <label class="input-label">
+                <mat-icon class="label-icon">notes</mat-icon>
+                Notas Adicionales
+              </label>
               <textarea
-                matInput
                 formControlName="notes"
                 placeholder="Notas, comentarios o instrucciones especiales"
                 rows="3"
-                maxlength="1000"></textarea>
-              <mat-icon matPrefix>notes</mat-icon>
-              <mat-hint align="end">{{ form.get('notes')?.value?.length || 0 }}/1000</mat-hint>
-            </mat-form-field>
+                maxlength="1000"
+                class="textarea-field"></textarea>
+              <div class="flex justify-between items-center">
+                <p class="hint-text mb-0">Información adicional sobre el plan</p>
+                <span class="char-count">{{ form.get('notes')?.value?.length || 0 }}/1000</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -237,45 +280,65 @@
 
           <div class="form-grid">
             <!-- Estado -->
-            <mat-form-field appearance="outline">
-              <mat-label>Estado</mat-label>
-              <mat-select formControlName="status" required>
-                @for (status of statuses; track status.value) {
-                  <mat-option [value]="status.value">
-                    <div class="flex items-center gap-2">
-                      <mat-icon>{{ status.icon }}</mat-icon>
-                      <span>{{ status.label }}</span>
-                    </div>
-                  </mat-option>
-                }
-              </mat-select>
-              <mat-icon matPrefix>flag</mat-icon>
-              <mat-hint>Estado actual del plan</mat-hint>
-            </mat-form-field>
+            <div>
+              <label class="input-label">
+                <mat-icon class="label-icon">flag</mat-icon>
+                Estado
+                <span class="text-red-500">*</span>
+              </label>
+              <div class="select-wrapper">
+                <select formControlName="status" class="select-field" required>
+                  @for (status of statuses; track status.value) {
+                    <option [value]="status.value">{{ status.label }}</option>
+                  }
+                </select>
+                <mat-icon class="select-icon">expand_more</mat-icon>
+              </div>
+              <p class="hint-text">Estado actual del plan</p>
+            </div>
 
             <!-- Color -->
-            <mat-form-field appearance="outline">
-              <mat-label>Color de Identificación</mat-label>
-              <mat-select formControlName="color">
+            <div>
+              <label class="input-label">
+                <mat-icon class="label-icon">palette</mat-icon>
+                Color de Identificación
+              </label>
+              <div class="color-grid">
                 @for (color of availableColors; track color.value) {
-                  <mat-option [value]="color.value">
-                    <div class="flex items-center gap-2">
-                      <div class="w-4 h-4 rounded" [ngClass]="color.class"></div>
-                      <span>{{ color.label }}</span>
-                    </div>
-                  </mat-option>
+                  <button
+                    type="button"
+                    class="color-option"
+                    [class.selected]="form.get('color')?.value === color.value"
+                    [style.background-color]="color.value"
+                    (click)="form.patchValue({ color: color.value })"
+                    [title]="color.label">
+                    @if (form.get('color')?.value === color.value) {
+                      <mat-icon class="text-white">check</mat-icon>
+                    }
+                  </button>
                 }
-              </mat-select>
-              <mat-icon matPrefix>palette</mat-icon>
-              <mat-hint>Color para visualización en calendario</mat-hint>
-            </mat-form-field>
+              </div>
+              <p class="hint-text">Color para visualización en calendario</p>
+            </div>
           </div>
 
           <!-- Preview de color -->
-          <div class="color-preview">
-            <div class="preview-label">Vista previa del color:</div>
-            <div class="preview-bar" [style.background-color]="form.get('color')?.value">
-              <span class="preview-text">{{ form.get('description')?.value || 'Plan de trabajo' }}</span>
+          <div class="color-preview-section">
+            <p class="preview-label">Vista previa:</p>
+            <div class="preview-card" [style.border-left-color]="form.get('color')?.value">
+              <div class="preview-content">
+                <mat-icon class="preview-icon">event_note</mat-icon>
+                <div class="preview-text-container">
+                  <p class="preview-title">{{ form.get('description')?.value || 'Plan de trabajo' }}</p>
+                  <p class="preview-subtitle">
+                    @if (form.get('durationDays')?.value || form.get('durationHours')?.value) {
+                      {{ form.get('durationDays')?.value || 0 }}d {{ form.get('durationHours')?.value || 0 }}h
+                    } @else {
+                      Sin duración especificada
+                    }
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -285,8 +348,7 @@
       <div class="dialog-actions">
         <button
           type="button"
-          mat-stroked-button
-          class="btn-secondary"
+          class="btn-cancel"
           (click)="onCancel()"
           [disabled]="isSaving()">
           <mat-icon>close</mat-icon>
@@ -295,17 +357,14 @@
 
         <button
           type="submit"
-          mat-raised-button
-          class="btn-primary"
+          class="btn-save"
           [disabled]="form.invalid || isSaving()">
           @if (isSaving()) {
-            <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+            <div class="spinner-small"></div>
             <span>Guardando...</span>
           } @else {
-            <ng-container>
-              <mat-icon>{{ data.mode === 'create' ? 'add' : 'save' }}</mat-icon>
-              <span>{{ getSaveButtonText() }}</span>
-            </ng-container>
+            <mat-icon>{{ data.mode === 'create' ? 'add' : 'save' }}</mat-icon>
+            <span>{{ getSaveButtonText() }}</span>
           }
         </button>
       </div>

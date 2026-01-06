@@ -1,4 +1,4 @@
-/* invoice-edit-dialog.component.css - Estilo Compacto Blue */
+/* invoice-edit-dialog.component.css - Estilo Compacto Blue Mejorado */
 
 /* ============================================
    DIALOG CONTAINER
@@ -35,78 +35,85 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
+  padding: 1.25rem 1.5rem;
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
+  color: white !important;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
 }
 
 .header-content {
   display: flex;
   align-items: center;
-  gap: 0.875rem;
+  gap: 1rem;
 }
 
 .icon-box {
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+  border-radius: 12px;
   backdrop-filter: blur(4px);
+  flex-shrink: 0;
 }
 
 .icon-box mat-icon {
-  color: white;
-  font-size: 22px;
-  width: 22px;
-  height: 22px;
+  color: white !important;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
 }
 
 .header-text {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: 0.25rem;
 }
 
 .dialog-title {
   margin: 0;
-  font-size: 1.0625rem;
+  font-size: 1.125rem;
   font-weight: 700;
   line-height: 1.3;
+  color: white !important;
 }
 
 .dialog-subtitle {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 400;
-  opacity: 0.9;
+  opacity: 0.95;
+  color: white !important;
 }
 
 .close-btn {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.15);
   border: none;
   border-radius: 8px;
-  color: white;
+  color: white !important;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .close-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
 }
 
 .close-btn mat-icon {
   font-size: 20px;
   width: 20px;
   height: 20px;
+  color: white !important;
 }
 
 /* ============================================
@@ -144,14 +151,25 @@
    SECTIONS
    ============================================ */
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .section {
   background: #ffffff;
   border-radius: 10px;
   border: 1px solid #e2e8f0;
-  padding: 1rem;
+  padding: 1.25rem;
   animation: fadeIn 0.3s ease-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
-
 
 .section-primary {
   border-color: #bfdbfe;
@@ -166,25 +184,26 @@
 .section-header {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  margin-bottom: 0.875rem;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .section-icon {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   border-radius: 8px;
+  flex-shrink: 0;
 }
 
 .section-icon mat-icon {
-  color: white;
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
+  color: white !important;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 .section-icon.icon-amber {
@@ -201,20 +220,23 @@
 
 .section-title {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   color: #1e293b;
   flex: 1;
+  line-height: 1.3;
 }
 
 .required-badge {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.625rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   color: #dc2626;
   background: #fef2f2;
   border-radius: 4px;
   text-transform: uppercase;
+  letter-spacing: 0.025em;
+  flex-shrink: 0;
 }
 
 /* ============================================
@@ -609,11 +631,12 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
+  gap: 0.875rem;
+  padding: 1.25rem 1.5rem;
   background: #ffffff;
   border-top: 1px solid #e2e8f0;
   flex-shrink: 0;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.03);
 }
 
 /* ============================================
@@ -623,13 +646,13 @@
 .btn-cancel {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 1rem;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
   border: 1.5px solid #e2e8f0;
   border-radius: 8px;
   background: #ffffff;
   color: #64748b;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -639,6 +662,8 @@
   background: #f8fafc;
   border-color: #cbd5e1;
   color: #334155;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .btn-cancel:disabled {
@@ -655,13 +680,13 @@
 .btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 1rem;
+  gap: 0.5rem;
+  padding: 0.625rem 1.5rem;
   border: none;
   border-radius: 8px;
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
-  font-size: 0.8125rem;
+  color: white !important;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -670,20 +695,26 @@
 
 .btn-primary:hover:not(:disabled) {
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
 }
 
 .btn-primary:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
   transform: none;
-  box-shadow: none;
+  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.2);
 }
 
 .btn-primary mat-icon {
   font-size: 18px;
   width: 18px;
   height: 18px;
+  color: white !important;
 }
 
 .spinner-small {

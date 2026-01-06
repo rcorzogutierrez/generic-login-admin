@@ -2,15 +2,8 @@ import { Component, Inject, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { WorkPlansService } from '../../services/work-plans.service';
 import { WorkPlansConfigService } from '../../services/work-plans-config.service';
@@ -32,15 +25,8 @@ interface DialogData {
     CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
     MatDatepickerModule,
-    MatNativeDateModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule
+    MatNativeDateModule
   ],
   templateUrl: './work-plan-form.component.html',
   styleUrl: './work-plan-form.component.css'
@@ -58,13 +44,16 @@ export class WorkPlanFormComponent implements OnInit {
 
   workers = signal<Worker[]>([]);
   proposals = signal<Proposal[]>([]);
-  availableColors = this.configService.getAvailableColors();
 
-  statuses: { value: WorkPlanStatus; label: string; icon: string }[] = [
-    { value: 'scheduled', label: 'Planificado', icon: 'schedule' },
-    { value: 'in_progress', label: 'En Progreso', icon: 'play_circle' },
-    { value: 'completed', label: 'Completado', icon: 'check_circle' },
-    { value: 'cancelled', label: 'Cancelado', icon: 'cancel' }
+  colorOptions = [
+    { value: '#ef4444', label: 'Rojo' },
+    { value: '#f97316', label: 'Naranja' },
+    { value: '#eab308', label: 'Amarillo' },
+    { value: '#22c55e', label: 'Verde' },
+    { value: '#3b82f6', label: 'Azul' },
+    { value: '#8b5cf6', label: 'Púrpura' },
+    { value: '#ec4899', label: 'Rosa' },
+    { value: '#6b7280', label: 'Gris' }
   ];
 
   constructor(
@@ -336,5 +325,28 @@ export class WorkPlanFormComponent implements OnInit {
     if (current > 0) {
       this.form.patchValue({ durationHours: current - 1 });
     }
+  }
+
+  /**
+   * Obtener emoji de icono
+   */
+  getIconEmoji(): string {
+    return this.data.mode === 'create' ? '➕' : '✏️';
+  }
+
+  /**
+   * Seleccionar color
+   */
+  selectColor(color: string) {
+    this.form.patchValue({ color });
+  }
+
+  /**
+   * Obtener duración total en horas
+   */
+  getTotalDuration(): number {
+    const days = this.form.get('durationDays')?.value || 0;
+    const hours = this.form.get('durationHours')?.value || 0;
+    return (days * 24) + hours;
   }
 }

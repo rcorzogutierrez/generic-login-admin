@@ -1,10 +1,9 @@
 import { Timestamp } from 'firebase/firestore';
-import { GenericEntity } from '../../../shared/models/generic-entity.interface';
 
 /**
  * Interface para WorkPlan - Planificación de trabajo
  */
-export interface WorkPlan extends GenericEntity {
+export interface WorkPlan {
   // Sistema
   id: string;
   createdAt: Timestamp | Date;

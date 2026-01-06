@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { Firestore } from '@angular/fire/firestore';
 import {
+  getFirestore,
   collection,
   addDoc,
   updateDoc,
@@ -29,7 +29,7 @@ import { OperationResult } from '../../../shared/models/operation-result.interfa
   providedIn: 'root'
 })
 export class WorkPlansService {
-  private firestore = inject(Firestore);
+  private db = getFirestore();
   private authService = inject(AuthService);
 
   // Signals reactivos
@@ -73,7 +73,7 @@ export class WorkPlansService {
    * Obtener la colección de planes de trabajo
    */
   private getCollection() {
-    return collection(this.firestore, this.COLLECTION_NAME);
+    return collection(this.db, this.COLLECTION_NAME);
   }
 
   /**
@@ -154,7 +154,7 @@ export class WorkPlansService {
    */
   async getWorkPlanById(id: string): Promise<OperationResult<WorkPlan>> {
     try {
-      const docRef = doc(this.firestore, this.COLLECTION_NAME, id);
+      const docRef = doc(this.db, this.COLLECTION_NAME, id);
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
@@ -196,10 +196,20 @@ export class WorkPlansService {
         };
       }
 
-      const newWorkPlan: Omit<WorkPlan, 'id'> = {
-        ...data,
+      const newWorkPlan = {
         planDate: Timestamp.fromDate(data.planDate),
-        status: data.status || 'scheduled',
+        workerId: data.workerId,
+        workerName: data.workerName,
+        proposalId: data.proposalId,
+        proposalNumber: data.proposalNumber,
+        proposalOwnerName: data.proposalOwnerName,
+        durationDays: data.durationDays,
+        durationHours: data.durationHours,
+        description: data.description,
+        notes: data.notes,
+        location: data.location,
+        status: data.status || 'scheduled' as WorkPlanStatus,
+        color: data.color,
         createdAt: Timestamp.now(),
         createdBy: currentUser.uid,
         isActive: true
@@ -210,7 +220,7 @@ export class WorkPlansService {
       const createdPlan: WorkPlan = {
         id: docRef.id,
         ...newWorkPlan
-      };
+      } as WorkPlan;
 
       // Actualizar signal
       this.workPlans.update(plans => [...plans, createdPlan]);
@@ -245,7 +255,7 @@ export class WorkPlansService {
         };
       }
 
-      const docRef = doc(this.firestore, this.COLLECTION_NAME, id);
+      const docRef = doc(this.db, this.COLLECTION_NAME, id);
 
       const updateData: any = {
         ...data,
@@ -298,7 +308,7 @@ export class WorkPlansService {
         };
       }
 
-      const docRef = doc(this.firestore, this.COLLECTION_NAME, id);
+      const docRef = doc(this.db, this.COLLECTION_NAME, id);
 
       await updateDoc(docRef, {
         isActive: false,
@@ -343,7 +353,7 @@ export class WorkPlansService {
 
       await Promise.all(
         ids.map(id => {
-          const docRef = doc(this.firestore, this.COLLECTION_NAME, id);
+          const docRef = doc(this.db, this.COLLECTION_NAME, id);
           return updateDoc(docRef, updateData);
         })
       );

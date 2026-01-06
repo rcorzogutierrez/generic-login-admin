@@ -196,24 +196,27 @@ export class WorkPlansService {
         };
       }
 
-      const newWorkPlan = {
+      // Crear objeto base con campos requeridos
+      const newWorkPlan: any = {
         planDate: Timestamp.fromDate(data.planDate),
-        workerId: data.workerId,
-        workerName: data.workerName,
-        proposalId: data.proposalId,
-        proposalNumber: data.proposalNumber,
-        proposalOwnerName: data.proposalOwnerName,
         durationDays: data.durationDays,
         durationHours: data.durationHours,
-        description: data.description,
-        notes: data.notes,
-        location: data.location,
         status: data.status || 'scheduled' as WorkPlanStatus,
-        color: data.color,
         createdAt: Timestamp.now(),
         createdBy: currentUser.uid,
         isActive: true
       };
+
+      // Agregar campos opcionales solo si tienen valor
+      if (data.workerId) newWorkPlan.workerId = data.workerId;
+      if (data.workerName) newWorkPlan.workerName = data.workerName;
+      if (data.proposalId) newWorkPlan.proposalId = data.proposalId;
+      if (data.proposalNumber) newWorkPlan.proposalNumber = data.proposalNumber;
+      if (data.proposalOwnerName) newWorkPlan.proposalOwnerName = data.proposalOwnerName;
+      if (data.description) newWorkPlan.description = data.description;
+      if (data.notes) newWorkPlan.notes = data.notes;
+      if (data.location) newWorkPlan.location = data.location;
+      if (data.color) newWorkPlan.color = data.color;
 
       const docRef = await addDoc(this.getCollection(), newWorkPlan);
 
@@ -257,16 +260,26 @@ export class WorkPlansService {
 
       const docRef = doc(this.db, this.COLLECTION_NAME, id);
 
+      // Crear objeto con solo los campos que tienen valor
       const updateData: any = {
-        ...data,
         updatedAt: Timestamp.now(),
         updatedBy: currentUser.uid
       };
 
-      // Convertir fecha si existe
-      if (data.planDate) {
-        updateData.planDate = Timestamp.fromDate(data.planDate);
-      }
+      // Agregar solo los campos definidos
+      if (data.planDate) updateData.planDate = Timestamp.fromDate(data.planDate);
+      if (data.workerId !== undefined) updateData.workerId = data.workerId;
+      if (data.workerName !== undefined) updateData.workerName = data.workerName;
+      if (data.proposalId !== undefined) updateData.proposalId = data.proposalId;
+      if (data.proposalNumber !== undefined) updateData.proposalNumber = data.proposalNumber;
+      if (data.proposalOwnerName !== undefined) updateData.proposalOwnerName = data.proposalOwnerName;
+      if (data.durationDays !== undefined) updateData.durationDays = data.durationDays;
+      if (data.durationHours !== undefined) updateData.durationHours = data.durationHours;
+      if (data.description !== undefined) updateData.description = data.description;
+      if (data.notes !== undefined) updateData.notes = data.notes;
+      if (data.location !== undefined) updateData.location = data.location;
+      if (data.status !== undefined) updateData.status = data.status;
+      if (data.color !== undefined) updateData.color = data.color;
 
       await updateDoc(docRef, updateData);
 

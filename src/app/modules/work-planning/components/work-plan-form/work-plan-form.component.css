@@ -15,8 +15,8 @@
   @apply bg-gradient-to-br from-purple-500 to-purple-600 text-white;
 }
 
-.dialog-icon mat-icon {
-  @apply text-3xl;
+.dialog-icon span {
+  @apply flex items-center justify-center;
 }
 
 .dialog-title {
@@ -64,8 +64,8 @@
   @apply flex items-center gap-2 text-lg font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100;
 }
 
-.section-title mat-icon {
-  @apply text-purple-500 text-xl;
+.section-icon {
+  @apply text-xl;
 }
 
 /* Form Grid */
@@ -95,7 +95,7 @@
 }
 
 .label-icon {
-  @apply text-purple-500 text-lg;
+  @apply text-lg;
 }
 
 /* Input Wrapper */
@@ -130,10 +130,6 @@
   @apply transition-colors duration-200;
 }
 
-.datepicker-toggle mat-icon {
-  @apply text-xl;
-}
-
 /* Number Input Wrapper */
 .number-input-wrapper {
   @apply relative;
@@ -151,10 +147,6 @@
   @apply w-8 h-8 rounded-md flex items-center justify-center;
   @apply text-slate-600 hover:bg-purple-50 hover:text-purple-600;
   @apply transition-all duration-200;
-}
-
-.control-btn mat-icon {
-  @apply text-lg;
 }
 
 .control-btn:disabled {
@@ -223,10 +215,6 @@
   @apply flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 mt-4;
 }
 
-.warning-message mat-icon {
-  @apply text-amber-600 text-lg flex-shrink-0;
-}
-
 /* Color Grid */
 .color-grid {
   @apply grid grid-cols-4 gap-2 mt-2;
@@ -241,10 +229,6 @@
 
 .color-option.selected {
   @apply border-slate-800 shadow-lg scale-105;
-}
-
-.color-option mat-icon {
-  @apply text-lg;
 }
 
 /* Color Preview Section */
@@ -266,7 +250,7 @@
 }
 
 .preview-icon {
-  @apply text-purple-500 text-2xl flex-shrink-0;
+  @apply text-2xl flex-shrink-0;
 }
 
 .preview-text-container {
@@ -310,11 +294,6 @@
 
 .btn-save:disabled {
   @apply opacity-50 cursor-not-allowed hover:from-purple-600 hover:to-purple-700 hover:shadow-md;
-}
-
-.btn-cancel mat-icon,
-.btn-save mat-icon {
-  @apply text-lg;
 }
 
 /* Spinner Small */

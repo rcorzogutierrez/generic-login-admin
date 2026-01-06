@@ -247,6 +247,7 @@
         "markAsApproved": "Mark as approved",
         "markAsRejected": "Mark as rejected",
         "convertToInvoice": "Convert to invoice",
+        "markAsPaid": "Mark as paid",
         "delete": "Delete",
         "back": "Back",
         "date": "Date",

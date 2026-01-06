@@ -890,19 +890,27 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
     }
 
     if (!from && to) {
-      const toDate = new Date(to);
+      // Parsear manualmente para evitar problemas de zona horaria
+      const [toYear, toMonth, toDay] = to.split('-').map(Number);
+      const toDate = new Date(toYear, toMonth - 1, toDay);
       const toStr = toDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
       return `Mostrando registros hasta el ${toStr}`;
     }
 
     if (from && !to) {
-      const fromDate = new Date(from);
+      // Parsear manualmente para evitar problemas de zona horaria
+      const [fromYear, fromMonth, fromDay] = from.split('-').map(Number);
+      const fromDate = new Date(fromYear, fromMonth - 1, fromDay);
       const fromStr = fromDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
       return `Mostrando registros desde el ${fromStr}`;
     }
 
-    const fromDate = new Date(from);
-    const toDate = new Date(to);
+    // Parsear manualmente para evitar problemas de zona horaria
+    const [fromYear, fromMonth, fromDay] = from.split('-').map(Number);
+    const fromDate = new Date(fromYear, fromMonth - 1, fromDay);
+
+    const [toYear, toMonth, toDay] = to.split('-').map(Number);
+    const toDate = new Date(toYear, toMonth - 1, toDay);
 
     const fromStr = fromDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
     const toStr = toDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });

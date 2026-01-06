@@ -1,5 +1,15 @@
 import { Injectable } from '@angular/core';
-import { ModuleConfig } from '../../../shared/modules/dynamic-form-builder/models/module-config.interface';
+
+interface SimpleModuleConfig {
+  moduleName: string;
+  entityName: string;
+  entityNamePlural: string;
+  collectionName: string;
+  primaryField: string;
+  deleteConfirmationField: string;
+  featureName: string;
+  icon: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +18,7 @@ export class WorkPlansConfigService {
   /**
    * Configuración del módulo de planificación de trabajo
    */
-  getModuleConfig(): ModuleConfig {
+  getModuleConfig(): SimpleModuleConfig {
     return {
       moduleName: 'work-planning',
       entityName: 'plan de trabajo',
@@ -17,14 +27,7 @@ export class WorkPlansConfigService {
       primaryField: 'description',
       deleteConfirmationField: 'description',
       featureName: 'Planificación de Trabajo',
-      icon: 'event_note',
-      permissions: {
-        create: true,
-        read: true,
-        update: true,
-        delete: true,
-        export: true
-      }
+      icon: 'event_note'
     };
   }
 

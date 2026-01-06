@@ -75,6 +75,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./modules/treasury/treasury.routes').then(m => m.TREASURY_ROUTES),
       },
+      {
+        path: 'modules/work-planning',
+        loadChildren: () =>
+          import('./modules/work-planning/work-planning.routes').then(m => m.WORK_PLANNING_ROUTES),
+      },
 
       // RUTAS DE ADMINISTRACIÓN
       {

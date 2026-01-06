@@ -67,6 +67,55 @@
     </div>
   </header>
 
+  <!-- ========== FILTRO DE RANGO DE FECHAS ========== -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-4 animate-fadeIn" style="animation-delay: 0.025s">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
+
+      <!-- Left: Date Range Inputs -->
+      <div class="flex items-center gap-3 flex-1">
+        <mat-icon class="text-blue-600">date_range</mat-icon>
+
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>Desde</mat-label>
+          <input matInput
+                 [matDatepicker]="pickerFrom"
+                 [value]="dateFrom()"
+                 (dateChange)="onDateFromChange($event.value)"
+                 readonly>
+          <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+          <mat-datepicker #pickerFrom></mat-datepicker>
+        </mat-form-field>
+
+        <span class="text-slate-400">—</span>
+
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>Hasta</mat-label>
+          <input matInput
+                 [matDatepicker]="pickerTo"
+                 [value]="dateTo()"
+                 (dateChange)="onDateToChange($event.value)"
+                 readonly>
+          <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
+          <mat-datepicker #pickerTo></mat-datepicker>
+        </mat-form-field>
+
+        <button type="button"
+                class="icon-btn"
+                (click)="resetDateFilter()"
+                title="Restablecer a últimos 30 días">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+
+      <!-- Right: Info Message -->
+      <div class="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg border border-blue-200">
+        <mat-icon class="text-blue-600 text-base">info</mat-icon>
+        <span class="text-xs text-blue-800 font-medium">{{ getDateRangeMessage() }}</span>
+      </div>
+
+    </div>
+  </div>
+
   <!-- ========== STATS CARDS (clickeable para filtrar) ========== -->
   <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-3 mb-4 animate-fadeIn" style="animation-delay: 0.05s">
 

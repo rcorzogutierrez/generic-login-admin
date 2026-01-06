@@ -71,53 +71,56 @@
   <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-4 animate-fadeIn" style="animation-delay: 0.025s">
     <div class="flex items-center justify-between gap-4 flex-wrap">
 
-      <!-- Left: Date Range Inputs -->
+      <!-- Left: Date Range Preset and Custom Inputs -->
       <div class="flex items-center gap-3 flex-1 flex-wrap">
         <mat-icon class="text-blue-600">date_range</mat-icon>
 
+        <!-- Dropdown para seleccionar preset -->
         <div class="flex flex-col">
-          <label for="dateFrom" class="text-xs text-slate-600 mb-1 ml-1">Desde</label>
-          <input
-            type="date"
-            id="dateFrom"
-            [value]="dateFrom()"
-            (change)="onDateFromChange($event)"
-            placeholder="Seleccionar fecha"
-            class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-slate-400 transition-colors cursor-pointer"
-            style="width: 160px;">
+          <label for="dateRangePreset" class="text-xs text-slate-600 mb-1 ml-1">Rango de fecha</label>
+          <select
+            id="dateRangePreset"
+            [value]="dateRangePreset()"
+            (change)="onDateRangePresetChange($event)"
+            class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-slate-400 transition-colors cursor-pointer bg-white"
+            style="width: 180px;">
+            <option value="all">Todos los registros</option>
+            <option value="today">Hoy</option>
+            <option value="yesterday">Ayer</option>
+            <option value="last7days">Últimos 7 días</option>
+            <option value="last30days">Últimos 30 días</option>
+            <option value="custom">Personalizado</option>
+          </select>
         </div>
 
-        <span class="text-slate-400 mt-5">—</span>
+        <!-- Inputs de fecha personalizados (solo cuando se selecciona "Custom") -->
+        @if (dateRangePreset() === 'custom') {
+          <div class="flex flex-col">
+            <label for="dateFrom" class="text-xs text-slate-600 mb-1 ml-1">Desde</label>
+            <input
+              type="date"
+              id="dateFrom"
+              [value]="dateFrom()"
+              (change)="onDateFromChange($event)"
+              placeholder="Seleccionar fecha"
+              class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-slate-400 transition-colors cursor-pointer"
+              style="width: 160px;">
+          </div>
 
-        <div class="flex flex-col">
-          <label for="dateTo" class="text-xs text-slate-600 mb-1 ml-1">Hasta</label>
-          <input
-            type="date"
-            id="dateTo"
-            [value]="dateTo()"
-            (change)="onDateToChange($event)"
-            placeholder="Seleccionar fecha"
-            class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-slate-400 transition-colors cursor-pointer"
-            style="width: 160px;">
-        </div>
+          <span class="text-slate-400 mt-5">—</span>
 
-        <div class="flex gap-2 mt-5">
-          <button type="button"
-                  class="px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium hover:bg-blue-100 transition-colors border border-blue-200"
-                  (click)="setLast30Days()"
-                  title="Filtrar últimos 30 días">
-            <span>Últimos 30 días</span>
-          </button>
-
-          @if (!isDefaultDateRange()) {
-            <button type="button"
-                    class="icon-btn"
-                    (click)="resetDateFilter()"
-                    title="Limpiar filtro (mostrar todos)">
-              <mat-icon>clear</mat-icon>
-            </button>
-          }
-        </div>
+          <div class="flex flex-col">
+            <label for="dateTo" class="text-xs text-slate-600 mb-1 ml-1">Hasta</label>
+            <input
+              type="date"
+              id="dateTo"
+              [value]="dateTo()"
+              (change)="onDateToChange($event)"
+              placeholder="Seleccionar fecha"
+              class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-slate-400 transition-colors cursor-pointer"
+              style="width: 160px;">
+          </div>
+        }
       </div>
 
       <!-- Right: Info Message -->

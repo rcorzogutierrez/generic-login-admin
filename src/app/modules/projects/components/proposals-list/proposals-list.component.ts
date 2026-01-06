@@ -21,6 +21,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // Services
 import { ProposalsService } from '../../services/proposals.service';
+import { ProposalCalculatorService } from '../../services/proposal-calculator.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
 // Models
@@ -54,6 +55,7 @@ import { GenericModuleConfig, GenericFieldConfig } from '../../../../shared/mode
 })
 export class ProposalsListComponent implements OnInit, OnDestroy {
   private proposalsService = inject(ProposalsService);
+  private proposalCalculator = inject(ProposalCalculatorService);
   private authService = inject(AuthService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
@@ -88,6 +90,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
     const proposals = this.proposals();
     const search = this.searchTerm().toLowerCase();
     const statusFilterValue = this.statusFilter();
+    const sort = this.currentSort();
 
     let filtered = proposals;
 
@@ -104,6 +107,38 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
         proposal.address?.toLowerCase().includes(search) ||
         proposal.city?.toLowerCase().includes(search)
       );
+    }
+
+    // Ordenar localmente
+    if (sort && filtered.length > 0) {
+      filtered = [...filtered]; // Crear copia para no mutar el array original
+      filtered.sort((a: any, b: any) => {
+        let aVal, bVal;
+
+        // Si el campo de ordenamiento es 'total', usar getProposalTotal
+        if (sort.field === 'total') {
+          aVal = this.getProposalTotal(a);
+          bVal = this.getProposalTotal(b);
+        } else {
+          aVal = a[sort.field];
+          bVal = b[sort.field];
+
+          // Manejar Timestamps
+          if (aVal?.toMillis) {
+            aVal = aVal.toMillis();
+          }
+          if (bVal?.toMillis) {
+            bVal = bVal.toMillis();
+          }
+        }
+
+        // Comparar valores
+        if (aVal == null) return 1;
+        if (bVal == null) return -1;
+
+        const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+        return sort.direction === 'asc' ? comparison : -comparison;
+      });
     }
 
     return filtered;
@@ -140,7 +175,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
         paid: proposals.filter(p => p.status === 'paid').length,
         cancelled: proposals.filter(p => p.status === 'cancelled').length
       },
-      totalValue: proposals.reduce((sum, p) => sum + (p.total || 0), 0),
+      totalValue: proposals.reduce((sum, p) => sum + this.getProposalTotal(p), 0),
       averageValue: 0,
       approvalRate: 0
     };
@@ -284,15 +319,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
       this.currentSort.set({ field, direction: 'asc' });
     }
 
-    this.applySort();
-  }
-
-  /**
-   * Aplicar ordenamiento
-   */
-  private applySort() {
-    const sort = this.currentSort();
-    this.proposalsService.loadProposals(this.currentFilter(), sort);
+    // El ordenamiento se aplica automáticamente en el computed signal filteredProposals
   }
 
   /**
@@ -598,6 +625,24 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
       month: 'short',
       day: 'numeric'
     }).format(date);
+  }
+
+  /**
+   * Obtener el total correcto de un proposal
+   * Si es factura (converted_to_invoice o paid) con materiales, calcular gran total
+   * Si no, retornar el total del estimado
+   */
+  getProposalTotal(proposal: Proposal): number {
+    const isInvoice = proposal.status === 'converted_to_invoice' || proposal.status === 'paid';
+    const hasMaterials = proposal.materialsUsed && proposal.materialsUsed.length > 0;
+
+    if (isInvoice && hasMaterials) {
+      // Es una factura con materiales, calcular gran total
+      return this.proposalCalculator.calculateProposalGrandTotal(proposal);
+    }
+
+    // Es un estimado o factura sin materiales, retornar total normal
+    return proposal.total || 0;
   }
 
   /**

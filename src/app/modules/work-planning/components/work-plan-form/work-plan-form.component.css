@@ -28,12 +28,22 @@
 }
 
 .dialog-close-btn {
-  @apply text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all;
+  @apply w-10 h-10 rounded-lg flex items-center justify-center;
+  @apply text-slate-400 hover:text-slate-600 hover:bg-slate-100;
+  @apply transition-all duration-200;
+}
+
+.dialog-close-btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
 }
 
 /* Loading State */
 .loading-container {
   @apply flex flex-col items-center justify-center py-12 gap-4;
+}
+
+.spinner {
+  @apply w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin;
 }
 
 .loading-text {
@@ -79,49 +89,196 @@
   }
 }
 
-/* Duration Controls */
-.duration-controls {
-  @apply flex gap-1 ml-2;
+/* Form Labels */
+.input-label {
+  @apply flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2;
 }
 
-.duration-btn {
-  @apply w-8 h-8 flex items-center justify-center text-slate-600;
-  @apply hover:bg-purple-50 hover:text-purple-600 transition-all;
+.label-icon {
+  @apply text-purple-500 text-lg;
 }
 
-.duration-btn mat-icon {
+/* Input Wrapper */
+.input-wrapper {
+  @apply relative;
+}
+
+/* Text and Date Inputs */
+.input-field {
+  @apply w-full px-4 py-3 rounded-lg border border-slate-300;
+  @apply bg-white text-slate-900 placeholder-slate-400;
+  @apply focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent;
+  @apply transition-all duration-200;
+}
+
+.input-field:hover:not(:disabled) {
+  @apply border-slate-400;
+}
+
+.input-field:disabled {
+  @apply bg-slate-100 text-slate-500 cursor-not-allowed;
+}
+
+.input-field.input-error {
+  @apply border-red-500 focus:ring-red-500;
+}
+
+/* Datepicker Toggle */
+.datepicker-toggle {
+  @apply absolute right-3 top-1/2 -translate-y-1/2;
+  @apply text-slate-400 hover:text-purple-600;
+  @apply transition-colors duration-200;
+}
+
+.datepicker-toggle mat-icon {
+  @apply text-xl;
+}
+
+/* Number Input Wrapper */
+.number-input-wrapper {
+  @apply relative;
+}
+
+.number-input-wrapper .input-field {
+  @apply pr-24;
+}
+
+.number-controls {
+  @apply absolute right-2 top-1/2 -translate-y-1/2 flex gap-1;
+}
+
+.control-btn {
+  @apply w-8 h-8 rounded-md flex items-center justify-center;
+  @apply text-slate-600 hover:bg-purple-50 hover:text-purple-600;
+  @apply transition-all duration-200;
+}
+
+.control-btn mat-icon {
   @apply text-lg;
 }
 
-.duration-btn:disabled {
+.control-btn:disabled {
   @apply opacity-50 cursor-not-allowed hover:bg-transparent hover:text-slate-600;
+}
+
+/* Select Wrapper */
+.select-wrapper {
+  @apply relative;
+}
+
+.select-field {
+  @apply w-full px-4 py-3 pr-10 rounded-lg border border-slate-300;
+  @apply bg-white text-slate-900;
+  @apply focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent;
+  @apply transition-all duration-200 appearance-none cursor-pointer;
+}
+
+.select-field:hover:not(:disabled) {
+  @apply border-slate-400;
+}
+
+.select-field:disabled {
+  @apply bg-slate-100 text-slate-500 cursor-not-allowed;
+}
+
+.select-icon {
+  @apply absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none;
+}
+
+/* Textarea */
+.textarea-field {
+  @apply w-full px-4 py-3 rounded-lg border border-slate-300;
+  @apply bg-white text-slate-900 placeholder-slate-400;
+  @apply focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent;
+  @apply transition-all duration-200 resize-none;
+}
+
+.textarea-field:hover:not(:disabled) {
+  @apply border-slate-400;
+}
+
+.textarea-field:disabled {
+  @apply bg-slate-100 text-slate-500 cursor-not-allowed;
+}
+
+.textarea-field.input-error {
+  @apply border-red-500 focus:ring-red-500;
+}
+
+/* Error and Hint Messages */
+.error-message {
+  @apply text-xs text-red-600 font-medium mt-1;
+}
+
+.hint-text {
+  @apply text-xs text-slate-500 mt-1;
+}
+
+.char-count {
+  @apply text-xs text-slate-400 font-medium;
 }
 
 /* Warning Message */
 .warning-message {
-  @apply flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 mt-2;
+  @apply flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 mt-4;
 }
 
 .warning-message mat-icon {
-  @apply text-amber-600 text-lg;
+  @apply text-amber-600 text-lg flex-shrink-0;
 }
 
-/* Color Preview */
-.color-preview {
+/* Color Grid */
+.color-grid {
+  @apply grid grid-cols-4 gap-2 mt-2;
+}
+
+.color-option {
+  @apply w-12 h-12 rounded-lg border-2 border-transparent;
+  @apply flex items-center justify-center;
+  @apply transition-all duration-200 cursor-pointer;
+  @apply hover:scale-110 hover:shadow-md;
+}
+
+.color-option.selected {
+  @apply border-slate-800 shadow-lg scale-105;
+}
+
+.color-option mat-icon {
+  @apply text-lg;
+}
+
+/* Color Preview Section */
+.color-preview-section {
   @apply mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200;
 }
 
 .preview-label {
-  @apply text-sm font-semibold text-slate-700 mb-2;
+  @apply text-sm font-semibold text-slate-700 mb-3;
 }
 
-.preview-bar {
-  @apply p-4 rounded-lg border-l-4 shadow-sm;
-  border-left-width: 6px;
+.preview-card {
+  @apply bg-white p-4 rounded-lg border-l-4 shadow-sm;
+  @apply transition-all duration-200;
 }
 
-.preview-text {
-  @apply text-white font-semibold drop-shadow-md;
+.preview-content {
+  @apply flex items-center gap-3;
+}
+
+.preview-icon {
+  @apply text-purple-500 text-2xl flex-shrink-0;
+}
+
+.preview-text-container {
+  @apply flex-1 min-w-0;
+}
+
+.preview-title {
+  @apply text-sm font-semibold text-slate-800 truncate;
+}
+
+.preview-subtitle {
+  @apply text-xs text-slate-500 mt-1;
 }
 
 /* Dialog Actions */
@@ -129,52 +286,59 @@
   @apply flex items-center justify-end gap-3 p-6 bg-white border-t border-slate-200;
 }
 
-/* Inline Spinner */
-.inline-spinner {
-  @apply mr-2;
+.btn-cancel,
+.btn-save {
+  @apply px-6 py-3 rounded-lg font-semibold;
+  @apply flex items-center gap-2;
+  @apply transition-all duration-200;
 }
 
-/* Material Form Field Customization */
+.btn-cancel {
+  @apply text-slate-700 bg-white border-2 border-slate-300;
+  @apply hover:bg-slate-50 hover:border-slate-400;
+}
+
+.btn-cancel:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.btn-save {
+  @apply text-white bg-gradient-to-r from-purple-600 to-purple-700;
+  @apply hover:from-purple-700 hover:to-purple-800;
+  @apply shadow-md hover:shadow-lg;
+}
+
+.btn-save:disabled {
+  @apply opacity-50 cursor-not-allowed hover:from-purple-600 hover:to-purple-700 hover:shadow-md;
+}
+
+.btn-cancel mat-icon,
+.btn-save mat-icon {
+  @apply text-lg;
+}
+
+/* Spinner Small */
+.spinner-small {
+  @apply w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin;
+}
+
+/* Datepicker Deep Styles (kept for Material datepicker) */
 ::ng-deep {
   .work-plan-form-dialog {
-    .mat-mdc-form-field {
-      @apply w-full;
-    }
-
-    .mat-mdc-text-field-wrapper {
-      @apply bg-white;
-    }
-
-    .mdc-text-field--outlined {
-      @apply rounded-lg;
-    }
-
-    .mat-mdc-form-field-hint {
-      @apply text-xs text-slate-500;
-    }
-
-    .mat-mdc-form-field-error {
-      @apply text-xs text-red-600;
-    }
-
-    .mat-mdc-select-panel {
-      @apply rounded-lg shadow-lg border border-slate-200;
-    }
-
-    .mat-mdc-option {
-      @apply text-sm;
-    }
-
-    .mat-mdc-option:hover {
-      @apply bg-purple-50;
-    }
-
-    .mat-mdc-option.mat-mdc-option-active {
-      @apply bg-purple-100;
-    }
-
     .mat-datepicker-content {
-      @apply rounded-xl shadow-elevated;
+      @apply rounded-xl shadow-lg;
+    }
+
+    .mat-calendar {
+      @apply font-sans;
+    }
+
+    .mat-calendar-body-selected {
+      @apply bg-purple-600;
+    }
+
+    .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+      @apply bg-purple-50;
     }
   }
 }
@@ -199,5 +363,22 @@
 
   .col-span-2 {
     @apply col-span-1;
+  }
+
+  .color-grid {
+    @apply grid-cols-6;
+  }
+
+  .color-option {
+    @apply w-10 h-10;
+  }
+
+  .dialog-actions {
+    @apply flex-col-reverse gap-2;
+  }
+
+  .btn-cancel,
+  .btn-save {
+    @apply w-full justify-center;
   }
 }

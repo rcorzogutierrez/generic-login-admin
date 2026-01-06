@@ -102,18 +102,31 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
     let filtered = proposals;
 
     // Filtrar por rango de fechas (filtro principal)
-    if (fromDate && toDate) {
-      // Convertir strings ISO a Date para comparación
-      const from = new Date(fromDate);
-      from.setHours(0, 0, 0, 0);
-      const to = new Date(toDate);
-      to.setHours(23, 59, 59, 999);
-
+    if (fromDate || toDate) {
       filtered = filtered.filter(p => {
         if (!p.date) return false;
-        // Convertir Timestamp de Firestore a Date de manera segura
+
+        // Convertir Timestamp de Firestore a Date
         const proposalDate = (p.date as any).toDate ? (p.date as any).toDate() : new Date(p.date as any);
-        return proposalDate >= from && proposalDate <= to;
+
+        // Normalizar a medianoche en zona horaria local para comparación solo de fecha
+        const proposalDateOnly = new Date(proposalDate.getFullYear(), proposalDate.getMonth(), proposalDate.getDate());
+
+        // Filtrar por fecha "desde"
+        if (fromDate) {
+          const [fromYear, fromMonth, fromDay] = fromDate.split('-').map(Number);
+          const fromDateOnly = new Date(fromYear, fromMonth - 1, fromDay);
+          if (proposalDateOnly < fromDateOnly) return false;
+        }
+
+        // Filtrar por fecha "hasta"
+        if (toDate) {
+          const [toYear, toMonth, toDay] = toDate.split('-').map(Number);
+          const toDateOnly = new Date(toYear, toMonth - 1, toDay);
+          if (proposalDateOnly > toDateOnly) return false;
+        }
+
+        return true;
       });
     }
 
@@ -642,11 +655,15 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   formatDate(timestamp: any): string {
     if (!timestamp) return '-';
 
+    // Convertir Timestamp de Firestore a Date
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+
+    // Usar la zona horaria local para el formateo
     return new Intl.DateTimeFormat('es-ES', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
     }).format(date);
   }
 

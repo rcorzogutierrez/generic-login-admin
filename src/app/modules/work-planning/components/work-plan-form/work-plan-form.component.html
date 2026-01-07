@@ -1,356 +1,385 @@
-<div class="work-plan-form-dialog">
-  <!-- Header -->
-  <div class="dialog-header">
+<!-- work-plan-form Dialog -->
+<div class="dialog-wrapper">
+
+  <!-- Dialog Header -->
+  <div mat-dialog-title class="dialog-header">
     <div class="flex items-center gap-3">
-      <div class="dialog-icon purple">
-        <span class="text-3xl">{{ getIconEmoji() }}</span>
+      <div class="header-icon-box purple">
+        <mat-icon>{{ data.mode === 'create' ? 'add_task' : 'edit_calendar' }}</mat-icon>
       </div>
       <div>
         <h2 class="dialog-title">{{ getTitle() }}</h2>
-        <p class="dialog-subtitle">Complete los campos para {{ data.mode === 'create' ? 'crear' : 'actualizar' }} el plan de trabajo</p>
+        <p class="dialog-subtitle">{{ getSubtitle() }}</p>
       </div>
     </div>
     <button
       type="button"
-      class="dialog-close-btn"
+      class="close-btn"
       (click)="onCancel()"
       [disabled]="isSaving()">
-      <span class="text-xl">✕</span>
+      <mat-icon>close</mat-icon>
     </button>
   </div>
 
   <!-- Loading State -->
   @if (isLoading()) {
-    <div class="loading-container">
-      <div class="spinner"></div>
-      <p class="loading-text">Cargando datos...</p>
+    <div mat-dialog-content class="loading-container">
+      <div class="loading-spinner"></div>
+      <p class="text-sm text-slate-500 mt-3">Cargando datos...</p>
     </div>
   } @else {
-    <!-- Form -->
+
+    <!-- Form Content -->
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <div class="dialog-content">
+      <div mat-dialog-content class="dialog-content">
 
-        <!-- Fecha y Duración -->
-        <div class="form-section">
-          <h3 class="section-title">
-            <span class="section-icon">📅</span>
-            Fecha y Duración
-          </h3>
-
-          <div class="form-grid">
-            <!-- Fecha del Plan -->
-            <div class="col-span-2">
-              <label class="input-label">
-                <span class="label-icon">📆</span>
-                Fecha del Plan
-                <span class="text-red-500">*</span>
-              </label>
-              <div class="input-wrapper">
-                <input
-                  [matDatepicker]="picker"
-                  formControlName="planDate"
-                  placeholder="Seleccione una fecha"
-                  class="input-field"
-                  [class.input-error]="form.get('planDate')?.invalid && form.get('planDate')?.touched"
-                  required>
-                <mat-datepicker-toggle class="datepicker-toggle" [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </div>
-              @if (form.get('planDate')?.invalid && form.get('planDate')?.touched) {
-                <p class="error-message">{{ getErrorMessage('planDate') }}</p>
-              }
+        <!-- Sección: Fecha y Duración -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-icon-box">
+              <mat-icon>event</mat-icon>
             </div>
-
-            <!-- Duración en Días -->
-            <div>
-              <label class="input-label">
-                <span class="label-icon">📊</span>
-                Días
-                <span class="text-red-500">*</span>
-              </label>
-              <div class="number-input-wrapper">
-                <input
-                  type="number"
-                  formControlName="durationDays"
-                  placeholder="0"
-                  min="0"
-                  class="input-field"
-                  [class.input-error]="form.get('durationDays')?.invalid && form.get('durationDays')?.touched"
-                  required>
-                <div class="number-controls">
-                  <button
-                    type="button"
-                    class="control-btn"
-                    (click)="incrementDays()"
-                    [disabled]="isSaving()">
-                    <span class="text-lg">▲</span>
-                  </button>
-                  <button
-                    type="button"
-                    class="control-btn"
-                    (click)="decrementDays()"
-                    [disabled]="isSaving() || (form.get('durationDays')?.value || 0) === 0">
-                    <span class="text-lg">▼</span>
-                  </button>
-                </div>
-              </div>
-              @if (form.get('durationDays')?.invalid && form.get('durationDays')?.touched) {
-                <p class="error-message">{{ getErrorMessage('durationDays') }}</p>
-              }
-            </div>
-
-            <!-- Duración en Horas -->
-            <div>
-              <label class="input-label">
-                <span class="label-icon">⏱️</span>
-                Horas (0-23)
-                <span class="text-red-500">*</span>
-              </label>
-              <div class="number-input-wrapper">
-                <input
-                  type="number"
-                  formControlName="durationHours"
-                  placeholder="0"
-                  min="0"
-                  max="23"
-                  class="input-field"
-                  [class.input-error]="form.get('durationHours')?.invalid && form.get('durationHours')?.touched"
-                  required>
-                <div class="number-controls">
-                  <button
-                    type="button"
-                    class="control-btn"
-                    (click)="incrementHours()"
-                    [disabled]="isSaving() || (form.get('durationHours')?.value || 0) >= 23">
-                    <span class="text-lg">▲</span>
-                  </button>
-                  <button
-                    type="button"
-                    class="control-btn"
-                    (click)="decrementHours()"
-                    [disabled]="isSaving() || (form.get('durationHours')?.value || 0) === 0">
-                    <span class="text-lg">▼</span>
-                  </button>
-                </div>
-              </div>
-              @if (form.get('durationHours')?.invalid && form.get('durationHours')?.touched) {
-                <p class="error-message">{{ getErrorMessage('durationHours') }}</p>
-              }
+            <div class="section-title-group">
+              <h3 class="section-title">Fecha y Duración</h3>
+              <p class="section-subtitle">Cuándo y por cuánto tiempo</p>
             </div>
           </div>
 
-          @if (getTotalDuration() === 0) {
-            <div class="warning-message">
-              <span class="text-lg">⚠️</span>
-              <span>Debe especificar al menos 1 día o 1 hora de duración</span>
+          <div class="section-content">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+              <!-- Fecha del Plan -->
+              <div class="md:col-span-3">
+                <div class="form-group">
+                  <label class="form-label">
+                    <mat-icon class="label-icon">event</mat-icon>
+                    Fecha del Plan
+                    <span class="text-red-500">*</span>
+                  </label>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <input
+                      matInput
+                      [matDatepicker]="picker"
+                      formControlName="planDate"
+                      placeholder="Seleccione una fecha"
+                      required>
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                    <mat-error>{{ getErrorMessage('planDate') }}</mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Duración en Días -->
+              <div>
+                <div class="form-group">
+                  <label class="form-label">
+                    <mat-icon class="label-icon">today</mat-icon>
+                    Días
+                    <span class="text-red-500">*</span>
+                  </label>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <input
+                      matInput
+                      type="number"
+                      formControlName="durationDays"
+                      placeholder="0"
+                      min="0"
+                      required>
+                    <button
+                      matSuffix
+                      mat-icon-button
+                      type="button"
+                      (click)="incrementDays()"
+                      [disabled]="isSaving()">
+                      <mat-icon>add</mat-icon>
+                    </button>
+                    <mat-error>{{ getErrorMessage('durationDays') }}</mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Duración en Horas -->
+              <div>
+                <div class="form-group">
+                  <label class="form-label">
+                    <mat-icon class="label-icon">schedule</mat-icon>
+                    Horas (0-23)
+                    <span class="text-red-500">*</span>
+                  </label>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <input
+                      matInput
+                      type="number"
+                      formControlName="durationHours"
+                      placeholder="0"
+                      min="0"
+                      max="23"
+                      required>
+                    <button
+                      matSuffix
+                      mat-icon-button
+                      type="button"
+                      (click)="incrementHours()"
+                      [disabled]="isSaving() || (form.get('durationHours')?.value || 0) >= 23">
+                      <mat-icon>add</mat-icon>
+                    </button>
+                    <mat-error>{{ getErrorMessage('durationHours') }}</mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Total Duration Display -->
+              <div class="md:col-span-1 flex items-end">
+                <div class="info-box">
+                  <mat-icon class="text-purple-600">timer</mat-icon>
+                  <span class="text-sm font-semibold">Total: {{ getTotalDuration() }}h</span>
+                </div>
+              </div>
+
             </div>
-          }
+
+            @if (getTotalDuration() === 0) {
+              <div class="warning-box">
+                <mat-icon>warning</mat-icon>
+                <span>Debe especificar al menos 1 día o 1 hora de duración</span>
+              </div>
+            }
+          </div>
         </div>
 
-        <!-- Asignación -->
-        <div class="form-section">
-          <h3 class="section-title">
-            <span class="section-icon">👤</span>
-            Asignación
-          </h3>
-
-          <div class="form-grid">
-            <!-- Trabajador -->
-            <div>
-              <label class="input-label">
-                <span class="label-icon">🔧</span>
-                Trabajador
-              </label>
-              <div class="select-wrapper">
-                <select
-                  formControlName="workerId"
-                  class="select-field"
-                  [disabled]="isSaving()">
-                  <option value="">Ninguno</option>
-                  @for (worker of workers(); track worker.id) {
-                    <option [value]="worker.id">{{ worker.fullName }}</option>
-                  }
-                </select>
-                <span class="select-icon">▼</span>
-              </div>
-              <p class="hint-text">Opcional: Asignar a un trabajador específico</p>
+        <!-- Sección: Asignación -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-icon-box">
+              <mat-icon>assignment_ind</mat-icon>
             </div>
+            <div class="section-title-group">
+              <h3 class="section-title">Asignación</h3>
+              <p class="section-subtitle">Trabajador o propuesta relacionada</p>
+            </div>
+          </div>
 
-            <!-- Propuesta/Estimado -->
-            <div>
-              <label class="input-label">
-                <span class="label-icon">📄</span>
-                Propuesta/Estimado
-              </label>
-              <div class="select-wrapper">
-                <select
-                  formControlName="proposalId"
-                  class="select-field"
-                  [disabled]="isSaving()">
-                  <option value="">Ninguno</option>
-                  @for (proposal of proposals(); track proposal.id) {
-                    <option [value]="proposal.id">
-                      {{ proposal.proposalNumber }} - {{ proposal.ownerName }}
-                    </option>
-                  }
-                </select>
-                <span class="select-icon">▼</span>
+          <div class="section-content">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <!-- Trabajador -->
+              <div>
+                <div class="form-group">
+                  <label class="form-label">
+                    <mat-icon class="label-icon">engineering</mat-icon>
+                    Trabajador
+                  </label>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-select
+                      formControlName="workerId"
+                      placeholder="Ninguno"
+                      [disabled]="isSaving()">
+                      <mat-option value="">Ninguno</mat-option>
+                      @for (worker of workers(); track worker.id) {
+                        <mat-option [value]="worker.id">{{ worker.fullName }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <p class="form-help">Opcional: Asignar a un trabajador específico</p>
+                </div>
               </div>
-              <p class="hint-text">Opcional: Vincular a una propuesta</p>
+
+              <!-- Propuesta/Estimado -->
+              <div>
+                <div class="form-group">
+                  <label class="form-label">
+                    <mat-icon class="label-icon">description</mat-icon>
+                    Propuesta/Estimado
+                  </label>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-select
+                      formControlName="proposalId"
+                      placeholder="Ninguno"
+                      [disabled]="isSaving()">
+                      <mat-option value="">Ninguno</mat-option>
+                      @for (proposal of proposals(); track proposal.id) {
+                        <mat-option [value]="proposal.id">
+                          {{ proposal.proposalNumber }} - {{ proposal.ownerName }}
+                        </mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <p class="form-help">Opcional: Vincular a una propuesta</p>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
 
-        <!-- Detalles -->
-        <div class="form-section">
-          <h3 class="section-title">
-            <span class="section-icon">📝</span>
-            Detalles
-          </h3>
+        <!-- Sección: Detalles -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-icon-box">
+              <mat-icon>notes</mat-icon>
+            </div>
+            <div class="section-title-group">
+              <h3 class="section-title">Detalles del Trabajo</h3>
+              <p class="section-subtitle">Descripción, ubicación y estado</p>
+            </div>
+          </div>
 
-          <div class="form-grid">
-            <!-- Descripción -->
-            <div class="col-span-2">
-              <label class="input-label">
-                <span class="label-icon">📋</span>
-                Descripción
-                <span class="text-red-500">*</span>
-              </label>
-              <textarea
-                formControlName="description"
-                rows="3"
-                maxlength="500"
-                placeholder="Descripción del trabajo a realizar..."
-                class="textarea-field"
-                [class.input-error]="form.get('description')?.invalid && form.get('description')?.touched"
-                required></textarea>
-              <div class="flex justify-between items-center">
-                @if (form.get('description')?.invalid && form.get('description')?.touched) {
-                  <p class="error-message">{{ getErrorMessage('description') }}</p>
-                } @else {
-                  <p class="hint-text">Describa brevemente el trabajo planificado</p>
-                }
-                <span class="char-count">{{ form.get('description')?.value?.length || 0 }}/500</span>
+          <div class="section-content">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <!-- Descripción -->
+              <div class="md:col-span-2">
+                <div class="form-group">
+                  <label class="form-label">
+                    <mat-icon class="label-icon">subject</mat-icon>
+                    Descripción
+                    <span class="text-red-500">*</span>
+                  </label>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <textarea
+                      matInput
+                      formControlName="description"
+                      rows="3"
+                      maxlength="500"
+                      placeholder="Descripción del trabajo a realizar..."
+                      required></textarea>
+                    <mat-hint align="end">{{ form.get('description')?.value?.length || 0 }}/500</mat-hint>
+                    <mat-error>{{ getErrorMessage('description') }}</mat-error>
+                  </mat-form-field>
+                </div>
               </div>
-            </div>
 
-            <!-- Ubicación -->
-            <div>
-              <label class="input-label">
-                <span class="label-icon">📍</span>
-                Ubicación
-              </label>
-              <input
-                type="text"
-                formControlName="location"
-                placeholder="Ej: Oficina principal, Sitio A..."
-                maxlength="200"
-                class="input-field"
-                [disabled]="isSaving()">
-              <p class="hint-text">Lugar donde se realizará el trabajo</p>
-            </div>
-
-            <!-- Estado -->
-            <div>
-              <label class="input-label">
-                <span class="label-icon">📊</span>
-                Estado
-                <span class="text-red-500">*</span>
-              </label>
-              <div class="select-wrapper">
-                <select
-                  formControlName="status"
-                  class="select-field"
-                  [disabled]="isSaving()"
-                  required>
-                  <option value="scheduled">📅 Programado</option>
-                  <option value="in-progress">⚙️ En Progreso</option>
-                  <option value="completed">✅ Completado</option>
-                  <option value="cancelled">❌ Cancelado</option>
-                  <option value="postponed">⏸️ Pospuesto</option>
-                </select>
-                <span class="select-icon">▼</span>
+              <!-- Ubicación -->
+              <div>
+                <div class="form-group">
+                  <label class="form-label">
+                    <mat-icon class="label-icon">location_on</mat-icon>
+                    Ubicación
+                  </label>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <input
+                      matInput
+                      formControlName="location"
+                      placeholder="Ej: Oficina principal, Sitio A..."
+                      maxlength="200"
+                      [disabled]="isSaving()">
+                  </mat-form-field>
+                  <p class="form-help">Lugar donde se realizará el trabajo</p>
+                </div>
               </div>
-              @if (form.get('status')?.invalid && form.get('status')?.touched) {
-                <p class="error-message">{{ getErrorMessage('status') }}</p>
-              }
-            </div>
 
-            <!-- Notas -->
-            <div class="col-span-2">
-              <label class="input-label">
-                <span class="label-icon">📄</span>
-                Notas Adicionales
-              </label>
-              <textarea
-                formControlName="notes"
-                rows="2"
-                maxlength="500"
-                placeholder="Notas, comentarios o instrucciones especiales..."
-                class="textarea-field"
-                [disabled]="isSaving()"></textarea>
-              <div class="flex justify-between items-center">
-                <p class="hint-text">Información adicional relevante</p>
-                <span class="char-count">{{ form.get('notes')?.value?.length || 0 }}/500</span>
+              <!-- Estado -->
+              <div>
+                <div class="form-group">
+                  <label class="form-label">
+                    <mat-icon class="label-icon">flag</mat-icon>
+                    Estado
+                    <span class="text-red-500">*</span>
+                  </label>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-select
+                      formControlName="status"
+                      placeholder="Seleccione estado"
+                      [disabled]="isSaving()"
+                      required>
+                      <mat-option value="scheduled">
+                        <mat-icon class="option-icon">event</mat-icon>
+                        Programado
+                      </mat-option>
+                      <mat-option value="in-progress">
+                        <mat-icon class="option-icon">play_circle</mat-icon>
+                        En Progreso
+                      </mat-option>
+                      <mat-option value="completed">
+                        <mat-icon class="option-icon">check_circle</mat-icon>
+                        Completado
+                      </mat-option>
+                      <mat-option value="cancelled">
+                        <mat-icon class="option-icon">cancel</mat-icon>
+                        Cancelado
+                      </mat-option>
+                      <mat-option value="postponed">
+                        <mat-icon class="option-icon">pause_circle</mat-icon>
+                        Pospuesto
+                      </mat-option>
+                    </mat-select>
+                    <mat-error>{{ getErrorMessage('status') }}</mat-error>
+                  </mat-form-field>
+                </div>
               </div>
-            </div>
 
-            <!-- Color -->
-            <div class="col-span-2">
-              <label class="input-label">
-                <span class="label-icon">🎨</span>
-                Color de Identificación
-              </label>
-              <div class="color-grid">
-                @for (colorOption of colorOptions; track colorOption.value) {
-                  <button
-                    type="button"
-                    class="color-option"
-                    [class.selected]="form.get('color')?.value === colorOption.value"
-                    [style.background-color]="colorOption.value"
-                    (click)="selectColor(colorOption.value)"
-                    [disabled]="isSaving()">
-                    @if (form.get('color')?.value === colorOption.value) {
-                      <span class="text-white text-lg font-bold">✓</span>
+              <!-- Notas -->
+              <div class="md:col-span-2">
+                <div class="form-group">
+                  <label class="form-label">
+                    <mat-icon class="label-icon">notes</mat-icon>
+                    Notas Adicionales
+                  </label>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <textarea
+                      matInput
+                      formControlName="notes"
+                      rows="2"
+                      maxlength="500"
+                      placeholder="Notas, comentarios o instrucciones especiales..."
+                      [disabled]="isSaving()"></textarea>
+                    <mat-hint align="end">{{ form.get('notes')?.value?.length || 0 }}/500</mat-hint>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Color -->
+              <div class="md:col-span-2">
+                <div class="form-group">
+                  <label class="form-label">
+                    <mat-icon class="label-icon">palette</mat-icon>
+                    Color de Identificación
+                  </label>
+                  <div class="color-grid">
+                    @for (colorOption of colorOptions; track colorOption.value) {
+                      <button
+                        type="button"
+                        class="color-option"
+                        [class.selected]="form.get('color')?.value === colorOption.value"
+                        [style.background-color]="colorOption.value"
+                        (click)="selectColor(colorOption.value)"
+                        [disabled]="isSaving()"
+                        [title]="colorOption.label">
+                        @if (form.get('color')?.value === colorOption.value) {
+                          <mat-icon class="check-icon">check</mat-icon>
+                        }
+                      </button>
                     }
-                  </button>
-                }
+                  </div>
+                  <p class="form-help">Seleccione un color para identificar visualmente este plan</p>
+                </div>
               </div>
-              <p class="hint-text">Seleccione un color para identificar visualmente este plan</p>
+
             </div>
           </div>
         </div>
 
-        <!-- Preview -->
-        @if (form.get('description')?.value || form.get('color')?.value) {
-          <div class="form-section">
-            <h3 class="section-title">
-              <span class="section-icon">👁️</span>
-              Vista Previa
-            </h3>
-
-            <div class="color-preview-section">
-              <p class="preview-label">Así se verá el plan en el calendario:</p>
-              <div
-                class="preview-card"
-                [style.border-left-color]="form.get('color')?.value || '#9333EA'">
-                <div class="preview-content">
-                  <span class="preview-icon">📋</span>
-                  <div class="preview-text-container">
-                    <p class="preview-title">
-                      {{ form.get('description')?.value || 'Sin descripción' }}
-                    </p>
-                    <p class="preview-subtitle">
-                      ⏱️ {{ getTotalDuration() }} {{ getTotalDuration() === 1 ? 'hora' : 'horas' }}
-                      @if (form.get('workerName')?.value) {
-                        · 👤 {{ form.get('workerName')?.value }}
-                      }
-                      @if (form.get('location')?.value) {
-                        · 📍 {{ form.get('location')?.value }}
-                      }
-                    </p>
-                  </div>
-                </div>
+        <!-- Preview Card -->
+        @if (form.get('description')?.value) {
+          <div class="preview-card">
+            <div class="preview-header">
+              <mat-icon>visibility</mat-icon>
+              <span>Vista Previa</span>
+            </div>
+            <div class="preview-content" [style.border-left-color]="form.get('color')?.value || '#9333EA'">
+              <div class="preview-info">
+                <p class="preview-title">{{ form.get('description')?.value }}</p>
+                <p class="preview-subtitle">
+                  <mat-icon>timer</mat-icon>
+                  {{ getTotalDuration() }}h total
+                  @if (form.get('workerName')?.value) {
+                    · <mat-icon>person</mat-icon> {{ form.get('workerName')?.value }}
+                  }
+                  @if (form.get('location')?.value) {
+                    · <mat-icon>location_on</mat-icon> {{ form.get('location')?.value }}
+                  }
+                </p>
               </div>
             </div>
           </div>
@@ -358,28 +387,29 @@
 
       </div>
 
-      <!-- Actions -->
-      <div class="dialog-actions">
+      <!-- Dialog Actions -->
+      <div mat-dialog-actions class="dialog-actions">
         <button
           type="button"
           class="btn-cancel"
           (click)="onCancel()"
           [disabled]="isSaving()">
-          <span>✕</span>
-          Cancelar
+          <mat-icon>close</mat-icon>
+          <span>Cancelar</span>
         </button>
         <button
           type="submit"
           class="btn-save"
           [disabled]="form.invalid || isSaving() || getTotalDuration() === 0">
           @if (isSaving()) {
-            <div class="spinner-small"></div>
+            <div class="btn-spinner"></div>
           } @else {
-            <span>💾</span>
+            <mat-icon>save</mat-icon>
           }
-          {{ data.mode === 'create' ? 'Crear Plan' : 'Actualizar Plan' }}
+          <span>{{ data.mode === 'create' ? 'Crear Plan' : 'Actualizar Plan' }}</span>
         </button>
       </div>
     </form>
+
   }
 </div>

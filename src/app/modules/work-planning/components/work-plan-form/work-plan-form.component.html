@@ -168,7 +168,7 @@
                   [disabled]="isSaving()">
                   <option value="">Ninguno</option>
                   @for (worker of workers(); track worker.id) {
-                    <option [value]="worker.id">{{ worker.name }}</option>
+                    <option [value]="worker.id">{{ worker.fullName }}</option>
                   }
                 </select>
                 <span class="select-icon">▼</span>
@@ -190,7 +190,7 @@
                   <option value="">Ninguno</option>
                   @for (proposal of proposals(); track proposal.id) {
                     <option [value]="proposal.id">
-                      {{ proposal.number }} - {{ proposal.ownerName }}
+                      {{ proposal.proposalNumber }} - {{ proposal.ownerName }}
                     </option>
                   }
                 </select>

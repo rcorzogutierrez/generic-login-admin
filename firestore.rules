@@ -228,6 +228,24 @@ service cloud.firestore {
     }
 
     // ============================================
+    // WORK PLANNING MODULE
+    // ============================================
+
+    match /workPlans/{planId} {
+      allow read: if canRead() && hasModuleAccess('work-planning');
+      allow create: if canWrite() && hasModuleAccess('work-planning') &&
+        hasRequiredFields(['planDate', 'durationDays', 'durationHours', 'status', 'createdAt', 'createdBy', 'isActive']);
+      allow update: if canWrite() && hasModuleAccess('work-planning');
+      allow delete: if canDelete() && hasModuleAccess('work-planning');
+    }
+
+    // Work Planning Config
+    match /work_planning_config/{configId} {
+      allow read: if canRead() && hasModuleAccess('work-planning');
+      allow write: if isAdmin();
+    }
+
+    // ============================================
     // MODULE CONFIGURATIONS (Generic)
     // ============================================
 

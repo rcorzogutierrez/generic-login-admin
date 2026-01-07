@@ -71,6 +71,7 @@ export class NavbarComponent implements OnInit {
         // Los admins ven todos los módulos disponibles
         await this.modulesService.initialize();
         const allModules = this.modulesService.getActiveModules().map(m => m.value);
+        console.log('🔍 [DEBUG] Módulos activos cargados para admin:', allModules);
         this.userModules.set(allModules);
 
         return;

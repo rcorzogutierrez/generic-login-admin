@@ -172,8 +172,8 @@
         <input
           type="text"
           placeholder="Buscar por trabajador, proyecto, descripción..."
-          [(ngModel)]="searchTerm"
-          (ngModelChange)="searchTerm.set($event)"
+          [value]="searchTerm()"
+          (input)="searchTerm.set($any($event.target).value)"
           class="search-input">
       </div>
 

@@ -168,7 +168,8 @@
 
 /* Contenido simplificado del plan */
 .plan-content-simple {
-  @apply flex items-center gap-2 pr-1;
+  @apply flex items-center gap-2;
+  padding-right: 32px; /* Espacio para el checkbox absoluto */
 }
 
 .status-badge-mini {
@@ -186,6 +187,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin: 0;
 }
 
 .plan-actions-btn {

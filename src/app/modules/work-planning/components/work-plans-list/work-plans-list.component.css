@@ -62,6 +62,35 @@
 /* Vista Calendario */
 .calendar-view {
   @apply animate-fadeIn;
+  position: relative;
+}
+
+/* Indicador de scroll para móviles */
+@media (max-width: 768px) {
+  .calendar-view::after {
+    content: '← Desliza →';
+    position: sticky;
+    right: 0;
+    bottom: 10px;
+    background: rgba(147, 51, 234, 0.9);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    z-index: 10;
+    pointer-events: none;
+    animation: fadeInOut 3s ease-in-out;
+    display: block;
+    text-align: center;
+    margin: 10px auto 0;
+    width: fit-content;
+  }
+
+  @keyframes fadeInOut {
+    0%, 100% { opacity: 0; }
+    10%, 90% { opacity: 1; }
+  }
 }
 
 .day-header {
@@ -366,12 +395,42 @@
 
 /* Para pantallas pequeñas - móviles */
 @media (max-width: 768px) {
+  /* Hacer calendario scrollable horizontalmente */
+  .calendar-view {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Forzar ancho mínimo para que las 7 columnas se vean bien */
+  .calendar-view > div {
+    min-width: 700px;
+  }
+
+  /* Personalizar scrollbar horizontal */
+  .calendar-view::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .calendar-view::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+  }
+
+  .calendar-view::-webkit-scrollbar-thumb {
+    background: #9333ea;
+    border-radius: 3px;
+  }
+
+  .calendar-view::-webkit-scrollbar-thumb:hover {
+    background: #7e22ce;
+  }
+
   .day-cell {
     @apply min-h-[140px];
   }
 
   .plan-card {
-    @apply p-1;
+    @apply p-1.5;
   }
 
   .plan-title {
@@ -384,5 +443,28 @@
 
   .timeline-details {
     @apply grid-cols-1;
+  }
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 640px) {
+  .calendar-view > div {
+    min-width: 600px;
+  }
+
+  .day-header {
+    @apply p-1;
+  }
+
+  .day-name {
+    @apply text-[8px];
+  }
+
+  .day-number {
+    @apply text-base;
+  }
+
+  .day-month {
+    @apply text-[8px];
   }
 }

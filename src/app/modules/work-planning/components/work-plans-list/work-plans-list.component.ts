@@ -426,4 +426,48 @@ export class WorkPlansListComponent implements OnInit {
   getMonthName(date: Date): string {
     return date.toLocaleDateString('es-ES', { month: 'short' });
   }
+
+  /**
+   * Generar tooltip con información completa del plan
+   */
+  getPlanTooltip(plan: WorkPlan): string {
+    const parts: string[] = [];
+
+    // Descripción
+    if (plan.description) {
+      parts.push(`📋 ${plan.description}`);
+    }
+
+    // Estado
+    parts.push(`📊 Estado: ${this.getStatusLabel(plan.status)}`);
+
+    // Trabajador
+    if (plan.workerName) {
+      parts.push(`👤 Trabajador: ${plan.workerName}`);
+    }
+
+    // Propuesta
+    if (plan.proposalNumber) {
+      let proposalText = `📄 Propuesta: ${plan.proposalNumber}`;
+      if (plan.proposalOwnerName) {
+        proposalText += ` - ${plan.proposalOwnerName}`;
+      }
+      parts.push(proposalText);
+    }
+
+    // Duración
+    parts.push(`⏱️ Duración: ${this.formatDuration(plan)}`);
+
+    // Ubicación
+    if (plan.location) {
+      parts.push(`📍 Ubicación: ${plan.location}`);
+    }
+
+    // Notas
+    if (plan.notes) {
+      parts.push(`📝 Notas: ${plan.notes}`);
+    }
+
+    return parts.join('\n');
+  }
 }

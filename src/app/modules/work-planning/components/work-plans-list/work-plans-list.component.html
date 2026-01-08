@@ -233,6 +233,9 @@
             @for (plan of getPlansForDate(day); track plan.id) {
               <div class="plan-card"
                    [style.border-left-color]="plan.color || '#8b5cf6'"
+                   [matTooltip]="getPlanTooltip(plan)"
+                   matTooltipPosition="above"
+                   matTooltipClass="plan-tooltip"
                    (click)="openEditDialog(plan)">
                 <!-- Checkbox de selección -->
                 <mat-checkbox
@@ -242,53 +245,17 @@
                   (click)="$event.stopPropagation()">
                 </mat-checkbox>
 
-                <!-- Contenido del plan -->
-                <div class="plan-content">
-                  <!-- Estado -->
-                  <div class="flex items-center gap-2 mb-2">
-                    <span class="status-badge" [ngClass]="getStatusBadgeClass(plan.status)">
-                      <mat-icon class="text-xs">{{ getStatusIcon(plan.status) }}</mat-icon>
-                      {{ getStatusLabel(plan.status) }}
-                    </span>
-                  </div>
+                <!-- Contenido simplificado del plan -->
+                <div class="plan-content-simple">
+                  <!-- Badge de estado pequeño -->
+                  <span class="status-badge-mini" [ngClass]="getStatusBadgeClass(plan.status)">
+                    <mat-icon>{{ getStatusIcon(plan.status) }}</mat-icon>
+                  </span>
 
-                  <!-- Descripción -->
-                  @if (plan.description) {
-                    <p class="plan-title">{{ plan.description }}</p>
-                  }
-
-                  <!-- Trabajador -->
-                  @if (plan.workerName) {
-                    <div class="plan-detail">
-                      <mat-icon>person</mat-icon>
-                      <span>{{ plan.workerName }}</span>
-                    </div>
-                  }
-
-                  <!-- Propuesta -->
-                  @if (plan.proposalNumber) {
-                    <div class="plan-detail">
-                      <mat-icon>description</mat-icon>
-                      <span>{{ plan.proposalNumber }}</span>
-                      @if (plan.proposalOwnerName) {
-                        <span class="text-slate-500">- {{ plan.proposalOwnerName }}</span>
-                      }
-                    </div>
-                  }
-
-                  <!-- Duración -->
-                  <div class="plan-detail">
-                    <mat-icon>schedule</mat-icon>
-                    <span>{{ formatDuration(plan) }}</span>
-                  </div>
-
-                  <!-- Ubicación -->
-                  @if (plan.location) {
-                    <div class="plan-detail">
-                      <mat-icon>place</mat-icon>
-                      <span>{{ plan.location }}</span>
-                    </div>
-                  }
+                  <!-- Descripción en una línea -->
+                  <p class="plan-description">
+                    {{ plan.description || 'Sin descripción' }}
+                  </p>
                 </div>
 
                 <!-- Acciones -->

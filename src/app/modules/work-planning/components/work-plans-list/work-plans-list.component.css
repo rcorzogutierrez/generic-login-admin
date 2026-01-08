@@ -166,6 +166,29 @@
   z-index: 5;
 }
 
+/* Contenido simplificado del plan */
+.plan-content-simple {
+  @apply flex items-center gap-2 pr-2;
+}
+
+.status-badge-mini {
+  @apply flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center;
+}
+
+.status-badge-mini mat-icon {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.plan-description {
+  @apply flex-1 text-xs font-medium text-slate-800 truncate leading-tight;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Estilos legacy para otras vistas */
 .plan-content {
   @apply pr-2;
 }
@@ -367,22 +390,20 @@
     @apply p-1.5 mb-1;
   }
 
-  .plan-title {
-    @apply text-[11px];
+  /* Badge mini más pequeño */
+  .status-badge-mini {
+    @apply w-4 h-4;
   }
 
-  .plan-detail {
-    @apply text-[9px];
-  }
-
-  .plan-detail mat-icon {
+  .status-badge-mini mat-icon {
     font-size: 12px !important;
     width: 12px !important;
     height: 12px !important;
   }
 
-  .status-badge {
-    @apply text-[9px] px-1 py-0.5;
+  /* Descripción más pequeña */
+  .plan-description {
+    @apply text-[11px];
   }
 
   .empty-day {
@@ -440,39 +461,20 @@
     display: none !important;
   }
 
-  .plan-content {
-    @apply pr-0;
+  /* Badge mini más pequeño en móviles */
+  .status-badge-mini {
+    @apply w-4 h-4;
   }
 
-  /* Badge más compacto */
-  .status-badge {
-    @apply text-[9px] px-1 py-0.5 gap-0;
+  .status-badge-mini mat-icon {
+    font-size: 12px !important;
+    width: 12px !important;
+    height: 12px !important;
   }
 
-  .status-badge mat-icon {
-    font-size: 10px !important;
-    width: 10px !important;
-    height: 10px !important;
-  }
-
-  /* Solo mostrar íconos sin texto en algunos detalles */
-  .plan-title {
-    @apply text-[10px] mb-0.5 line-clamp-1;
-  }
-
-  .plan-detail {
-    @apply text-[9px] gap-0.5 mb-0;
-  }
-
-  .plan-detail mat-icon {
-    font-size: 11px !important;
-    width: 11px !important;
-    height: 11px !important;
-  }
-
-  /* Ocultar información secundaria en móviles */
-  .plan-detail:nth-child(n+5) {
-    display: none !important;
+  /* Descripción más pequeña en móviles */
+  .plan-description {
+    @apply text-[10px];
   }
 
   .timeline-details {

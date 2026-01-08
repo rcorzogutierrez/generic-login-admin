@@ -1202,3 +1202,27 @@ mat-icon {
   background: transparent !important;
   color: inherit !important;
 }
+
+/* =====================================================
+   WORK PLANNING - Dialog y Datepicker estilos
+   ===================================================== */
+
+/* Dialog container sin padding (para control completo) */
+.dialog-container .mat-mdc-dialog-container {
+  padding: 0 !important;
+}
+
+/* Datepicker con bordes redondeados */
+.dialog-container .mat-datepicker-content {
+  border-radius: 12px !important;
+}
+
+/* Calendario - día seleccionado (color púrpura) */
+.dialog-container .mat-calendar-body-selected {
+  background: #9333ea !important;
+}
+
+/* Calendario - hover en días (color púrpura claro) */
+.dialog-container .mat-calendar-body-cell:hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+  background: #f3e8ff !important;
+}

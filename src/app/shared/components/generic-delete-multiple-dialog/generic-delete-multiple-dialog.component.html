@@ -149,19 +149,18 @@
   <mat-dialog-actions class="dialog-actions">
     <!-- Botón cancelar -->
     <button
-      mat-stroked-button
-      class="cancel-btn"
+      type="button"
+      class="btn-cancel"
       (click)="onCancel()"
       [disabled]="isDeleting">
       <mat-icon>close</mat-icon>
-      Cancelar
+      <span>Cancelar</span>
     </button>
 
     <!-- Botón eliminar -->
     <button
-      mat-raised-button
-      color="warn"
-      class="delete-btn"
+      type="button"
+      class="btn-danger"
       (click)="onConfirm()"
       [disabled]="!canConfirm() || isDeleting">
       @if (isDeleting) {
@@ -169,7 +168,7 @@
       } @else {
         <mat-icon>delete_sweep</mat-icon>
       }
-      {{ isDeleting ? 'Eliminando...' : 'Eliminar ' + data.count + ' ' + (data.count === 1 ? data.config.entityName : data.config.entityNamePlural) }}
+      <span>{{ isDeleting ? 'Eliminando...' : 'Eliminar ' + data.count + ' ' + (data.count === 1 ? data.config.entityName : data.config.entityNamePlural) }}</span>
     </button>
   </mat-dialog-actions>
 

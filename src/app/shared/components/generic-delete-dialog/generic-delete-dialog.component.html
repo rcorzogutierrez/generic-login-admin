@@ -98,26 +98,25 @@
   <!-- Actions -->
   <mat-dialog-actions class="dialog-actions">
     <button
-      mat-stroked-button
+      type="button"
+      class="btn-cancel"
       (click)="onCancel()"
-      [disabled]="isDeleting"
-      class="cancel-btn">
+      [disabled]="isDeleting">
       <mat-icon>close</mat-icon>
-      Cancelar
+      <span>Cancelar</span>
     </button>
 
     <button
-      mat-raised-button
-      color="warn"
+      type="button"
+      class="btn-danger"
       (click)="onConfirm()"
-      [disabled]="!canConfirm() || isDeleting"
-      class="delete-btn">
+      [disabled]="!canConfirm() || isDeleting">
       @if (isDeleting) {
         <mat-spinner diameter="20"></mat-spinner>
       } @else {
         <mat-icon>delete_forever</mat-icon>
       }
-      {{ isDeleting ? 'Eliminando...' : 'Eliminar ' + data.config.entityName }}
+      <span>{{ isDeleting ? 'Eliminando...' : 'Eliminar ' + data.config.entityName }}</span>
     </button>
   </mat-dialog-actions>
 </div>

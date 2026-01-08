@@ -1,15 +1,5 @@
 import { Injectable } from '@angular/core';
-
-interface SimpleModuleConfig {
-  moduleName: string;
-  entityName: string;
-  entityNamePlural: string;
-  collectionName: string;
-  primaryField: string;
-  deleteConfirmationField: string;
-  featureName: string;
-  icon: string;
-}
+import { GenericModuleConfig } from '../../../shared/models/generic-entity.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +8,7 @@ export class WorkPlansConfigService {
   /**
    * Configuración del módulo de planificación de trabajo
    */
-  getModuleConfig(): SimpleModuleConfig {
+  getModuleConfig(): GenericModuleConfig {
     return {
       moduleName: 'work-planning',
       entityName: 'plan de trabajo',
@@ -27,7 +17,39 @@ export class WorkPlansConfigService {
       primaryField: 'description',
       deleteConfirmationField: 'description',
       featureName: 'Planificación de Trabajo',
-      icon: 'event_note'
+      icon: 'event_note',
+      fields: [
+        {
+          name: 'description',
+          label: 'Descripción',
+          type: 'text',
+          showInTable: true,
+          showInDelete: true,
+          isDefault: true
+        },
+        {
+          name: 'workerName',
+          label: 'Trabajador',
+          type: 'text',
+          showInTable: true,
+          showInDelete: true
+        },
+        {
+          name: 'proposalNumber',
+          label: 'Propuesta',
+          type: 'text',
+          showInTable: true,
+          showInDelete: true
+        },
+        {
+          name: 'status',
+          label: 'Estado',
+          type: 'text',
+          showInTable: true,
+          showInDelete: true
+        }
+      ],
+      deleteDialogFieldsCount: 3
     };
   }
 

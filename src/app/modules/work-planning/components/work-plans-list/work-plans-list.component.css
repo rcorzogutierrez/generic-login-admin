@@ -65,7 +65,7 @@
 }
 
 .day-header {
-  @apply bg-white rounded-xl border border-slate-200 p-3 text-center transition-all;
+  @apply bg-white rounded-lg border border-slate-200 p-2 text-center transition-all;
 }
 
 .day-header.today {
@@ -73,11 +73,11 @@
 }
 
 .day-name {
-  @apply text-xs font-semibold text-slate-600 uppercase mb-1;
+  @apply text-[10px] font-semibold text-slate-600 uppercase mb-0.5;
 }
 
 .day-number {
-  @apply text-2xl font-bold text-slate-800;
+  @apply text-xl font-bold text-slate-800;
 }
 
 .day-header.today .day-number {
@@ -85,11 +85,13 @@
 }
 
 .day-month {
-  @apply text-xs text-slate-500 mt-1;
+  @apply text-[10px] text-slate-500 mt-0.5;
 }
 
 .day-cell {
-  @apply bg-white rounded-xl border border-slate-200 p-3 min-h-[200px] transition-all hover:border-slate-300;
+  @apply bg-white rounded-lg border border-slate-200 p-2 min-h-[180px] transition-all hover:border-slate-300;
+  overflow-y: auto;
+  max-height: 400px;
 }
 
 .day-cell.today {
@@ -97,14 +99,32 @@
 }
 
 .empty-day {
-  @apply flex flex-col items-center justify-center h-full py-8 text-center;
+  @apply flex flex-col items-center justify-center h-full py-6 text-center;
+}
+
+/* Scrollbar personalizado para celdas de día */
+.day-cell::-webkit-scrollbar {
+  width: 4px;
+}
+
+.day-cell::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.day-cell::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.day-cell::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* Plan Card */
 .plan-card {
-  @apply relative bg-white rounded-lg border border-slate-200 p-3 mb-2 cursor-pointer transition-all;
-  @apply hover:shadow-md hover:border-slate-300;
-  border-left-width: 4px;
+  @apply relative bg-white rounded-md border border-slate-200 p-2 mb-1.5 cursor-pointer transition-all;
+  @apply hover:shadow-sm hover:border-slate-300;
+  border-left-width: 3px;
 }
 
 .plan-card:last-child {
@@ -112,36 +132,42 @@
 }
 
 .plan-checkbox {
-  @apply absolute top-2 right-2;
+  @apply absolute top-1.5 right-1.5;
+  transform: scale(0.85);
 }
 
 .plan-content {
-  @apply pr-8;
+  @apply pr-6;
 }
 
 .plan-title {
-  @apply text-sm font-semibold text-slate-800 mb-2 line-clamp-2;
+  @apply text-xs font-semibold text-slate-800 mb-1 line-clamp-2 leading-tight;
 }
 
 .plan-detail {
-  @apply flex items-center gap-1.5 text-xs text-slate-600 mb-1;
+  @apply flex items-center gap-1 text-[10px] text-slate-600 mb-0.5;
 }
 
 .plan-detail mat-icon {
-  @apply text-base text-slate-400;
+  @apply text-sm text-slate-400;
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
 }
 
 .plan-actions {
-  @apply absolute bottom-2 right-2;
+  @apply absolute bottom-1.5 right-1.5;
 }
 
 /* Status Badge */
 .status-badge {
-  @apply inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium;
+  @apply inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-medium;
 }
 
 .status-badge mat-icon {
-  @apply w-4 h-4 text-sm;
+  font-size: 12px !important;
+  width: 12px !important;
+  height: 12px !important;
 }
 
 .badge-blue {
@@ -285,21 +311,75 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+/* Para pantallas medianas - cuando DevTools está abierto */
+@media (max-width: 1400px) {
+  .day-header {
+    @apply p-1.5;
+  }
+
+  .day-name {
+    @apply text-[9px];
+  }
+
+  .day-number {
+    @apply text-lg;
+  }
+
+  .day-month {
+    @apply text-[9px];
+  }
+
   .day-cell {
-    @apply min-h-[150px];
+    @apply p-1.5 min-h-[160px];
   }
 
   .plan-card {
-    @apply p-2;
+    @apply p-1.5 mb-1;
   }
 
   .plan-title {
-    @apply text-xs;
+    @apply text-[11px];
   }
 
   .plan-detail {
-    @apply text-xs;
+    @apply text-[9px];
+  }
+
+  .plan-detail mat-icon {
+    font-size: 12px !important;
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  .status-badge {
+    @apply text-[9px] px-1 py-0.5;
+  }
+
+  .empty-day {
+    @apply py-4;
+  }
+
+  .empty-day mat-icon {
+    font-size: 20px !important;
+  }
+}
+
+/* Para pantallas pequeñas - móviles */
+@media (max-width: 768px) {
+  .day-cell {
+    @apply min-h-[140px];
+  }
+
+  .plan-card {
+    @apply p-1;
+  }
+
+  .plan-title {
+    @apply text-[10px];
+  }
+
+  .plan-detail {
+    @apply text-[9px];
   }
 
   .timeline-details {

@@ -163,10 +163,11 @@
 .plan-checkbox {
   @apply absolute top-1.5 right-1.5;
   transform: scale(0.85);
+  z-index: 5;
 }
 
 .plan-content {
-  @apply pr-6;
+  @apply pr-2;
 }
 
 .plan-title {
@@ -429,20 +430,130 @@
     @apply min-h-[140px];
   }
 
+  /* Simplificar card en móviles */
   .plan-card {
-    @apply p-1.5;
+    @apply p-1.5 mb-1;
   }
 
+  /* Ocultar checkbox en móviles para no sobreponerse */
+  .plan-checkbox {
+    display: none !important;
+  }
+
+  .plan-content {
+    @apply pr-0;
+  }
+
+  /* Badge más compacto */
+  .status-badge {
+    @apply text-[9px] px-1 py-0.5 gap-0;
+  }
+
+  .status-badge mat-icon {
+    font-size: 10px !important;
+    width: 10px !important;
+    height: 10px !important;
+  }
+
+  /* Solo mostrar íconos sin texto en algunos detalles */
   .plan-title {
-    @apply text-[10px];
+    @apply text-[10px] mb-0.5 line-clamp-1;
   }
 
   .plan-detail {
-    @apply text-[9px];
+    @apply text-[9px] gap-0.5 mb-0;
+  }
+
+  .plan-detail mat-icon {
+    font-size: 11px !important;
+    width: 11px !important;
+    height: 11px !important;
+  }
+
+  /* Ocultar información secundaria en móviles */
+  .plan-detail:nth-child(n+5) {
+    display: none !important;
   }
 
   .timeline-details {
     @apply grid-cols-1;
+  }
+
+  /* Hacer filtros responsivos */
+  .filter-btn {
+    @apply px-2 py-1 text-[10px];
+  }
+
+  .filter-btn mat-icon {
+    font-size: 14px !important;
+  }
+
+  .filter-btn span {
+    display: none;
+  }
+
+  /* Botones de vista más compactos */
+  .view-mode-btn {
+    @apply px-2 py-1.5;
+  }
+
+  .view-mode-btn mat-icon {
+    font-size: 18px !important;
+  }
+
+  /* Botón Hoy más pequeño */
+  .today-btn {
+    @apply px-2 py-1 text-[10px];
+  }
+
+  .today-btn mat-icon {
+    font-size: 16px !important;
+  }
+
+  .today-btn span {
+    @apply text-[10px];
+  }
+
+  /* Fecha de rango más pequeña */
+  .flex.items-center.gap-2 span {
+    @apply text-[10px];
+  }
+
+  /* Ocultar buscador en móviles para ahorrar espacio */
+  .search-box {
+    display: none !important;
+  }
+
+  /* Hacer controles wrap mejor */
+  .bg-white.rounded-xl.p-4 {
+    @apply p-2;
+  }
+
+  /* Iconos de navegación más pequeños */
+  .icon-btn mat-icon {
+    font-size: 20px !important;
+  }
+
+  /* Estadísticas más compactas */
+  .stat-chip {
+    @apply gap-1.5 px-2 py-1.5;
+  }
+
+  .stat-icon {
+    font-size: 16px !important;
+  }
+
+  .stat-value {
+    @apply text-base;
+  }
+
+  .stat-label {
+    @apply text-[9px];
+  }
+
+  /* Ocultar estadísticas menos importantes en móviles */
+  .stat-chip:nth-child(n+4) {
+    display: none !important;
   }
 }
 

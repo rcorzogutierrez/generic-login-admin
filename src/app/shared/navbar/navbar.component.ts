@@ -103,12 +103,26 @@ export class NavbarComponent implements OnInit {
    * Los admins tienen acceso a todos los módulos automáticamente
    */
   hasModule(moduleName: string): boolean {
+    const isAdminUser = this.isAdmin();
+    const hasInModules = this.userModules().includes(moduleName);
+
+    // Debug logging
+    if (moduleName === 'work-planning') {
+      console.log('🔍 [DEBUG hasModule] work-planning:', {
+        moduleName,
+        isAdminUser,
+        userModules: this.userModules(),
+        hasInModules,
+        willShow: isAdminUser || hasInModules
+      });
+    }
+
     // Los admins ven todos los módulos
-    if (this.isAdmin()) {
+    if (isAdminUser) {
       return true;
     }
     // Usuarios normales solo ven módulos asignados
-    return this.userModules().includes(moduleName);
+    return hasInModules;
   }
 
   getUserInitials(): string {

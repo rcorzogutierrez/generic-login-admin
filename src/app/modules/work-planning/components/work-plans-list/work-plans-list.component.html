@@ -256,14 +256,13 @@
                   <p class="plan-description">
                     {{ plan.description || 'Sin descripción' }}
                   </p>
-                </div>
 
-                <!-- Acciones -->
-                <div class="plan-actions">
+                  <!-- Menú de acciones integrado -->
                   <button
                     mat-icon-button
+                    class="plan-actions-btn"
                     [matMenuTriggerFor]="statusMenu"
-                    matTooltip="Cambiar estado"
+                    matTooltip="Opciones"
                     (click)="$event.stopPropagation()">
                     <mat-icon>more_vert</mat-icon>
                   </button>

@@ -604,22 +604,3 @@
     justify-content: center;
   }
 }
-
-/* ========== MATERIAL DEEP STYLES ========== */
-::ng-deep {
-  .dialog-container .mat-mdc-dialog-container {
-    padding: 0;
-  }
-
-  .dialog-container .mat-datepicker-content {
-    border-radius: 12px;
-  }
-
-  .dialog-container .mat-calendar-body-selected {
-    background: #9333ea;
-  }
-
-  .dialog-container .mat-calendar-body-cell:hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
-    background: #f3e8ff;
-  }
-}

@@ -71,6 +71,11 @@ export const routes: Routes = [
           import('./modules/projects/projects.routes').then(m => m.PROJECTS_ROUTES),
       },
       {
+        path: 'modules/proposals',
+        loadChildren: () =>
+          import('./modules/projects/projects.routes').then(m => m.PROJECTS_ROUTES),
+      },
+      {
         path: 'modules/treasury',
         loadChildren: () =>
           import('./modules/treasury/treasury.routes').then(m => m.TREASURY_ROUTES),

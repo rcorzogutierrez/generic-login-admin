@@ -66,12 +66,16 @@ export class NavbarComponent implements OnInit {
       const currentUser = this.user();
       if (!currentUser?.email) return;
 
-      // Si es admin, tiene acceso a todos los módulos automáticamente
+      // Inicializar servicio de módulos
+      await this.modulesService.initialize();
+
+      // Si es admin, agregar módulos faltantes automáticamente
       if (currentUser.role === 'admin') {
+        // Agregar módulos faltantes sin borrar los existentes
+        await this.modulesService.addMissingModules(currentUser.uid);
+
         // Los admins ven todos los módulos disponibles
-        await this.modulesService.initialize();
         const allModules = this.modulesService.getActiveModules().map(m => m.value);
-        console.log('🔍 [DEBUG] Módulos activos cargados para admin:', allModules);
         this.userModules.set(allModules);
 
         return;

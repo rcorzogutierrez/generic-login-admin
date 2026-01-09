@@ -66,6 +66,14 @@ export const NAVIGATION_CONFIG: NavigationConfig = {
           tooltip: 'Gestión de proyectos'
         },
         {
+          id: 'work-planning',
+          label: 'Planificación',
+          icon: 'event_note',
+          route: '/modules/work-planning',
+          module: 'work-planning',
+          tooltip: 'Planificación de trabajo'
+        },
+        {
           id: 'treasury',
           label: 'Tesorería',
           icon: 'account_balance_wallet',

@@ -12,8 +12,7 @@ import { AuthService } from '../../services/auth.service';
 import { AppConfigService } from '../../services/app-config.service';
 import { AdminService } from '../../../admin/services/admin.service';
 import { ModulesService } from '../../../admin/services/modules.service';
-import { NavGroup, NavItem } from '../models/nav-item.model';
-import { NAVIGATION_CONFIG } from '../config/navigation.config';
+import { NavGroup, NavItem, NavigationConfig } from '../models/nav-item.model';
 
 @Component({
   selector: 'app-sidebar',
@@ -54,12 +53,123 @@ export class SidebarComponent implements OnInit {
   // Items expandidos (para submenús)
   expandedItems = signal<Set<string>>(new Set());
 
-  // Navegación filtrada según permisos
+  /**
+   * Genera la configuración de navegación dinámicamente desde Firestore
+   * Combina grupos estáticos (main, admin) con módulos dinámicos
+   */
+  private dynamicNavigation = computed<NavigationConfig>(() => {
+    const systemModules = this.modulesService.modules();
+
+    // Convertir SystemModule[] a NavItem[]
+    const moduleNavItems: NavItem[] = systemModules
+      .filter(m => m.isActive)
+      .sort((a, b) => a.order - b.order)
+      .map(m => ({
+        id: m.value,
+        label: m.label,
+        icon: m.icon,
+        route: m.route || `/modules/${m.value}`,
+        module: m.value,
+        tooltip: m.description
+      }));
+
+    return {
+      groups: [
+        // GRUPO PRINCIPAL (estático)
+        {
+          id: 'main',
+          title: 'Principal',
+          items: [
+            {
+              id: 'dashboard',
+              label: 'Dashboard',
+              icon: 'dashboard',
+              route: '/dashboard',
+              tooltip: 'Panel principal'
+            }
+          ]
+        },
+        // GRUPO MÓDULOS (dinámico desde Firestore)
+        {
+          id: 'modules',
+          title: 'Módulos',
+          items: moduleNavItems
+        },
+        // GRUPO ADMINISTRACIÓN (estático, solo admins)
+        {
+          id: 'admin',
+          title: 'Administración',
+          adminOnly: true,
+          items: [
+            {
+              id: 'admin-panel',
+              label: 'Panel Admin',
+              icon: 'admin_panel_settings',
+              route: '/admin',
+              adminOnly: true,
+              tooltip: 'Panel de administración'
+            },
+            {
+              id: 'admin-users',
+              label: 'Usuarios',
+              icon: 'people',
+              route: '/admin/users',
+              adminOnly: true,
+              tooltip: 'Gestión de usuarios'
+            },
+            {
+              id: 'admin-roles',
+              label: 'Roles',
+              icon: 'security',
+              route: '/admin/roles',
+              adminOnly: true,
+              tooltip: 'Gestión de roles'
+            },
+            {
+              id: 'admin-modules',
+              label: 'Módulos',
+              icon: 'extension',
+              route: '/admin/modules',
+              adminOnly: true,
+              tooltip: 'Configurar módulos'
+            },
+            {
+              id: 'admin-config',
+              label: 'Configuración',
+              icon: 'settings',
+              route: '/admin/config',
+              adminOnly: true,
+              tooltip: 'Configuración del sistema'
+            },
+            {
+              id: 'admin-logs',
+              label: 'Logs',
+              icon: 'history',
+              route: '/admin/logs',
+              adminOnly: true,
+              tooltip: 'Registros del sistema'
+            },
+            {
+              id: 'admin-business',
+              label: 'Empresa',
+              icon: 'business',
+              route: '/admin/business',
+              adminOnly: true,
+              tooltip: 'Información de la empresa'
+            }
+          ]
+        }
+      ]
+    };
+  });
+
+  // Navegación filtrada según permisos del usuario
   filteredNavigation = computed(() => {
     const isAdmin = this.isAdmin();
     const modules = this.userModules();
+    const navigation = this.dynamicNavigation();
 
-    return NAVIGATION_CONFIG.groups
+    return navigation.groups
       .filter(group => {
         // Filtrar grupos solo-admin
         if (group.adminOnly && !isAdmin) return false;

@@ -598,16 +598,42 @@ export class ModulesService {
   }
 
   /**
-   * Inicializa módulos por defecto (para migración)
+   * Agrega módulos faltantes sin borrar los existentes
    */
-  async initializeDefaultModules(currentUserUid: string): Promise<void> {
+  async addMissingModules(currentUserUid: string): Promise<void> {
     const existingModules = this._modules();
-    
-    if (existingModules.length > 0) {
+    const existingValues = existingModules.map(m => m.value);
+
+    const allDefaultModules = this.getDefaultModules();
+
+    const missingModules = allDefaultModules.filter(
+      dm => !existingValues.includes(dm.value)
+    );
+
+    if (missingModules.length === 0) {
+      console.log('✅ No hay módulos faltantes');
       return;
     }
 
-    const defaultModules: ModuleFormData[] = [
+    console.log(`📦 Agregando ${missingModules.length} módulos faltantes...`);
+
+    for (const module of missingModules) {
+      const result = await this.createModule(module, currentUserUid);
+      if (result.success) {
+        console.log(`✅ Módulo agregado: ${module.label}`);
+      } else {
+        console.error(`❌ Error agregando ${module.label}:`, result.message);
+      }
+    }
+
+    console.log('✅ Módulos faltantes agregados exitosamente');
+  }
+
+  /**
+   * Obtiene la lista de módulos por defecto
+   */
+  private getDefaultModules(): ModuleFormData[] {
+    return [
       {
         value: 'dashboard',
         label: 'Dashboard Principal',
@@ -630,6 +656,38 @@ export class ModulesService {
         description: 'Módulo configurable para gestionar clientes con campos personalizados',
         icon: 'group',
         route: '/modules/clients',
+        isActive: true
+      },
+      {
+        value: 'materials',
+        label: 'Gestión de Materiales',
+        description: 'Módulo para gestionar inventario y materiales',
+        icon: 'inventory_2',
+        route: '/modules/materials',
+        isActive: true
+      },
+      {
+        value: 'workers',
+        label: 'Gestión de Trabajadores',
+        description: 'Módulo para administrar trabajadores y personal',
+        icon: 'engineering',
+        route: '/modules/workers',
+        isActive: true
+      },
+      {
+        value: 'projects',
+        label: 'Gestión de Proyectos',
+        description: 'Módulo para gestionar propuestas y proyectos',
+        icon: 'description',
+        route: '/modules/projects',
+        isActive: true
+      },
+      {
+        value: 'work-planning',
+        label: 'Planificación de Trabajo',
+        description: 'Módulo para planificar y organizar el calendario de trabajo',
+        icon: 'event_note',
+        route: '/modules/work-planning',
         isActive: true
       },
       {
@@ -665,10 +723,24 @@ export class ModulesService {
         isActive: true
       }
     ];
+  }
+
+  /**
+   * Inicializa módulos por defecto (para migración)
+   */
+  async initializeDefaultModules(currentUserUid: string): Promise<void> {
+    const existingModules = this._modules();
+
+    if (existingModules.length > 0) {
+      return;
+    }
+
+    const defaultModules = this.getDefaultModules();
 
     for (const module of defaultModules) {
       await this.createModule(module, currentUserUid);
     }
 
+    console.log('✅ Módulos por defecto inicializados');
   }
 }

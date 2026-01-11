@@ -11,14 +11,19 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Get user document from authorized_users
+    // Check if user document exists in authorized_users
+    function userExists() {
+      return exists(/databases/$(database)/documents/authorized_users/$(request.auth.uid));
+    }
+
+    // Get user document from authorized_users (only call if userExists() is true)
     function getUserData() {
       return get(/databases/$(database)/documents/authorized_users/$(request.auth.uid)).data;
     }
 
     // Check if user is active
     function isActiveUser() {
-      return isAuthenticated() && getUserData().isActive == true;
+      return isAuthenticated() && userExists() && getUserData().isActive == true;
     }
 
     // Check user role
@@ -43,7 +48,7 @@ service cloud.firestore {
 
     // Check if user can write (admin or user)
     function canWrite() {
-      return isAdmin() || hasRole('user');
+      return isActiveUser() && (getUserData().role == 'admin' || getUserData().role == 'user');
     }
 
     // Check if user can delete (admin only by default)
@@ -118,11 +123,11 @@ service cloud.firestore {
     // ============================================
 
     match /clients/{clientId} {
-      allow read: if canRead() && hasModuleAccess('clients');
-      allow create: if canWrite() && hasModuleAccess('clients') &&
+      allow read: if isAdmin() || (canRead() && hasModuleAccess('clients'));
+      allow create: if (isAdmin() || (canWrite() && hasModuleAccess('clients'))) &&
         hasRequiredFields(['name', 'createdAt', 'createdBy', 'isActive']);
-      allow update: if canWrite() && hasModuleAccess('clients');
-      allow delete: if canDelete() && hasModuleAccess('clients');
+      allow update: if isAdmin() || (canWrite() && hasModuleAccess('clients'));
+      allow delete: if isAdmin() || canDelete();
     }
 
     // Client Config
@@ -136,11 +141,11 @@ service cloud.firestore {
     // ============================================
 
     match /proposals/{proposalId} {
-      allow read: if canRead() && hasModuleAccess('projects');
-      allow create: if canWrite() && hasModuleAccess('projects') &&
+      allow read: if isAdmin() || (canRead() && hasModuleAccess('projects'));
+      allow create: if (isAdmin() || (canWrite() && hasModuleAccess('projects'))) &&
         hasRequiredFields(['proposalNumber', 'ownerId', 'status', 'createdAt', 'createdBy']);
-      allow update: if canWrite() && hasModuleAccess('projects');
-      allow delete: if canDelete() && hasModuleAccess('projects');
+      allow update: if isAdmin() || (canWrite() && hasModuleAccess('projects'));
+      allow delete: if isAdmin() || canDelete();
     }
 
     // Proposal Config
@@ -151,9 +156,9 @@ service cloud.firestore {
 
     // Catalog Items
     match /catalogItems/{itemId} {
-      allow read: if canRead() && hasModuleAccess('projects');
-      allow create, update: if canWrite() && hasModuleAccess('projects');
-      allow delete: if canDelete() && hasModuleAccess('projects');
+      allow read: if isAdmin() || (canRead() && hasModuleAccess('projects'));
+      allow create, update: if isAdmin() || (canWrite() && hasModuleAccess('projects'));
+      allow delete: if isAdmin() || canDelete();
     }
 
     // ============================================
@@ -161,11 +166,11 @@ service cloud.firestore {
     // ============================================
 
     match /materials/{materialId} {
-      allow read: if canRead() && hasModuleAccess('materials');
-      allow create: if canWrite() && hasModuleAccess('materials') &&
+      allow read: if isAdmin() || (canRead() && hasModuleAccess('materials'));
+      allow create: if (isAdmin() || (canWrite() && hasModuleAccess('materials'))) &&
         hasRequiredFields(['name', 'code', 'createdAt', 'createdBy', 'isActive']);
-      allow update: if canWrite() && hasModuleAccess('materials');
-      allow delete: if canDelete() && hasModuleAccess('materials');
+      allow update: if isAdmin() || (canWrite() && hasModuleAccess('materials'));
+      allow delete: if isAdmin() || canDelete();
     }
 
     // Material Config
@@ -179,20 +184,20 @@ service cloud.firestore {
     // ============================================
 
     match /workers/{workerId} {
-      allow read: if canRead() && hasModuleAccess('workers');
-      allow create: if canWrite() && hasModuleAccess('workers') &&
+      allow read: if isAdmin() || (canRead() && hasModuleAccess('workers'));
+      allow create: if (isAdmin() || (canWrite() && hasModuleAccess('workers'))) &&
         hasRequiredFields(['fullName', 'workerType', 'createdAt', 'createdBy', 'isActive']);
-      allow update: if canWrite() && hasModuleAccess('workers');
-      allow delete: if canDelete() && hasModuleAccess('workers');
+      allow update: if isAdmin() || (canWrite() && hasModuleAccess('workers'));
+      allow delete: if isAdmin() || canDelete();
     }
 
     // Companies (Contractor companies)
     match /companies/{companyId} {
-      allow read: if canRead() && hasModuleAccess('workers');
-      allow create: if canWrite() && hasModuleAccess('workers') &&
+      allow read: if isAdmin() || (canRead() && hasModuleAccess('workers'));
+      allow create: if (isAdmin() || (canWrite() && hasModuleAccess('workers'))) &&
         hasRequiredFields(['legalName', 'taxId', 'createdAt', 'createdBy', 'isActive']);
-      allow update: if canWrite() && hasModuleAccess('workers');
-      allow delete: if canDelete() && hasModuleAccess('workers');
+      allow update: if isAdmin() || (canWrite() && hasModuleAccess('workers'));
+      allow delete: if isAdmin() || canDelete();
     }
 
     // Worker Config
@@ -207,20 +212,20 @@ service cloud.firestore {
 
     // Cobros - Collections from clients
     match /cobros/{cobroId} {
-      allow read: if canRead() && hasModuleAccess('treasury');
-      allow create: if canWrite() && hasModuleAccess('treasury') &&
+      allow read: if isAdmin() || (canRead() && hasModuleAccess('treasury'));
+      allow create: if (isAdmin() || (canWrite() && hasModuleAccess('treasury'))) &&
         hasRequiredFields(['clientId', 'amount', 'transactionDate', 'paymentMethod', 'createdAt', 'createdBy']);
-      allow update: if canWrite() && hasModuleAccess('treasury');
-      allow delete: if canDelete() && hasModuleAccess('treasury');
+      allow update: if isAdmin() || (canWrite() && hasModuleAccess('treasury'));
+      allow delete: if isAdmin() || canDelete();
     }
 
     // Pagos - Payments to workers
     match /pagos/{pagoId} {
-      allow read: if canRead() && hasModuleAccess('treasury');
-      allow create: if canWrite() && hasModuleAccess('treasury') &&
+      allow read: if isAdmin() || (canRead() && hasModuleAccess('treasury'));
+      allow create: if (isAdmin() || (canWrite() && hasModuleAccess('treasury'))) &&
         hasRequiredFields(['workerId', 'amount', 'transactionDate', 'paymentMethod', 'createdAt', 'createdBy']);
-      allow update: if canWrite() && hasModuleAccess('treasury');
-      allow delete: if canDelete() && hasModuleAccess('treasury');
+      allow update: if isAdmin() || (canWrite() && hasModuleAccess('treasury'));
+      allow delete: if isAdmin() || canDelete();
     }
 
     // Treasury Config
@@ -234,11 +239,11 @@ service cloud.firestore {
     // ============================================
 
     match /workPlans/{planId} {
-      allow read: if canRead() && hasModuleAccess('work-planning');
-      allow create: if canWrite() && hasModuleAccess('work-planning') &&
+      allow read: if isAdmin() || (canRead() && hasModuleAccess('work-planning'));
+      allow create: if (isAdmin() || (canWrite() && hasModuleAccess('work-planning'))) &&
         hasRequiredFields(['planDate', 'durationDays', 'durationHours', 'status', 'createdAt', 'createdBy', 'isActive']);
-      allow update: if canWrite() && hasModuleAccess('work-planning');
-      allow delete: if canDelete() && hasModuleAccess('work-planning');
+      allow update: if isAdmin() || (canWrite() && hasModuleAccess('work-planning'));
+      allow delete: if isAdmin() || canDelete();
     }
 
     // Work Planning Config

@@ -123,11 +123,12 @@ service cloud.firestore {
     // ============================================
 
     match /clients/{clientId} {
-      allow read: if isAdmin() || (canRead() && hasModuleAccess('clients'));
-      allow create: if (isAdmin() || (canWrite() && hasModuleAccess('clients'))) &&
+      // TEMPORAL: Reglas simplificadas para diagnóstico
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() &&
         hasRequiredFields(['name', 'createdAt', 'createdBy', 'isActive']);
-      allow update: if isAdmin() || (canWrite() && hasModuleAccess('clients'));
-      allow delete: if isAdmin() || canDelete();
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated();
     }
 
     // Client Config

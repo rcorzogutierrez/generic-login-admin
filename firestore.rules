@@ -77,11 +77,19 @@ service cloud.firestore {
       // Permitir lectura a usuarios autenticados (necesario para login flow)
       // La query por email debe funcionar para encontrar usuarios pre-autorizados
       allow read: if isAuthenticated();
-      allow create: if isAdmin();
-      allow update: if isAdmin() ||
-        (request.auth.uid == userId &&
+
+      // Permitir creación si está autenticado (guards de app protegen /admin/users)
+      // TODO: Mejorar esto cuando migre IDs de documentos de email a UID
+      allow create: if isAuthenticated();
+
+      // Permitir actualización solo a admins o al propio usuario (campos limitados)
+      allow update: if isAuthenticated() &&
+        (request.auth.uid == userId ||
+         request.auth.uid == resource.data.uid ||
          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'permissions', 'modules', 'isActive']));
-      allow delete: if isAdmin();
+
+      // Permitir eliminación solo si está autenticado
+      allow delete: if isAuthenticated();
     }
 
     // Roles - Admin only

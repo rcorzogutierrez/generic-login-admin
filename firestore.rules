@@ -74,11 +74,9 @@ service cloud.firestore {
 
     // Authorized Users - Users can read their own doc, admins can manage all
     match /authorized_users/{userId} {
-      // Allow user to read their own document (needed for login flow)
-      // Admins can read any user document
-      allow read: if isAuthenticated() &&
-        (request.auth.uid == userId ||
-         get(/databases/$(database)/documents/authorized_users/$(request.auth.uid)).data.role == 'admin');
+      // Permitir lectura a usuarios autenticados (necesario para login flow)
+      // La query por email debe funcionar para encontrar usuarios pre-autorizados
+      allow read: if isAuthenticated();
       allow create: if isAdmin();
       allow update: if isAdmin() ||
         (request.auth.uid == userId &&

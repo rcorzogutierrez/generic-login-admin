@@ -242,9 +242,7 @@ export class AuthService {
     try {
       const now = Timestamp.now();
 
-      // ✅ FIX: Usar userRef directamente en lugar de buscar por UID
-      // Esto soluciona el problema cuando el documento tiene ID basado en email
-      // y el campo uid aún tiene el valor temporal (pre_*)
+      // ✅ FIX PARTE 1: Actualizar el documento email-based existente con el UID real
       await updateDoc(userRef, {
         uid,
         accountStatus: 'active',
@@ -253,6 +251,37 @@ export class AuthService {
         profileComplete: true,
         firstLoginDate: now
       });
+
+      // ✅ FIX PARTE 2: Crear una COPIA del documento usando el UID como ID
+      // Esto permite que las reglas de Firestore (que buscan por request.auth.uid) encuentren al usuario
+      // NOTA: Este es un workaround temporal hasta migrar todos los IDs a UID
+      try {
+        const { getDoc, doc, setDoc } = await import('firebase/firestore');
+        const { setDocWithLogging } = await import('../../shared/utils/firebase-logger.utils');
+
+        const userDoc = await getDoc(userRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const uidBasedDocRef = doc(this.firestore, 'authorized_users', uid);
+
+          // Copiar todos los datos al nuevo documento con UID como ID
+          await setDocWithLogging(uidBasedDocRef, {
+            ...userData,
+            uid,
+            accountStatus: 'active',
+            lastLogin: now,
+            lastLoginDate: new Date().toISOString(),
+            profileComplete: true,
+            firstLoginDate: now,
+            migratedFromEmailId: userRef.id // Mantener referencia al documento original
+          });
+
+          this.logger.info('✅ Documento duplicado con UID como ID para compatibilidad con reglas', { uid });
+        }
+      } catch (copyError) {
+        this.logger.warn('Error copiando documento a UID (no crítico)', copyError);
+        // No lanzar error, el login puede continuar con el documento email-based
+      }
 
       await this.logFirstLogin(uid, this.auth.currentUser?.email || '');
     } catch (error) {

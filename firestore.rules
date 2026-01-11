@@ -11,14 +11,19 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Get user document from authorized_users
+    // Check if user document exists in authorized_users
+    function userExists() {
+      return exists(/databases/$(database)/documents/authorized_users/$(request.auth.uid));
+    }
+
+    // Get user document from authorized_users (only call if userExists() is true)
     function getUserData() {
       return get(/databases/$(database)/documents/authorized_users/$(request.auth.uid)).data;
     }
 
     // Check if user is active
     function isActiveUser() {
-      return isAuthenticated() && getUserData().isActive == true;
+      return isAuthenticated() && userExists() && getUserData().isActive == true;
     }
 
     // Check user role
@@ -43,7 +48,7 @@ service cloud.firestore {
 
     // Check if user can write (admin or user)
     function canWrite() {
-      return isAdmin() || hasRole('user');
+      return isActiveUser() && (getUserData().role == 'admin' || getUserData().role == 'user');
     }
 
     // Check if user can delete (admin only by default)

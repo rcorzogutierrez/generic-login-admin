@@ -911,8 +911,8 @@ export class AdminService {
    * Verifica si el email dado corresponde al usuario actual autenticado
    */
   private isCurrentUser(docId: string): boolean {
-    return this.auth.currentUser?.email &&
-           this.emailToDocId(this.auth.currentUser.email) === docId;
+    if (!this.auth.currentUser?.email) return false;
+    return this.emailToDocId(this.auth.currentUser.email) === docId;
   }
 
   /**

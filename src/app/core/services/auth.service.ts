@@ -2,8 +2,8 @@
 
 import { Injectable, signal, inject } from '@angular/core';
 import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, User } from 'firebase/auth';
-import { Timestamp, collection, getFirestore } from 'firebase/firestore';
-import { addDocWithLogging as addDoc } from '../../shared/utils/firebase-logger.utils';
+import { Timestamp, collection, getFirestore, DocumentReference } from 'firebase/firestore';
+import { addDocWithLogging as addDoc, updateDocWithLogging as updateDoc } from '../../shared/utils/firebase-logger.utils';
 import { Router } from '@angular/router';
 import { FirestoreUserService, FirestoreUser } from './firestore-user.service';
 import { AppConfigService } from './app-config.service';
@@ -238,17 +238,21 @@ export class AuthService {
     }
   }
 
-  private async handleFirstLogin(userRef: any, uid: string): Promise<void> {
+  private async handleFirstLogin(userRef: DocumentReference, uid: string): Promise<void> {
     try {
       const now = Timestamp.now();
-      await this.firestoreUserService.updateUser(uid, {
+
+      // ✅ FIX: Usar userRef directamente en lugar de buscar por UID
+      // Esto soluciona el problema cuando el documento tiene ID basado en email
+      // y el campo uid aún tiene el valor temporal (pre_*)
+      await updateDoc(userRef, {
         uid,
         accountStatus: 'active',
         lastLogin: now,
         lastLoginDate: new Date().toISOString(),
         profileComplete: true,
         firstLoginDate: now
-      } as any);
+      });
 
       await this.logFirstLogin(uid, this.auth.currentUser?.email || '');
     } catch (error) {

@@ -123,12 +123,8 @@ service cloud.firestore {
     // ============================================
 
     match /clients/{clientId} {
-      // TEMPORAL: Reglas simplificadas para diagnóstico
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() &&
-        hasRequiredFields(['name', 'createdAt', 'createdBy', 'isActive']);
-      allow update: if isAuthenticated();
-      allow delete: if isAuthenticated();
+      // TEMPORAL: Reglas ultra permisivas SIN validación de campos
+      allow read, write: if isAuthenticated();
     }
 
     // Client Config

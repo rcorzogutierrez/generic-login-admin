@@ -265,11 +265,19 @@ export class AdminService {
 
   /**
    * Guarda un nuevo usuario en Firestore
+   *
+   * ARQUITECTURA DE IDs:
+   * - El ID del documento se basa en el email (ej: user_gmail_com)
+   * - Se reemplaza @ y . con _ para crear un ID válido de Firestore
+   * - El campo 'uid' inicialmente tiene un valor temporal (pre_*)
+   * - Cuando el usuario hace su primer login, se actualiza con el UID real de Firebase Auth
+   * - Las reglas de Firestore buscan usuarios por email, NO por UID
+   * - Esto permite pre-autorizar usuarios antes de que hagan login
    */
   private async saveNewUser(normalizedData: CreateUserRequest): Promise<string> {
     const tempUid = `pre_${Date.now()}_${generateShortId()}`;
     const userDocData = this.buildUserDocument(normalizedData, tempUid);
-    const docId = normalizeEmail(normalizedData.email).replace(/[@.]/g, '_');
+    const docId = this.emailToDocId(normalizedData.email);
 
     await this.logUserAction('create_user_attempt', docId, {
       targetUser: {
@@ -565,7 +573,7 @@ export class AdminService {
       }
 
       // Prevenir auto-desactivación
-      if (this.auth.currentUser?.uid === uid && user.isActive) {
+      if (this.isCurrentUser(uid) && user.isActive) {
         return {
           success: false,
           message: 'No puedes desactivar tu propia cuenta'
@@ -610,7 +618,7 @@ export class AdminService {
       }
 
       // Validaciones de seguridad
-      if (this.auth.currentUser?.uid === uid) {
+      if (this.isCurrentUser(uid)) {
         return {
           success: false,
           message: 'No puedes eliminar tu propia cuenta'
@@ -891,6 +899,21 @@ export class AdminService {
   // ============================================
   // MÉTODOS PRIVADOS DE UTILIDAD
   // ============================================
+
+  /**
+   * Convierte un email a ID de documento (formato: user_gmail_com)
+   */
+  private emailToDocId(email: string): string {
+    return normalizeEmail(email).replace(/[@.]/g, '_');
+  }
+
+  /**
+   * Verifica si el email dado corresponde al usuario actual autenticado
+   */
+  private isCurrentUser(docId: string): boolean {
+    return this.auth.currentUser?.email &&
+           this.emailToDocId(this.auth.currentUser.email) === docId;
+  }
 
   /**
    * ✅ REFACTORIZADO: Ahora usa utilidad centralizada de audit-logger.utils

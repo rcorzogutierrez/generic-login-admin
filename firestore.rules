@@ -3,22 +3,57 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ============================================
+    // ARQUITECTURA DE SEGURIDAD
+    // ============================================
+    //
+    // IMPORTANTE: Este sistema usa EMAIL como identificador principal
+    //
+    // - Los documentos en 'authorized_users' usan email como ID (ej: user_gmail_com)
+    // - Las funciones helper buscan usuarios por email, NO por UID
+    // - Esto permite pre-autorizar usuarios antes de que hagan login
+    // - Cuando un usuario hace login por primera vez, se actualiza su campo 'uid'
+    //   con el UID real de Firebase Auth, pero el ID del documento sigue siendo el email
+    //
+    // Flujo:
+    // 1. Admin crea usuario → documento en authorized_users/user_gmail_com
+    // 2. Usuario hace login con Google → Firebase Auth le asigna UID
+    // 3. Sistema actualiza campo 'uid' en el documento email-based
+    // 4. Reglas de seguridad buscan usuario por email de token de auth
+    //
+    // ============================================
+
+    // ============================================
     // HELPER FUNCTIONS
     // ============================================
 
     // Check if user is authenticated
     function isAuthenticated() {
-      return request.auth != null;
+      return request.auth != null && request.auth.token.email != null;
     }
 
-    // Check if user document exists in authorized_users
+    // Get user email (normalized to lowercase)
+    function getUserEmail() {
+      return request.auth.token.email.lower();
+    }
+
+    // Get document ID from email (replace @ and . with _)
+    function getEmailDocId(email) {
+      return email.lower().replace('@', '_').replace('.', '_');
+    }
+
+    // Get current user's document ID
+    function getCurrentUserDocId() {
+      return getEmailDocId(getUserEmail());
+    }
+
+    // Check if user document exists in authorized_users by email
     function userExists() {
-      return exists(/databases/$(database)/documents/authorized_users/$(request.auth.uid));
+      return exists(/databases/$(database)/documents/authorized_users/$(getCurrentUserDocId()));
     }
 
-    // Get user document from authorized_users (only call if userExists() is true)
+    // Get user document from authorized_users by email (only call if userExists() is true)
     function getUserData() {
-      return get(/databases/$(database)/documents/authorized_users/$(request.auth.uid)).data;
+      return get(/databases/$(database)/documents/authorized_users/$(getCurrentUserDocId())).data;
     }
 
     // Check if user is active
@@ -78,18 +113,20 @@ service cloud.firestore {
       // La query por email debe funcionar para encontrar usuarios pre-autorizados
       allow read: if isAuthenticated();
 
-      // Permitir creación si está autenticado (guards de app protegen /admin/users)
-      // TODO: Mejorar esto cuando migre IDs de documentos de email a UID
-      allow create: if isAuthenticated();
+      // Permitir creación solo a admins (los usuarios se pre-autorizan desde admin panel)
+      allow create: if isAdmin();
 
-      // Permitir actualización solo a admins o al propio usuario (campos limitados)
-      allow update: if isAuthenticated() &&
-        (request.auth.uid == userId ||
-         request.auth.uid == resource.data.uid ||
-         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'permissions', 'modules', 'isActive']));
+      // Permitir actualización a admins o al propio usuario (campos limitados)
+      allow update: if isAuthenticated() && (
+        // El admin puede actualizar cualquier cosa
+        isAdmin() ||
+        // El usuario solo puede actualizar su propio documento y campos no críticos
+        (userId == getCurrentUserDocId() &&
+         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'permissions', 'modules', 'isActive']))
+      );
 
-      // Permitir eliminación solo si está autenticado
-      allow delete: if isAuthenticated();
+      // Permitir eliminación solo a admins
+      allow delete: if isAdmin();
     }
 
     // Roles - Admin only

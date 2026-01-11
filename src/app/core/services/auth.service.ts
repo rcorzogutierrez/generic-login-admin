@@ -242,9 +242,9 @@ export class AuthService {
     try {
       const now = Timestamp.now();
 
-      // ✅ FIX: Usar userRef directamente en lugar de buscar por UID
-      // Esto soluciona el problema cuando el documento tiene ID basado en email
-      // y el campo uid aún tiene el valor temporal (pre_*)
+      // ✅ Actualizar documento con UID de Firebase Auth en primer login
+      // NOTA: El documento usa email como ID (ej: user_gmail_com)
+      // Las reglas de Firestore ahora buscan por email, no por UID
       await updateDoc(userRef, {
         uid,
         accountStatus: 'active',

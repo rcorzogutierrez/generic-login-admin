@@ -45,9 +45,13 @@ export class AdminLogsComponent implements OnInit {
 
   // Paginación
   currentPage = 1;
+  itemsPerPage = 10; // Valor por defecto: 10 registros por página
   hasMorePages = false;
   lastDoc: QueryDocumentSnapshot<DocumentData> | null = null;
   private pageHistory: (QueryDocumentSnapshot<DocumentData> | null)[] = [null];
+
+  // Opciones de registros por página
+  pageSizeOptions = [10, 20, 50, 100];
 
   // Filtros
   selectedAction = 'all';
@@ -111,7 +115,7 @@ export class AdminLogsComponent implements OnInit {
       }
 
       const result = await this.logsService.getLogsPaginated(
-        15,
+        this.itemsPerPage,
         filters,
         this.lastDoc
       );
@@ -184,6 +188,17 @@ export class AdminLogsComponent implements OnInit {
     this.searchTerm = '';
     await this.loadLogs(true);
     this.snackBar.open('Filtros limpiados', '', { duration: 2000 });
+  }
+
+  /**
+   * Cambiar tamaño de página
+   */
+  async changePageSize(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    const newSize = parseInt(select.value, 10);
+    this.itemsPerPage = newSize;
+    await this.loadLogs(true); // Resetear paginación
+    this.cdr.markForCheck();
   }
 
   /**

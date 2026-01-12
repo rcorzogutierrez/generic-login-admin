@@ -209,9 +209,20 @@
 
         <!-- Paginación -->
         <div class="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/50">
-          <span class="text-sm text-slate-500">
-            Página {{ currentPage }} · {{ logs.length }} registros
-          </span>
+          <div class="flex items-center gap-4">
+            <span class="text-xs text-slate-600">
+              Página {{ currentPage }} · {{ logs.length }} registros
+            </span>
+            <div class="flex items-center gap-2">
+              <label for="pageSize" class="text-xs text-slate-600 font-medium">Registros:</label>
+              <select id="pageSize" [value]="itemsPerPage" (change)="changePageSize($event)"
+                class="px-2 py-1 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent hover:border-slate-400 transition-colors cursor-pointer bg-white">
+                @for (size of pageSizeOptions; track size) {
+                  <option [value]="size">{{ size }}</option>
+                }
+              </select>
+            </div>
+          </div>
 
           <div class="flex items-center gap-2">
             <button

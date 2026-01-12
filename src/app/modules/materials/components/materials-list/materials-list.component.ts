@@ -16,6 +16,7 @@ import { MaterialsService, MaterialsConfigService } from '../../services';
 import { Material } from '../../models';
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
 import { GenericDeleteMultipleDialogComponent } from '../../../../shared/components/generic-delete-multiple-dialog/generic-delete-multiple-dialog.component';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { createGenericConfig } from '../../config/materials.config';
 import { AuthService } from '../../../../core/services/auth.service';
 import { formatFieldValue, getFieldValue } from '../../../../shared/modules/dynamic-form-builder/utils';
@@ -32,7 +33,8 @@ import { formatFieldValue, getFieldValue } from '../../../../shared/modules/dyna
     MatTooltipModule,
     MatMenuModule,
     MatCheckboxModule,
-    MatDividerModule
+    MatDividerModule,
+    PaginationComponent
   ],
   templateUrl: './materials-list.component.html',
   styleUrl: './materials-list.component.css'
@@ -150,9 +152,7 @@ export class MaterialsListComponent implements OnInit {
   /**
    * Cambiar tamaño de página
    */
-  changePageSize(event: Event) {
-    const select = event.target as HTMLSelectElement;
-    const newSize = parseInt(select.value, 10);
+  changePageSize(newSize: number) {
     this.itemsPerPage.set(newSize);
     this.currentPage.set(0); // Volver a la primera página
   }

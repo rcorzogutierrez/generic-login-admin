@@ -1,0 +1,52 @@
+<!-- pagination.component.html -->
+<div class="pagination-bar">
+  <!-- Left: Info + Page Size Selector -->
+  <div class="flex items-center gap-4">
+    <!-- Info de registros -->
+    <span class="text-xs text-slate-600">
+      @if (mode === 'client' && totalItems !== undefined) {
+        {{ getDisplayRange() }}
+      } @else if (mode === 'server') {
+        {{ getServerPageInfo() }}
+      }
+    </span>
+
+    <!-- Page Size Selector -->
+    <div class="flex items-center gap-2">
+      <label for="pageSize-{{ themeColor }}" class="text-xs text-slate-600 font-medium">Registros:</label>
+      <select
+        [id]="'pageSize-' + themeColor"
+        [value]="itemsPerPage"
+        (change)="onPageSizeChange($event)"
+        [disabled]="isLoading"
+        [class]="'px-2 py-1 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:border-transparent hover:border-slate-400 transition-colors cursor-pointer bg-white ' + getThemeRingClass()">
+        @for (size of pageSizeOptions; track size) {
+          <option [value]="size">{{ size }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- Right: Navigation Controls -->
+  <div class="flex items-center gap-1">
+    <button type="button"
+            class="pagination-btn"
+            (click)="goToPreviousPage()"
+            [disabled]="!canGoPrevious()"
+            [title]="'Página anterior'">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+
+    <span class="text-xs font-medium text-slate-700 px-2" [class]="isLoading ? getLoadingTextClass() : ''">
+      {{ getCurrentPageDisplay() }}
+    </span>
+
+    <button type="button"
+            class="pagination-btn"
+            (click)="goToNextPage()"
+            [disabled]="!canGoNext()"
+            [title]="'Página siguiente'">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+</div>

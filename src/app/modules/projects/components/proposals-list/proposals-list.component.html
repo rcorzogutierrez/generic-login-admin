@@ -436,51 +436,17 @@
 
       <!-- ========== PAGINACIÓN ========== -->
       @if (filteredProposals().length > 0) {
-        <div class="pagination-bar">
-          <!-- Left: Info + Page Size Selector -->
-          <div class="flex items-center gap-4">
-            <span class="pagination-info">
-              Mostrando {{ (currentPage() * itemsPerPage()) + 1 }} a
-              {{ Math.min((currentPage() + 1) * itemsPerPage(), filteredProposals().length) }}
-              de {{ filteredProposals().length }}
-            </span>
-
-            <!-- Page Size Selector -->
-            <div class="flex items-center gap-2">
-              <label for="pageSize" class="text-xs text-slate-600 font-medium">Registros:</label>
-              <select
-                id="pageSize"
-                [value]="itemsPerPage()"
-                (change)="changePageSize($event)"
-                class="px-2 py-1 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-slate-400 transition-colors cursor-pointer bg-white">
-                @for (size of pageSizeOptions; track size) {
-                  <option [value]="size">{{ size }}</option>
-                }
-              </select>
-            </div>
-          </div>
-
-          <!-- Right: Navigation Controls -->
-          <div class="pagination-controls">
-            <button type="button"
-                    class="pagination-btn"
-                    (click)="goToPage(currentPage() - 1)"
-                    [disabled]="currentPage() === 0">
-              <mat-icon>chevron_left</mat-icon>
-            </button>
-
-            <span class="pagination-current">
-              {{ currentPage() + 1 }} / {{ totalPages() }}
-            </span>
-
-            <button type="button"
-                    class="pagination-btn"
-                    (click)="goToPage(currentPage() + 1)"
-                    [disabled]="currentPage() >= totalPages() - 1">
-              <mat-icon>chevron_right</mat-icon>
-            </button>
-          </div>
-        </div>
+        <app-pagination
+          [mode]="'client'"
+          [currentPage]="currentPage()"
+          [itemsPerPage]="itemsPerPage()"
+          [totalPages]="totalPages()"
+          [totalItems]="filteredProposals().length"
+          [pageSizeOptions]="pageSizeOptions"
+          [themeColor]="'blue'"
+          (pageChange)="goToPage($event)"
+          (pageSizeChange)="changePageSize($event)">
+        </app-pagination>
       }
     }
 

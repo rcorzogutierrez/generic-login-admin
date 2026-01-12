@@ -82,6 +82,18 @@ export class ClientsListComponent implements OnInit {
     return allFields.filter(field => visible.has(field.id));
   });
 
+  // Campos filtrables (filterable: true)
+  filterableFields = computed(() => {
+    const allFields = this.gridFields();
+    return allFields.filter(field =>
+      field.gridConfig?.filterable === true && field.isActive
+    );
+  });
+
+  // Filtros activos por campos personalizados
+  customFieldFilters = signal<Record<string, any>>({});
+  statusFilter = signal<string>('all'); // 'all', 'active', 'inactive', 'potential'
+
   // Generic config for delete dialogs
   genericConfig = computed(() => {
     const clientConfig = this.config();
@@ -109,34 +121,75 @@ export class ClientsListComponent implements OnInit {
 
   // Clientes filtrados y paginados
   filteredClients = computed(() => {
-    const clients = this.clients();
+    let clients = this.clients();
     const search = this.searchTerm().toLowerCase();
     const fields = this.visibleGridFields();
+    const statusFilterValue = this.statusFilter();
+    const customFilters = this.customFieldFilters();
 
-    if (!search) return clients;
+    // 1. Filtrar por status
+    if (statusFilterValue !== 'all') {
+      clients = clients.filter(client => {
+        if (statusFilterValue === 'active') return client.isActive === true;
+        if (statusFilterValue === 'inactive') return client.isActive === false;
+        if (statusFilterValue === 'potential') return client.status === 'potential';
+        return true;
+      });
+    }
 
-    return clients.filter(client => {
-      // Buscar en todos los campos visibles en el grid
-      for (const field of fields) {
-        const value = this.getFieldValue(client, field.name);
+    // 2. Filtrar por campos personalizados (filterable: true)
+    if (Object.keys(customFilters).length > 0) {
+      clients = clients.filter(client => {
+        for (const [fieldName, filterValue] of Object.entries(customFilters)) {
+          // Si el filtro está vacío o es "all", ignorar
+          if (!filterValue || filterValue === '' || filterValue === 'all') {
+            continue;
+          }
 
-        if (value !== null && value !== undefined) {
-          // Para campos tipo select/dictionary, usar el valor formateado (labels)
-          const formattedValue = this.formatFieldValue(value, field);
-          if (formattedValue.toLowerCase().includes(search)) {
-            return true;
+          // Obtener el valor del campo en el cliente
+          const clientValue = this.getFieldValue(client, fieldName);
+
+          // Si el campo no existe o no coincide, filtrar
+          if (clientValue === undefined || clientValue === null) {
+            return false;
+          }
+
+          // Comparar valores (normalizar a string)
+          if (String(clientValue) !== String(filterValue)) {
+            return false;
           }
         }
-      }
+        return true;
+      });
+    }
 
-      // También buscar en campos por defecto que no estén en el grid
-      if (client.name?.toLowerCase().includes(search)) return true;
-      if (client.email?.toLowerCase().includes(search)) return true;
-      if (client.phone?.includes(search)) return true;
-      if (client.company?.toLowerCase().includes(search)) return true;
+    // 3. Filtrar por búsqueda global
+    if (search) {
+      clients = clients.filter(client => {
+        // Buscar en todos los campos visibles en el grid
+        for (const field of fields) {
+          const value = this.getFieldValue(client, field.name);
 
-      return false;
-    });
+          if (value !== null && value !== undefined) {
+            // Para campos tipo select/dictionary, usar el valor formateado (labels)
+            const formattedValue = this.formatFieldValue(value, field);
+            if (formattedValue.toLowerCase().includes(search)) {
+              return true;
+            }
+          }
+        }
+
+        // También buscar en campos por defecto que no estén en el grid
+        if (client.name?.toLowerCase().includes(search)) return true;
+        if (client.email?.toLowerCase().includes(search)) return true;
+        if (client.phone?.includes(search)) return true;
+        if (client.company?.toLowerCase().includes(search)) return true;
+
+        return false;
+      });
+    }
+
+    return clients;
   });
 
   paginatedClients = computed(() => {
@@ -160,6 +213,7 @@ export class ClientsListComponent implements OnInit {
   async ngOnInit() {
     await this.loadData();
     this.loadColumnPreferences();
+    this.loadFilterPreferences();
   }
 
   /**
@@ -309,6 +363,97 @@ export class ClientsListComponent implements OnInit {
     this.searchTerm.set(term);
     this.currentPage.set(0);
   }
+
+  /**
+   * Cargar preferencias de filtros desde localStorage
+   */
+  private loadFilterPreferences() {
+    const storageKey = 'clients-filters';
+    const stored = localStorage.getItem(storageKey);
+
+    if (stored) {
+      try {
+        const filters = JSON.parse(stored);
+        if (filters.statusFilter) {
+          this.statusFilter.set(filters.statusFilter);
+        }
+        if (filters.customFieldFilters) {
+          this.customFieldFilters.set(filters.customFieldFilters);
+        }
+      } catch (error) {
+        console.error('Error cargando preferencias de filtros:', error);
+      }
+    }
+  }
+
+  /**
+   * Guardar preferencias de filtros en localStorage
+   */
+  private saveFilterPreferences() {
+    const storageKey = 'clients-filters';
+    const filters = {
+      statusFilter: this.statusFilter(),
+      customFieldFilters: this.customFieldFilters()
+    };
+    localStorage.setItem(storageKey, JSON.stringify(filters));
+  }
+
+  /**
+   * Cambiar filtro de status
+   */
+  onStatusFilterChange(status: string) {
+    this.statusFilter.set(status);
+    this.currentPage.set(0);
+    this.saveFilterPreferences();
+  }
+
+  /**
+   * Cambiar filtro de campo personalizado
+   */
+  onCustomFieldFilterChange(fieldName: string, value: any) {
+    const currentFilters = { ...this.customFieldFilters() };
+
+    if (!value || value === '' || value === 'all') {
+      // Eliminar filtro si está vacío
+      delete currentFilters[fieldName];
+    } else {
+      // Agregar o actualizar filtro
+      currentFilters[fieldName] = value;
+    }
+
+    this.customFieldFilters.set(currentFilters);
+    this.currentPage.set(0);
+    this.saveFilterPreferences();
+  }
+
+  /**
+   * Limpiar todos los filtros
+   */
+  clearAllFilters() {
+    this.statusFilter.set('all');
+    this.customFieldFilters.set({});
+    this.currentPage.set(0);
+    this.saveFilterPreferences();
+    this.snackBar.open('Filtros limpiados', '', { duration: 2000 });
+  }
+
+  /**
+   * Verificar si hay filtros activos
+   */
+  hasActiveFilters(): boolean {
+    return this.statusFilter() !== 'all' ||
+           Object.keys(this.customFieldFilters()).length > 0;
+  }
+
+  /**
+   * Contar filtros activos
+   */
+  activeFiltersCount = computed(() => {
+    let count = 0;
+    if (this.statusFilter() !== 'all') count++;
+    count += Object.keys(this.customFieldFilters()).length;
+    return count;
+  });
 
   /**
    * Ordenar por campo

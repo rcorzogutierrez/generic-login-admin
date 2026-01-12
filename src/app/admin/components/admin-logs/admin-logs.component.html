@@ -208,14 +208,20 @@
         </div>
 
         <!-- Paginación -->
-        <div class="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/50">
+        <div class="pagination-bar">
+          <!-- Left: Info + Page Size Selector -->
           <div class="flex items-center gap-4">
             <span class="text-xs text-slate-600">
               Página {{ currentPage }} · {{ logs.length }} registros
             </span>
+
+            <!-- Page Size Selector -->
             <div class="flex items-center gap-2">
               <label for="pageSize" class="text-xs text-slate-600 font-medium">Registros:</label>
-              <select id="pageSize" [value]="itemsPerPage" (change)="changePageSize($event)"
+              <select
+                id="pageSize"
+                [value]="itemsPerPage"
+                (change)="changePageSize($event)"
                 class="px-2 py-1 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent hover:border-slate-400 transition-colors cursor-pointer bg-white">
                 @for (size of pageSizeOptions; track size) {
                   <option [value]="size">{{ size }}</option>
@@ -224,38 +230,32 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-2">
-            <button
-              mat-icon-button
-              class="!w-8 !h-8"
-              (click)="previousPage()"
-              [disabled]="currentPage === 1 || isLoadingMore"
-              matTooltip="Página anterior">
+          <!-- Right: Navigation Controls -->
+          <div class="flex items-center gap-1">
+            <button type="button"
+                    class="pagination-btn"
+                    (click)="previousPage()"
+                    [disabled]="currentPage === 1 || isLoadingMore"
+                    title="Página anterior">
               <mat-icon>chevron_left</mat-icon>
             </button>
 
-            <span class="px-3 py-1 bg-amber-500 text-white text-sm font-bold rounded-lg">
-              {{ currentPage }}
+            <span class="text-xs font-medium text-slate-700 px-2">
+              @if (isLoadingMore) {
+                <span class="text-amber-600">Cargando...</span>
+              } @else {
+                Pág. {{ currentPage }}
+              }
             </span>
 
-            <button
-              mat-icon-button
-              class="!w-8 !h-8"
-              (click)="nextPage()"
-              [disabled]="!hasMorePages || isLoadingMore"
-              matTooltip="Página siguiente">
+            <button type="button"
+                    class="pagination-btn"
+                    (click)="nextPage()"
+                    [disabled]="!hasMorePages || isLoadingMore"
+                    title="Página siguiente">
               <mat-icon>chevron_right</mat-icon>
             </button>
           </div>
-
-          @if (isLoadingMore) {
-            <div class="flex items-center gap-2 text-sm text-amber-600">
-              <mat-spinner diameter="16"></mat-spinner>
-              <span>Cargando...</span>
-            </div>
-          } @else {
-            <div class="w-24"></div>
-          }
         </div>
       }
     </section>

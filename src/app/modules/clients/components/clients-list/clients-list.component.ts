@@ -21,6 +21,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 // Generic Components
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
 import { GenericDeleteMultipleDialogComponent } from '../../../../shared/components/generic-delete-multiple-dialog/generic-delete-multiple-dialog.component';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 
 // Models
 import { Client, ClientFilters, ClientSort } from '../../models';
@@ -41,6 +42,7 @@ import { formatFieldValue, getFieldValue } from '../../../../shared/modules/dyna
     MatMenuModule,
     MatDividerModule,
     MatDialogModule,
+    PaginationComponent,
   ],
   templateUrl: './clients-list.component.html',
   styleUrl: './clients-list.component.css',
@@ -353,9 +355,7 @@ export class ClientsListComponent implements OnInit {
   /**
    * Cambiar tamaño de página
    */
-  changePageSize(event: Event) {
-    const select = event.target as HTMLSelectElement;
-    const newSize = parseInt(select.value, 10);
+  changePageSize(newSize: number) {
     this.itemsPerPage.set(newSize);
     this.currentPage.set(0); // Volver a la primera página
   }

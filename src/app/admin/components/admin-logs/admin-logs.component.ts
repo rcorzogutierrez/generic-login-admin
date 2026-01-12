@@ -13,6 +13,7 @@ import { AdminLogsService, AdminLog, LogsFilter } from '../../services/admin-log
 import { Router } from '@angular/router';
 import { DeleteLogsDialogComponent } from '../delete-logs-dialog/delete-logs-dialog.component';
 import { LogDetailsDialogComponent } from '../log-details-dialog/log-details-dialog.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { formatDateTime, getRelativeTime } from '../../../shared/utils/date-time.utils';
 
 @Component({
@@ -24,7 +25,8 @@ import { formatDateTime, getRelativeTime } from '../../../shared/utils/date-time
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    PaginationComponent
   ],
   templateUrl: './admin-logs.component.html',
   styleUrl: './admin-logs.component.css',
@@ -193,12 +195,21 @@ export class AdminLogsComponent implements OnInit {
   /**
    * Cambiar tamaño de página
    */
-  async changePageSize(event: Event) {
-    const select = event.target as HTMLSelectElement;
-    const newSize = parseInt(select.value, 10);
+  async changePageSize(newSize: number) {
     this.itemsPerPage = newSize;
     await this.loadLogs(true); // Resetear paginación
     this.cdr.markForCheck();
+  }
+
+  /**
+   * Cambiar de página (para el componente de paginación)
+   */
+  async changePage(page: number) {
+    if (page > this.currentPage) {
+      await this.nextPage();
+    } else if (page < this.currentPage) {
+      await this.previousPage();
+    }
   }
 
   /**

@@ -208,55 +208,18 @@
         </div>
 
         <!-- Paginación -->
-        <div class="pagination-bar">
-          <!-- Left: Info + Page Size Selector -->
-          <div class="flex items-center gap-4">
-            <span class="text-xs text-slate-600">
-              Página {{ currentPage }} · {{ logs.length }} registros
-            </span>
-
-            <!-- Page Size Selector -->
-            <div class="flex items-center gap-2">
-              <label for="pageSize" class="text-xs text-slate-600 font-medium">Registros:</label>
-              <select
-                id="pageSize"
-                [value]="itemsPerPage"
-                (change)="changePageSize($event)"
-                class="px-2 py-1 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent hover:border-slate-400 transition-colors cursor-pointer bg-white">
-                @for (size of pageSizeOptions; track size) {
-                  <option [value]="size">{{ size }}</option>
-                }
-              </select>
-            </div>
-          </div>
-
-          <!-- Right: Navigation Controls -->
-          <div class="flex items-center gap-1">
-            <button type="button"
-                    class="pagination-btn"
-                    (click)="previousPage()"
-                    [disabled]="currentPage === 1 || isLoadingMore"
-                    title="Página anterior">
-              <mat-icon>chevron_left</mat-icon>
-            </button>
-
-            <span class="text-xs font-medium text-slate-700 px-2">
-              @if (isLoadingMore) {
-                <span class="text-amber-600">Cargando...</span>
-              } @else {
-                Pág. {{ currentPage }}
-              }
-            </span>
-
-            <button type="button"
-                    class="pagination-btn"
-                    (click)="nextPage()"
-                    [disabled]="!hasMorePages || isLoadingMore"
-                    title="Página siguiente">
-              <mat-icon>chevron_right</mat-icon>
-            </button>
-          </div>
-        </div>
+        <app-pagination
+          [mode]="'server'"
+          [currentPage]="currentPage"
+          [itemsPerPage]="itemsPerPage"
+          [totalItems]="logs.length"
+          [hasMore]="hasMorePages"
+          [isLoading]="isLoadingMore"
+          [pageSizeOptions]="pageSizeOptions"
+          [themeColor]="'amber'"
+          (pageChange)="changePage($event)"
+          (pageSizeChange)="changePageSize($event)">
+        </app-pagination>
       }
     </section>
 

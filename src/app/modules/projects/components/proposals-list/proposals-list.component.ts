@@ -29,6 +29,7 @@ import { Proposal, ProposalFilters, ProposalSort, ProposalStatus, ProposalStats 
 
 // Shared Components
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { GenericModuleConfig, GenericFieldConfig } from '../../../../shared/models/generic-entity.interface';
 
 @Component({
@@ -47,7 +48,8 @@ import { GenericModuleConfig, GenericFieldConfig } from '../../../../shared/mode
     MatChipsModule,
     MatDividerModule,
     MatDialogModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    PaginationComponent
   ],
   templateUrl: './proposals-list.component.html',
   styleUrl: './proposals-list.component.css',
@@ -645,9 +647,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   /**
    * Cambiar tamaño de página
    */
-  changePageSize(event: Event) {
-    const select = event.target as HTMLSelectElement;
-    const newSize = parseInt(select.value, 10);
+  changePageSize(newSize: number) {
     this.itemsPerPage.set(newSize);
     this.currentPage.set(0); // Volver a la primera página
   }

@@ -65,6 +65,22 @@ export class ClientsListComponent implements OnInit {
   config = this.configService.config;
   gridFields = computed(() => this.configService.getGridFields());
 
+  // Columnas visibles (persistente en localStorage)
+  visibleColumns = signal<Set<string>>(new Set());
+
+  // Grid fields filtrados por columnas visibles
+  visibleGridFields = computed(() => {
+    const allFields = this.gridFields();
+    const visible = this.visibleColumns();
+
+    // Si no hay columnas seleccionadas, mostrar todas
+    if (visible.size === 0) {
+      return allFields;
+    }
+
+    return allFields.filter(field => visible.has(field.id));
+  });
+
   // Generic config for delete dialogs
   genericConfig = computed(() => {
     const clientConfig = this.config();
@@ -94,7 +110,7 @@ export class ClientsListComponent implements OnInit {
   filteredClients = computed(() => {
     const clients = this.clients();
     const search = this.searchTerm().toLowerCase();
-    const fields = this.gridFields();
+    const fields = this.visibleGridFields();
 
     if (!search) return clients;
 
@@ -142,6 +158,7 @@ export class ClientsListComponent implements OnInit {
 
   async ngOnInit() {
     await this.loadData();
+    this.loadColumnPreferences();
   }
 
   /**
@@ -182,6 +199,89 @@ export class ClientsListComponent implements OnInit {
       this.snackBar.open('Error al cargar los datos', 'Cerrar', { duration: 3000 });
     }
   }
+
+  // ============================================
+  // GESTIÓN DE COLUMNAS VISIBLES
+  // ============================================
+
+  /**
+   * Cargar preferencias de columnas desde localStorage
+   */
+  private loadColumnPreferences() {
+    const storageKey = 'clients-visible-columns';
+    const stored = localStorage.getItem(storageKey);
+
+    if (stored) {
+      try {
+        const columnIds = JSON.parse(stored) as string[];
+        this.visibleColumns.set(new Set(columnIds));
+      } catch (error) {
+        console.error('Error cargando preferencias de columnas:', error);
+        // Si hay error, mostrar todas las columnas
+        this.visibleColumns.set(new Set());
+      }
+    } else {
+      // Primera vez: mostrar todas las columnas
+      const allFields = this.gridFields();
+      const allIds = allFields.map(f => f.id);
+      this.visibleColumns.set(new Set(allIds));
+      this.saveColumnPreferences();
+    }
+  }
+
+  /**
+   * Guardar preferencias de columnas en localStorage
+   */
+  private saveColumnPreferences() {
+    const storageKey = 'clients-visible-columns';
+    const columnIds = Array.from(this.visibleColumns());
+    localStorage.setItem(storageKey, JSON.stringify(columnIds));
+  }
+
+  /**
+   * Toggle visibilidad de una columna
+   */
+  toggleColumnVisibility(fieldId: string) {
+    const visible = new Set(this.visibleColumns());
+
+    if (visible.has(fieldId)) {
+      visible.delete(fieldId);
+    } else {
+      visible.add(fieldId);
+    }
+
+    this.visibleColumns.set(visible);
+    this.saveColumnPreferences();
+  }
+
+  /**
+   * Verificar si una columna es visible
+   */
+  isColumnVisible(fieldId: string): boolean {
+    return this.visibleColumns().has(fieldId);
+  }
+
+  /**
+   * Resetear columnas a valores por defecto (todas visibles)
+   */
+  resetColumnPreferences() {
+    const allFields = this.gridFields();
+    const allIds = allFields.map(f => f.id);
+    this.visibleColumns.set(new Set(allIds));
+    this.saveColumnPreferences();
+    this.snackBar.open('Columnas restauradas', '', { duration: 2000 });
+  }
+
+  /**
+   * Verificar si al menos una columna está visible
+   */
+  hasVisibleColumns(): boolean {
+    return this.visibleColumns().size > 0;
+  }
+
+  // ============================================
+  // BÚSQUEDA Y FILTROS
+  // ============================================
 
   /**
    * Buscar clientes

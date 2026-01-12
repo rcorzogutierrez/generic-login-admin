@@ -48,6 +48,41 @@
             <mat-icon [class.animate-spin]="isLoading()">refresh</mat-icon>
           </button>
 
+          <!-- Selector de Columnas -->
+          <button type="button"
+                  class="icon-btn"
+                  [matMenuTriggerFor]="columnsMenu"
+                  title="Seleccionar columnas">
+            <mat-icon>view_column</mat-icon>
+          </button>
+
+          <mat-menu #columnsMenu="matMenu" class="columns-menu">
+            <div class="px-4 py-2 border-b border-slate-200">
+              <h3 class="text-sm font-semibold text-slate-700">Columnas visibles</h3>
+              <p class="text-xs text-slate-500">Selecciona las columnas a mostrar</p>
+            </div>
+
+            <div class="max-h-80 overflow-y-auto px-2 py-2">
+              @for (field of gridFields(); track field.id) {
+                <button mat-menu-item
+                        (click)="toggleColumnVisibility(field.id); $event.stopPropagation()"
+                        class="flex items-center gap-2">
+                  <mat-icon class="text-base">
+                    {{ isColumnVisible(field.id) ? 'check_box' : 'check_box_outline_blank' }}
+                  </mat-icon>
+                  <span class="text-sm">{{ field.label }}</span>
+                </button>
+              }
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <button mat-menu-item (click)="resetColumnPreferences()" class="text-purple-600">
+              <mat-icon>refresh</mat-icon>
+              <span>Restaurar todo</span>
+            </button>
+          </mat-menu>
+
           @if (isAdmin()) {
             <button type="button"
                     class="icon-btn"
@@ -174,7 +209,7 @@
               </th>
 
               <!-- Columnas Dinámicas -->
-              @for (field of gridFields(); track field.id) {
+              @for (field of visibleGridFields(); track field.id) {
                 <th [style.width]="field.gridConfig.gridWidth || 'auto'"
                     [class.sortable]="field.gridConfig.sortable"
                     (click)="field.gridConfig.sortable ? sortBy(field.name) : null">
@@ -212,7 +247,7 @@
                 </td>
 
                 <!-- Columnas Dinámicas -->
-                @for (field of gridFields(); track field.id) {
+                @for (field of visibleGridFields(); track field.id) {
                   <td>{{ formatFieldValue(getFieldValue(client, field.name), field) }}</td>
                 }
 

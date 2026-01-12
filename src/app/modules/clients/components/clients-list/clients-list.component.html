@@ -268,14 +268,32 @@
       <!-- ============================================
            PAGINACIÓN
            ============================================ -->
-      @if (totalPages() > 1) {
+      @if (filteredClients().length > 0) {
         <div class="pagination">
-          <span class="pagination-info">
-            Mostrando {{ (currentPage() * itemsPerPage()) + 1 }} a
-            {{ Math.min((currentPage() + 1) * itemsPerPage(), filteredClients().length) }}
-            de {{ filteredClients().length }}
-          </span>
+          <!-- Left: Info + Page Size Selector -->
+          <div class="flex items-center gap-4">
+            <span class="pagination-info">
+              Mostrando {{ (currentPage() * itemsPerPage()) + 1 }} a
+              {{ Math.min((currentPage() + 1) * itemsPerPage(), filteredClients().length) }}
+              de {{ filteredClients().length }}
+            </span>
 
+            <!-- Page Size Selector -->
+            <div class="flex items-center gap-2">
+              <label for="pageSize" class="text-xs text-slate-600 font-medium">Registros:</label>
+              <select
+                id="pageSize"
+                [value]="itemsPerPage()"
+                (change)="changePageSize($event)"
+                class="px-2 py-1 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent hover:border-slate-400 transition-colors cursor-pointer bg-white">
+                @for (size of pageSizeOptions; track size) {
+                  <option [value]="size">{{ size }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <!-- Right: Navigation Controls -->
           <div class="pagination-controls">
             <button type="button"
                     class="pagination-btn"

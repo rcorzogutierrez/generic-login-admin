@@ -126,18 +126,30 @@
       </div>
     } @else if (paginatedMaterials().length === 0) {
       <!-- Empty State -->
-      <div class="empty-state">
-        <div class="empty-state-icon green">
-          <mat-icon>inventory_2</mat-icon>
+      <div class="flex flex-col items-center justify-center py-16 px-6">
+        <!-- Icon -->
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-200 to-green-300 flex items-center justify-center mb-4">
+          <svg class="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
         </div>
-        <h3>No hay materiales</h3>
-        <p>{{ searchTerm() ? 'No se encontraron materiales con esos criterios' : 'Comienza agregando tu primer material' }}</p>
+
+        <!-- Text -->
+        <h3 class="text-base font-semibold text-slate-800 mb-2">No hay materiales</h3>
+        <p class="text-sm text-slate-500 mb-6 text-center max-w-sm">
+          {{ searchTerm() ? 'No se encontraron materiales con esos criterios' : 'Comienza agregando tu primer material' }}
+        </p>
+
+        <!-- Button -->
         @if (!searchTerm()) {
-          <button type="button"
-                  class="btn-primary mt-4"
-                  (click)="createMaterial()">
-            <mat-icon>add</mat-icon>
-            <span>Crear Primer Material</span>
+          <button
+            type="button"
+            (click)="createMaterial()"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white text-sm font-semibold rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Crear Primer Material
           </button>
         }
       </div>

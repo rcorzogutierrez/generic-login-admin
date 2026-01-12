@@ -67,6 +67,7 @@ export class ClientsListComponent implements OnInit {
 
   // Columnas visibles (persistente en localStorage)
   visibleColumns = signal<Set<string>>(new Set());
+  isColumnMenuOpen = signal<boolean>(false);
 
   // Grid fields filtrados por columnas visibles
   visibleGridFields = computed(() => {
@@ -239,9 +240,27 @@ export class ClientsListComponent implements OnInit {
   }
 
   /**
+   * Toggle menú de columnas
+   */
+  toggleColumnMenu() {
+    this.isColumnMenuOpen.set(!this.isColumnMenuOpen());
+  }
+
+  /**
+   * Cerrar menú de columnas
+   */
+  closeColumnMenu() {
+    this.isColumnMenuOpen.set(false);
+  }
+
+  /**
    * Toggle visibilidad de una columna
    */
-  toggleColumnVisibility(fieldId: string) {
+  toggleColumnVisibility(fieldId: string, event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+
     const visible = new Set(this.visibleColumns());
 
     if (visible.has(fieldId)) {

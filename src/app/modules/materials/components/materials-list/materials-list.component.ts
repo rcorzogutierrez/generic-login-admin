@@ -44,7 +44,10 @@ export class MaterialsListComponent implements OnInit {
 
   // Paginación
   currentPage = signal<number>(0);
-  itemsPerPage = signal<number>(25);
+  itemsPerPage = signal<number>(10); // Valor por defecto: 10 registros por página
+
+  // Opciones de registros por página
+  pageSizeOptions = [10, 20, 50, 100];
 
   // Math para templates
   Math = Math;
@@ -127,7 +130,7 @@ export class MaterialsListComponent implements OnInit {
     // Cargar configuración de paginación
     const config = this.config();
     if (config && config.gridConfig) {
-      this.itemsPerPage.set(config.gridConfig.itemsPerPage || 25);
+      this.itemsPerPage.set(config.gridConfig.itemsPerPage || 10);
     }
 
     this.isLoading = false;
@@ -142,6 +145,16 @@ export class MaterialsListComponent implements OnInit {
     if (page >= 0 && page < this.totalPages()) {
       this.currentPage.set(page);
     }
+  }
+
+  /**
+   * Cambiar tamaño de página
+   */
+  changePageSize(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    const newSize = parseInt(select.value, 10);
+    this.itemsPerPage.set(newSize);
+    this.currentPage.set(0); // Volver a la primera página
   }
 
   createMaterial() {

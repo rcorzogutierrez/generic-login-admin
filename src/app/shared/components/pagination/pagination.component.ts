@@ -140,7 +140,7 @@ export class PaginationComponent {
       blue: 'focus:ring-blue-500',
       amber: 'focus:ring-amber-500'
     };
-    return themeMap[this.themeColor] || themeMap.blue;
+    return themeMap[this.themeColor] || themeMap['blue'];
   }
 
   /**
@@ -153,6 +153,6 @@ export class PaginationComponent {
       blue: 'text-blue-600',
       amber: 'text-amber-600'
     };
-    return themeMap[this.themeColor] || themeMap.blue;
+    return themeMap[this.themeColor] || themeMap['blue'];
   }
 }

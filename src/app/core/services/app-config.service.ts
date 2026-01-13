@@ -21,14 +21,14 @@ export class AppConfigService implements OnDestroy {
   private isInitialized = false; // ✅ Evitar inicializaciones duplicadas
   private logger = inject(LoggerService);
 
-  // Signals privados (writable)
-  private _appName = signal<string>('Generic Admin Login');
-  private _appDescription = signal<string>('Sistema de autenticación y gestión');
+  // Signals privados (writable) - Valores vacíos iniciales, se cargan desde Firestore
+  private _appName = signal<string>('');
+  private _appDescription = signal<string>('');
   private _logoUrl = signal<string>('');
   private _logoBackgroundColor = signal<string>('transparent');
   private _faviconUrl = signal<string>('');
-  private _adminContactEmail = signal<string>('[email protected]');
-  private _footerText = signal<string>('© 2025 Generic Admin. Todos los derechos reservados.');
+  private _adminContactEmail = signal<string>('');
+  private _footerText = signal<string>('');
   private _footerColor = signal<string>('#1e293b');
   private _footerTextColor = signal<string>('#94a3b8');
   private _isLoaded = signal<boolean>(false);
@@ -108,12 +108,12 @@ export class AppConfigService implements OnDestroy {
   private updateSignals(config: SystemConfig) {
     this.logger.debug('Actualizando signals con configuración', config);
 
-    this._appName.set(config.appName || 'Generic Admin Login');
+    this._appName.set(config.appName || '');
     this._appDescription.set(config.appDescription || '');
     this._logoUrl.set(config.logoUrl || '');
     this._logoBackgroundColor.set(config.logoBackgroundColor || 'transparent');
     this._faviconUrl.set(config.faviconUrl || config.logoUrl || '');
-    this._adminContactEmail.set(config.adminContactEmail || '[email protected]');
+    this._adminContactEmail.set(config.adminContactEmail || '');
     this._footerText.set(config.footerText || '');
     this._footerColor.set(config.footerColor || '#1e293b');
     this._footerTextColor.set(config.footerTextColor || '#94a3b8');
@@ -122,17 +122,17 @@ export class AppConfigService implements OnDestroy {
   }
 
   /**
-   * Establece valores por defecto
+   * Establece valores por defecto (vacíos - se usa skeleton loaders en UI)
    */
   private setDefaultValues() {
-    this.logger.info('Estableciendo valores por defecto');
-    this._appName.set('Generic Admin Login');
-    this._appDescription.set('Sistema de autenticación y gestión');
+    this.logger.info('Estableciendo valores por defecto vacíos');
+    this._appName.set('');
+    this._appDescription.set('');
     this._logoUrl.set('');
     this._logoBackgroundColor.set('transparent');
     this._faviconUrl.set('');
-    this._adminContactEmail.set('[email protected]');
-    this._footerText.set('© 2025 Generic Admin. Todos los derechos reservados.');
+    this._adminContactEmail.set('');
+    this._footerText.set('');
     this._footerColor.set('#1e293b');
     this._footerTextColor.set('#94a3b8');
   }

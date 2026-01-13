@@ -36,7 +36,7 @@ import { AppConfigService } from '../services/app-config.service';
       </main>
 
       <!-- Footer -->
-      <footer class="main-footer print:hidden">
+      <footer class="main-footer print:hidden" [style.background-color]="appConfigService.footerColor()">
         <div class="footer-content">
           <p class="footer-text">
             {{ appConfigService.footerText() }}
@@ -97,7 +97,7 @@ import { AppConfigService } from '../services/app-config.service';
        FOOTER
        ============================================ */
     .main-footer {
-      background: #1e293b;
+      /* background dinámico desde appConfigService.footerColor() */
       padding: 1.5rem;
       margin-top: auto;
       border-top: 1px solid #334155;

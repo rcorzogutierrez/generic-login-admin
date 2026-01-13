@@ -61,6 +61,9 @@ export class SystemConfigComponent implements OnInit {
   selectedLogoFile = signal<File | null>(null);
   isUploadingLogo = signal(false);
 
+  // Footer color
+  footerColor = signal<string>('#1e293b');
+
   /**
    * Colores predefinidos para el fondo del logo
    */
@@ -73,6 +76,20 @@ export class SystemConfigComponent implements OnInit {
     { name: 'Verde', value: '#10b981' },
     { name: 'Púrpura', value: '#8b5cf6' },
     { name: 'Negro', value: '#000000' },
+  ];
+
+  /**
+   * Colores predefinidos para el footer
+   */
+  readonly footerPresetColors = [
+    { name: 'Slate oscuro (predeterminado)', value: '#1e293b' },
+    { name: 'Negro', value: '#000000' },
+    { name: 'Gris oscuro', value: '#374151' },
+    { name: 'Azul oscuro', value: '#1e3a8a' },
+    { name: 'Índigo oscuro', value: '#312e81' },
+    { name: 'Púrpura oscuro', value: '#581c87' },
+    { name: 'Verde oscuro', value: '#14532d' },
+    { name: 'Slate', value: '#475569' },
   ];
 
   async ngOnInit() {
@@ -89,6 +106,7 @@ export class SystemConfigComponent implements OnInit {
       const config = await this.configService.loadConfig();
       this.logoPreviewUrl.set(config.logoUrl || '');
       this.logoBackgroundColor.set(config.logoBackgroundColor || 'transparent');
+      this.footerColor.set(config.footerColor || '#1e293b');
     } catch (error) {
       console.error('Error cargando configuración:', error);
       this.snackBar.open('Error al cargar la configuración', 'Cerrar', { duration: 3000 });
@@ -102,26 +120,29 @@ export class SystemConfigComponent implements OnInit {
    */
   private initializeForm() {
     const config = this.currentConfig();
-    
+
     this.configForm = this.fb.group({
       appName: [
-        config?.appName || '', 
+        config?.appName || '',
         [Validators.required, Validators.maxLength(50)]
       ],
       appDescription: [
-        config?.appDescription || '', 
+        config?.appDescription || '',
         [Validators.maxLength(200)]
       ],
       adminContactEmail: [
-        config?.adminContactEmail || '', 
+        config?.adminContactEmail || '',
         [Validators.required, Validators.email]
       ],
       footerText: [
-        config?.footerText || '', 
+        config?.footerText || '',
         [Validators.maxLength(100)]
       ],
-      logoBackgroundColor: [ // ✅ NUEVO
+      logoBackgroundColor: [
         config?.logoBackgroundColor || 'transparent'
+      ],
+      footerColor: [
+        config?.footerColor || '#1e293b'
       ]
     });
   }

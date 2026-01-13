@@ -19,6 +19,9 @@ export class InactivityService {
   private readonly INACTIVITY_TIME = 10 * 60 * 1000; // 10 minutos
   private readonly WARNING_TIME = 1 * 60 * 1000; // 1 minuto adicional
 
+  // Clave de localStorage
+  private readonly LAST_ACTIVITY_KEY = 'lastActivity';
+
   // Timers
   private inactivityTimer: any = null;
   private warningTimer: any = null;
@@ -36,7 +39,50 @@ export class InactivityService {
       .pipe(debounceTime(1000)) // Evitar demasiadas actualizaciones
       .subscribe(() => {
         this.resetTimers();
+        this.updateLastActivity();
       });
+  }
+
+  /**
+   * Verificar sesión al iniciar la aplicación
+   * Retorna true si la sesión es válida, false si expiró
+   */
+  checkSessionOnStartup(): boolean {
+    const lastActivity = localStorage.getItem(this.LAST_ACTIVITY_KEY);
+
+    if (!lastActivity) {
+      // Primera vez o no hay registro previo
+      this.updateLastActivity();
+      return true;
+    }
+
+    const elapsed = Date.now() - Number(lastActivity);
+
+    if (elapsed > this.INACTIVITY_TIME) {
+      console.log('[InactivityService] Sesión expirada por inactividad (pestaña cerrada)');
+      console.log(`[InactivityService] Tiempo transcurrido: ${Math.floor(elapsed / 1000 / 60)} minutos`);
+      // Sesión expirada, hacer logout
+      this.logout();
+      return false;
+    }
+
+    // Sesión válida, actualizar timestamp
+    this.updateLastActivity();
+    return true;
+  }
+
+  /**
+   * Actualizar timestamp de última actividad en localStorage
+   */
+  private updateLastActivity() {
+    localStorage.setItem(this.LAST_ACTIVITY_KEY, Date.now().toString());
+  }
+
+  /**
+   * Limpiar timestamp de última actividad
+   */
+  private clearLastActivity() {
+    localStorage.removeItem(this.LAST_ACTIVITY_KEY);
   }
 
   /**
@@ -45,6 +91,12 @@ export class InactivityService {
   startMonitoring() {
     if (this.isActive) {
       return; // Ya está activo
+    }
+
+    // Verificar sesión antes de iniciar monitoreo
+    const isValid = this.checkSessionOnStartup();
+    if (!isValid) {
+      return; // Sesión expirada, no iniciar monitoreo
     }
 
     this.isActive = true;
@@ -61,6 +113,7 @@ export class InactivityService {
     this.isActive = false;
     this.clearTimers();
     this.removeActivityListeners();
+    this.clearLastActivity();
 
     console.log('[InactivityService] Monitoreo detenido');
   }
@@ -102,6 +155,7 @@ export class InactivityService {
    */
   private startInactivityTimer() {
     this.clearTimers();
+    this.updateLastActivity();
 
     this.inactivityTimer = setTimeout(() => {
       this.showWarning();
@@ -144,6 +198,7 @@ export class InactivityService {
         // Usuario quiere continuar
         console.log('[InactivityService] Usuario continúa sesión');
         this.resetTimers();
+        this.updateLastActivity();
       } else {
         // Usuario cerró sesión o timeout
         console.log('[InactivityService] Cerrando sesión por inactividad');

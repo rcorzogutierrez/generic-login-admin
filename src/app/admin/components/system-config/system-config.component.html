@@ -188,122 +188,102 @@
                 </p>
               </div>
 
-              <!-- Color del footer -->
-              <div class="form-group">
-                <label class="form-label">
-                  <mat-icon>palette</mat-icon>
-                  Color de Fondo del Footer
-                </label>
-                <div class="color-selector">
-                  <!-- Color Picker -->
-                  <div class="color-input-wrapper">
-                    <input
-                      type="color"
-                      formControlName="footerColor"
-                      (input)="footerColor.set($any($event.target).value)"
-                      class="color-picker"
-                    />
-                    <input
-                      type="text"
-                      formControlName="footerColor"
-                      placeholder="#1e293b"
-                      maxlength="7"
-                      class="color-text-input"
-                      (input)="footerColor.set($any($event.target).value)"
-                    />
-                  </div>
+              <!-- Colores del Footer (Lado a lado) -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                  <!-- Colores predefinidos -->
-                  <div class="preset-colors">
-                    @for (color of footerPresetColors; track color.value) {
-                      <button
-                        type="button"
-                        class="color-option"
-                        [class.selected]="footerColor() === color.value"
-                        [style.background-color]="color.value"
-                        (click)="footerColor.set(color.value); configForm.patchValue({ footerColor: color.value })"
-                        [matTooltip]="color.name">
-                      </button>
-                    }
+                <!-- Color del footer -->
+                <div class="form-group">
+                  <label class="form-label">
+                    <mat-icon>palette</mat-icon>
+                    Color de Fondo del Footer
+                  </label>
+                  <div class="color-selector">
+                    <!-- Color Picker -->
+                    <div class="color-input-wrapper">
+                      <input
+                        type="color"
+                        formControlName="footerColor"
+                        (input)="footerColor.set($any($event.target).value)"
+                        class="color-picker"
+                      />
+                      <input
+                        type="text"
+                        formControlName="footerColor"
+                        placeholder="#1e293b"
+                        maxlength="7"
+                        class="color-text-input"
+                        (input)="footerColor.set($any($event.target).value)"
+                      />
+                    </div>
+
+                    <!-- Colores predefinidos -->
+                    <div class="preset-colors">
+                      @for (color of footerPresetColors; track color.value) {
+                        <button
+                          type="button"
+                          class="color-option"
+                          [class.selected]="footerColor() === color.value"
+                          [style.background-color]="color.value"
+                          (click)="footerColor.set(color.value); configForm.patchValue({ footerColor: color.value })"
+                          [matTooltip]="color.name">
+                        </button>
+                      }
+                    </div>
                   </div>
+                  <p class="form-hint">
+                    <mat-icon>info_outline</mat-icon>
+                    Personaliza el color de fondo del footer
+                  </p>
                 </div>
-                <p class="form-hint">
-                  <mat-icon>info_outline</mat-icon>
-                  Personaliza el color de fondo del footer
-                </p>
-              </div>
 
-              <!-- Color del texto del footer -->
-              <div class="form-group">
-                <label class="form-label">
-                  <mat-icon>text_format</mat-icon>
-                  Color del Texto del Footer
-                </label>
-                <div class="color-selector">
-                  <!-- Color Picker -->
-                  <div class="color-input-wrapper">
-                    <input
-                      type="color"
-                      formControlName="footerTextColor"
-                      (input)="footerTextColor.set($any($event.target).value)"
-                      class="color-picker"
-                    />
-                    <input
-                      type="text"
-                      formControlName="footerTextColor"
-                      placeholder="#94a3b8"
-                      maxlength="7"
-                      class="color-text-input"
-                      (input)="footerTextColor.set($any($event.target).value)"
-                    />
-                  </div>
+                <!-- Color del texto del footer -->
+                <div class="form-group">
+                  <label class="form-label">
+                    <mat-icon>text_format</mat-icon>
+                    Color del Texto del Footer
+                  </label>
+                  <div class="color-selector">
+                    <!-- Color Picker -->
+                    <div class="color-input-wrapper">
+                      <input
+                        type="color"
+                        formControlName="footerTextColor"
+                        (input)="footerTextColor.set($any($event.target).value)"
+                        class="color-picker"
+                      />
+                      <input
+                        type="text"
+                        formControlName="footerTextColor"
+                        placeholder="#94a3b8"
+                        maxlength="7"
+                        class="color-text-input"
+                        (input)="footerTextColor.set($any($event.target).value)"
+                      />
+                    </div>
 
-                  <!-- Colores predefinidos -->
-                  <div class="preset-colors">
-                    @for (color of footerTextPresetColors; track color.value) {
-                      <button
-                        type="button"
-                        class="color-option"
-                        [class.selected]="footerTextColor() === color.value"
-                        [style.background-color]="color.value"
-                        (click)="footerTextColor.set(color.value); configForm.patchValue({ footerTextColor: color.value })"
-                        [matTooltip]="color.name">
-                      </button>
-                    }
+                    <!-- Colores predefinidos -->
+                    <div class="preset-colors">
+                      @for (color of footerTextPresetColors; track color.value) {
+                        <button
+                          type="button"
+                          class="color-option"
+                          [class.selected]="footerTextColor() === color.value"
+                          [style.background-color]="color.value"
+                          (click)="footerTextColor.set(color.value); configForm.patchValue({ footerTextColor: color.value })"
+                          [matTooltip]="color.name">
+                        </button>
+                      }
+                    </div>
                   </div>
+                  <p class="form-hint">
+                    <mat-icon>info_outline</mat-icon>
+                    Asegúrate de que el texto contraste bien con el fondo del footer
+                  </p>
                 </div>
-                <p class="form-hint">
-                  <mat-icon>info_outline</mat-icon>
-                  Asegúrate de que el texto contraste bien con el fondo del footer
-                </p>
+
               </div>
 
             </form>
-
-            <!-- Botones de acción -->
-            <div class="card-actions">
-              <button
-                type="button"
-                class="btn-cancel"
-                (click)="goBack()"
-                [disabled]="isSaving()">
-                <mat-icon>close</mat-icon>
-                Cancelar
-              </button>
-
-              <button
-                type="button"
-                class="btn-save"
-                (click)="saveConfiguration()"
-                [disabled]="configForm.invalid || isSaving()">
-                @if (isSaving()) {
-                  <mat-spinner diameter="18"></mat-spinner>
-                } @else {
-                  <mat-icon>save</mat-icon>
-                }
-                {{ isSaving() ? 'Guardando...' : 'Guardar Cambios' }}
-              </button>
-            </div>
           </div>
 
           <!-- CARD: GESTIÓN DE LOGO -->
@@ -486,6 +466,33 @@
                 </ul>
               </div>
 
+            </div>
+          </div>
+
+          <!-- BOTONES DE ACCIÓN AL FINAL -->
+          <div class="config-card">
+            <div class="card-actions">
+              <button
+                type="button"
+                class="btn-cancel"
+                (click)="goBack()"
+                [disabled]="isSaving()">
+                <mat-icon>close</mat-icon>
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                class="btn-save"
+                (click)="saveConfiguration()"
+                [disabled]="configForm.invalid || isSaving()">
+                @if (isSaving()) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                  <mat-icon>save</mat-icon>
+                }
+                {{ isSaving() ? 'Guardando...' : 'Guardar Cambios' }}
+              </button>
             </div>
           </div>
 

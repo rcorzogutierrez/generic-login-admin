@@ -531,74 +531,77 @@
 }
 
 /* ============================================
-   FILTERS
+   FILTERS INLINE
    ============================================ */
 
-.filter-group {
+.filter-group-inline {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-width: 160px;
+  gap: 3px;
+  min-width: 140px;
 }
 
-.filter-label {
-  font-size: 11px;
+.filter-label-inline {
+  font-size: 10px;
   font-weight: 600;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  padding-left: 2px;
 }
 
-.filter-select {
-  padding: 6px 10px;
-  font-size: 13px;
+.filter-select-inline {
+  padding: 5px 8px;
+  font-size: 12px;
   font-weight: 500;
   color: #334155;
   background: white;
   border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
   outline: none;
 }
 
-.filter-select:hover {
+.filter-select-inline:hover {
   border-color: #94a3b8;
   background: #f8fafc;
 }
 
-.filter-select:focus {
+.filter-select-inline:focus {
   border-color: #8b5cf6;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
   background: white;
 }
 
-.filter-input {
-  padding: 6px 10px;
-  font-size: 13px;
+.filter-input-inline {
+  padding: 5px 8px;
+  font-size: 12px;
   font-weight: 500;
   color: #334155;
   background: white;
   border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border-radius: 6px;
   transition: all 0.2s ease;
   outline: none;
+  width: 100%;
 }
 
-.filter-input:hover {
+.filter-input-inline:hover {
   border-color: #94a3b8;
   background: #f8fafc;
 }
 
-.filter-input:focus {
+.filter-input-inline:focus {
   border-color: #8b5cf6;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
   background: white;
 }
 
-.filter-input::placeholder {
+.filter-input-inline::placeholder {
   color: #94a3b8;
   font-weight: 400;
+  font-size: 11px;
 }
 
 /* ============================================

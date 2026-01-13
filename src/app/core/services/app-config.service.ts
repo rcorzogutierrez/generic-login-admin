@@ -29,6 +29,7 @@ export class AppConfigService implements OnDestroy {
   private _faviconUrl = signal<string>('');
   private _adminContactEmail = signal<string>('[email protected]');
   private _footerText = signal<string>('© 2025 Generic Admin. Todos los derechos reservados.');
+  private _footerColor = signal<string>('#1e293b');
   private _isLoaded = signal<boolean>(false);
 
   // Signals públicos (readonly)
@@ -39,6 +40,7 @@ export class AppConfigService implements OnDestroy {
   readonly faviconUrl = this._faviconUrl.asReadonly();
   readonly adminContactEmail = this._adminContactEmail.asReadonly();
   readonly footerText = this._footerText.asReadonly();
+  readonly footerColor = this._footerColor.asReadonly();
   readonly isLoaded = this._isLoaded.asReadonly();
 
   constructor() {
@@ -111,6 +113,7 @@ export class AppConfigService implements OnDestroy {
     this._faviconUrl.set(config.faviconUrl || config.logoUrl || '');
     this._adminContactEmail.set(config.adminContactEmail || '[email protected]');
     this._footerText.set(config.footerText || '');
+    this._footerColor.set(config.footerColor || '#1e293b');
 
     this.logger.debug('Signals actualizados correctamente');
   }
@@ -127,6 +130,7 @@ export class AppConfigService implements OnDestroy {
     this._faviconUrl.set('');
     this._adminContactEmail.set('[email protected]');
     this._footerText.set('© 2025 Generic Admin. Todos los derechos reservados.');
+    this._footerColor.set('#1e293b');
   }
 
   /**

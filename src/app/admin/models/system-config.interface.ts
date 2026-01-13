@@ -8,8 +8,9 @@ export interface SystemConfig {
     logoBackgroundColor: string; // Color de fondo del logo
     adminContactEmail: string; // Email del admin
     footerText: string; // Texto del footer
+    footerColor: string; // Color de fondo del footer
     faviconUrl?: string; // URL del favicon (puede ser el mismo logo)
-    
+
     // Metadata
     createdAt: Date;
     createdBy: string;
@@ -17,7 +18,7 @@ export interface SystemConfig {
     updatedBy: string;
     version: number; // Para control de versiones
   }
-  
+
   export interface LogoUploadResult {
     success: boolean;
     logoUrl?: string;

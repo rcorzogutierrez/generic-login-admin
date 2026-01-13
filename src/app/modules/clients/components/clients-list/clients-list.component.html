@@ -128,90 +128,98 @@
   <!-- ============================================
        BÚSQUEDA Y FILTROS
        ============================================ -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-5">
-    <!-- Left: Búsqueda (50%) -->
-    <div class="search-box">
-      <mat-icon class="search-icon">search</mat-icon>
-      <input type="text"
-             class="search-input"
-             placeholder="Buscar clientes..."
-             [(ngModel)]="searchTerm"
-             (ngModelChange)="onSearch($event)">
-      @if (searchTerm()) {
-        <button type="button" class="clear-btn" (click)="onSearch('')">
-          <mat-icon>close</mat-icon>
-        </button>
-      }
-    </div>
+  <section class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm">
+    <div class="flex flex-wrap items-center gap-4">
 
-    <!-- Right: Filtros (50%) -->
-    <div class="flex items-center gap-2 flex-wrap">
-      @if (filterableFields().length > 0) {
-        @for (field of filterableFields(); track field.id) {
-          <div class="filter-group-inline">
-            <label class="filter-label-inline">{{ field.label }}</label>
+      <!-- Search Box (50%) -->
+      <div class="flex-1 min-w-[300px] relative">
+        <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl">search</mat-icon>
+        <input
+          type="text"
+          class="w-full h-10 pl-10 pr-4 border border-slate-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all"
+          placeholder="Buscar clientes..."
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearch($event)">
+      </div>
 
+      <!-- Filtros dinámicos (50%) -->
+      <div class="flex-1 min-w-[300px] flex items-center gap-3 flex-wrap">
+        @if (filterableFields().length > 0) {
+          @for (field of filterableFields(); track field.id) {
             <!-- SELECT / MULTISELECT / DICTIONARY -->
             @if (field.type === 'select' || field.type === 'multiselect' || field.type === 'dictionary') {
-              <select
-                [value]="customFieldFilters()[field.name] || 'all'"
-                (change)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
-                class="filter-select-inline">
-                <option value="all">Todos</option>
-                @for (option of field.options; track option.value) {
-                  <option [value]="option.value">{{ option.label }}</option>
-                }
-              </select>
+              <div class="relative min-w-[180px]">
+                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl z-10">filter_list</mat-icon>
+                <select
+                  [value]="customFieldFilters()[field.name] || 'all'"
+                  (change)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
+                  class="w-full h-10 pl-10 pr-8 border border-slate-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all appearance-none bg-white cursor-pointer">
+                  <option value="all">{{ field.label }}: Todos</option>
+                  @for (option of field.options; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+              </div>
             }
 
             <!-- TEXT, EMAIL, PHONE, URL -->
             @else if (field.type === 'text' || field.type === 'email' || field.type === 'phone' || field.type === 'url') {
-              <input
-                type="text"
-                [value]="customFieldFilters()[field.name] || ''"
-                (input)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
-                [placeholder]="field.label"
-                class="filter-input-inline">
+              <div class="relative min-w-[180px]">
+                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl">filter_alt</mat-icon>
+                <input
+                  type="text"
+                  [value]="customFieldFilters()[field.name] || ''"
+                  (input)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
+                  [placeholder]="field.label"
+                  class="w-full h-10 pl-10 pr-4 border border-slate-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all">
+              </div>
             }
 
             <!-- NUMBER, CURRENCY -->
             @else if (field.type === 'number' || field.type === 'currency') {
-              <input
-                type="number"
-                [value]="customFieldFilters()[field.name] || ''"
-                (input)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
-                [placeholder]="field.label"
-                class="filter-input-inline">
+              <div class="relative min-w-[180px]">
+                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl">tag</mat-icon>
+                <input
+                  type="number"
+                  [value]="customFieldFilters()[field.name] || ''"
+                  (input)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
+                  [placeholder]="field.label"
+                  class="w-full h-10 pl-10 pr-4 border border-slate-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all">
+              </div>
             }
 
             <!-- CHECKBOX -->
             @else if (field.type === 'checkbox') {
-              <select
-                [value]="customFieldFilters()[field.name] || 'all'"
-                (change)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
-                class="filter-select-inline">
-                <option value="all">Todos</option>
-                <option value="true">Sí</option>
-                <option value="false">No</option>
-              </select>
+              <div class="relative min-w-[180px]">
+                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl z-10">check_box</mat-icon>
+                <select
+                  [value]="customFieldFilters()[field.name] || 'all'"
+                  (change)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
+                  class="w-full h-10 pl-10 pr-8 border border-slate-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all appearance-none bg-white cursor-pointer">
+                  <option value="all">{{ field.label }}: Todos</option>
+                  <option value="true">Sí</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
             }
-          </div>
-        }
+          }
 
-        <!-- Clear button -->
-        @if (hasActiveFilters()) {
-          <button
-            type="button"
-            (click)="clearAllFilters()"
-            class="px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1 border border-slate-200"
-            title="Limpiar filtros">
-            <mat-icon class="!text-sm">clear</mat-icon>
-            <span class="hidden sm:inline">{{ activeFiltersCount() }}</span>
-          </button>
+          <!-- Clear button -->
+          @if (hasActiveFilters()) {
+            <button
+              type="button"
+              (click)="clearAllFilters()"
+              class="h-10 px-3 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-2 border border-slate-200"
+              title="Limpiar filtros">
+              <mat-icon class="!text-lg">clear</mat-icon>
+              <span>{{ activeFiltersCount() }}</span>
+            </button>
+          }
         }
-      }
+      </div>
+
     </div>
-  </div>
+  </section>
 
   <!-- ============================================
        BARRA DE ACCIONES MASIVAS

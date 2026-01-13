@@ -30,6 +30,7 @@ export class AppConfigService implements OnDestroy {
   private _adminContactEmail = signal<string>('[email protected]');
   private _footerText = signal<string>('© 2025 Generic Admin. Todos los derechos reservados.');
   private _footerColor = signal<string>('#1e293b');
+  private _footerTextColor = signal<string>('#94a3b8');
   private _isLoaded = signal<boolean>(false);
 
   // Signals públicos (readonly)
@@ -41,6 +42,7 @@ export class AppConfigService implements OnDestroy {
   readonly adminContactEmail = this._adminContactEmail.asReadonly();
   readonly footerText = this._footerText.asReadonly();
   readonly footerColor = this._footerColor.asReadonly();
+  readonly footerTextColor = this._footerTextColor.asReadonly();
   readonly isLoaded = this._isLoaded.asReadonly();
 
   constructor() {
@@ -114,6 +116,7 @@ export class AppConfigService implements OnDestroy {
     this._adminContactEmail.set(config.adminContactEmail || '[email protected]');
     this._footerText.set(config.footerText || '');
     this._footerColor.set(config.footerColor || '#1e293b');
+    this._footerTextColor.set(config.footerTextColor || '#94a3b8');
 
     this.logger.debug('Signals actualizados correctamente');
   }
@@ -131,6 +134,7 @@ export class AppConfigService implements OnDestroy {
     this._adminContactEmail.set('[email protected]');
     this._footerText.set('© 2025 Generic Admin. Todos los derechos reservados.');
     this._footerColor.set('#1e293b');
+    this._footerTextColor.set('#94a3b8');
   }
 
   /**

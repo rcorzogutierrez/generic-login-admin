@@ -38,7 +38,7 @@ import { AppConfigService } from '../services/app-config.service';
       <!-- Footer -->
       <footer class="main-footer print:hidden" [style.background-color]="appConfigService.footerColor()">
         <div class="footer-content">
-          <p class="footer-text">
+          <p class="footer-text" [style.color]="appConfigService.footerTextColor()">
             {{ appConfigService.footerText() }}
           </p>
         </div>
@@ -111,7 +111,6 @@ import { AppConfigService } from '../services/app-config.service';
 
     .footer-text {
       font-size: 0.875rem;
-      color: #94a3b8;
       margin: 0;
     }
 

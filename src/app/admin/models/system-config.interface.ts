@@ -9,6 +9,7 @@ export interface SystemConfig {
     adminContactEmail: string; // Email del admin
     footerText: string; // Texto del footer
     footerColor: string; // Color de fondo del footer
+    footerTextColor: string; // Color del texto del footer
     faviconUrl?: string; // URL del favicon (puede ser el mismo logo)
 
     // Metadata

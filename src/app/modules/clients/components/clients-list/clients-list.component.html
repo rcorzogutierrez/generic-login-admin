@@ -128,9 +128,9 @@
   <!-- ============================================
        BÚSQUEDA Y FILTROS
        ============================================ -->
-  <div class="flex items-center gap-3 mb-5 flex-wrap">
-    <!-- Búsqueda (50% en desktop, 100% en mobile) -->
-    <div class="search-box flex-1 min-w-[300px]">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-5">
+    <!-- Left: Búsqueda (50%) -->
+    <div class="search-box">
       <mat-icon class="search-icon">search</mat-icon>
       <input type="text"
              class="search-input"
@@ -144,71 +144,73 @@
       }
     </div>
 
-    <!-- Filtros dinámicos (inline) -->
-    @if (filterableFields().length > 0) {
-      @for (field of filterableFields(); track field.id) {
-        <div class="filter-group-inline">
-          <label class="filter-label-inline">{{ field.label }}</label>
+    <!-- Right: Filtros (50%) -->
+    <div class="flex items-center gap-2 flex-wrap">
+      @if (filterableFields().length > 0) {
+        @for (field of filterableFields(); track field.id) {
+          <div class="filter-group-inline">
+            <label class="filter-label-inline">{{ field.label }}</label>
 
-          <!-- SELECT / MULTISELECT / DICTIONARY -->
-          @if (field.type === 'select' || field.type === 'multiselect' || field.type === 'dictionary') {
-            <select
-              [value]="customFieldFilters()[field.name] || 'all'"
-              (change)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
-              class="filter-select-inline">
-              <option value="all">Todos</option>
-              @for (option of field.options; track option.value) {
-                <option [value]="option.value">{{ option.label }}</option>
-              }
-            </select>
-          }
+            <!-- SELECT / MULTISELECT / DICTIONARY -->
+            @if (field.type === 'select' || field.type === 'multiselect' || field.type === 'dictionary') {
+              <select
+                [value]="customFieldFilters()[field.name] || 'all'"
+                (change)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
+                class="filter-select-inline">
+                <option value="all">Todos</option>
+                @for (option of field.options; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+            }
 
-          <!-- TEXT, EMAIL, PHONE, URL -->
-          @else if (field.type === 'text' || field.type === 'email' || field.type === 'phone' || field.type === 'url') {
-            <input
-              type="text"
-              [value]="customFieldFilters()[field.name] || ''"
-              (input)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
-              [placeholder]="field.label"
-              class="filter-input-inline">
-          }
+            <!-- TEXT, EMAIL, PHONE, URL -->
+            @else if (field.type === 'text' || field.type === 'email' || field.type === 'phone' || field.type === 'url') {
+              <input
+                type="text"
+                [value]="customFieldFilters()[field.name] || ''"
+                (input)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
+                [placeholder]="field.label"
+                class="filter-input-inline">
+            }
 
-          <!-- NUMBER, CURRENCY -->
-          @else if (field.type === 'number' || field.type === 'currency') {
-            <input
-              type="number"
-              [value]="customFieldFilters()[field.name] || ''"
-              (input)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
-              [placeholder]="field.label"
-              class="filter-input-inline">
-          }
+            <!-- NUMBER, CURRENCY -->
+            @else if (field.type === 'number' || field.type === 'currency') {
+              <input
+                type="number"
+                [value]="customFieldFilters()[field.name] || ''"
+                (input)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
+                [placeholder]="field.label"
+                class="filter-input-inline">
+            }
 
-          <!-- CHECKBOX -->
-          @else if (field.type === 'checkbox') {
-            <select
-              [value]="customFieldFilters()[field.name] || 'all'"
-              (change)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
-              class="filter-select-inline">
-              <option value="all">Todos</option>
-              <option value="true">Sí</option>
-              <option value="false">No</option>
-            </select>
-          }
-        </div>
+            <!-- CHECKBOX -->
+            @else if (field.type === 'checkbox') {
+              <select
+                [value]="customFieldFilters()[field.name] || 'all'"
+                (change)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
+                class="filter-select-inline">
+                <option value="all">Todos</option>
+                <option value="true">Sí</option>
+                <option value="false">No</option>
+              </select>
+            }
+          </div>
+        }
+
+        <!-- Clear button -->
+        @if (hasActiveFilters()) {
+          <button
+            type="button"
+            (click)="clearAllFilters()"
+            class="px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1 border border-slate-200"
+            title="Limpiar filtros">
+            <mat-icon class="!text-sm">clear</mat-icon>
+            <span class="hidden sm:inline">{{ activeFiltersCount() }}</span>
+          </button>
+        }
       }
-
-      <!-- Clear button -->
-      @if (hasActiveFilters()) {
-        <button
-          type="button"
-          (click)="clearAllFilters()"
-          class="px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1 border border-slate-200"
-          title="Limpiar filtros">
-          <mat-icon class="!text-sm">clear</mat-icon>
-          <span class="hidden sm:inline">{{ activeFiltersCount() }}</span>
-        </button>
-      }
-    }
+    </div>
   </div>
 
   <!-- ============================================

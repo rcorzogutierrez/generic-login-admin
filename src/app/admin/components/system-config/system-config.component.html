@@ -233,6 +233,51 @@
                 </p>
               </div>
 
+              <!-- Color del texto del footer -->
+              <div class="form-group">
+                <label class="form-label">
+                  <mat-icon>text_format</mat-icon>
+                  Color del Texto del Footer
+                </label>
+                <div class="color-selector">
+                  <!-- Color Picker -->
+                  <div class="color-input-wrapper">
+                    <input
+                      type="color"
+                      formControlName="footerTextColor"
+                      (input)="footerTextColor.set($any($event.target).value)"
+                      class="color-picker"
+                    />
+                    <input
+                      type="text"
+                      formControlName="footerTextColor"
+                      placeholder="#94a3b8"
+                      maxlength="7"
+                      class="color-text-input"
+                      (input)="footerTextColor.set($any($event.target).value)"
+                    />
+                  </div>
+
+                  <!-- Colores predefinidos -->
+                  <div class="preset-colors">
+                    @for (color of footerTextPresetColors; track color.value) {
+                      <button
+                        type="button"
+                        class="color-option"
+                        [class.selected]="footerTextColor() === color.value"
+                        [style.background-color]="color.value"
+                        (click)="footerTextColor.set(color.value); configForm.patchValue({ footerTextColor: color.value })"
+                        [matTooltip]="color.name">
+                      </button>
+                    }
+                  </div>
+                </div>
+                <p class="form-hint">
+                  <mat-icon>info_outline</mat-icon>
+                  Asegúrate de que el texto contraste bien con el fondo del footer
+                </p>
+              </div>
+
             </form>
 
             <!-- Botones de acción -->
@@ -526,7 +571,7 @@
               <div class="preview-section">
                 <p class="preview-label">Footer</p>
                 <div class="preview-footer" [style.background-color]="footerColor()">
-                  <p class="text-xs text-slate-300 text-center">
+                  <p class="text-xs text-center" [style.color]="footerTextColor()">
                     {{ configForm.get('footerText')?.value || 'Texto del footer' }}
                   </p>
                 </div>

@@ -79,6 +79,7 @@ export class SystemConfigService {
       adminContactEmail: '[email protected]',
       footerText: '© 2025 Generic Admin. Todos los derechos reservados.',
       footerColor: '#1e293b',
+      footerTextColor: '#94a3b8',
       createdAt: new Date(),
       createdBy: 'system',
       updatedAt: new Date(),

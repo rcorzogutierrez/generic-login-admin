@@ -63,6 +63,7 @@ export class SystemConfigComponent implements OnInit {
 
   // Footer color
   footerColor = signal<string>('#1e293b');
+  footerTextColor = signal<string>('#94a3b8');
 
   /**
    * Colores predefinidos para el fondo del logo
@@ -79,7 +80,7 @@ export class SystemConfigComponent implements OnInit {
   ];
 
   /**
-   * Colores predefinidos para el footer
+   * Colores predefinidos para el fondo del footer
    */
   readonly footerPresetColors = [
     { name: 'Slate oscuro (predeterminado)', value: '#1e293b' },
@@ -90,6 +91,20 @@ export class SystemConfigComponent implements OnInit {
     { name: 'Púrpura oscuro', value: '#581c87' },
     { name: 'Verde oscuro', value: '#14532d' },
     { name: 'Slate', value: '#475569' },
+  ];
+
+  /**
+   * Colores predefinidos para el texto del footer
+   */
+  readonly footerTextPresetColors = [
+    { name: 'Gris claro (predeterminado)', value: '#94a3b8' },
+    { name: 'Blanco', value: '#ffffff' },
+    { name: 'Gris muy claro', value: '#e2e8f0' },
+    { name: 'Negro', value: '#000000' },
+    { name: 'Gris oscuro', value: '#475569' },
+    { name: 'Azul claro', value: '#93c5fd' },
+    { name: 'Verde claro', value: '#86efac' },
+    { name: 'Slate oscuro', value: '#334155' },
   ];
 
   async ngOnInit() {
@@ -107,6 +122,7 @@ export class SystemConfigComponent implements OnInit {
       this.logoPreviewUrl.set(config.logoUrl || '');
       this.logoBackgroundColor.set(config.logoBackgroundColor || 'transparent');
       this.footerColor.set(config.footerColor || '#1e293b');
+      this.footerTextColor.set(config.footerTextColor || '#94a3b8');
     } catch (error) {
       console.error('Error cargando configuración:', error);
       this.snackBar.open('Error al cargar la configuración', 'Cerrar', { duration: 3000 });
@@ -143,6 +159,9 @@ export class SystemConfigComponent implements OnInit {
       ],
       footerColor: [
         config?.footerColor || '#1e293b'
+      ],
+      footerTextColor: [
+        config?.footerTextColor || '#94a3b8'
       ]
     });
   }
@@ -249,7 +268,9 @@ export class SystemConfigComponent implements OnInit {
         appDescription: formValue.appDescription?.trim() || '',
         adminContactEmail: formValue.adminContactEmail.trim(),
         footerText: formValue.footerText?.trim() || '',
-        logoBackgroundColor: formValue.logoBackgroundColor
+        logoBackgroundColor: formValue.logoBackgroundColor,
+        footerColor: formValue.footerColor,
+        footerTextColor: formValue.footerTextColor
       }, currentUserUid);
 
       if (result.success) {

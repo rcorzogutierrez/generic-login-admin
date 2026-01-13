@@ -93,6 +93,78 @@ export class ClientsListComponent implements OnInit {
   // Filtros activos por campos personalizados
   customFieldFilters = signal<Record<string, any>>({});
 
+  // Estado de dropdowns de filtros
+  openFilterDropdown = signal<string | null>(null);
+  filterSearchTerms = signal<Record<string, string>>({});
+
+  // Valores únicos por campo filtrable
+  uniqueValuesByField = computed(() => {
+    const clients = this.clients();
+    const filterableFieldsList = this.filterableFields();
+    const result: Record<string, Array<{ value: any; label: string; count: number }>> = {};
+
+    for (const field of filterableFieldsList) {
+      const valuesMap = new Map<any, number>();
+
+      for (const client of clients) {
+        const value = this.getFieldValue(client, field.name);
+
+        if (value !== null && value !== undefined && value !== '') {
+          // Para campos array (multiselect), procesar cada valor
+          if (Array.isArray(value)) {
+            for (const v of value) {
+              valuesMap.set(v, (valuesMap.get(v) || 0) + 1);
+            }
+          } else {
+            valuesMap.set(value, (valuesMap.get(value) || 0) + 1);
+          }
+        }
+      }
+
+      // Convertir a array y agregar labels
+      const uniqueValues = Array.from(valuesMap.entries()).map(([value, count]) => {
+        // Para select/dictionary, obtener el label de las opciones
+        let label = String(value);
+        if (field.type === 'select' || field.type === 'multiselect' || field.type === 'dictionary') {
+          const option = field.options?.find(opt => opt.value === value);
+          if (option) {
+            label = option.label;
+          }
+        }
+
+        return { value, label, count };
+      });
+
+      // Ordenar por label
+      uniqueValues.sort((a, b) => a.label.localeCompare(b.label));
+
+      result[field.name] = uniqueValues;
+    }
+
+    return result;
+  });
+
+  // Opciones filtradas por búsqueda interna
+  filteredOptions = computed(() => {
+    const uniqueValues = this.uniqueValuesByField();
+    const searchTerms = this.filterSearchTerms();
+    const result: Record<string, Array<{ value: any; label: string; count: number }>> = {};
+
+    for (const [fieldName, values] of Object.entries(uniqueValues)) {
+      const searchTerm = (searchTerms[fieldName] || '').toLowerCase();
+
+      if (!searchTerm) {
+        result[fieldName] = values;
+      } else {
+        result[fieldName] = values.filter(item =>
+          item.label.toLowerCase().includes(searchTerm)
+        );
+      }
+    }
+
+    return result;
+  });
+
   // Generic config for delete dialogs
   genericConfig = computed(() => {
     const clientConfig = this.config();
@@ -424,6 +496,79 @@ export class ClientsListComponent implements OnInit {
   activeFiltersCount = computed(() => {
     return Object.keys(this.customFieldFilters()).length;
   });
+
+  /**
+   * Abrir/cerrar dropdown de filtro
+   */
+  toggleFilterDropdown(fieldName: string, event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+
+    const currentOpen = this.openFilterDropdown();
+    if (currentOpen === fieldName) {
+      this.openFilterDropdown.set(null);
+    } else {
+      this.openFilterDropdown.set(fieldName);
+      // Limpiar búsqueda interna al abrir
+      const searchTerms = { ...this.filterSearchTerms() };
+      searchTerms[fieldName] = '';
+      this.filterSearchTerms.set(searchTerms);
+    }
+  }
+
+  /**
+   * Cerrar dropdown de filtro
+   */
+  closeFilterDropdown() {
+    this.openFilterDropdown.set(null);
+  }
+
+  /**
+   * Verificar si dropdown está abierto
+   */
+  isFilterDropdownOpen(fieldName: string): boolean {
+    return this.openFilterDropdown() === fieldName;
+  }
+
+  /**
+   * Actualizar término de búsqueda interna del filtro
+   */
+  onFilterSearchChange(fieldName: string, searchTerm: string) {
+    const searchTerms = { ...this.filterSearchTerms() };
+    searchTerms[fieldName] = searchTerm;
+    this.filterSearchTerms.set(searchTerms);
+  }
+
+  /**
+   * Seleccionar valor de filtro desde dropdown
+   */
+  selectFilterValue(fieldName: string, value: any, event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+
+    this.onCustomFieldFilterChange(fieldName, value);
+    this.closeFilterDropdown();
+  }
+
+  /**
+   * Obtener label del valor seleccionado
+   */
+  getSelectedFilterLabel(fieldName: string): string {
+    const filterValue = this.customFieldFilters()[fieldName];
+    if (!filterValue || filterValue === 'all') {
+      return 'Todos';
+    }
+
+    const uniqueValues = this.uniqueValuesByField()[fieldName];
+    if (!uniqueValues) {
+      return String(filterValue);
+    }
+
+    const option = uniqueValues.find(opt => opt.value === filterValue);
+    return option ? option.label : String(filterValue);
+  }
 
   /**
    * Ordenar por campo

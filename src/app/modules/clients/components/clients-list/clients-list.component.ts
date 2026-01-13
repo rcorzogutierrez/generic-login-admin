@@ -92,7 +92,6 @@ export class ClientsListComponent implements OnInit {
 
   // Filtros activos por campos personalizados
   customFieldFilters = signal<Record<string, any>>({});
-  statusFilter = signal<string>('all'); // 'all', 'active', 'inactive', 'potential'
 
   // Generic config for delete dialogs
   genericConfig = computed(() => {
@@ -124,20 +123,9 @@ export class ClientsListComponent implements OnInit {
     let clients = this.clients();
     const search = this.searchTerm().toLowerCase();
     const fields = this.visibleGridFields();
-    const statusFilterValue = this.statusFilter();
     const customFilters = this.customFieldFilters();
 
-    // 1. Filtrar por status
-    if (statusFilterValue !== 'all') {
-      clients = clients.filter(client => {
-        if (statusFilterValue === 'active') return client.isActive === true;
-        if (statusFilterValue === 'inactive') return client.isActive === false;
-        if (statusFilterValue === 'potential') return client.status === 'potential';
-        return true;
-      });
-    }
-
-    // 2. Filtrar por campos personalizados (filterable: true)
+    // 1. Filtrar por campos personalizados (filterable: true)
     if (Object.keys(customFilters).length > 0) {
       clients = clients.filter(client => {
         for (const [fieldName, filterValue] of Object.entries(customFilters)) {
@@ -163,7 +151,7 @@ export class ClientsListComponent implements OnInit {
       });
     }
 
-    // 3. Filtrar por búsqueda global
+    // 2. Filtrar por búsqueda global
     if (search) {
       clients = clients.filter(client => {
         // Buscar en todos los campos visibles en el grid
@@ -374,9 +362,6 @@ export class ClientsListComponent implements OnInit {
     if (stored) {
       try {
         const filters = JSON.parse(stored);
-        if (filters.statusFilter) {
-          this.statusFilter.set(filters.statusFilter);
-        }
         if (filters.customFieldFilters) {
           this.customFieldFilters.set(filters.customFieldFilters);
         }
@@ -392,19 +377,9 @@ export class ClientsListComponent implements OnInit {
   private saveFilterPreferences() {
     const storageKey = 'clients-filters';
     const filters = {
-      statusFilter: this.statusFilter(),
       customFieldFilters: this.customFieldFilters()
     };
     localStorage.setItem(storageKey, JSON.stringify(filters));
-  }
-
-  /**
-   * Cambiar filtro de status
-   */
-  onStatusFilterChange(status: string) {
-    this.statusFilter.set(status);
-    this.currentPage.set(0);
-    this.saveFilterPreferences();
   }
 
   /**
@@ -430,7 +405,6 @@ export class ClientsListComponent implements OnInit {
    * Limpiar todos los filtros
    */
   clearAllFilters() {
-    this.statusFilter.set('all');
     this.customFieldFilters.set({});
     this.currentPage.set(0);
     this.saveFilterPreferences();
@@ -441,18 +415,14 @@ export class ClientsListComponent implements OnInit {
    * Verificar si hay filtros activos
    */
   hasActiveFilters(): boolean {
-    return this.statusFilter() !== 'all' ||
-           Object.keys(this.customFieldFilters()).length > 0;
+    return Object.keys(this.customFieldFilters()).length > 0;
   }
 
   /**
    * Contar filtros activos
    */
   activeFiltersCount = computed(() => {
-    let count = 0;
-    if (this.statusFilter() !== 'all') count++;
-    count += Object.keys(this.customFieldFilters()).length;
-    return count;
+    return Object.keys(this.customFieldFilters()).length;
   });
 
   /**

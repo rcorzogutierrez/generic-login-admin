@@ -131,8 +131,8 @@
   <section class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm">
     <div class="flex flex-wrap items-center gap-4">
 
-      <!-- Search Box (50%) -->
-      <div class="flex-1 min-w-[300px] relative">
+      <!-- Search Box -->
+      <div class="min-w-[300px] flex-1 relative">
         <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl">search</mat-icon>
         <input
           type="text"
@@ -142,81 +142,79 @@
           (ngModelChange)="onSearch($event)">
       </div>
 
-      <!-- Filtros dinámicos (50%) -->
-      <div class="flex-1 min-w-[300px] flex items-center gap-3 flex-wrap">
-        @if (filterableFields().length > 0) {
-          @for (field of filterableFields(); track field.id) {
-            <!-- SELECT / MULTISELECT / DICTIONARY -->
-            @if (field.type === 'select' || field.type === 'multiselect' || field.type === 'dictionary') {
-              <div class="relative min-w-[180px]">
-                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl z-10">filter_list</mat-icon>
-                <select
-                  [value]="customFieldFilters()[field.name] || 'all'"
-                  (change)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
-                  class="w-full h-10 pl-10 pr-8 border border-slate-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all appearance-none bg-white cursor-pointer">
-                  <option value="all">{{ field.label }}: Todos</option>
-                  @for (option of field.options; track option.value) {
-                    <option [value]="option.value">{{ option.label }}</option>
-                  }
-                </select>
-              </div>
-            }
-
-            <!-- TEXT, EMAIL, PHONE, URL -->
-            @else if (field.type === 'text' || field.type === 'email' || field.type === 'phone' || field.type === 'url') {
-              <div class="relative min-w-[180px]">
-                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl">filter_alt</mat-icon>
-                <input
-                  type="text"
-                  [value]="customFieldFilters()[field.name] || ''"
-                  (input)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
-                  [placeholder]="field.label"
-                  class="w-full h-10 pl-10 pr-4 border border-slate-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all">
-              </div>
-            }
-
-            <!-- NUMBER, CURRENCY -->
-            @else if (field.type === 'number' || field.type === 'currency') {
-              <div class="relative min-w-[180px]">
-                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl">tag</mat-icon>
-                <input
-                  type="number"
-                  [value]="customFieldFilters()[field.name] || ''"
-                  (input)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
-                  [placeholder]="field.label"
-                  class="w-full h-10 pl-10 pr-4 border border-slate-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all">
-              </div>
-            }
-
-            <!-- CHECKBOX -->
-            @else if (field.type === 'checkbox') {
-              <div class="relative min-w-[180px]">
-                <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl z-10">check_box</mat-icon>
-                <select
-                  [value]="customFieldFilters()[field.name] || 'all'"
-                  (change)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
-                  class="w-full h-10 pl-10 pr-8 border border-slate-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all appearance-none bg-white cursor-pointer">
-                  <option value="all">{{ field.label }}: Todos</option>
-                  <option value="true">Sí</option>
-                  <option value="false">No</option>
-                </select>
-              </div>
-            }
+      <!-- Filtros dinámicos -->
+      @if (filterableFields().length > 0) {
+        @for (field of filterableFields(); track field.id) {
+          <!-- SELECT / MULTISELECT / DICTIONARY -->
+          @if (field.type === 'select' || field.type === 'multiselect' || field.type === 'dictionary') {
+            <div class="relative min-w-[180px]">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl z-10">filter_list</mat-icon>
+              <select
+                [value]="customFieldFilters()[field.name] || 'all'"
+                (change)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
+                class="w-full h-10 pl-10 pr-8 border border-slate-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all appearance-none bg-white cursor-pointer">
+                <option value="all">{{ field.label }}: Todos</option>
+                @for (option of field.options; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+            </div>
           }
 
-          <!-- Clear button -->
-          @if (hasActiveFilters()) {
-            <button
-              type="button"
-              (click)="clearAllFilters()"
-              class="h-10 px-3 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-2 border border-slate-200"
-              title="Limpiar filtros">
-              <mat-icon class="!text-lg">clear</mat-icon>
-              <span>{{ activeFiltersCount() }}</span>
-            </button>
+          <!-- TEXT, EMAIL, PHONE, URL -->
+          @else if (field.type === 'text' || field.type === 'email' || field.type === 'phone' || field.type === 'url') {
+            <div class="relative min-w-[180px]">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl">filter_alt</mat-icon>
+              <input
+                type="text"
+                [value]="customFieldFilters()[field.name] || ''"
+                (input)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
+                [placeholder]="field.label"
+                class="w-full h-10 pl-10 pr-4 border border-slate-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all">
+            </div>
+          }
+
+          <!-- NUMBER, CURRENCY -->
+          @else if (field.type === 'number' || field.type === 'currency') {
+            <div class="relative min-w-[180px]">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl">tag</mat-icon>
+              <input
+                type="number"
+                [value]="customFieldFilters()[field.name] || ''"
+                (input)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
+                [placeholder]="field.label"
+                class="w-full h-10 pl-10 pr-4 border border-slate-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all">
+            </div>
+          }
+
+          <!-- CHECKBOX -->
+          @else if (field.type === 'checkbox') {
+            <div class="relative min-w-[180px]">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl z-10">check_box</mat-icon>
+              <select
+                [value]="customFieldFilters()[field.name] || 'all'"
+                (change)="onCustomFieldFilterChange(field.name, $any($event.target).value)"
+                class="w-full h-10 pl-10 pr-8 border border-slate-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all appearance-none bg-white cursor-pointer">
+                <option value="all">{{ field.label }}: Todos</option>
+                <option value="true">Sí</option>
+                <option value="false">No</option>
+              </select>
+            </div>
           }
         }
-      </div>
+
+        <!-- Clear button -->
+        @if (hasActiveFilters()) {
+          <button
+            type="button"
+            (click)="clearAllFilters()"
+            class="h-10 px-3 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-2 border border-slate-200"
+            title="Limpiar filtros">
+            <mat-icon class="!text-lg">clear</mat-icon>
+            <span>{{ activeFiltersCount() }}</span>
+          </button>
+        }
+      }
 
     </div>
   </section>

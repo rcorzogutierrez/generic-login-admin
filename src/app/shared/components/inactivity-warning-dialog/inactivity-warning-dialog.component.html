@@ -1,0 +1,50 @@
+<!-- inactivity-warning-dialog.component.html -->
+<div class="dialog-container">
+  <!-- Header -->
+  <div class="dialog-header">
+    <div class="icon-warning">
+      <mat-icon>schedule</mat-icon>
+    </div>
+    <h2 class="dialog-title">Sesión por inactividad</h2>
+  </div>
+
+  <!-- Content -->
+  <div class="dialog-content">
+    <p class="warning-text">
+      Has estado inactivo por un tiempo prolongado.
+    </p>
+    <p class="info-text">
+      Por seguridad, tu sesión se cerrará automáticamente en:
+    </p>
+
+    <!-- Countdown -->
+    <div class="countdown-container">
+      <div class="countdown-circle">
+        <mat-icon class="countdown-icon">timer</mat-icon>
+        <span class="countdown-time">{{ formatTime(secondsRemaining()) }}</span>
+      </div>
+    </div>
+
+    <p class="action-text">
+      ¿Deseas continuar con tu sesión?
+    </p>
+  </div>
+
+  <!-- Actions -->
+  <div class="dialog-actions">
+    <button
+      mat-stroked-button
+      class="btn-logout"
+      (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      Cerrar sesión
+    </button>
+    <button
+      mat-raised-button
+      class="btn-continue"
+      (click)="continueSession()">
+      <mat-icon>check_circle</mat-icon>
+      Continuar sesión
+    </button>
+  </div>
+</div>

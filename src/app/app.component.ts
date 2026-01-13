@@ -1,9 +1,11 @@
 // src/app/app.component.ts
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, effect } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { BusinessInfoService } from './admin/services/business-info.service';
 import { AppConfigService } from './core/services/app-config.service';
+import { InactivityService } from './core/services/inactivity.service';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +22,23 @@ import { AppConfigService } from './core/services/app-config.service';
 export class AppComponent implements OnInit {
   private appConfigService = inject(AppConfigService);
   private businessInfoService = inject(BusinessInfoService);
+  private inactivityService = inject(InactivityService);
+  private authService = inject(AuthService);
+
+  constructor() {
+    // Monitorear estado de autenticación para controlar inactividad
+    effect(() => {
+      const isAuthenticated = this.authService.isAuthenticated();
+
+      if (isAuthenticated) {
+        // Usuario autenticado: iniciar monitoreo de inactividad
+        this.inactivityService.startMonitoring();
+      } else {
+        // Usuario no autenticado: detener monitoreo
+        this.inactivityService.stopMonitoring();
+      }
+    });
+  }
 
   /**
    * Carga la configuración inicial al iniciar la aplicación

@@ -228,59 +228,7 @@
    SEARCH BOX
    ============================================ */
 
-.search-box {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.search-icon {
-  color: #94a3b8;
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-}
-
-.search-input {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 14px;
-  color: #1e293b;
-  background: transparent;
-}
-
-.search-input::placeholder {
-  color: #94a3b8;
-}
-
-.clear-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: #f1f5f9;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.clear-btn:hover {
-  background: #e2e8f0;
-}
-
-.clear-btn mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
-  color: #64748b;
-}
+/* Búsqueda y filtros: estilos manejados por Tailwind directamente */
 
 /* ============================================
    BULK ACTIONS BAR
@@ -530,79 +478,6 @@
   text-align: center;
 }
 
-/* ============================================
-   FILTERS INLINE
-   ============================================ */
-
-.filter-group-inline {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 140px;
-}
-
-.filter-label-inline {
-  font-size: 10px;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  padding-left: 2px;
-}
-
-.filter-select-inline {
-  padding: 5px 8px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #334155;
-  background: white;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  outline: none;
-}
-
-.filter-select-inline:hover {
-  border-color: #94a3b8;
-  background: #f8fafc;
-}
-
-.filter-select-inline:focus {
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
-  background: white;
-}
-
-.filter-input-inline {
-  padding: 5px 8px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #334155;
-  background: white;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  outline: none;
-  width: 100%;
-}
-
-.filter-input-inline:hover {
-  border-color: #94a3b8;
-  background: #f8fafc;
-}
-
-.filter-input-inline:focus {
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
-  background: white;
-}
-
-.filter-input-inline::placeholder {
-  color: #94a3b8;
-  font-weight: 400;
-  font-size: 11px;
-}
 
 /* ============================================
    RESPONSIVE

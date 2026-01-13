@@ -249,6 +249,53 @@ export class ClientsListComponent implements OnInit {
       });
     }
 
+    // 3. Ordenar (sortable: true)
+    const sort = this.currentSort();
+    if (sort.field) {
+      const allFields = this.gridFields();
+      const sortField = allFields.find(f => f.name === sort.field);
+
+      clients = [...clients].sort((a, b) => {
+        let aValue = this.getFieldValue(a, sort.field);
+        let bValue = this.getFieldValue(b, sort.field);
+
+        // Manejar valores null/undefined
+        if (aValue === null || aValue === undefined) aValue = '';
+        if (bValue === null || bValue === undefined) bValue = '';
+
+        // Ordenar según tipo de campo
+        let comparison = 0;
+
+        if (sortField) {
+          if (sortField.type === 'number' || sortField.type === 'currency') {
+            // Números: comparación numérica
+            comparison = Number(aValue) - Number(bValue);
+          } else if (sortField.type === 'date') {
+            // Fechas: comparación de timestamps
+            const aDate = aValue instanceof Date ? aValue.getTime() : new Date(aValue).getTime();
+            const bDate = bValue instanceof Date ? bValue.getTime() : new Date(bValue).getTime();
+            comparison = aDate - bDate;
+          } else if (sortField.type === 'checkbox') {
+            // Booleanos: true > false
+            comparison = (aValue === true ? 1 : 0) - (bValue === true ? 1 : 0);
+          } else {
+            // Texto: comparación alfabética (case-insensitive)
+            const aStr = String(aValue).toLowerCase();
+            const bStr = String(bValue).toLowerCase();
+            comparison = aStr.localeCompare(bStr);
+          }
+        } else {
+          // Campo por defecto (name, email, etc): comparación alfabética
+          const aStr = String(aValue).toLowerCase();
+          const bStr = String(bValue).toLowerCase();
+          comparison = aStr.localeCompare(bStr);
+        }
+
+        // Aplicar dirección (asc/desc)
+        return sort.direction === 'asc' ? comparison : -comparison;
+      });
+    }
+
     return clients;
   });
 
@@ -586,15 +633,8 @@ export class ClientsListComponent implements OnInit {
       this.currentSort.set({ field, direction: 'asc' });
     }
 
-    this.applySort();
-  }
-
-  /**
-   * Aplicar ordenamiento
-   */
-  private applySort() {
-    const sort = this.currentSort();
-    this.clientsService.loadClients(this.currentFilter(), sort);
+    // El computed filteredClients se recalculará automáticamente
+    // No es necesario llamar al servicio, el ordenamiento es local
   }
 
   /**

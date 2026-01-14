@@ -85,6 +85,9 @@ export class GenericDataTableComponent<T> implements AfterContentInit {
   /** Campo que se usa como ID (por defecto 'id') */
   @Input() idField: keyof T = 'id' as keyof T;
 
+  /** Clave del objeto donde se almacenan campos personalizados (por defecto 'customFields') */
+  @Input() customFieldsKey: string = 'customFields';
+
   // ========================================
   // OUTPUTS
   // ========================================
@@ -315,6 +318,7 @@ export class GenericDataTableComponent<T> implements AfterContentInit {
 
   /**
    * Obtiene el valor de una celda
+   * Soporta campos directos, anidados (user.name) y customFields
    */
   getCellValue(row: T, column: TableColumn<T>): any {
     if (!column.field) return '';
@@ -326,7 +330,18 @@ export class GenericDataTableComponent<T> implements AfterContentInit {
       return this.getNestedValue(row, field);
     }
 
-    return row[field as keyof T];
+    // Primero intentar obtener el campo directamente
+    if (field in row) {
+      return row[field as keyof T];
+    }
+
+    // Si no existe, buscar en customFields (patrón común para campos dinámicos)
+    const rowAsAny = row as any;
+    if (rowAsAny[this.customFieldsKey] && field in rowAsAny[this.customFieldsKey]) {
+      return rowAsAny[this.customFieldsKey][field];
+    }
+
+    return undefined;
   }
 
   /**

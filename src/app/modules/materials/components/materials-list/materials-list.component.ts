@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, signal, computed, ViewChild, TemplateRef, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -39,7 +39,7 @@ import { filterData, paginateData } from '../../../../shared/utils';
   templateUrl: './materials-list.component.html',
   styleUrl: './materials-list.component.css'
 })
-export class MaterialsListComponent implements OnInit {
+export class MaterialsListComponent implements OnInit, AfterViewInit {
   @ViewChild('statusColumn') statusColumnTemplate!: TemplateRef<any>;
   @ViewChild('actionsColumn') actionsColumnTemplate!: TemplateRef<any>;
 
@@ -58,20 +58,18 @@ export class MaterialsListComponent implements OnInit {
   config = this.configService.config;
   gridFields = computed(() => this.configService.getGridFields());
 
-  // Configuración de la tabla
-  tableConfig = computed<TableConfig<Material>>(() => ({
-    columns: this.buildTableColumns(),
+  // Configuración de la tabla (se inicializa en ngAfterViewInit cuando los templates estén disponibles)
+  tableConfig = signal<TableConfig<Material>>({
+    columns: [],
     selectable: 'multiple',
     showSelectAll: true,
     clickableRows: false,
     hoverEffect: true,
     themeColor: 'green',
-    emptyMessage: this.searchTerm() && this.searchTerm().length >= 2
-      ? 'No se encontraron materiales con esos criterios'
-      : 'Comienza agregando tu primer material',
+    emptyMessage: 'Comienza agregando tu primer material',
     emptyIcon: 'inventory_2',
     loadingMessage: 'Cargando materiales...'
-  }));
+  });
 
   // Materials filtrados
   filteredMaterials = computed(() => {
@@ -114,7 +112,8 @@ export class MaterialsListComponent implements OnInit {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   async ngOnInit() {
@@ -131,6 +130,32 @@ export class MaterialsListComponent implements OnInit {
     }
 
     this.isLoading.set(false);
+  }
+
+  ngAfterViewInit() {
+    // Actualizar tableConfig una vez que los templates estén disponibles
+    this.updateTableConfig();
+    // Forzar detección de cambios para que se rendericen los templates
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Actualiza la configuración de la tabla (debe llamarse después de que los templates estén disponibles)
+   */
+  private updateTableConfig() {
+    this.tableConfig.set({
+      columns: this.buildTableColumns(),
+      selectable: 'multiple',
+      showSelectAll: true,
+      clickableRows: false,
+      hoverEffect: true,
+      themeColor: 'green',
+      emptyMessage: this.searchTerm() && this.searchTerm().length >= 2
+        ? 'No se encontraron materiales con esos criterios'
+        : 'Comienza agregando tu primer material',
+      emptyIcon: 'inventory_2',
+      loadingMessage: 'Cargando materiales...'
+    });
   }
 
   /**
@@ -179,6 +204,15 @@ export class MaterialsListComponent implements OnInit {
   onSearch(term: string) {
     this.searchTerm.set(term);
     this.currentPage.set(0);
+
+    // Actualizar el mensaje de empty state según la búsqueda
+    const currentConfig = this.tableConfig();
+    this.tableConfig.set({
+      ...currentConfig,
+      emptyMessage: term && term.length >= 2
+        ? 'No se encontraron materiales con esos criterios'
+        : 'Comienza agregando tu primer material'
+    });
   }
 
   /**

@@ -132,15 +132,11 @@
     <div class="flex flex-wrap items-center gap-4">
 
       <!-- Search Box -->
-      <div class="min-w-[300px] flex-1 relative">
-        <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl">search</mat-icon>
-        <input
-          type="text"
-          class="w-full h-10 pl-10 pr-4 border border-slate-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all"
-          placeholder="Buscar clientes..."
-          [(ngModel)]="searchTerm"
-          (ngModelChange)="onSearch($event)">
-      </div>
+      <app-search-bar
+        [themeColor]="'purple'"
+        [placeholder]="'Buscar clientes...'"
+        (searchChange)="onSearch($event)">
+      </app-search-bar>
 
       <!-- Filtros dinámicos -->
       @if (filterableFields().length > 0) {
@@ -298,141 +294,63 @@
         <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600"></div>
         <p class="mt-3 text-sm text-slate-600">Cargando clientes...</p>
       </div>
-    } @else if (filteredClients().length === 0) {
-      <!-- Empty State -->
-      <div class="flex flex-col items-center justify-center py-16 px-6">
-        <!-- Icon -->
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center mb-4">
-          <svg class="w-7 h-7 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-          </svg>
-        </div>
-
-        <!-- Text -->
-        <h3 class="text-base font-semibold text-slate-800 mb-2">No hay clientes</h3>
-        <p class="text-sm text-slate-500 mb-6 text-center max-w-sm">
-          {{ searchTerm() ? 'No se encontraron resultados para tu búsqueda' : 'Comienza agregando tu primer cliente' }}
-        </p>
-
-        <!-- Button -->
-        @if (!searchTerm()) {
-          <button
-            type="button"
-            (click)="createClient()"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white text-sm font-semibold rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Crear Primer Cliente
-          </button>
-        }
-      </div>
     } @else {
-      <!-- Tabla -->
-      <div class="overflow-x-auto">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <!-- Checkbox -->
-              <th class="w-12">
-                <input type="checkbox"
-                       class="checkbox"
-                       [checked]="isAllSelected()"
-                       [indeterminate]="isIndeterminate()"
-                       (change)="toggleSelectAll()">
-              </th>
+      <!-- GenericDataTable -->
+      <app-data-table
+        [data]="paginatedClients()"
+        [config]="tableConfig()"
+        [selectedIds]="selectedClients()"
+        [sortState]="currentSort()"
+        [customFieldsKey]="'customFields'"
+        (sortChange)="sortBy($event.field)"
+        (selectionChange)="onSelectionChange($event)"
+        (rowClick)="viewClient($event)">
 
-              <!-- Columnas Dinámicas -->
-              @for (field of visibleGridFields(); track field.id) {
-                <th [style.width]="field.gridConfig.gridWidth || 'auto'"
-                    [class.sortable]="field.gridConfig.sortable"
-                    (click)="field.gridConfig.sortable ? sortBy(field.name) : null">
-                  <div class="th-content">
-                    <span>{{ field.label }}</span>
-                    @if (field.gridConfig.sortable && currentSort().field === field.name) {
-                      <mat-icon class="sort-icon">
-                        {{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
-                      </mat-icon>
-                    }
-                  </div>
-                </th>
-              }
+        <!-- Template para columna de estado -->
+        <ng-template #statusColumn let-row>
+          @if (row.isActive) {
+            <span class="status-badge active">
+              <mat-icon>check_circle</mat-icon>
+              Activo
+            </span>
+          } @else {
+            <span class="status-badge inactive">
+              <mat-icon>cancel</mat-icon>
+              Inactivo
+            </span>
+          }
+        </ng-template>
 
-              <!-- Estado -->
-              <th class="w-28">Estado</th>
+        <!-- Template para columna de acciones -->
+        <ng-template #actionsColumn let-row>
+          <button type="button"
+                  class="action-menu-btn"
+                  [matMenuTriggerFor]="actionsMenu"
+                  (click)="$event.stopPropagation()">
+            <mat-icon>more_vert</mat-icon>
+          </button>
 
-              <!-- Acciones -->
-              <th class="w-20 text-right">Acciones</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            @for (client of paginatedClients(); track client.id; let i = $index) {
-              <tr [class.selected]="isSelected(client.id)"
-                  [style.animation-delay]="(i * 0.03) + 's'"
-                  (click)="viewClient(client)">
-
-                <!-- Checkbox -->
-                <td (click)="$event.stopPropagation()">
-                  <input type="checkbox"
-                         class="checkbox"
-                         [checked]="isSelected(client.id)"
-                         (change)="toggleClientSelection(client.id)">
-                </td>
-
-                <!-- Columnas Dinámicas -->
-                @for (field of visibleGridFields(); track field.id) {
-                  <td>{{ formatFieldValue(getFieldValue(client, field.name), field) }}</td>
-                }
-
-                <!-- Estado -->
-                <td>
-                  @if (client.isActive) {
-                    <span class="status-badge active">
-                      <mat-icon>check_circle</mat-icon>
-                      Activo
-                    </span>
-                  } @else {
-                    <span class="status-badge inactive">
-                      <mat-icon>cancel</mat-icon>
-                      Inactivo
-                    </span>
-                  }
-                </td>
-
-                <!-- Acciones -->
-                <td class="text-right" (click)="$event.stopPropagation()">
-                  <button type="button"
-                          class="action-menu-btn"
-                          [matMenuTriggerFor]="menu">
-                    <mat-icon>more_vert</mat-icon>
-                  </button>
-
-                  <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="viewClient(client)">
-                      <mat-icon>visibility</mat-icon>
-                      <span>Ver detalles</span>
-                    </button>
-                    <button mat-menu-item (click)="editClient(client)">
-                      <mat-icon>edit</mat-icon>
-                      <span>Editar</span>
-                    </button>
-                    <button mat-menu-item (click)="toggleClientStatus(client)">
-                      <mat-icon>{{ client.isActive ? 'block' : 'check_circle' }}</mat-icon>
-                      <span>{{ client.isActive ? 'Desactivar' : 'Activar' }}</span>
-                    </button>
-                    <mat-divider></mat-divider>
-                    <button mat-menu-item (click)="deleteClient(client)" class="text-red-600">
-                      <mat-icon class="text-red-600">delete</mat-icon>
-                      <span>Eliminar</span>
-                    </button>
-                  </mat-menu>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+          <mat-menu #actionsMenu="matMenu">
+            <button mat-menu-item (click)="viewClient(row)">
+              <mat-icon>visibility</mat-icon>
+              <span>Ver detalles</span>
+            </button>
+            <button mat-menu-item (click)="editClient(row)">
+              <mat-icon>edit</mat-icon>
+              <span>Editar</span>
+            </button>
+            <button mat-menu-item (click)="toggleClientStatus(row)">
+              <mat-icon>{{ row.isActive ? 'block' : 'check_circle' }}</mat-icon>
+              <span>{{ row.isActive ? 'Desactivar' : 'Activar' }}</span>
+            </button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="deleteClient(row)" class="text-red-600">
+              <mat-icon class="text-red-600">delete</mat-icon>
+              <span>Eliminar</span>
+            </button>
+          </mat-menu>
+        </ng-template>
+      </app-data-table>
 
       <!-- ============================================
            PAGINACIÓN

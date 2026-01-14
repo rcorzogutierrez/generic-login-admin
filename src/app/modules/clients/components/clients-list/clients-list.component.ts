@@ -1,9 +1,8 @@
 // src/app/modules/clients/components/clients-list/clients-list.component.ts
 
-import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject, signal, computed, effect, ViewChild, TemplateRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 
 // Material imports (solo los necesarios)
 import { MatIconModule } from '@angular/material/icon';
@@ -22,33 +21,38 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
 import { GenericDeleteMultipleDialogComponent } from '../../../../shared/components/generic-delete-multiple-dialog/generic-delete-multiple-dialog.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { GenericSearchBarComponent } from '../../../../shared/components/search-bar/search-bar.component';
+import { GenericDataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 
 // Models
 import { Client, ClientFilters, ClientSort } from '../../models';
 import { createGenericConfig } from '../../clients-config';
+import { TableColumn, TableConfig } from '../../../../shared/components/data-table/models';
 
 // Shared utilities
 import { formatFieldValue, getFieldValue } from '../../../../shared/modules/dynamic-form-builder/utils';
+import { filterData, paginateData } from '../../../../shared/utils';
 
 @Component({
   selector: 'app-clients-list',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     MatIconModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatMenuModule,
     MatDividerModule,
     MatDialogModule,
+    GenericSearchBarComponent,
+    GenericDataTableComponent,
     PaginationComponent,
   ],
   templateUrl: './clients-list.component.html',
   styleUrl: './clients-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ClientsListComponent implements OnInit {
+export class ClientsListComponent implements OnInit, AfterViewInit {
   private clientsService = inject(ClientsService);
   private configService = inject(ClientConfigServiceRefactored);
   private authService = inject(AuthService);
@@ -56,6 +60,10 @@ export class ClientsListComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
   private dialog = inject(MatDialog);
+
+  // ViewChild templates for GenericDataTable
+  @ViewChild('statusColumn') statusColumnTemplate!: TemplateRef<any>;
+  @ViewChild('actionsColumn') actionsColumnTemplate!: TemplateRef<any>;
 
   // Signals del servicio
   clients = this.clientsService.clients;
@@ -174,6 +182,17 @@ export class ClientsListComponent implements OnInit {
   // Verificar si el usuario es admin
   isAdmin = computed(() => this.authService.authorizedUser()?.role === 'admin');
 
+  // Template synchronization
+  templatesReady = signal(false);
+  tableConfig = signal<TableConfig<Client>>({
+    columns: [],
+    selectable: 'multiple',
+    showSelectAll: true,
+    sortable: true,
+    themeColor: 'purple',
+    emptyMessage: 'No hay clientes disponibles'
+  });
+
   // Señales locales
   searchTerm = signal<string>('');
   currentFilter = signal<ClientFilters>({});
@@ -189,6 +208,9 @@ export class ClientsListComponent implements OnInit {
 
   // Math para templates
   Math = Math;
+
+  // Expose Object for template use
+  Object = Object;
 
   // Clientes filtrados y paginados
   filteredClients = computed(() => {
@@ -315,12 +337,24 @@ export class ClientsListComponent implements OnInit {
     return Math.ceil(total / perPage);
   });
 
-  constructor() {}
+  constructor() {
+    // Effect for template synchronization
+    effect(() => {
+      if (this.templatesReady() && this.visibleGridFields().length > 0) {
+        this.updateTableConfig();
+      }
+    });
+  }
 
   async ngOnInit() {
     await this.loadData();
     this.loadColumnPreferences();
     this.loadFilterPreferences();
+  }
+
+  ngAfterViewInit() {
+    this.templatesReady.set(true);
+    this.cdr.detectChanges();
   }
 
   /**
@@ -833,6 +867,64 @@ export class ClientsListComponent implements OnInit {
   // Usar funciones compartidas de formateo
   formatFieldValue = formatFieldValue;
   getFieldValue = getFieldValue;
+
+  /**
+   * Construir columnas de la tabla basadas en visibleGridFields
+   */
+  private buildTableColumns(): TableColumn<Client>[] {
+    const columns: TableColumn<Client>[] = [];
+    const fields = this.visibleGridFields();
+
+    // Columnas dinámicas basadas en gridFields visibles
+    for (const field of fields) {
+      columns.push({
+        id: field.id,
+        label: field.label,
+        field: field.name as keyof Client,
+        sortable: field.gridConfig?.sortable === true,
+        valueFormatter: (value, row) => this.formatFieldValue(value, field)
+      });
+    }
+
+    // Columna de estado con template
+    columns.push({
+      id: 'status',
+      cellTemplate: this.statusColumnTemplate,
+      sortable: false
+    });
+
+    // Columna de acciones con template
+    columns.push({
+      id: 'actions',
+      cellTemplate: this.actionsColumnTemplate,
+      sortable: false
+    });
+
+    return columns;
+  }
+
+  /**
+   * Actualizar configuración de la tabla
+   */
+  private updateTableConfig() {
+    this.tableConfig.set({
+      columns: this.buildTableColumns(),
+      selectable: 'multiple',
+      showSelectAll: true,
+      sortable: true,
+      themeColor: 'purple',
+      emptyMessage: this.searchTerm() && this.searchTerm().length >= 2
+        ? 'No se encontraron clientes'
+        : 'Comienza agregando tu primer cliente'
+    });
+  }
+
+  /**
+   * Manejar cambio de selección desde GenericDataTable
+   */
+  onSelectionChange(selectedIds: string[]) {
+    this.selectedClients.set(selectedIds);
+  }
 
   /**
    * Navegar a configuración

@@ -1,4 +1,4 @@
-<!-- materials-list.component.html - DISEÑO COMPACTO -->
+<!-- materials-list.component.html - MIGRADO A COMPONENTES COMPARTIDOS -->
 
 <div class="materials-container">
 
@@ -34,7 +34,7 @@
         <button type="button"
                 class="icon-btn"
                 (click)="refreshData()"
-                [disabled]="isLoading"
+                [disabled]="isLoading()"
                 title="Actualizar">
           <mat-icon>refresh</mat-icon>
         </button>
@@ -49,7 +49,7 @@
         <button type="button"
                 class="btn-primary"
                 (click)="createMaterial()"
-                [disabled]="isLoading">
+                [disabled]="isLoading()">
           <mat-icon>add</mat-icon>
           <span>Nuevo Material</span>
         </button>
@@ -58,30 +58,19 @@
     </div>
   </header>
 
-  <!-- ========== BÚSQUEDA ========== -->
-  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 mb-4 animate-fadeIn" style="animation-delay: 0.1s">
-    <div class="flex items-center gap-3">
-      <mat-icon class="text-slate-400 text-lg">search</mat-icon>
-      <input
-        type="text"
-        placeholder="Buscar por nombre, código o descripción..."
-        [ngModel]="searchTerm()"
-        (ngModelChange)="onSearch($event)"
-        class="search-input">
-
-      @if (searchTerm()) {
-        <button type="button"
-                class="icon-btn-sm"
-                (click)="onSearch('')"
-                title="Limpiar búsqueda">
-          <mat-icon>close</mat-icon>
-        </button>
-      }
-    </div>
+  <!-- ========== BÚSQUEDA (COMPONENTE COMPARTIDO) ========== -->
+  <div class="mb-4 animate-fadeIn" style="animation-delay: 0.1s">
+    <app-search-bar
+      placeholder="Buscar por nombre, código o descripción..."
+      [themeColor]="'green'"
+      [debounceTime]="300"
+      [loading]="isLoading()"
+      (searchChange)="onSearch($event)">
+    </app-search-bar>
   </div>
 
   <!-- ========== BARRA DE ACCIONES MASIVAS ========== -->
-  @if (selectedMaterials().length > 0) {
+  @if (selectedIds().size > 0) {
     <div class="bulk-actions-bar animate-fadeIn">
       <div class="flex items-center gap-3">
         <div class="bulk-icon">
@@ -89,7 +78,7 @@
         </div>
         <div>
           <p class="text-sm font-bold text-blue-900">
-            {{ selectedMaterials().length }} material(es) seleccionado(s)
+            {{ selectedIds().size }} material(es) seleccionado(s)
           </p>
           <p class="text-xs text-blue-700">
             Acciones disponibles para los elementos seleccionados
@@ -115,152 +104,80 @@
     </div>
   }
 
-  <!-- ========== TABLA DE MATERIALES ========== -->
-  <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-fadeIn" style="animation-delay: 0.2s">
+  <!-- ========== TABLA (COMPONENTE COMPARTIDO) ========== -->
+  <div class="animate-fadeIn" style="animation-delay: 0.2s">
+    <app-data-table
+      [data]="paginatedMaterials"
+      [config]="tableConfig()"
+      [loading]="isLoading"
+      [selectedIds]="selectedIds"
+      [idField]="'id'"
+      (selectionChange)="onSelectionChange($event)">
 
-    @if (isLoading) {
-      <!-- Loading State -->
-      <div class="flex flex-col items-center justify-center py-12">
-        <div class="loading-spinner"></div>
-        <p class="text-sm text-slate-500 mt-3">Cargando materiales...</p>
-      </div>
-    } @else if (paginatedMaterials().length === 0) {
-      <!-- Empty State -->
-      <div class="flex flex-col items-center justify-center py-16 px-6">
-        <!-- Icon -->
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-200 to-green-300 flex items-center justify-center mb-4">
-          <svg class="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-          </svg>
-        </div>
-
-        <!-- Text -->
-        <h3 class="text-base font-semibold text-slate-800 mb-2">No hay materiales</h3>
-        <p class="text-sm text-slate-500 mb-6 text-center max-w-sm">
-          {{ searchTerm() ? 'No se encontraron materiales con esos criterios' : 'Comienza agregando tu primer material' }}
-        </p>
-
-        <!-- Button -->
-        @if (!searchTerm()) {
-          <button
-            type="button"
-            (click)="createMaterial()"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white text-sm font-semibold rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Crear Primer Material
-          </button>
+      <!-- Custom template for Estado column -->
+      <ng-template #statusColumn let-row>
+        @if (row.isActive) {
+          <span class="status-badge active">
+            <mat-icon>check_circle</mat-icon>
+            Activo
+          </span>
+        } @else {
+          <span class="status-badge inactive">
+            <mat-icon>cancel</mat-icon>
+            Inactivo
+          </span>
         }
-      </div>
-    } @else {
-      <!-- Tabla -->
-      <div class="overflow-x-auto">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th class="w-12">
-                <input
-                  type="checkbox"
-                  [checked]="isAllSelected()"
-                  [indeterminate]="isIndeterminate()"
-                  (change)="toggleSelectAll()"
-                  class="table-checkbox">
-              </th>
+      </ng-template>
 
-              @for (field of gridFields(); track field.id) {
-                <th [style.width]="field.gridConfig.gridWidth || 'auto'">
-                  {{ field.label }}
-                </th>
-              }
+      <!-- Custom template for Acciones column -->
+      <ng-template #actionsColumn let-row>
+        <button type="button"
+                class="icon-btn-sm"
+                [matMenuTriggerFor]="menu"
+                title="Opciones"
+                (click)="$event.stopPropagation()">
+          <mat-icon>more_vert</mat-icon>
+        </button>
 
-              <th class="w-24">Estado</th>
-              <th class="w-16 text-right">Acciones</th>
-            </tr>
-          </thead>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="editMaterial(row)">
+            <mat-icon>edit</mat-icon>
+            <span>Editar</span>
+          </button>
+          @if (row.isActive) {
+            <button mat-menu-item (click)="toggleActive(row)">
+              <mat-icon class="text-orange-600">visibility_off</mat-icon>
+              <span>Inactivar</span>
+            </button>
+          } @else {
+            <button mat-menu-item (click)="toggleActive(row)">
+              <mat-icon class="text-green-600">visibility</mat-icon>
+              <span>Activar</span>
+            </button>
+          }
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="deleteMaterial(row)" class="text-red-600">
+            <mat-icon class="text-red-600">delete</mat-icon>
+            <span>Eliminar</span>
+          </button>
+        </mat-menu>
+      </ng-template>
+    </app-data-table>
 
-          <tbody>
-            @for (material of paginatedMaterials(); track material.id; let i = $index) {
-              <tr [class.selected]="isSelected(material.id)" [style.animation-delay]="(i * 0.03) + 's'">
-                <td (click)="$event.stopPropagation()">
-                  <input
-                    type="checkbox"
-                    [checked]="isSelected(material.id)"
-                    (change)="toggleSelection(material.id)"
-                    class="table-checkbox">
-                </td>
-
-                @for (field of gridFields(); track field.id) {
-                  <td>{{ formatFieldValue(getFieldValue(material, field.name), field) }}</td>
-                }
-
-                <td>
-                  @if (material.isActive) {
-                    <span class="status-badge active">
-                      <mat-icon>check_circle</mat-icon>
-                      Activo
-                    </span>
-                  } @else {
-                    <span class="status-badge inactive">
-                      <mat-icon>cancel</mat-icon>
-                      Inactivo
-                    </span>
-                  }
-                </td>
-
-                <td class="text-right" (click)="$event.stopPropagation()">
-                  <button type="button"
-                          class="icon-btn-sm"
-                          [matMenuTriggerFor]="menu"
-                          title="Opciones">
-                    <mat-icon>more_vert</mat-icon>
-                  </button>
-
-                  <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="editMaterial(material)">
-                      <mat-icon>edit</mat-icon>
-                      <span>Editar</span>
-                    </button>
-                    @if (material.isActive) {
-                      <button mat-menu-item (click)="toggleActive(material)">
-                        <mat-icon class="text-orange-600">visibility_off</mat-icon>
-                        <span>Inactivar</span>
-                      </button>
-                    } @else {
-                      <button mat-menu-item (click)="toggleActive(material)">
-                        <mat-icon class="text-green-600">visibility</mat-icon>
-                        <span>Activar</span>
-                      </button>
-                    }
-                    <mat-divider></mat-divider>
-                    <button mat-menu-item (click)="deleteMaterial(material)" class="text-red-600">
-                      <mat-icon class="text-red-600">delete</mat-icon>
-                      <span>Eliminar</span>
-                    </button>
-                  </mat-menu>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Paginación -->
-      @if (filteredMaterials().length > 0) {
-        <app-pagination
-          [mode]="'client'"
-          [currentPage]="currentPage()"
-          [itemsPerPage]="itemsPerPage()"
-          [totalPages]="totalPages()"
-          [totalItems]="filteredMaterials().length"
-          [pageSizeOptions]="pageSizeOptions"
-          [themeColor]="'green'"
-          (pageChange)="goToPage($event)"
-          (pageSizeChange)="changePageSize($event)">
-        </app-pagination>
-      }
+    <!-- Paginación -->
+    @if (filteredMaterials().length > 0) {
+      <app-pagination
+        [mode]="'client'"
+        [currentPage]="currentPage()"
+        [itemsPerPage]="itemsPerPage()"
+        [totalPages]="totalPages()"
+        [totalItems]="filteredMaterials().length"
+        [pageSizeOptions]="pageSizeOptions"
+        [themeColor]="'green'"
+        (pageChange)="goToPage($event)"
+        (pageSizeChange)="changePageSize($event)">
+      </app-pagination>
     }
-
   </div>
 
 </div>

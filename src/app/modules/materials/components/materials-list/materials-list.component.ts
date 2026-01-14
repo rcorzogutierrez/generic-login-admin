@@ -66,7 +66,7 @@ export class MaterialsListComponent implements OnInit {
     clickableRows: false,
     hoverEffect: true,
     themeColor: 'green',
-    emptyMessage: this.searchTerm()
+    emptyMessage: this.searchTerm() && this.searchTerm().length >= 2
       ? 'No se encontraron materiales con esos criterios'
       : 'Comienza agregando tu primer material',
     emptyIcon: 'inventory_2',

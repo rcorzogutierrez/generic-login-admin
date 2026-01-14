@@ -59,7 +59,7 @@ import { TableColumn, TableConfig, SortState } from './models';
   templateUrl: './data-table.component.html',
   styleUrl: './data-table.component.css'
 })
-export class GenericDataTableComponent<T> implements AfterContentInit {
+export class GenericDataTableComponent<T extends object> implements AfterContentInit {
   // ========================================
   // INPUTS
   // ========================================

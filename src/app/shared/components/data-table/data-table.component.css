@@ -1,0 +1,314 @@
+/* src/app/shared/components/data-table/data-table.component.css */
+
+/* ============================================
+   HOST
+   ============================================ */
+
+:host {
+  display: block;
+}
+
+/* ============================================
+   TABLE CONTAINER
+   ============================================ */
+
+.table-container {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  min-height: 300px;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  min-height: 300px;
+}
+
+.empty-icon-container {
+  width: 80px;
+  height: 80px;
+  background: #f1f5f9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.empty-icon {
+  font-size: 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  color: #94a3b8;
+}
+
+.empty-message {
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  text-align: center;
+  max-width: 300px;
+}
+
+/* ============================================
+   DATA TABLE
+   ============================================ */
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table thead {
+  background: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.data-table thead.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.data-table th {
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.data-table th.sortable {
+  cursor: pointer;
+  transition: background 0.2s ease;
+  user-select: none;
+}
+
+.data-table th.sortable:hover {
+  background: #f1f5f9;
+}
+
+.data-table th.sorted {
+  color: #8b5cf6;
+}
+
+.th-content {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sort-icon {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+  color: #cbd5e1;
+  transition: color 0.2s ease;
+}
+
+.sort-icon.active {
+  color: #8b5cf6;
+}
+
+/* ============================================
+   TABLE BODY & ROWS
+   ============================================ */
+
+.data-table tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: all 0.2s ease;
+}
+
+.data-table tbody tr.clickable {
+  cursor: pointer;
+}
+
+.data-table.hover-effect tbody tr:hover {
+  background: #faf5ff;
+}
+
+.data-table tbody tr.selected {
+  background: #f3e8ff;
+}
+
+.data-table.striped tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.data-table.bordered tbody tr {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.data-table td {
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #475569;
+}
+
+/* Row Heights */
+.data-table.row-compact td {
+  padding: 8px 14px;
+  font-size: 12px;
+}
+
+.data-table.row-normal td {
+  padding: 12px 14px;
+  font-size: 13px;
+}
+
+.data-table.row-comfortable td {
+  padding: 16px 14px;
+  font-size: 14px;
+}
+
+/* ============================================
+   CHECKBOX CELL
+   ============================================ */
+
+.checkbox-cell {
+  width: 40px !important;
+  padding: 0 !important;
+  text-align: center !important;
+}
+
+/* ============================================
+   ACTIONS CELL
+   ============================================ */
+
+.actions-cell {
+  width: 80px;
+  padding: 8px !important;
+}
+
+/* ============================================
+   TEXT ALIGNMENT
+   ============================================ */
+
+.text-center {
+  text-align: center !important;
+}
+
+.text-right {
+  text-align: right !important;
+}
+
+/* ============================================
+   RESPONSIVE - HIDE COLUMNS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .hidden-tablet {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   THEME COLORS
+   ============================================ */
+
+/* Purple Theme (default) */
+.theme-purple tbody tr.selected {
+  background: #f3e8ff;
+}
+
+.theme-purple tbody tr:hover {
+  background: #faf5ff;
+}
+
+.theme-purple th.sorted {
+  color: #8b5cf6;
+}
+
+.theme-purple .sort-icon.active {
+  color: #8b5cf6;
+}
+
+/* Amber Theme */
+.theme-amber tbody tr.selected {
+  background: #fef3c7;
+}
+
+.theme-amber tbody tr:hover {
+  background: #fffbeb;
+}
+
+.theme-amber th.sorted {
+  color: #f59e0b;
+}
+
+.theme-amber .sort-icon.active {
+  color: #f59e0b;
+}
+
+/* Blue Theme */
+.theme-blue tbody tr.selected {
+  background: #dbeafe;
+}
+
+.theme-blue tbody tr:hover {
+  background: #eff6ff;
+}
+
+.theme-blue th.sorted {
+  color: #3b82f6;
+}
+
+.theme-blue .sort-icon.active {
+  color: #3b82f6;
+}
+
+/* Green Theme */
+.theme-green tbody tr.selected {
+  background: #d1fae5;
+}
+
+.theme-green tbody tr:hover {
+  background: #ecfdf5;
+}
+
+.theme-green th.sorted {
+  color: #10b981;
+}
+
+.theme-green .sort-icon.active {
+  color: #10b981;
+}

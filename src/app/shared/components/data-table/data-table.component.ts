@@ -4,6 +4,7 @@ import {
   Input,
   Output,
   EventEmitter,
+  Signal,
   signal,
   computed,
   TemplateRef,
@@ -14,6 +15,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TableColumn, TableConfig, SortState } from './models';
 
@@ -62,20 +64,20 @@ export class GenericDataTableComponent<T> implements AfterContentInit {
   // INPUTS
   // ========================================
 
-  /** Datos a mostrar en la tabla */
-  @Input() data = signal<T[]>([]);
+  /** Datos a mostrar en la tabla (acepta cualquier Signal, readonly o writable) */
+  @Input({ required: true }) data!: Signal<T[]>;
 
   /** Configuración de la tabla */
   @Input({ required: true }) config!: TableConfig<T>;
 
-  /** Estado de loading */
-  @Input() loading = signal(false);
+  /** Estado de loading (acepta cualquier Signal) */
+  @Input() loading: Signal<boolean> = signal(false);
 
-  /** Estado actual de ordenamiento */
-  @Input() sortState = signal<SortState | null>(null);
+  /** Estado actual de ordenamiento (acepta cualquier Signal) */
+  @Input() sortState: Signal<SortState | null> = signal(null);
 
-  /** IDs de las filas seleccionadas */
-  @Input() selectedIds = signal<Set<string | number>>(new Set());
+  /** IDs de las filas seleccionadas (acepta cualquier Signal) */
+  @Input() selectedIds: Signal<Set<string | number>> = signal(new Set());
 
   /** Función para trackBy en *ngFor (para performance) */
   @Input() trackByFn?: (index: number, item: T) => any;
@@ -157,9 +159,9 @@ export class GenericDataTableComponent<T> implements AfterContentInit {
   /**
    * Toggle selección de una fila
    */
-  toggleSelection(row: T, event?: Event): void {
+  toggleSelection(row: T, event?: MatCheckboxChange): void {
     if (event) {
-      event.stopPropagation();
+      event.source._elementRef.nativeElement.blur(); // Quitar focus
     }
 
     const id = this.getRowId(row);
@@ -182,15 +184,16 @@ export class GenericDataTableComponent<T> implements AfterContentInit {
       }
     }
 
-    this.selectedIds.set(currentSelection);
+    // Solo emitir el evento, no modificar el input signal
     this.selectionChange.emit(Array.from(currentSelection));
   }
 
   /**
    * Toggle selección de todas las filas
    */
-  toggleSelectAll(event: Event): void {
-    event.stopPropagation();
+  toggleSelectAll(event: MatCheckboxChange): void {
+    // Prevenir propagación si es necesario
+    event.source._elementRef.nativeElement.blur();
 
     const allSelected = this.allSelected();
     const newSelection = new Set<string | number>();
@@ -203,7 +206,7 @@ export class GenericDataTableComponent<T> implements AfterContentInit {
     }
     // Si ya están todas seleccionadas, dejamos el Set vacío (deseleccionar todas)
 
-    this.selectedIds.set(newSelection);
+    // Solo emitir el evento, no modificar el input signal
     this.selectionChange.emit(Array.from(newSelection));
   }
 

@@ -1,14 +1,11 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 
@@ -17,85 +14,86 @@ import { Material } from '../../models';
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
 import { GenericDeleteMultipleDialogComponent } from '../../../../shared/components/generic-delete-multiple-dialog/generic-delete-multiple-dialog.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { GenericSearchBarComponent } from '../../../../shared/components/search-bar/search-bar.component';
+import { GenericDataTableComponent } from '../../../../shared/components/data-table/data-table.component';
+import { TableColumn, TableConfig } from '../../../../shared/components/data-table/models';
 import { createGenericConfig } from '../../config/materials.config';
 import { AuthService } from '../../../../core/services/auth.service';
 import { formatFieldValue, getFieldValue } from '../../../../shared/modules/dynamic-form-builder/utils';
+import { filterData, paginateData } from '../../../../shared/utils';
 
 @Component({
   selector: 'app-materials-list',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     MatButtonModule,
     MatIconModule,
-    MatInputModule,
     MatTooltipModule,
     MatMenuModule,
-    MatCheckboxModule,
     MatDividerModule,
-    PaginationComponent
+    PaginationComponent,
+    GenericSearchBarComponent,
+    GenericDataTableComponent
   ],
   templateUrl: './materials-list.component.html',
   styleUrl: './materials-list.component.css'
 })
 export class MaterialsListComponent implements OnInit {
+  @ViewChild('statusColumn') statusColumnTemplate!: TemplateRef<any>;
+  @ViewChild('actionsColumn') actionsColumnTemplate!: TemplateRef<any>;
+
+  // Estado
   searchTerm = signal<string>('');
-  selectedMaterials = signal<string[]>([]);
-  isLoading = false;
+  selectedIds = signal<Set<string | number>>(new Set());
+  isLoading = signal(false);
 
   // Paginación
   currentPage = signal<number>(0);
-  itemsPerPage = signal<number>(10); // Valor por defecto: 10 registros por página
-
-  // Opciones de registros por página
+  itemsPerPage = signal<number>(10);
   pageSizeOptions = [10, 20, 50, 100];
 
-  // Math para templates
-  Math = Math;
-
+  // Datos
   materials = this.materialsService.materials;
+  config = this.configService.config;
+  gridFields = computed(() => this.configService.getGridFields());
+
+  // Configuración de la tabla
+  tableConfig = computed<TableConfig<Material>>(() => ({
+    columns: this.buildTableColumns(),
+    selectable: 'multiple',
+    showSelectAll: true,
+    clickableRows: false,
+    hoverEffect: true,
+    themeColor: 'green',
+    emptyMessage: this.searchTerm()
+      ? 'No se encontraron materiales con esos criterios'
+      : 'Comienza agregando tu primer material',
+    emptyIcon: 'inventory_2',
+    loadingMessage: 'Cargando materiales...'
+  }));
 
   // Materials filtrados
   filteredMaterials = computed(() => {
     const materials = this.materials();
-    const search = this.searchTerm().toLowerCase();
-    const fields = this.gridFields();
+    const search = this.searchTerm();
 
     if (!search) return materials;
 
-    return materials.filter(material => {
-      // Buscar en todos los campos visibles en el grid
-      for (const field of fields) {
-        const value = this.getFieldValue(material, field.name);
+    // Usar la utilidad de filtrado
+    const searchFields = this.gridFields().map(f => f.name as keyof Material);
+    searchFields.push('name', 'code', 'description');
 
-        if (value !== null && value !== undefined) {
-          // Para campos tipo select/dictionary, usar el valor formateado (labels)
-          const formattedValue = this.formatFieldValue(value, field);
-          if (formattedValue.toLowerCase().includes(search)) {
-            return true;
-          }
-        }
-      }
-
-      // También buscar en campos por defecto que no estén en el grid
-      if (material.name?.toLowerCase().includes(search)) return true;
-      if (material.code?.toLowerCase().includes(search)) return true;
-      if (material.description?.toLowerCase().includes(search)) return true;
-
-      return false;
-    });
+    return filterData(materials, search, searchFields);
   });
 
   // Materials paginados
   paginatedMaterials = computed(() => {
-    const materials = this.filteredMaterials();
-    const page = this.currentPage();
-    const perPage = this.itemsPerPage();
-    const start = page * perPage;
-    const end = start + perPage;
-
-    return materials.slice(start, end);
+    return paginateData(
+      this.filteredMaterials(),
+      this.currentPage(),
+      this.itemsPerPage()
+    );
   });
 
   totalPages = computed(() => {
@@ -103,9 +101,6 @@ export class MaterialsListComponent implements OnInit {
     const perPage = this.itemsPerPage();
     return Math.ceil(total / perPage);
   });
-
-  config = this.configService.config;
-  gridFields = computed(() => this.configService.getGridFields());
 
   // Generic config for delete dialogs
   genericConfig = computed(() => {
@@ -123,7 +118,7 @@ export class MaterialsListComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.isLoading = true;
+    this.isLoading.set(true);
     await Promise.all([
       this.configService.initialize(),
       this.materialsService.initialize()
@@ -131,18 +126,71 @@ export class MaterialsListComponent implements OnInit {
 
     // Cargar configuración de paginación
     const config = this.config();
-    if (config && config.gridConfig) {
+    if (config?.gridConfig) {
       this.itemsPerPage.set(config.gridConfig.itemsPerPage || 10);
     }
 
-    this.isLoading = false;
+    this.isLoading.set(false);
   }
 
+  /**
+   * Construye las columnas de la tabla basándose en gridFields
+   */
+  private buildTableColumns(): TableColumn<Material>[] {
+    const columns: TableColumn<Material>[] = [];
+
+    // Columnas dinámicas desde configuración
+    for (const field of this.gridFields()) {
+      columns.push({
+        id: field.id,
+        label: field.label,
+        field: field.name as keyof Material,
+        width: field.gridConfig.gridWidth || 'auto',
+        sortable: false, // Materials no tiene sorting por ahora
+        valueFormatter: (value, row) => formatFieldValue(value, field)
+      });
+    }
+
+    // Columna de Estado
+    columns.push({
+      id: 'status',
+      label: 'Estado',
+      field: 'isActive',
+      width: '120px',
+      cellTemplate: this.statusColumnTemplate,
+      cellAlign: 'left'
+    });
+
+    // Columna de Acciones
+    columns.push({
+      id: 'actions',
+      label: 'Acciones',
+      width: '80px',
+      cellTemplate: this.actionsColumnTemplate,
+      cellAlign: 'right'
+    });
+
+    return columns;
+  }
+
+  /**
+   * Maneja el cambio de búsqueda
+   */
   onSearch(term: string) {
     this.searchTerm.set(term);
-    this.currentPage.set(0); // Reset a primera página al buscar
+    this.currentPage.set(0);
   }
 
+  /**
+   * Maneja el cambio de selección
+   */
+  onSelectionChange(ids: (string | number)[]) {
+    this.selectedIds.set(new Set(ids));
+  }
+
+  /**
+   * Navegación de páginas
+   */
   goToPage(page: number) {
     if (page >= 0 && page < this.totalPages()) {
       this.currentPage.set(page);
@@ -154,17 +202,26 @@ export class MaterialsListComponent implements OnInit {
    */
   changePageSize(newSize: number) {
     this.itemsPerPage.set(newSize);
-    this.currentPage.set(0); // Volver a la primera página
+    this.currentPage.set(0);
   }
 
+  /**
+   * Crear nuevo material
+   */
   createMaterial() {
     this.router.navigate(['/modules/materials/new']);
   }
 
+  /**
+   * Editar material
+   */
   editMaterial(material: Material) {
     this.router.navigate(['/modules/materials', material.id, 'edit']);
   }
 
+  /**
+   * Toggle activo/inactivo
+   */
   async toggleActive(material: Material) {
     const currentUser = this.authService.authorizedUser();
     if (!currentUser?.uid) {
@@ -182,6 +239,9 @@ export class MaterialsListComponent implements OnInit {
     }
   }
 
+  /**
+   * Eliminar material
+   */
   async deleteMaterial(material: Material) {
     const config = this.genericConfig();
     if (!config) {
@@ -209,9 +269,13 @@ export class MaterialsListComponent implements OnInit {
     });
   }
 
+  /**
+   * Eliminar materiales seleccionados
+   */
   async deleteSelectedMaterials() {
-    const selectedIds = this.selectedMaterials();
-    if (selectedIds.length === 0) {
+    const selectedArray = Array.from(this.selectedIds()) as string[];
+
+    if (selectedArray.length === 0) {
       this.snackBar.open('Selecciona al menos un material', 'Cerrar', { duration: 3000 });
       return;
     }
@@ -222,7 +286,7 @@ export class MaterialsListComponent implements OnInit {
       return;
     }
 
-    const selectedList = this.materials().filter(m => selectedIds.includes(m.id));
+    const selectedList = this.materials().filter(m => selectedArray.includes(m.id));
 
     const dialogRef = this.dialog.open(GenericDeleteMultipleDialogComponent, {
       width: '700px',
@@ -235,11 +299,11 @@ export class MaterialsListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result?.confirmed) {
-        const deleteResult = await this.materialsService.deleteMultipleMaterials(selectedIds);
+        const deleteResult = await this.materialsService.deleteMultipleMaterials(selectedArray);
 
         if (deleteResult.success) {
           this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 3000 });
-          this.selectedMaterials.set([]);
+          this.selectedIds.set(new Set());
         } else {
           this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 4000 });
         }
@@ -247,77 +311,34 @@ export class MaterialsListComponent implements OnInit {
     });
   }
 
-  toggleSelection(materialId: string) {
-    const selected = this.selectedMaterials();
-    if (selected.includes(materialId)) {
-      this.selectedMaterials.set(selected.filter(id => id !== materialId));
-    } else {
-      this.selectedMaterials.set([...selected, materialId]);
-    }
-  }
-
-  isSelected(materialId: string): boolean {
-    return this.selectedMaterials().includes(materialId);
-  }
-
-  toggleSelectAll() {
-    const selected = this.selectedMaterials();
-    const paginated = this.paginatedMaterials();
-
-    if (selected.length === paginated.length) {
-      this.clearSelection();
-    } else {
-      this.selectedMaterials.set(paginated.map(material => material.id));
-    }
-  }
-
-  isAllSelected(): boolean {
-    const selected = this.selectedMaterials();
-    const paginated = this.paginatedMaterials();
-    return paginated.length > 0 && selected.length === paginated.length;
-  }
-
-  isIndeterminate(): boolean {
-    const selected = this.selectedMaterials();
-    const paginated = this.paginatedMaterials();
-    return selected.length > 0 && selected.length < paginated.length;
-  }
-
+  /**
+   * Limpiar selección
+   */
   clearSelection() {
-    this.selectedMaterials.set([]);
+    this.selectedIds.set(new Set());
   }
 
+  /**
+   * Ir a configuración
+   */
   goToConfig() {
     this.router.navigate(['/modules/materials/config']);
   }
 
+  /**
+   * Refrescar datos
+   */
   async refreshData() {
-    this.isLoading = true;
+    this.isLoading.set(true);
     await this.materialsService.initialize();
-    this.isLoading = false;
+    this.isLoading.set(false);
     this.snackBar.open('Datos actualizados', 'Cerrar', { duration: 2000 });
   }
 
-  trackById(index: number, material: Material): string {
-    return material.id;
-  }
-
   /**
-   * Helper methods to avoid arrow functions in templates
+   * Helper methods
    */
-  getActiveMaterials(): Material[] {
-    return this.materials().filter(m => m.isActive);
-  }
-
   getActiveMaterialsCount(): number {
-    return this.getActiveMaterials().length;
+    return this.materials().filter(m => m.isActive).length;
   }
-
-  getFilteredActiveMaterials(): Material[] {
-    return this.filteredMaterials().filter(m => m.isActive);
-  }
-
-  // Usar funciones compartidas de formateo
-  formatFieldValue = formatFieldValue;
-  getFieldValue = getFieldValue;
 }

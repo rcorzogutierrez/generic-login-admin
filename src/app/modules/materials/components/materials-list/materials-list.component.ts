@@ -1,5 +1,6 @@
 import { Component, OnInit, AfterViewInit, signal, computed, effect, ViewChild, TemplateRef, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,6 +28,7 @@ import { filterData, paginateData } from '../../../../shared/utils';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
@@ -49,6 +51,14 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
   isLoading = signal(false);
   templatesReady = signal(false);
 
+  // Sorting y Filtros
+  currentSort = signal<{ field: string; direction: 'asc' | 'desc' }>({ field: 'name', direction: 'asc' });
+  customFieldFilters = signal<Record<string, any>>({});
+
+  // Estado de dropdowns de filtros
+  openFilterDropdown = signal<string | null>(null);
+  filterSearchTerms = signal<Record<string, string>>({});
+
   // Paginación
   currentPage = signal<number>(0);
   itemsPerPage = signal<number>(10);
@@ -58,6 +68,82 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
   materials = this.materialsService.materials;
   config = this.configService.config;
   gridFields = computed(() => this.configService.getGridFields());
+
+  // Campos filtrables (filterable: true)
+  filterableFields = computed(() => {
+    const allFields = this.gridFields();
+    return allFields.filter(field =>
+      field.gridConfig?.filterable === true && field.isActive
+    );
+  });
+
+  // Valores únicos por campo filtrable
+  uniqueValuesByField = computed(() => {
+    const materials = this.materials();
+    const filterableFieldsList = this.filterableFields();
+    const result: Record<string, Array<{ value: any; label: string; count: number }>> = {};
+
+    for (const field of filterableFieldsList) {
+      const valuesMap = new Map<any, number>();
+
+      for (const material of materials) {
+        const value = getFieldValue(material, field.name);
+
+        if (value !== null && value !== undefined && value !== '') {
+          // Para campos array (multiselect), procesar cada valor
+          if (Array.isArray(value)) {
+            for (const v of value) {
+              valuesMap.set(v, (valuesMap.get(v) || 0) + 1);
+            }
+          } else {
+            valuesMap.set(value, (valuesMap.get(value) || 0) + 1);
+          }
+        }
+      }
+
+      // Convertir a array y agregar labels
+      const uniqueValues = Array.from(valuesMap.entries()).map(([value, count]) => {
+        // Para select/dictionary, obtener el label de las opciones
+        let label = String(value);
+        if (field.type === 'select' || field.type === 'multiselect' || field.type === 'dictionary') {
+          const option = field.options?.find(opt => opt.value === value);
+          if (option) {
+            label = option.label;
+          }
+        }
+
+        return { value, label, count };
+      });
+
+      // Ordenar por label
+      uniqueValues.sort((a, b) => a.label.localeCompare(b.label));
+
+      result[field.name] = uniqueValues;
+    }
+
+    return result;
+  });
+
+  // Opciones filtradas por búsqueda interna
+  filteredOptions = computed(() => {
+    const uniqueValues = this.uniqueValuesByField();
+    const searchTerms = this.filterSearchTerms();
+    const result: Record<string, Array<{ value: any; label: string; count: number }>> = {};
+
+    for (const [fieldName, values] of Object.entries(uniqueValues)) {
+      const searchTerm = (searchTerms[fieldName] || '').toLowerCase();
+
+      if (!searchTerm) {
+        result[fieldName] = values;
+      } else {
+        result[fieldName] = values.filter(item =>
+          item.label.toLowerCase().includes(searchTerm)
+        );
+      }
+    }
+
+    return result;
+  });
 
   // Configuración de la tabla (se inicializa en ngAfterViewInit cuando los templates estén disponibles)
   tableConfig = signal<TableConfig<Material>>({
@@ -74,28 +160,97 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
 
   // Materials filtrados
   filteredMaterials = computed(() => {
-    const materials = this.materials();
+    let materials = this.materials();
     const search = this.searchTerm();
+    const customFilters = this.customFieldFilters();
+    const sort = this.currentSort();
 
-    if (!search) return materials;
+    // 1. Filtrar por campos personalizados (filterable: true)
+    if (Object.keys(customFilters).length > 0) {
+      materials = materials.filter(material => {
+        for (const [fieldName, filterValue] of Object.entries(customFilters)) {
+          // Si el filtro está vacío o es "all", ignorar
+          if (!filterValue || filterValue === '' || filterValue === 'all') {
+            continue;
+          }
 
-    // Construir campos de búsqueda
-    const searchFields: string[] = [];
+          // Obtener el valor del campo en el material
+          const materialValue = getFieldValue(material, fieldName);
 
-    // Agregar campos del sistema
-    searchFields.push('name', 'code', 'description');
+          // Si el campo no existe o no coincide, filtrar
+          if (materialValue === undefined || materialValue === null) {
+            return false;
+          }
 
-    // Agregar campos personalizados con prefijo 'customFields.'
-    for (const field of this.gridFields()) {
-      // Si es campo del sistema, agregar directamente
-      if (field.name === 'name' || field.name === 'code' || field.name === 'description') {
-        continue; // Ya lo agregamos arriba
-      }
-      // Si es campo personalizado, agregar con prefijo
-      searchFields.push(`customFields.${field.name}`);
+          // Comparar valores (normalizar a string)
+          if (String(materialValue) !== String(filterValue)) {
+            return false;
+          }
+        }
+        return true;
+      });
     }
 
-    return filterData(materials, search, searchFields);
+    // 2. Filtrar por búsqueda global
+    if (search) {
+      // Construir campos de búsqueda
+      const searchFields: string[] = [];
+      searchFields.push('name', 'code', 'description');
+
+      for (const field of this.gridFields()) {
+        if (field.name === 'name' || field.name === 'code' || field.name === 'description') {
+          continue;
+        }
+        searchFields.push(`customFields.${field.name}`);
+      }
+
+      materials = filterData(materials, search, searchFields);
+    }
+
+    // 3. Ordenar (sortable: true)
+    if (sort.field) {
+      const allFields = this.gridFields();
+      const sortField = allFields.find(f => f.name === sort.field);
+
+      materials = [...materials].sort((a, b) => {
+        let aValue = getFieldValue(a, sort.field);
+        let bValue = getFieldValue(b, sort.field);
+
+        // Manejar valores null/undefined
+        if (aValue === null || aValue === undefined) aValue = '';
+        if (bValue === null || bValue === undefined) bValue = '';
+
+        // Ordenar según tipo de campo
+        let comparison = 0;
+
+        if (sortField) {
+          if (sortField.type === 'number' || sortField.type === 'currency') {
+            comparison = Number(aValue) - Number(bValue);
+          } else if (sortField.type === 'date') {
+            const aDate = aValue instanceof Date ? aValue.getTime() : new Date(aValue).getTime();
+            const bDate = bValue instanceof Date ? bValue.getTime() : new Date(bValue).getTime();
+            comparison = aDate - bDate;
+          } else if (sortField.type === 'checkbox') {
+            comparison = (aValue === true ? 1 : 0) - (bValue === true ? 1 : 0);
+          } else {
+            // Texto: comparación alfabética (case-insensitive)
+            const aStr = String(aValue).toLowerCase();
+            const bStr = String(bValue).toLowerCase();
+            comparison = aStr.localeCompare(bStr);
+          }
+        } else {
+          // Campo por defecto (name, code, etc): comparación alfabética
+          const aStr = String(aValue).toLowerCase();
+          const bStr = String(bValue).toLowerCase();
+          comparison = aStr.localeCompare(bStr);
+        }
+
+        // Aplicar dirección (asc/desc)
+        return sort.direction === 'asc' ? comparison : -comparison;
+      });
+    }
+
+    return materials;
   });
 
   // Materials paginados
@@ -169,6 +324,7 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
       showSelectAll: true,
       clickableRows: false,
       hoverEffect: true,
+      sortable: true, // Habilitar sorting
       themeColor: 'green',
       emptyMessage: this.searchTerm() && this.searchTerm().length >= 2
         ? 'No se encontraron materiales con esos criterios'
@@ -191,7 +347,7 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
         label: field.label,
         field: field.name as keyof Material,
         width: field.gridConfig.gridWidth || 'auto',
-        sortable: false, // Materials no tiene sorting por ahora
+        sortable: field.gridConfig?.sortable === true, // Usar configuración de sortable
         valueFormatter: (value, row) => formatFieldValue(value, field)
       });
     }
@@ -203,7 +359,8 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
       field: 'isActive',
       width: '120px',
       cellTemplate: this.statusColumnTemplate,
-      cellAlign: 'left'
+      cellAlign: 'left',
+      sortable: false
     });
 
     // Columna de Acciones
@@ -212,7 +369,8 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
       label: 'Acciones',
       width: '80px',
       cellTemplate: this.actionsColumnTemplate,
-      cellAlign: 'right'
+      cellAlign: 'right',
+      sortable: false
     });
 
     return columns;
@@ -256,6 +414,115 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
    */
   changePageSize(newSize: number) {
     this.itemsPerPage.set(newSize);
+    this.currentPage.set(0);
+  }
+
+  /**
+   * Ordenar por campo
+   */
+  sortBy(field: string) {
+    const current = this.currentSort();
+
+    if (current.field === field) {
+      // Toggle direction
+      this.currentSort.set({
+        field,
+        direction: current.direction === 'asc' ? 'desc' : 'asc'
+      });
+    } else {
+      // Nuevo campo, ordenar ascendente
+      this.currentSort.set({
+        field,
+        direction: 'asc'
+      });
+    }
+
+    this.currentPage.set(0);
+  }
+
+  /**
+   * Abrir/cerrar dropdown de filtro
+   */
+  toggleFilterDropdown(fieldName: string, event: Event) {
+    event.stopPropagation();
+    const current = this.openFilterDropdown();
+
+    if (current === fieldName) {
+      this.openFilterDropdown.set(null);
+    } else {
+      this.openFilterDropdown.set(fieldName);
+    }
+  }
+
+  /**
+   * Cerrar dropdown de filtro
+   */
+  closeFilterDropdown() {
+    this.openFilterDropdown.set(null);
+  }
+
+  /**
+   * Verificar si un dropdown está abierto
+   */
+  isFilterDropdownOpen(fieldName: string): boolean {
+    return this.openFilterDropdown() === fieldName;
+  }
+
+  /**
+   * Cambio en búsqueda interna de filtro
+   */
+  onFilterSearchChange(fieldName: string, value: string) {
+    const current = this.filterSearchTerms();
+    this.filterSearchTerms.set({
+      ...current,
+      [fieldName]: value
+    });
+  }
+
+  /**
+   * Seleccionar valor de filtro
+   */
+  selectFilterValue(fieldName: string, value: any, event: Event) {
+    event.stopPropagation();
+
+    const current = this.customFieldFilters();
+
+    if (value === null || value === '' || value === 'all') {
+      // Remover filtro
+      const newFilters = { ...current };
+      delete newFilters[fieldName];
+      this.customFieldFilters.set(newFilters);
+    } else {
+      // Agregar/actualizar filtro
+      this.customFieldFilters.set({
+        ...current,
+        [fieldName]: value
+      });
+    }
+
+    this.currentPage.set(0);
+    this.closeFilterDropdown();
+  }
+
+  /**
+   * Obtener label del valor seleccionado en un filtro
+   */
+  getSelectedFilterLabel(fieldName: string): string {
+    const filterValue = this.customFieldFilters()[fieldName];
+    if (!filterValue) return 'Todos';
+
+    const uniqueValues = this.uniqueValuesByField()[fieldName];
+    if (!uniqueValues) return String(filterValue);
+
+    const option = uniqueValues.find(opt => opt.value === filterValue);
+    return option ? option.label : String(filterValue);
+  }
+
+  /**
+   * Limpiar todos los filtros
+   */
+  clearAllFilters() {
+    this.customFieldFilters.set({});
     this.currentPage.set(0);
   }
 

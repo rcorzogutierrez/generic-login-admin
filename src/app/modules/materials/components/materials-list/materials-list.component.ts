@@ -145,6 +145,9 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
     return result;
   });
 
+  // Exponer Object para uso en template
+  Object = Object;
+
   // Configuración de la tabla (se inicializa en ngAfterViewInit cuando los templates estén disponibles)
   tableConfig = signal<TableConfig<Material>>({
     columns: [],

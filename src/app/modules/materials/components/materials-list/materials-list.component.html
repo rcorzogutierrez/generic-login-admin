@@ -133,13 +133,13 @@
       <ng-template #actionsColumn let-row>
         <button type="button"
                 class="icon-btn-sm"
-                [matMenuTriggerFor]="menu"
+                [matMenuTriggerFor]="actionsMenu"
                 title="Opciones"
                 (click)="$event.stopPropagation()">
           <mat-icon>more_vert</mat-icon>
         </button>
 
-        <mat-menu #menu="matMenu">
+        <mat-menu #actionsMenu="matMenu">
           <button mat-menu-item (click)="editMaterial(row)">
             <mat-icon>edit</mat-icon>
             <span>Editar</span>

@@ -414,7 +414,7 @@ export class MaterialFormComponent implements OnInit {
         }
       });
     } else {
-      this.router.navigate(['/materials']);
+      this.router.navigate(['/modules/materials']);
     }
   }
 

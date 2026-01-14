@@ -1,6 +1,5 @@
 import { Component, OnInit, AfterViewInit, signal, computed, effect, ViewChild, TemplateRef, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,7 +27,6 @@ import { filterData, paginateData } from '../../../../shared/utils';
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,

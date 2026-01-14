@@ -254,7 +254,7 @@
   <!-- ============================================
        BARRA DE ACCIONES MASIVAS
        ============================================ -->
-  @if (selectedClients().length > 0) {
+  @if (selectedClients().size > 0) {
     <div class="bulk-actions-bar mb-5">
       <div class="flex items-center gap-3">
         <div class="bulk-icon">
@@ -262,7 +262,7 @@
         </div>
         <div>
           <p class="text-sm font-semibold text-blue-900">
-            {{ selectedClients().length }} cliente(s) seleccionado(s)
+            {{ selectedClients().size }} cliente(s) seleccionado(s)
           </p>
           <p class="text-xs text-blue-700">
             Acciones disponibles para la selección
@@ -271,7 +271,7 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <button type="button" class="btn-cancel" (click)="selectedClients.set([])">
+        <button type="button" class="btn-cancel" (click)="clearSelection()">
           <mat-icon>close</mat-icon>
           Cancelar
         </button>
@@ -297,10 +297,10 @@
     } @else {
       <!-- GenericDataTable -->
       <app-data-table
-        [data]="paginatedClients()"
+        [data]="paginatedClients"
         [config]="tableConfig()"
-        [selectedIds]="selectedClients()"
-        [sortState]="currentSort()"
+        [selectedIds]="selectedClients"
+        [sortState]="currentSort"
         [customFieldsKey]="'customFields'"
         (sortChange)="sortBy($event.field)"
         (selectionChange)="onSelectionChange($event)"

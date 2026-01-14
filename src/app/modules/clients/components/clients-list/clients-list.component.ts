@@ -197,7 +197,7 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
   searchTerm = signal<string>('');
   currentFilter = signal<ClientFilters>({});
   currentSort = signal<ClientSort>({ field: 'name', direction: 'asc' });
-  selectedClients = signal<string[]>([]);
+  selectedClients = signal<Set<string | number>>(new Set());
 
   // Paginación
   currentPage = signal<number>(0);
@@ -730,7 +730,7 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
    */
   async deleteSelectedClients() {
     const selectedIds = this.selectedClients();
-    if (selectedIds.length === 0) {
+    if (selectedIds.size === 0) {
       return;
     }
 
@@ -740,7 +740,7 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const clients = this.clients().filter(c => selectedIds.includes(c.id));
+    const clients = this.clients().filter(c => selectedIds.has(c.id));
 
     const dialogRef = this.dialog.open(GenericDeleteMultipleDialogComponent, {
       data: {
@@ -757,9 +757,9 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
     if (result?.confirmed) {
       try {
         // Eliminar todos los clientes seleccionados
-        await Promise.all(selectedIds.map(id => this.clientsService.deleteClient(id)));
+        await Promise.all(Array.from(selectedIds).map(id => this.clientsService.deleteClient(id as string)));
 
-        this.selectedClients.set([]);
+        this.selectedClients.set(new Set());
         this.snackBar.open(`${clients.length} cliente(s) eliminado(s) exitosamente`, 'Cerrar', { duration: 3000 });
         this.cdr.markForCheck();
       } catch (error) {
@@ -817,12 +817,13 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
    * Seleccionar/deseleccionar cliente
    */
   toggleClientSelection(clientId: string) {
-    const selected = this.selectedClients();
-    if (selected.includes(clientId)) {
-      this.selectedClients.set(selected.filter(id => id !== clientId));
+    const selected = new Set(this.selectedClients());
+    if (selected.has(clientId)) {
+      selected.delete(clientId);
     } else {
-      this.selectedClients.set([...selected, clientId]);
+      selected.add(clientId);
     }
+    this.selectedClients.set(selected);
   }
 
   /**
@@ -832,10 +833,10 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
     const selected = this.selectedClients();
     const paginated = this.paginatedClients();
 
-    if (selected.length === paginated.length) {
-      this.selectedClients.set([]);
+    if (selected.size === paginated.length && paginated.length > 0) {
+      this.selectedClients.set(new Set());
     } else {
-      this.selectedClients.set(paginated.map(c => c.id));
+      this.selectedClients.set(new Set(paginated.map(c => c.id)));
     }
   }
 
@@ -843,7 +844,7 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
    * Verificar si está seleccionado
    */
   isSelected(clientId: string): boolean {
-    return this.selectedClients().includes(clientId);
+    return this.selectedClients().has(clientId);
   }
 
   /**
@@ -852,7 +853,7 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
   isAllSelected(): boolean {
     const selected = this.selectedClients();
     const paginated = this.paginatedClients();
-    return paginated.length > 0 && selected.length === paginated.length;
+    return paginated.length > 0 && selected.size === paginated.length;
   }
 
   /**
@@ -861,7 +862,7 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
   isIndeterminate(): boolean {
     const selected = this.selectedClients();
     const paginated = this.paginatedClients();
-    return selected.length > 0 && selected.length < paginated.length;
+    return selected.size > 0 && selected.size < paginated.length;
   }
 
   // Usar funciones compartidas de formateo
@@ -889,6 +890,7 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
     // Columna de estado con template
     columns.push({
       id: 'status',
+      label: 'Estado',
       cellTemplate: this.statusColumnTemplate,
       sortable: false
     });
@@ -896,6 +898,7 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
     // Columna de acciones con template
     columns.push({
       id: 'actions',
+      label: 'Acciones',
       cellTemplate: this.actionsColumnTemplate,
       sortable: false
     });
@@ -922,8 +925,15 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
   /**
    * Manejar cambio de selección desde GenericDataTable
    */
-  onSelectionChange(selectedIds: string[]) {
-    this.selectedClients.set(selectedIds);
+  onSelectionChange(selectedIds: (string | number)[]) {
+    this.selectedClients.set(new Set(selectedIds));
+  }
+
+  /**
+   * Limpiar selección
+   */
+  clearSelection() {
+    this.selectedClients.set(new Set());
   }
 
   /**

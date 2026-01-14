@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, signal, computed, ViewChild, TemplateRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, signal, computed, effect, ViewChild, TemplateRef, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -47,6 +47,7 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
   searchTerm = signal<string>('');
   selectedIds = signal<Set<string | number>>(new Set());
   isLoading = signal(false);
+  templatesReady = signal(false);
 
   // Paginación
   currentPage = signal<number>(0);
@@ -126,7 +127,14 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
     private router: Router,
     private authService: AuthService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    // Effect para actualizar la tabla cuando los templates y gridFields estén listos
+    effect(() => {
+      if (this.templatesReady() && this.gridFields().length > 0) {
+        this.updateTableConfig();
+      }
+    });
+  }
 
   async ngOnInit() {
     this.isLoading.set(true);
@@ -142,17 +150,13 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
     }
 
     this.isLoading.set(false);
-
-    // Esperar al siguiente ciclo para que los templates estén disponibles
-    setTimeout(() => {
-      this.updateTableConfig();
-      this.cdr.detectChanges();
-    }, 0);
   }
 
   ngAfterViewInit() {
-    // Los templates están disponibles aquí, pero esperamos a que termine ngOnInit
-    // La actualización se hace en ngOnInit después del setTimeout
+    // Marcar que los templates están disponibles
+    // El effect en el constructor actualizará la tabla automáticamente
+    this.templatesReady.set(true);
+    this.cdr.detectChanges();
   }
 
   /**

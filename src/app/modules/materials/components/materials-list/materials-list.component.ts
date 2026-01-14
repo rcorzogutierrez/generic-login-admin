@@ -78,9 +78,21 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
 
     if (!search) return materials;
 
-    // Usar la utilidad de filtrado
-    const searchFields = this.gridFields().map(f => f.name as keyof Material);
+    // Construir campos de búsqueda
+    const searchFields: string[] = [];
+
+    // Agregar campos del sistema
     searchFields.push('name', 'code', 'description');
+
+    // Agregar campos personalizados con prefijo 'customFields.'
+    for (const field of this.gridFields()) {
+      // Si es campo del sistema, agregar directamente
+      if (field.name === 'name' || field.name === 'code' || field.name === 'description') {
+        continue; // Ya lo agregamos arriba
+      }
+      // Si es campo personalizado, agregar con prefijo
+      searchFields.push(`customFields.${field.name}`);
+    }
 
     return filterData(materials, search, searchFields);
   });
@@ -130,13 +142,17 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
     }
 
     this.isLoading.set(false);
+
+    // Esperar al siguiente ciclo para que los templates estén disponibles
+    setTimeout(() => {
+      this.updateTableConfig();
+      this.cdr.detectChanges();
+    }, 0);
   }
 
   ngAfterViewInit() {
-    // Actualizar tableConfig una vez que los templates estén disponibles
-    this.updateTableConfig();
-    // Forzar detección de cambios para que se rendericen los templates
-    this.cdr.detectChanges();
+    // Los templates están disponibles aquí, pero esperamos a que termine ngOnInit
+    // La actualización se hace en ngOnInit después del setTimeout
   }
 
   /**

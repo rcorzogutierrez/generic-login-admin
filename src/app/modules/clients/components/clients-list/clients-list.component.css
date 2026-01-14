@@ -225,12 +225,6 @@
 }
 
 /* ============================================
-   SEARCH BOX
-   ============================================ */
-
-/* Búsqueda y filtros: estilos manejados por Tailwind directamente */
-
-/* ============================================
    BULK ACTIONS BAR
    ============================================ */
 
@@ -271,91 +265,6 @@
   border: 1px solid #e2e8f0;
   border-radius: 16px;
   overflow: hidden;
-}
-
-/* ============================================
-   EMPTY STATE - Ahora usa solo Tailwind
-   ============================================ */
-/* Estilos movidos a clases inline de Tailwind en el HTML */
-
-/* ============================================
-   DATA TABLE
-   ============================================ */
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table thead {
-  background: #f8fafc;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-.data-table th {
-  padding: 12px 14px;
-  text-align: left;
-  font-size: 11px;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.data-table th.sortable {
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.data-table th.sortable:hover {
-  background: #f1f5f9;
-}
-
-.th-content {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.sort-icon {
-  font-size: 14px !important;
-  width: 14px !important;
-  height: 14px !important;
-  color: #8b5cf6;
-}
-
-.data-table tbody tr {
-  border-bottom: 1px solid #f1f5f9;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  animation: fadeInUp 0.3s ease-out backwards;
-}
-
-.data-table tbody tr:hover {
-  background: #faf5ff;
-}
-
-.data-table tbody tr.selected {
-  background: #f3e8ff;
-}
-
-.data-table td {
-  padding: 12px 14px;
-  font-size: 13px;
-  color: #475569;
-}
-
-/* ============================================
-   CHECKBOX
-   ============================================ */
-
-.checkbox {
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  border: 2px solid #cbd5e1;
-  cursor: pointer;
-  accent-color: #8b5cf6;
 }
 
 /* ============================================
@@ -500,11 +409,6 @@
   .btn-primary {
     padding: 8px 12px;
     font-size: 12px;
-  }
-
-  .data-table th,
-  .data-table td {
-    padding: 10px 12px;
   }
 
   .pagination {

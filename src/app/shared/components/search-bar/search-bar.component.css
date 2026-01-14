@@ -1,0 +1,34 @@
+/* src/app/shared/components/search-bar/search-bar.component.css */
+
+:host {
+  display: block;
+}
+
+/* Mejora de accesibilidad para focus */
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Animación suave para el clear button */
+button {
+  transition: all 0.2s ease;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+/* Asegurar que el loading spinner sea visible */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

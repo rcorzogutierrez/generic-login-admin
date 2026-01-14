@@ -1,0 +1,60 @@
+<!-- src/app/shared/components/search-bar/search-bar.component.html -->
+<div
+  class="relative flex-1"
+  [style.min-width]="minWidth"
+  role="search">
+
+  <!-- Search Icon -->
+  <mat-icon
+    class="absolute left-3 top-1/2 -translate-y-1/2 !text-xl pointer-events-none transition-colors"
+    [class]="isFocused() ? getIconColor() : 'text-slate-400'"
+    [attr.aria-hidden]="true">
+    {{ icon }}
+  </mat-icon>
+
+  <!-- Input Field -->
+  <input
+    type="text"
+    class="w-full h-10 pl-10 pr-20 rounded-xl border transition-all duration-200 text-sm font-medium placeholder:text-slate-400 bg-white"
+    [class]="getThemeClasses()"
+    [class.opacity-60]="disabled"
+    [class.cursor-not-allowed]="disabled"
+    [class.border-slate-300]="!isFocused()"
+    [class.shadow-sm]="isFocused()"
+    [placeholder]="placeholder"
+    [disabled]="disabled"
+    [value]="searchTerm()"
+    [attr.autofocus]="autofocus ? true : null"
+    [attr.aria-label]="placeholder"
+    [attr.aria-describedby]="searchTerm() ? 'search-clear-button' : null"
+    (input)="onInput($event)"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
+    (keydown)="onKeydown($event)"
+  />
+
+  <!-- Right Side Icons -->
+  <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+
+    <!-- Loading Spinner -->
+    @if (loading) {
+      <div class="animate-spin h-4 w-4 border-2 border-slate-300 border-t-purple-600 rounded-full"></div>
+    }
+
+    <!-- Clear Button -->
+    @if (searchTerm() && !disabled) {
+      <button
+        type="button"
+        class="h-7 w-7 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors group"
+        [attr.id]="'search-clear-button'"
+        [attr.aria-label]="'Limpiar búsqueda'"
+        [matTooltip]="'Limpiar (Esc)'"
+        matTooltipPosition="below"
+        (click)="clearSearch()">
+        <mat-icon class="!text-lg text-slate-400 group-hover:text-slate-600 transition-colors">
+          close
+        </mat-icon>
+      </button>
+    }
+  </div>
+</div>

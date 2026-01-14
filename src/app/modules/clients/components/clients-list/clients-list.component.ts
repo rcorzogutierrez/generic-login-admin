@@ -1,6 +1,6 @@
 // src/app/modules/clients/components/clients-list/clients-list.component.ts
 
-import { Component, OnInit, AfterViewInit, inject, signal, computed, effect, ViewChild, TemplateRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, inject, signal, computed, effect, ViewChild, TemplateRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -52,7 +52,7 @@ import { filterData, paginateData } from '../../../../shared/utils';
   styleUrl: './clients-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ClientsListComponent implements OnInit, AfterViewInit {
+export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
   private clientsService = inject(ClientsService);
   private configService = inject(ClientConfigServiceRefactored);
   private authService = inject(AuthService);
@@ -355,6 +355,11 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.templatesReady.set(true);
     this.cdr.detectChanges();
+  }
+
+  ngOnDestroy() {
+    // Resetear estado para evitar problemas al volver a navegar al componente
+    this.templatesReady.set(false);
   }
 
   /**

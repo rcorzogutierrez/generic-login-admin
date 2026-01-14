@@ -286,6 +286,51 @@
   <!-- ============================================
        TABLA DE CLIENTES
        ============================================ -->
+
+  <!-- Templates (siempre disponibles, fuera de condicionales) -->
+  <ng-template #statusColumn let-row>
+    @if (row.isActive) {
+      <span class="status-badge active">
+        <mat-icon>check_circle</mat-icon>
+        Activo
+      </span>
+    } @else {
+      <span class="status-badge inactive">
+        <mat-icon>cancel</mat-icon>
+        Inactivo
+      </span>
+    }
+  </ng-template>
+
+  <ng-template #actionsColumn let-row>
+    <button type="button"
+            class="action-menu-btn"
+            [matMenuTriggerFor]="actionsMenu"
+            (click)="$event.stopPropagation()">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+
+    <mat-menu #actionsMenu="matMenu">
+      <button mat-menu-item (click)="viewClient(row)">
+        <mat-icon>visibility</mat-icon>
+        <span>Ver detalles</span>
+      </button>
+      <button mat-menu-item (click)="editClient(row)">
+        <mat-icon>edit</mat-icon>
+        <span>Editar</span>
+      </button>
+      <button mat-menu-item (click)="toggleClientStatus(row)">
+        <mat-icon>{{ row.isActive ? 'block' : 'check_circle' }}</mat-icon>
+        <span>{{ row.isActive ? 'Desactivar' : 'Activar' }}</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="deleteClient(row)" class="text-red-600">
+        <mat-icon class="text-red-600">delete</mat-icon>
+        <span>Eliminar</span>
+      </button>
+    </mat-menu>
+  </ng-template>
+
   <div class="table-container">
 
     @if (isLoading()) {
@@ -305,51 +350,6 @@
         (sortChange)="sortBy($event.field)"
         (selectionChange)="onSelectionChange($event)"
         (rowClick)="viewClient($event)">
-
-        <!-- Template para columna de estado -->
-        <ng-template #statusColumn let-row>
-          @if (row.isActive) {
-            <span class="status-badge active">
-              <mat-icon>check_circle</mat-icon>
-              Activo
-            </span>
-          } @else {
-            <span class="status-badge inactive">
-              <mat-icon>cancel</mat-icon>
-              Inactivo
-            </span>
-          }
-        </ng-template>
-
-        <!-- Template para columna de acciones -->
-        <ng-template #actionsColumn let-row>
-          <button type="button"
-                  class="action-menu-btn"
-                  [matMenuTriggerFor]="actionsMenu"
-                  (click)="$event.stopPropagation()">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-
-          <mat-menu #actionsMenu="matMenu">
-            <button mat-menu-item (click)="viewClient(row)">
-              <mat-icon>visibility</mat-icon>
-              <span>Ver detalles</span>
-            </button>
-            <button mat-menu-item (click)="editClient(row)">
-              <mat-icon>edit</mat-icon>
-              <span>Editar</span>
-            </button>
-            <button mat-menu-item (click)="toggleClientStatus(row)">
-              <mat-icon>{{ row.isActive ? 'block' : 'check_circle' }}</mat-icon>
-              <span>{{ row.isActive ? 'Desactivar' : 'Activar' }}</span>
-            </button>
-            <mat-divider></mat-divider>
-            <button mat-menu-item (click)="deleteClient(row)" class="text-red-600">
-              <mat-icon class="text-red-600">delete</mat-icon>
-              <span>Eliminar</span>
-            </button>
-          </mat-menu>
-        </ng-template>
       </app-data-table>
 
       <!-- ============================================

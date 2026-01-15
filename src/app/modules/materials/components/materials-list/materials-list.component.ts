@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, signal, computed, effect, ViewChild, TemplateRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject, signal, computed, effect, ViewChild, TemplateRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -37,9 +37,18 @@ import { filterData, paginateData } from '../../../../shared/utils';
     GenericDataTableComponent
   ],
   templateUrl: './materials-list.component.html',
-  styleUrl: './materials-list.component.css'
+  styleUrl: './materials-list.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MaterialsListComponent implements OnInit, AfterViewInit {
+  private materialsService = inject(MaterialsService);
+  private configService = inject(MaterialsConfigService);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
+
   @ViewChild('statusColumn') statusColumnTemplate!: TemplateRef<any>;
   @ViewChild('actionsColumn') actionsColumnTemplate!: TemplateRef<any>;
 
@@ -275,15 +284,7 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
     return materialConfig ? createGenericConfig(materialConfig) : null;
   });
 
-  constructor(
-    private materialsService: MaterialsService,
-    private configService: MaterialsConfigService,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private router: Router,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef
-  ) {
+  constructor() {
     // Effect para actualizar la tabla cuando los templates y gridFields estén listos
     effect(() => {
       if (this.templatesReady() && this.gridFields().length > 0) {
@@ -309,10 +310,11 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // Marcar que los templates están disponibles
-    // El effect en el constructor actualizará la tabla automáticamente
-    this.templatesReady.set(true);
-    this.cdr.detectChanges();
+    // Asegurarnos de que los templates estén realmente disponibles
+    setTimeout(() => {
+      this.templatesReady.set(true);
+      this.cdr.detectChanges();
+    }, 0);
   }
 
   /**

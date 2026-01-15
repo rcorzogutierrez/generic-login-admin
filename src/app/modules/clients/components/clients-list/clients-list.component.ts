@@ -1,6 +1,6 @@
 // src/app/modules/clients/components/clients-list/clients-list.component.ts
 
-import { Component, OnInit, AfterViewInit, OnDestroy, inject, signal, computed, effect, ViewChild, TemplateRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject, signal, computed, effect, ViewChild, TemplateRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -52,7 +52,7 @@ import { filterData, paginateData } from '../../../../shared/utils';
   styleUrl: './clients-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ClientsListComponent implements OnInit, AfterViewInit {
   private clientsService = inject(ClientsService);
   private configService = inject(ClientConfigServiceRefactored);
   private authService = inject(AuthService);
@@ -338,16 +338,13 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
   });
 
   constructor() {
-    console.log('🚀 CONSTRUCTOR - ClientsListComponent inicializando');
     // Effect para actualizar la tabla cuando:
     // 1. Los templates estén disponibles (templatesReady)
     // 2. Las columnas visibles cambien (visibleGridFields)
     effect(() => {
-      console.log('🔄 EFFECT - templatesReady:', this.templatesReady(), 'visibleFields:', this.visibleGridFields().length);
       if (this.templatesReady()) {
         // Capturar visibleGridFields para que el effect reaccione a sus cambios
         const fields = this.visibleGridFields();
-        console.log('✅ EFFECT - Llamando updateTableConfig con', fields.length, 'columnas');
         this.updateTableConfig();
       }
     });
@@ -362,21 +359,11 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    console.log('📋 ngAfterViewInit - Templates:', {
-      status: !!this.statusColumnTemplate,
-      actions: !!this.actionsColumnTemplate
-    });
     // Asegurarnos de que los templates estén realmente disponibles
     setTimeout(() => {
-      console.log('⏰ setTimeout - Activando templatesReady');
       this.templatesReady.set(true);
       this.cdr.detectChanges();
     }, 0);
-  }
-
-  ngOnDestroy() {
-    // No resetear templatesReady - cada instancia del componente tiene su propio estado
-    // El componente se destruye y recrea completamente al navegar
   }
 
   /**
@@ -933,8 +920,6 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   private updateTableConfig() {
     const columns = this.buildTableColumns();
-    console.log('🔧 updateTableConfig - Actualizando con', columns.length, 'columnas');
-    console.log('🔧 updateTableConfig - Columnas:', columns.map(c => c.id));
     this.tableConfig.set({
       columns: columns,
       selectable: 'multiple',
@@ -946,7 +931,6 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
         : 'Comienza agregando tu primer cliente'
     });
     // Forzar detección de cambios INMEDIATA (no solo marcar)
-    console.log('🔧 updateTableConfig - Llamando detectChanges()');
     this.cdr.detectChanges();
   }
 

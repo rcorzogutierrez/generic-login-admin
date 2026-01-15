@@ -125,7 +125,7 @@ export class GenericDataTableComponent<T extends object> implements AfterContent
   displayedColumns = computed(() => {
     const config = this.tableConfig();
     if (!config || !config.columns) return [];
-    return config.columns.filter(col => col.visible !== false);
+    return config.columns.filter((col: TableColumn<T>) => col.visible !== false);
   });
 
   /** Si todas las filas están seleccionadas */

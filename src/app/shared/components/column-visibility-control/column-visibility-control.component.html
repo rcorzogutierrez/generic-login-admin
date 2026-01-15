@@ -1,0 +1,61 @@
+<!-- Column Visibility Control -->
+<div class="column-visibility-control" [class]="getThemeClasses()">
+  <!-- Trigger Button -->
+  <button type="button"
+          class="trigger-button"
+          (click)="toggleMenu()"
+          [matTooltip]="'Seleccionar columnas'"
+          [attr.aria-label]="'Mostrar ' + visibleCount() + ' de ' + totalCount() + ' columnas'">
+    <mat-icon>view_column</mat-icon>
+  </button>
+
+  <!-- Dropdown Menu -->
+  @if (isMenuOpen()) {
+    <!-- Backdrop -->
+    <div class="fixed inset-0 z-40" (click)="closeMenu()"></div>
+
+    <!-- Menu Panel -->
+    <div class="menu-panel">
+      <!-- Header -->
+      <div class="menu-header">
+        <h3 class="menu-title">Columnas visibles</h3>
+        <p class="menu-subtitle">Selecciona las columnas a mostrar ({{ visibleCount() }}/{{ totalCount() }})</p>
+      </div>
+
+      <!-- Columns List -->
+      <div class="columns-list">
+        @for (column of columns; track column.id) {
+          <button type="button"
+                  (click)="toggleColumnVisibility(column.id, $event)"
+                  class="column-item">
+            <!-- Checkbox -->
+            <div class="checkbox-container">
+              @if (isColumnVisible(column.id)) {
+                <div class="checkbox checked">
+                  <svg class="checkmark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+              } @else {
+                <div class="checkbox unchecked"></div>
+              }
+            </div>
+
+            <!-- Label -->
+            <span class="column-label">{{ column.label }}</span>
+          </button>
+        }
+      </div>
+
+      <!-- Footer -->
+      <div class="menu-footer">
+        <button type="button"
+                (click)="resetToDefault()"
+                class="reset-button">
+          <mat-icon class="icon-sm">refresh</mat-icon>
+          <span>Restaurar columnas</span>
+        </button>
+      </div>
+    </div>
+  }
+</div>

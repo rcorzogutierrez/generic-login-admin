@@ -354,9 +354,11 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async ngOnInit() {
-    await this.loadData();
+    // 1. Cargar preferencias PRIMERO (síncronamente antes de cargar datos)
     this.loadColumnPreferences();
     this.loadFilterPreferences();
+    // 2. Luego cargar datos
+    await this.loadData();
   }
 
   ngAfterViewInit() {
@@ -373,8 +375,8 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // Resetear estado para evitar problemas al volver a navegar al componente
-    this.templatesReady.set(false);
+    // No resetear templatesReady - cada instancia del componente tiene su propio estado
+    // El componente se destruye y recrea completamente al navegar
   }
 
   /**
@@ -943,9 +945,9 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
         ? 'No se encontraron clientes'
         : 'Comienza agregando tu primer cliente'
     });
-    // Forzar detección de cambios después de actualizar config
-    console.log('🔧 updateTableConfig - Llamando markForCheck()');
-    this.cdr.markForCheck();
+    // Forzar detección de cambios INMEDIATA (no solo marcar)
+    console.log('🔧 updateTableConfig - Llamando detectChanges()');
+    this.cdr.detectChanges();
   }
 
   /**

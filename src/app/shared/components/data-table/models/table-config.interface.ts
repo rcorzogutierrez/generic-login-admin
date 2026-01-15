@@ -67,6 +67,16 @@ export interface TableConfig<T = any> {
   stripedRows?: boolean;
 
   // ========================================
+  // COLUMN VISIBILITY
+  // ========================================
+
+  /** Si mostrar el control de visibilidad de columnas */
+  showColumnSelector?: boolean;
+
+  /** Key para persistir preferencias de columnas en localStorage */
+  columnSelectorStorageKey?: string;
+
+  // ========================================
   // EMPTY STATE
   // ========================================
 

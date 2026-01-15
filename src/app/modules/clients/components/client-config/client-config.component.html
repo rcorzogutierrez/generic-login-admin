@@ -59,6 +59,121 @@
   }
 
   <!-- ============================================
+       CONFIGURACIÓN DE LA TABLA
+       ============================================ -->
+  @if (!isLoading && gridConfig) {
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-5 animate-fadeIn">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-purple-100">
+          <mat-icon class="text-purple-600">table_chart</mat-icon>
+        </div>
+        <div>
+          <h2 class="text-base font-semibold text-slate-800">Configuración de la Tabla</h2>
+          <p class="text-xs text-slate-500">Personaliza el comportamiento de la tabla de datos</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Enable Column Selector -->
+        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-purple-300 transition-colors">
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-slate-400">view_column</mat-icon>
+            <div>
+              <p class="text-sm font-medium text-slate-700">Selector de Columnas</p>
+              <p class="text-xs text-slate-500">Permite ocultar/mostrar columnas</p>
+            </div>
+          </div>
+          <mat-slide-toggle
+            [checked]="gridConfig.enableColumnSelector"
+            (change)="updateGridConfig('enableColumnSelector', $event.checked)"
+            color="primary">
+          </mat-slide-toggle>
+        </div>
+
+        <!-- Enable Filters -->
+        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-purple-300 transition-colors">
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-slate-400">filter_list</mat-icon>
+            <div>
+              <p class="text-sm font-medium text-slate-700">Filtros</p>
+              <p class="text-xs text-slate-500">Habilitar filtros de datos</p>
+            </div>
+          </div>
+          <mat-slide-toggle
+            [checked]="gridConfig.enableFilters"
+            (change)="updateGridConfig('enableFilters', $event.checked)"
+            color="primary">
+          </mat-slide-toggle>
+        </div>
+
+        <!-- Enable Export -->
+        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-purple-300 transition-colors">
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-slate-400">download</mat-icon>
+            <div>
+              <p class="text-sm font-medium text-slate-700">Exportar</p>
+              <p class="text-xs text-slate-500">Permitir exportar datos</p>
+            </div>
+          </div>
+          <mat-slide-toggle
+            [checked]="gridConfig.enableExport"
+            (change)="updateGridConfig('enableExport', $event.checked)"
+            color="primary">
+          </mat-slide-toggle>
+        </div>
+
+        <!-- Enable Bulk Actions -->
+        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-purple-300 transition-colors">
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-slate-400">checklist</mat-icon>
+            <div>
+              <p class="text-sm font-medium text-slate-700">Acciones Masivas</p>
+              <p class="text-xs text-slate-500">Habilitar selección múltiple</p>
+            </div>
+          </div>
+          <mat-slide-toggle
+            [checked]="gridConfig.enableBulkActions"
+            (change)="updateGridConfig('enableBulkActions', $event.checked)"
+            color="primary">
+          </mat-slide-toggle>
+        </div>
+
+        <!-- Enable Search -->
+        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-purple-300 transition-colors">
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-slate-400">search</mat-icon>
+            <div>
+              <p class="text-sm font-medium text-slate-700">Búsqueda</p>
+              <p class="text-xs text-slate-500">Habilitar búsqueda global</p>
+            </div>
+          </div>
+          <mat-slide-toggle
+            [checked]="gridConfig.enableSearch"
+            (change)="updateGridConfig('enableSearch', $event.checked)"
+            color="primary">
+          </mat-slide-toggle>
+        </div>
+
+        <!-- Compact Mode -->
+        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-purple-300 transition-colors">
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-slate-400">compress</mat-icon>
+            <div>
+              <p class="text-sm font-medium text-slate-700">Modo Compacto</p>
+              <p class="text-xs text-slate-500">Reducir espaciado de filas</p>
+            </div>
+          </div>
+          <mat-slide-toggle
+            [checked]="gridConfig.compactMode"
+            (change)="updateGridConfig('compactMode', $event.checked)"
+            color="primary">
+          </mat-slide-toggle>
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- ============================================
        FORM DESIGNER
        ============================================ -->
   @if (!isLoading || fields.length > 0) {

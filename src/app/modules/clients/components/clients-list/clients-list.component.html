@@ -49,12 +49,14 @@
           </button>
 
           <!-- Selector de Columnas -->
-          <app-column-visibility-control
-            [columns]="columnOptions()"
-            [storageKey]="'clients-visible-columns'"
-            [themeColor]="'purple'"
-            (visibilityChange)="onColumnVisibilityChange($event)">
-          </app-column-visibility-control>
+          @if (config()?.gridConfig?.enableColumnSelector) {
+            <app-column-visibility-control
+              [columns]="columnOptions()"
+              [storageKey]="'clients-visible-columns'"
+              [themeColor]="'purple'"
+              (visibilityChange)="onColumnVisibilityChange($event)">
+            </app-column-visibility-control>
+          }
 
           @if (isAdmin()) {
             <button type="button"

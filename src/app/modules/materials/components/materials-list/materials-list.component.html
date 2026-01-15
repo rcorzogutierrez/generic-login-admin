@@ -40,12 +40,14 @@
         </button>
 
         <!-- Selector de Columnas -->
-        <app-column-visibility-control
-          [columns]="columnOptions()"
-          [storageKey]="'materials-visible-columns'"
-          [themeColor]="'green'"
-          (visibilityChange)="onColumnVisibilityChange($event)">
-        </app-column-visibility-control>
+        @if (config()?.gridConfig?.enableColumnSelector) {
+          <app-column-visibility-control
+            [columns]="columnOptions()"
+            [storageKey]="'materials-visible-columns'"
+            [themeColor]="'green'"
+            (visibilityChange)="onColumnVisibilityChange($event)">
+          </app-column-visibility-control>
+        }
 
         <button type="button"
                 class="icon-btn"

@@ -20,6 +20,7 @@ export interface GridConfiguration {
   enableFilters: boolean;          // Habilitar filtros
   enableExport: boolean;           // Habilitar exportar
   enableBulkActions: boolean;      // Habilitar acciones masivas
+  enableColumnSelector: boolean;   // Habilitar selector de columnas visibles
   showThumbnails: boolean;         // Mostrar miniaturas (si aplica)
   compactMode: boolean;            // Modo compacto
 }
@@ -136,6 +137,7 @@ export function getDefaultModuleConfig<T extends string>(moduleId: T): Omit<Modu
       enableFilters: true,
       enableExport: true,
       enableBulkActions: true,
+      enableColumnSelector: true,
       showThumbnails: false,
       compactMode: false
     },

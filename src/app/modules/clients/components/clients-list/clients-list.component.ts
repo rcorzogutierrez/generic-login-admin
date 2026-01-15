@@ -338,9 +338,13 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
   });
 
   constructor() {
-    // Effect for template synchronization
+    // Effect para actualizar la tabla cuando:
+    // 1. Los templates estén disponibles (templatesReady)
+    // 2. Las columnas visibles cambien (visibleGridFields)
     effect(() => {
-      if (this.templatesReady() && this.visibleGridFields().length > 0) {
+      if (this.templatesReady()) {
+        // Capturar visibleGridFields para que el effect reaccione a sus cambios
+        const fields = this.visibleGridFields();
         this.updateTableConfig();
       }
     });

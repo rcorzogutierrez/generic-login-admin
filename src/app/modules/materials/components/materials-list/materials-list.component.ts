@@ -16,6 +16,7 @@ import { GenericDeleteMultipleDialogComponent } from '../../../../shared/compone
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { GenericSearchBarComponent } from '../../../../shared/components/search-bar/search-bar.component';
 import { GenericDataTableComponent } from '../../../../shared/components/data-table/data-table.component';
+import { ColumnVisibilityControlComponent, ColumnOption } from '../../../../shared/components/column-visibility-control/column-visibility-control.component';
 import { TableColumn, TableConfig } from '../../../../shared/components/data-table/models';
 import { createGenericConfig } from '../../config/materials.config';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -34,7 +35,8 @@ import { filterData, paginateData } from '../../../../shared/utils';
     MatDividerModule,
     PaginationComponent,
     GenericSearchBarComponent,
-    GenericDataTableComponent
+    GenericDataTableComponent,
+    ColumnVisibilityControlComponent
   ],
   templateUrl: './materials-list.component.html',
   styleUrl: './materials-list.component.css',
@@ -75,6 +77,31 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
   materials = this.materialsService.materials;
   config = this.configService.config;
   gridFields = computed(() => this.configService.getGridFields());
+
+  // Columnas visibles (manejado por ColumnVisibilityControl)
+  visibleColumnIds = signal<string[]>([]);
+
+  // Opciones de columnas para el control de visibilidad
+  columnOptions = computed<ColumnOption[]>(() => {
+    return this.gridFields().map(field => ({
+      id: field.id,
+      label: field.label,
+      visible: this.visibleColumnIds().includes(field.id)
+    }));
+  });
+
+  // Grid fields filtrados por columnas visibles
+  visibleGridFields = computed(() => {
+    const allFields = this.gridFields();
+    const visibleIds = this.visibleColumnIds();
+
+    // Si no hay columnas seleccionadas, mostrar todas
+    if (visibleIds.length === 0) {
+      return allFields;
+    }
+
+    return allFields.filter(field => visibleIds.includes(field.id));
+  });
 
   // Campos filtrables (filterable: true)
   filterableFields = computed(() => {
@@ -285,9 +312,13 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
   });
 
   constructor() {
-    // Effect para actualizar la tabla cuando los templates y gridFields estén listos
+    // Effect para actualizar la tabla cuando:
+    // 1. Los templates estén disponibles (templatesReady)
+    // 2. Las columnas visibles cambien (visibleGridFields)
     effect(() => {
-      if (this.templatesReady() && this.gridFields().length > 0) {
+      if (this.templatesReady()) {
+        // Capturar visibleGridFields para que el effect reaccione a sus cambios
+        const fields = this.visibleGridFields();
         this.updateTableConfig();
       }
     });
@@ -338,13 +369,13 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Construye las columnas de la tabla basándose en gridFields
+   * Construye las columnas de la tabla basándose en visibleGridFields
    */
   private buildTableColumns(): TableColumn<Material>[] {
     const columns: TableColumn<Material>[] = [];
 
-    // Columnas dinámicas desde configuración
-    for (const field of this.gridFields()) {
+    // Columnas dinámicas desde configuración (solo visibles)
+    for (const field of this.visibleGridFields()) {
       columns.push({
         id: field.id,
         label: field.label,
@@ -418,6 +449,13 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
   changePageSize(newSize: number) {
     this.itemsPerPage.set(newSize);
     this.currentPage.set(0);
+  }
+
+  /**
+   * Manejar cambio de visibilidad de columnas desde ColumnVisibilityControl
+   */
+  onColumnVisibilityChange(visibleIds: string[]) {
+    this.visibleColumnIds.set(visibleIds);
   }
 
   /**

@@ -39,6 +39,14 @@
           <mat-icon>refresh</mat-icon>
         </button>
 
+        <!-- Selector de Columnas -->
+        <app-column-visibility-control
+          [columns]="columnOptions()"
+          [storageKey]="'materials-visible-columns'"
+          [themeColor]="'green'"
+          (visibilityChange)="onColumnVisibilityChange($event)">
+        </app-column-visibility-control>
+
         <button type="button"
                 class="icon-btn"
                 (click)="goToConfig()"

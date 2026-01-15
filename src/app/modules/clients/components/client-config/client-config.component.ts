@@ -62,7 +62,26 @@ export class ClientConfigComponent implements OnInit {
   }
 
   // Grid configuration como computed signal para mejor reactividad
-  gridConfig = computed(() => this.configService.config()?.gridConfig);
+  gridConfig = computed(() => {
+    const config = this.configService.config();
+    // Si no existe gridConfig, retornar valores por defecto
+    if (!config?.gridConfig) {
+      return {
+        defaultView: 'table' as const,
+        itemsPerPage: 25,
+        sortBy: 'name',
+        sortOrder: 'asc' as const,
+        enableSearch: true,
+        enableFilters: true,
+        enableExport: true,
+        enableBulkActions: true,
+        enableColumnSelector: true,
+        showThumbnails: false,
+        compactMode: false
+      };
+    }
+    return config.gridConfig;
+  });
 
   // Stats
   get totalFields(): number {
@@ -347,12 +366,15 @@ export class ClientConfigComponent implements OnInit {
   async updateGridConfig(key: keyof GridConfiguration, value: any) {
     try {
       const currentConfig = this.configService.config();
-      if (!currentConfig || !currentConfig.gridConfig) return;
+      if (!currentConfig) return;
+
+      // Si no existe gridConfig, usar el computed que tiene valores por defecto
+      const currentGridConfig = currentConfig.gridConfig || this.gridConfig();
 
       const updatedConfig = {
         ...currentConfig,
         gridConfig: {
-          ...currentConfig.gridConfig,
+          ...currentGridConfig,
           [key]: value
         }
       };

@@ -49,7 +49,7 @@
           </button>
 
           <!-- Selector de Columnas -->
-          @if (config()?.gridConfig?.enableColumnSelector) {
+          @if (config()?.gridConfig?.enableColumnSelector !== false) {
             <app-column-visibility-control
               [columns]="columnOptions()"
               [storageKey]="'clients-visible-columns'"

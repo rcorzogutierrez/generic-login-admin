@@ -115,7 +115,7 @@ export class GenericDataTableComponent<T extends object> implements AfterContent
   // ========================================
 
   /** Normalizar config para que sea un valor (no Signal) */
-  private tableConfig = computed(() => {
+  tableConfig = computed(() => {
     // Si config es un Signal, invocarlo; si no, devolverlo directamente
     const cfg = this.config as any;
     return typeof cfg === 'function' ? cfg() : cfg;

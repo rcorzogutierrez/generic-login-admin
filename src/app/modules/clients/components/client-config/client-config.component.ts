@@ -18,7 +18,7 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { ClientConfigServiceRefactored } from '../../services/client-config-refactored.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { FieldConfig, FieldType } from '../../models';
-import { FormLayoutConfig } from '../../models/client-module-config.interface';
+import { FormLayoutConfig, GridConfiguration } from '../../models/client-module-config.interface';
 // Importar componentes compartidos del módulo dynamic-form-builder
 import { FormDesignerComponent, FieldConfigDialogComponent } from '../../../../shared/modules/dynamic-form-builder';
 
@@ -346,7 +346,7 @@ export class ClientConfigComponent implements OnInit {
   /**
    * Actualiza una configuración del grid
    */
-  async updateGridConfig(key: keyof typeof this.gridConfig, value: any) {
+  async updateGridConfig(key: keyof GridConfiguration, value: any) {
     try {
       const currentConfig = this.configService.config();
       if (!currentConfig || !currentConfig.gridConfig) return;

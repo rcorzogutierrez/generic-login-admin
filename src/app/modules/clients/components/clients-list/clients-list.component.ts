@@ -338,13 +338,16 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
   });
 
   constructor() {
+    console.log('🚀 CONSTRUCTOR - ClientsListComponent inicializando');
     // Effect para actualizar la tabla cuando:
     // 1. Los templates estén disponibles (templatesReady)
     // 2. Las columnas visibles cambien (visibleGridFields)
     effect(() => {
+      console.log('🔄 EFFECT - templatesReady:', this.templatesReady(), 'visibleFields:', this.visibleGridFields().length);
       if (this.templatesReady()) {
         // Capturar visibleGridFields para que el effect reaccione a sus cambios
         const fields = this.visibleGridFields();
+        console.log('✅ EFFECT - Llamando updateTableConfig con', fields.length, 'columnas');
         this.updateTableConfig();
       }
     });
@@ -357,8 +360,13 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
+    console.log('📋 ngAfterViewInit - Templates:', {
+      status: !!this.statusColumnTemplate,
+      actions: !!this.actionsColumnTemplate
+    });
     // Asegurarnos de que los templates estén realmente disponibles
     setTimeout(() => {
+      console.log('⏰ setTimeout - Activando templatesReady');
       this.templatesReady.set(true);
       this.cdr.detectChanges();
     }, 0);
@@ -922,8 +930,11 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
    * Actualizar configuración de la tabla
    */
   private updateTableConfig() {
+    const columns = this.buildTableColumns();
+    console.log('🔧 updateTableConfig - Actualizando con', columns.length, 'columnas');
+    console.log('🔧 updateTableConfig - Columnas:', columns.map(c => c.id));
     this.tableConfig.set({
-      columns: this.buildTableColumns(),
+      columns: columns,
       selectable: 'multiple',
       showSelectAll: true,
       sortable: true,
@@ -933,6 +944,7 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
         : 'Comienza agregando tu primer cliente'
     });
     // Forzar detección de cambios después de actualizar config
+    console.log('🔧 updateTableConfig - Llamando markForCheck()');
     this.cdr.markForCheck();
   }
 

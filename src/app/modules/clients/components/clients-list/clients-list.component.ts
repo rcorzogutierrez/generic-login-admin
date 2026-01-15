@@ -342,11 +342,9 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
     // 1. Los templates estén disponibles (templatesReady)
     // 2. Las columnas visibles cambien (visibleGridFields)
     effect(() => {
-      console.log('🔄 EFFECT ejecutándose - templatesReady:', this.templatesReady());
       if (this.templatesReady()) {
         // Capturar visibleGridFields para que el effect reaccione a sus cambios
         const fields = this.visibleGridFields();
-        console.log('✅ EFFECT - Actualizando tabla. Columnas visibles:', fields.length);
         this.updateTableConfig();
       }
     });
@@ -361,9 +359,6 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     // Asegurarnos de que los templates estén realmente disponibles
     setTimeout(() => {
-      console.log('🔍 DEBUG - statusColumnTemplate:', this.statusColumnTemplate);
-      console.log('🔍 DEBUG - actionsColumnTemplate:', this.actionsColumnTemplate);
-      console.log('🔍 DEBUG - visibleGridFields length:', this.visibleGridFields().length);
       this.templatesReady.set(true);
       this.cdr.detectChanges();
     }, 0);
@@ -893,10 +888,6 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
     const columns: TableColumn<Client>[] = [];
     const fields = this.visibleGridFields();
 
-    console.log('🏗️  BUILD COLUMNS - Campos visibles:', fields.length);
-    console.log('🏗️  BUILD COLUMNS - statusTemplate:', !!this.statusColumnTemplate);
-    console.log('🏗️  BUILD COLUMNS - actionsTemplate:', !!this.actionsColumnTemplate);
-
     // Columnas dinámicas basadas en gridFields visibles
     for (const field of fields) {
       columns.push({
@@ -924,7 +915,6 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
       sortable: false
     });
 
-    console.log('🏗️  BUILD COLUMNS - Total columnas creadas:', columns.length);
     return columns;
   }
 
@@ -942,6 +932,8 @@ export class ClientsListComponent implements OnInit, AfterViewInit, OnDestroy {
         ? 'No se encontraron clientes'
         : 'Comienza agregando tu primer cliente'
     });
+    // Forzar detección de cambios después de actualizar config
+    this.cdr.markForCheck();
   }
 
   /**

@@ -131,8 +131,9 @@
   <section class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm">
     <div class="flex flex-wrap items-center gap-4">
 
-      <!-- Search Box -->
+      <!-- Search Box - Ancho dinámico según filtros -->
       <app-search-bar
+        class="min-w-[300px] flex-1"
         [themeColor]="'purple'"
         [placeholder]="'Buscar clientes...'"
         (searchChange)="onSearch($event)">

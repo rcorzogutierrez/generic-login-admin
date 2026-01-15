@@ -8,7 +8,7 @@
     <div class="loading-state" role="status" aria-live="polite">
       <div class="animate-spin h-8 w-8 border-3 border-slate-300 border-t-purple-600 rounded-full"></div>
       <p class="text-sm text-slate-600 font-medium mt-3">
-        {{ tableConfig().loadingMessage || 'Cargando datos...' }}
+        {{ config().loadingMessage || 'Cargando datos...' }}
       </p>
     </div>
   }
@@ -20,11 +20,11 @@
     <div class="empty-state" role="status">
       <div class="empty-icon-container">
         <mat-icon class="empty-icon">
-          {{ tableConfig().emptyIcon || 'inbox' }}
+          {{ config().emptyIcon || 'inbox' }}
         </mat-icon>
       </div>
       <p class="empty-message">
-        {{ tableConfig().emptyMessage || 'No hay datos para mostrar' }}
+        {{ config().emptyMessage || 'No hay datos para mostrar' }}
       </p>
     </div>
   }
@@ -36,14 +36,14 @@
     <table
       class="data-table"
       [class]="getRowHeightClass()"
-      [class.hover-effect]="tableConfig().hoverEffect !== false"
-      [class.striped]="tableConfig().stripedRows"
-      [class.bordered]="tableConfig().showRowBorders"
+      [class.hover-effect]="config().hoverEffect !== false"
+      [class.striped]="config().stripedRows"
+      [class.bordered]="config().showRowBorders"
       role="table"
       [attr.aria-label]="'Tabla de datos con ' + data().length + ' filas'">
 
       <!-- TABLE HEADER -->
-      <thead [class.sticky]="tableConfig().stickyHeader" role="rowgroup">
+      <thead [class.sticky]="config().stickyHeader" role="rowgroup">
         <tr role="row">
 
           <!-- Checkbox Column (if selectable) -->
@@ -52,7 +52,7 @@
               class="checkbox-cell"
               role="columnheader"
               [attr.aria-label]="'Selección'">
-              @if (isMultipleSelection() && tableConfig().showSelectAll !== false) {
+              @if (isMultipleSelection() && config().showSelectAll !== false) {
                 <mat-checkbox
                   [checked]="allSelected()"
                   [indeterminate]="someSelected()"
@@ -66,7 +66,7 @@
           <!-- Data Columns -->
           @for (column of displayedColumns(); track column.id) {
             <th
-              [class.sortable]="column.sortable && tableConfig().sortable"
+              [class.sortable]="column.sortable && config().sortable"
               [class.sorted]="isColumnSorted(column)"
               [class.text-center]="column.headerAlign === 'center'"
               [class.text-right]="column.headerAlign === 'right'"
@@ -82,7 +82,7 @@
 
               <div class="th-content">
                 <span>{{ column.label }}</span>
-                @if (column.sortable && tableConfig().sortable) {
+                @if (column.sortable && config().sortable) {
                   <mat-icon class="sort-icon" [class.active]="isColumnSorted(column)">
                     {{ getSortIcon(column) || 'unfold_more' }}
                   </mat-icon>
@@ -92,12 +92,12 @@
           }
 
           <!-- Actions Column -->
-          @if (tableConfig().showActionsColumn) {
+          @if (config().showActionsColumn) {
             <th
               class="actions-cell text-center"
-              [style.width]="tableConfig().actionsColumnWidth || '80px'"
+              [style.width]="config().actionsColumnWidth || '80px'"
               role="columnheader">
-              {{ tableConfig().actionsColumnLabel || 'Acciones' }}
+              {{ config().actionsColumnLabel || 'Acciones' }}
             </th>
           }
         </tr>
@@ -108,7 +108,7 @@
         @for (row of data(); track getTrackByFn()($index, row)) {
           <tr
             [class.selected]="isRowSelected(row)"
-            [class.clickable]="tableConfig().clickableRows"
+            [class.clickable]="config().clickableRows"
             [attr.aria-selected]="isRowSelected(row)"
             role="row"
             (click)="onRowClick(row, $event)">
@@ -148,7 +148,7 @@
             }
 
             <!-- Actions Cell (content projection slot) -->
-            @if (tableConfig().showActionsColumn) {
+            @if (config().showActionsColumn) {
               <td class="actions-cell text-center" role="cell">
                 <ng-content select="[actions]"></ng-content>
               </td>

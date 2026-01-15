@@ -12,6 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { ClientConfigServiceRefactored } from '../../services/client-config-refactored.service';
@@ -34,6 +35,7 @@ import { FormDesignerComponent, FieldConfigDialogComponent } from '../../../../s
     MatDividerModule,
     MatChipsModule,
     MatTabsModule,
+    MatSlideToggleModule,
     DragDropModule,
     FormDesignerComponent
   ],
@@ -57,6 +59,11 @@ export class ClientConfigComponent implements OnInit {
   // Form layout
   get formLayout(): FormLayoutConfig | undefined {
     return this.configService.getFormLayout();
+  }
+
+  // Grid configuration
+  get gridConfig() {
+    return this.configService.config()?.gridConfig;
   }
 
   // Stats
@@ -334,6 +341,41 @@ export class ClientConfigComponent implements OnInit {
   async onFieldAdded() {
     // Recargar la configuración para obtener el nuevo campo
     await this.loadConfig();
+  }
+
+  /**
+   * Actualiza una configuración del grid
+   */
+  async updateGridConfig(key: keyof typeof this.gridConfig, value: any) {
+    try {
+      const currentConfig = this.configService.config();
+      if (!currentConfig || !currentConfig.gridConfig) return;
+
+      const updatedConfig = {
+        ...currentConfig,
+        gridConfig: {
+          ...currentConfig.gridConfig,
+          [key]: value
+        }
+      };
+
+      await this.configService.updateConfig(updatedConfig);
+
+      this.snackBar.open('✅ Configuración actualizada correctamente', '', {
+        duration: 2000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+
+      this.cdr.markForCheck();
+    } catch (error) {
+      console.error('❌ Error actualizando configuración del grid:', error);
+      this.snackBar.open('❌ Error al actualizar la configuración', '', {
+        duration: 4000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+    }
   }
 
   /**

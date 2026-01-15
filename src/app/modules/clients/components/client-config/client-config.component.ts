@@ -61,10 +61,8 @@ export class ClientConfigComponent implements OnInit {
     return this.configService.getFormLayout();
   }
 
-  // Grid configuration
-  get gridConfig() {
-    return this.configService.config()?.gridConfig;
-  }
+  // Grid configuration como computed signal para mejor reactividad
+  gridConfig = computed(() => this.configService.config()?.gridConfig);
 
   // Stats
   get totalFields(): number {

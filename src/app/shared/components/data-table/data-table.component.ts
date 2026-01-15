@@ -67,8 +67,8 @@ export class GenericDataTableComponent<T extends object> implements AfterContent
   /** Datos a mostrar en la tabla (acepta cualquier Signal, readonly o writable) */
   @Input({ required: true }) data!: Signal<T[]>;
 
-  /** Configuración de la tabla */
-  @Input({ required: true }) config!: TableConfig<T>;
+  /** Configuración de la tabla (acepta Signal o valor directo) */
+  @Input({ required: true }) config!: Signal<TableConfig<T>> | TableConfig<T>;
 
   /** Estado de loading (acepta cualquier Signal) */
   @Input() loading: Signal<boolean> = signal(false);
@@ -114,10 +114,18 @@ export class GenericDataTableComponent<T extends object> implements AfterContent
   // COMPUTED SIGNALS
   // ========================================
 
+  /** Normalizar config para que sea un valor (no Signal) */
+  private tableConfig = computed(() => {
+    // Si config es un Signal, invocarlo; si no, devolverlo directamente
+    const cfg = this.config as any;
+    return typeof cfg === 'function' ? cfg() : cfg;
+  });
+
   /** Columnas visibles (filtra las que tienen visible=false) */
   displayedColumns = computed(() => {
-    if (!this.config || !this.config.columns) return [];
-    return this.config.columns.filter(col => col.visible !== false);
+    const config = this.tableConfig();
+    if (!config || !config.columns) return [];
+    return config.columns.filter(col => col.visible !== false);
   });
 
   /** Si todas las filas están seleccionadas */
@@ -136,14 +144,16 @@ export class GenericDataTableComponent<T extends object> implements AfterContent
 
   /** Si la tabla tiene selección habilitada */
   hasSelection = computed(() => {
-    return this.config.selectable === true ||
-           this.config.selectable === 'multiple' ||
-           this.config.selectable === 'single';
+    const config = this.tableConfig();
+    return config.selectable === true ||
+           config.selectable === 'multiple' ||
+           config.selectable === 'single';
   });
 
   /** Si se puede seleccionar múltiples filas */
   isMultipleSelection = computed(() => {
-    return this.config.selectable === 'multiple' || this.config.selectable === true;
+    const config = this.tableConfig();
+    return config.selectable === 'multiple' || config.selectable === true;
   });
 
   // ========================================
@@ -170,7 +180,7 @@ export class GenericDataTableComponent<T extends object> implements AfterContent
     const id = this.getRowId(row);
     const currentSelection = new Set(this.selectedIds());
 
-    if (this.config.selectable === 'single') {
+    if (this.tableConfig().selectable === 'single') {
       // Single selection: solo puede haber uno seleccionado
       if (currentSelection.has(id)) {
         currentSelection.clear();
@@ -228,7 +238,7 @@ export class GenericDataTableComponent<T extends object> implements AfterContent
    * Maneja el click en un header de columna para ordenar
    */
   onHeaderClick(column: TableColumn<T>): void {
-    if (!column.sortable || !this.config.sortable) return;
+    if (!column.sortable || !this.tableConfig().sortable) return;
 
     const currentSort = this.sortState();
     const field = column.field as string;
@@ -286,7 +296,7 @@ export class GenericDataTableComponent<T extends object> implements AfterContent
       return;
     }
 
-    if (this.config.clickableRows) {
+    if (this.tableConfig().clickableRows) {
       this.rowClick.emit(row);
     }
   }
@@ -386,7 +396,7 @@ export class GenericDataTableComponent<T extends object> implements AfterContent
    * Obtiene las clases del tema para la tabla
    */
   getThemeClasses(): string {
-    const theme = this.config.themeColor || 'purple';
+    const theme = this.tableConfig().themeColor || 'purple';
     const themes: Record<string, string> = {
       purple: 'theme-purple',
       amber: 'theme-amber',
@@ -400,7 +410,7 @@ export class GenericDataTableComponent<T extends object> implements AfterContent
    * Obtiene las clases de altura de fila
    */
   getRowHeightClass(): string {
-    const height = this.config.rowHeight || 'normal';
+    const height = this.tableConfig().rowHeight || 'normal';
     const classes: Record<string, string> = {
       compact: 'row-compact',
       normal: 'row-normal',

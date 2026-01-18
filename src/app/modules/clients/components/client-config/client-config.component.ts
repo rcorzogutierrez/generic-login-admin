@@ -68,7 +68,7 @@ export class ClientConfigComponent implements OnInit {
     if (!config?.gridConfig) {
       return {
         defaultView: 'table' as const,
-        itemsPerPage: 25,
+        itemsPerPage: 10,
         sortBy: 'name',
         sortOrder: 'asc' as const,
         enableSearch: true,

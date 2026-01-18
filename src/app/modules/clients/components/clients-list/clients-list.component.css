@@ -1,273 +1,48 @@
-/* clients-list.component.css - DISEÑO COMPACTO */
+/* clients-list.component.css - MINIMAL CSS, MOSTLY TAILWIND */
 
 /* ============================================
-   HOST & CONTAINER
+   HOST
    ============================================ */
-
 :host {
   display: block;
 }
 
-.clients-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
 /* ============================================
-   ANIMATIONS
+   CUSTOM ANIMATIONS (no disponibles en Tailwind)
    ============================================ */
-
-
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
 }
 
-.animate-spin {
-  animation: spin 1s linear infinite;
+.animate-fadeInUp {
+  animation: fadeIn 0.4s ease-out;
 }
-
 
 /* ============================================
-   HEADER ICON BOX
+   GRADIENTS (complejos para Tailwind inline)
    ============================================ */
-
-.header-icon-box {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.header-icon-box.purple {
+.bg-gradient-purple {
   background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
-.header-icon-box mat-icon {
-  color: white;
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-}
-
-/* ============================================
-   STAT CHIPS
-   ============================================ */
-
-.stat-chip {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border-radius: 10px;
-  padding: 6px 12px;
-  min-width: 65px;
-}
-
-.stat-chip.green {
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-}
-
-.stat-chip.green .stat-value { color: #059669; }
-.stat-chip.green .stat-label { color: #10b981; }
-
-.stat-chip.amber {
-  background: #fffbeb;
-  border: 1px solid #fcd34d;
-}
-
-.stat-chip.amber .stat-value { color: #d97706; }
-.stat-chip.amber .stat-label { color: #f59e0b; }
-
-.stat-chip.slate {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-}
-
-.stat-chip.slate .stat-value { color: #475569; }
-.stat-chip.slate .stat-label { color: #64748b; }
-
-.stat-value {
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.stat-label {
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin-top: 2px;
-}
-
-/* ============================================
-   BUTTONS
-   ============================================ */
-
-.icon-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.icon-btn:hover:not(:disabled) {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-  transform: translateY(-1px);
-}
-
-.icon-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.icon-btn mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  color: #64748b;
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-primary mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-.btn-cancel {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 14px;
-  background: white;
-  color: #475569;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-cancel:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-.btn-cancel mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
-}
-
-.btn-danger {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 14px;
+.bg-gradient-red {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-.btn-danger:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
-}
-
-.btn-danger mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
 }
 
 /* ============================================
-   BULK ACTIONS BAR
+   COMPACT MODE (requiere ::ng-deep)
    ============================================ */
-
-.bulk-actions-bar {
-  background: #eff6ff;
-  border: 2px solid #bfdbfe;
-  border-radius: 12px;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  animation: fadeIn 0.3s ease-out;
-}
-
-.bulk-icon {
-  width: 36px;
-  height: 36px;
-  background: #3b82f6;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.bulk-icon mat-icon {
-  color: white;
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-/* ============================================
-   TABLE CONTAINER
-   ============================================ */
-
-.table-container {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-/* Modo Compacto - Reduce espaciado de filas */
 .table-container.compact-mode ::ng-deep .data-table tbody tr {
   height: 40px !important;
 }
@@ -302,154 +77,4 @@
   font-size: 18px !important;
   width: 18px !important;
   height: 18px !important;
-}
-
-/* ============================================
-   STATUS BADGE
-   ============================================ */
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.status-badge mat-icon {
-  font-size: 12px !important;
-  width: 12px !important;
-  height: 12px !important;
-}
-
-.status-badge.active {
-  background: #ecfdf5;
-  color: #059669;
-}
-
-.status-badge.inactive {
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-/* ============================================
-   ACTION MENU BUTTON
-   ============================================ */
-
-.action-menu-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: transparent;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.action-menu-btn:hover {
-  background: #f1f5f9;
-}
-
-.action-menu-btn mat-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-  color: #64748b;
-}
-
-/* ============================================
-   PAGINATION
-   ============================================ */
-
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-top: 1px solid #e2e8f0;
-  background: #f8fafc;
-}
-
-.pagination-info {
-  font-size: 12px;
-  color: #64748b;
-}
-
-.pagination-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.pagination-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.pagination-btn:hover:not(:disabled) {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-}
-
-.pagination-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.pagination-btn mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  color: #64748b;
-}
-
-.pagination-current {
-  font-size: 13px;
-  font-weight: 600;
-  color: #475569;
-  min-width: 60px;
-  text-align: center;
-}
-
-
-/* ============================================
-   RESPONSIVE
-   ============================================ */
-
-@media (max-width: 768px) {
-  .clients-container {
-    padding: 15px;
-  }
-
-  .stat-chip {
-    padding: 4px 10px;
-    min-width: 55px;
-  }
-
-  .stat-value {
-    font-size: 14px;
-  }
-
-  .btn-primary {
-    padding: 8px 12px;
-    font-size: 12px;
-  }
-
-  .pagination {
-    flex-direction: column;
-    gap: 10px;
-  }
 }

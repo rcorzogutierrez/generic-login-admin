@@ -1226,3 +1226,89 @@ mat-icon {
 .dialog-container .mat-calendar-body-cell:hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
   background: #f3e8ff !important;
 }
+/* =====================================================
+   CHECKBOX SIZE - GLOBAL OVERRIDES
+   Sin usar ::ng-deep (deprecated en Angular 20)
+   ===================================================== */
+
+/* Tamaño de checkboxes reducido para mejor UX */
+.mat-mdc-checkbox .mdc-checkbox {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.mat-mdc-checkbox .mdc-checkbox__background {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.mat-mdc-checkbox .mdc-checkbox__checkmark {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.mat-mdc-checkbox .mdc-checkbox__ripple {
+  width: 32px !important;
+  height: 32px !important;
+  left: -8px !important;
+  top: -8px !important;
+}
+
+/* =====================================================
+   COMPACT MODE - GLOBAL OVERRIDES
+   Para tabla de datos en modo compacto
+   ===================================================== */
+
+.compact-mode .data-table tbody tr {
+  height: 40px !important;
+}
+
+.compact-mode .data-table tbody td {
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+}
+
+.compact-mode .data-table thead th {
+  padding: 8px 12px !important;
+  font-size: 11px !important;
+}
+
+/* Checkboxes más pequeños en modo compacto */
+.compact-mode .mat-mdc-checkbox .mdc-checkbox {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.compact-mode .mat-mdc-checkbox .mdc-checkbox__background {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.compact-mode .mat-mdc-checkbox .mdc-checkbox__checkmark {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* Badges más pequeños en modo compacto */
+.compact-mode .status-badge {
+  padding: 2px 8px !important;
+  font-size: 10px !important;
+}
+
+.compact-mode .status-badge mat-icon {
+  font-size: 11px !important;
+  width: 11px !important;
+  height: 11px !important;
+}
+
+/* Botones de acción más pequeños en modo compacto */
+.compact-mode .action-menu-btn {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.compact-mode .action-menu-btn mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+}

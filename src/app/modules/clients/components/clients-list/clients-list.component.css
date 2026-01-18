@@ -41,6 +41,31 @@
 }
 
 /* ============================================
+   CHECKBOX SIZE (reducido para mejor UX)
+   ============================================ */
+::ng-deep .mat-mdc-checkbox .mdc-checkbox {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__checkmark {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__ripple {
+  width: 32px !important;
+  height: 32px !important;
+  left: -8px !important;
+  top: -8px !important;
+}
+
+/* ============================================
    COMPACT MODE (requiere ::ng-deep)
    ============================================ */
 .table-container.compact-mode ::ng-deep .data-table tbody tr {
@@ -77,4 +102,20 @@
   font-size: 18px !important;
   width: 18px !important;
   height: 18px !important;
+}
+
+/* Checkboxes más pequeños en modo compacto */
+.table-container.compact-mode ::ng-deep .mat-mdc-checkbox .mdc-checkbox {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.table-container.compact-mode ::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.table-container.compact-mode ::ng-deep .mat-mdc-checkbox .mdc-checkbox__checkmark {
+  width: 14px !important;
+  height: 14px !important;
 }

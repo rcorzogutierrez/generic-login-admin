@@ -63,14 +63,25 @@
        ============================================ -->
   @if (!isLoading && gridConfig()) {
     <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-5 animate-fadeIn">
-      <div class="flex items-center gap-3 mb-4">
-        <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-purple-100">
-          <mat-icon class="text-purple-600">table_chart</mat-icon>
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-purple-100">
+            <mat-icon class="text-purple-600">table_chart</mat-icon>
+          </div>
+          <div>
+            <h2 class="text-base font-semibold text-slate-800">Configuración de la Tabla</h2>
+            <p class="text-xs text-slate-500">Personaliza el comportamiento de la tabla de datos</p>
+          </div>
         </div>
-        <div>
-          <h2 class="text-base font-semibold text-slate-800">Configuración de la Tabla</h2>
-          <p class="text-xs text-slate-500">Personaliza el comportamiento de la tabla de datos</p>
-        </div>
+
+        <button type="button"
+                class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-2"
+                (click)="enableAllFeatures()"
+                [disabled]="isLoading"
+                title="Activar todas las funcionalidades">
+          <mat-icon class="text-base">check_circle</mat-icon>
+          <span>Activar Todas</span>
+        </button>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

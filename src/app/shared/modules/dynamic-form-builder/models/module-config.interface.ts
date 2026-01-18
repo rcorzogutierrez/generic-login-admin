@@ -130,7 +130,7 @@ export function getDefaultModuleConfig<T extends string>(moduleId: T): Omit<Modu
 
     gridConfig: {
       defaultView: 'table',
-      itemsPerPage: 25,
+      itemsPerPage: 10,
       sortBy: 'name',
       sortOrder: 'asc',
       enableSearch: true,

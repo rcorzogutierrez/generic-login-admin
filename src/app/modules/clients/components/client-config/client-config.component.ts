@@ -68,7 +68,7 @@ export class ClientConfigComponent implements OnInit {
     if (!config?.gridConfig) {
       return {
         defaultView: 'table' as const,
-        itemsPerPage: 25,
+        itemsPerPage: 10,
         sortBy: 'name',
         sortOrder: 'asc' as const,
         enableSearch: true,
@@ -395,6 +395,55 @@ export class ClientConfigComponent implements OnInit {
         horizontalPosition: 'end',
         verticalPosition: 'top'
       });
+    }
+  }
+
+  /**
+   * Activa todas las funcionalidades de la tabla de una vez
+   */
+  async enableAllFeatures() {
+    try {
+      const currentConfig = this.configService.config();
+      if (!currentConfig) return;
+
+      const currentGridConfig = currentConfig.gridConfig || this.gridConfig();
+
+      const updatedConfig = {
+        ...currentConfig,
+        gridConfig: {
+          ...currentGridConfig,
+          enableColumnSelector: true,
+          enableFilters: true,
+          enableExport: true,
+          enableBulkActions: true,
+          enableSearch: true,
+          compactMode: true,
+          itemsPerPage: 10
+        }
+      };
+
+      this.isLoading = true;
+      this.cdr.markForCheck();
+
+      await this.configService.updateConfig(updatedConfig);
+
+      this.snackBar.open('✅ Todas las funcionalidades han sido activadas', '', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+
+      this.cdr.markForCheck();
+    } catch (error) {
+      console.error('❌ Error activando funcionalidades:', error);
+      this.snackBar.open('❌ Error al activar las funcionalidades', '', {
+        duration: 4000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+    } finally {
+      this.isLoading = false;
+      this.cdr.markForCheck();
     }
   }
 

@@ -58,6 +58,28 @@
             </app-column-visibility-control>
           }
 
+          <!-- Botón de Exportar -->
+          @if (config()?.gridConfig?.enableExport !== false) {
+            <button type="button"
+                    class="icon-btn"
+                    [matMenuTriggerFor]="exportMenu"
+                    [disabled]="isLoading() || filteredClients().length === 0"
+                    title="Exportar datos">
+              <mat-icon>download</mat-icon>
+            </button>
+
+            <mat-menu #exportMenu="matMenu">
+              <button mat-menu-item (click)="exportToCSV()">
+                <mat-icon>table_chart</mat-icon>
+                <span>Exportar a CSV</span>
+              </button>
+              <button mat-menu-item (click)="exportToJSON()">
+                <mat-icon>code</mat-icon>
+                <span>Exportar a JSON</span>
+              </button>
+            </mat-menu>
+          }
+
           @if (isAdmin()) {
             <button type="button"
                     class="icon-btn"
@@ -82,21 +104,24 @@
   <!-- ============================================
        BÚSQUEDA Y FILTROS
        ============================================ -->
-  <section class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm">
-    <div class="flex flex-wrap items-center gap-4">
+  @if (config()?.gridConfig?.enableSearch !== false || config()?.gridConfig?.enableFilters !== false) {
+    <section class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm">
+      <div class="flex flex-wrap items-center gap-4">
 
-      <!-- Search Box - Ancho dinámico según filtros -->
-      <app-search-bar
-        class="min-w-[300px] flex-1"
-        [themeColor]="'purple'"
-        [placeholder]="'Buscar clientes...'"
-        (searchChange)="onSearch($event)">
-      </app-search-bar>
+        <!-- Search Box - Ancho dinámico según filtros -->
+        @if (config()?.gridConfig?.enableSearch !== false) {
+          <app-search-bar
+            class="min-w-[300px] flex-1"
+            [themeColor]="'purple'"
+            [placeholder]="'Buscar clientes...'"
+            (searchChange)="onSearch($event)">
+          </app-search-bar>
+        }
 
-      <!-- Filtros dinámicos -->
-      @if (filterableFields().length > 0) {
-        @for (field of filterableFields(); track field.id) {
-          <!-- Searchable Dropdown Filter (para todos los tipos) -->
+        <!-- Filtros dinámicos -->
+        @if (config()?.gridConfig?.enableFilters !== false && filterableFields().length > 0) {
+          @for (field of filterableFields(); track field.id) {
+            <!-- Searchable Dropdown Filter (para todos los tipos) -->
           <div class="relative min-w-[200px]">
             <!-- Trigger Button -->
             <button
@@ -190,26 +215,27 @@
           </div>
         }
 
-        <!-- Clear button -->
-        @if (hasActiveFilters()) {
-          <button
-            type="button"
-            (click)="clearAllFilters()"
-            class="h-10 px-3 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-2 border border-slate-200"
-            title="Limpiar filtros">
-            <mat-icon class="!text-lg">clear</mat-icon>
-            <span>{{ activeFiltersCount() }}</span>
-          </button>
+          <!-- Clear button -->
+          @if (hasActiveFilters()) {
+            <button
+              type="button"
+              (click)="clearAllFilters()"
+              class="h-10 px-3 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-2 border border-slate-200"
+              title="Limpiar filtros">
+              <mat-icon class="!text-lg">clear</mat-icon>
+              <span>{{ activeFiltersCount() }}</span>
+            </button>
+          }
         }
-      }
 
-    </div>
-  </section>
+      </div>
+    </section>
+  }
 
   <!-- ============================================
        BARRA DE ACCIONES MASIVAS
        ============================================ -->
-  @if (selectedClients().size > 0) {
+  @if (config()?.gridConfig?.enableBulkActions !== false && selectedClients().size > 0) {
     <div class="bulk-actions-bar mb-5">
       <div class="flex items-center gap-3">
         <div class="bulk-icon">
@@ -241,7 +267,7 @@
   <!-- ============================================
        TABLA DE CLIENTES
        ============================================ -->
-  <div class="table-container">
+  <div class="table-container" [class.compact-mode]="config()?.gridConfig?.compactMode === true">
     <app-data-table
       [data]="paginatedClients"
       [config]="tableConfig()"

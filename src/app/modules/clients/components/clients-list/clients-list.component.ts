@@ -843,10 +843,13 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
    */
   private updateTableConfig() {
     const columns = this.buildTableColumns();
+    const config = this.config();
+    const enableBulkActions = config?.gridConfig?.enableBulkActions !== false;
+
     this.tableConfig.set({
       columns: columns,
-      selectable: 'multiple',
-      showSelectAll: true,
+      selectable: enableBulkActions ? 'multiple' : 'none',
+      showSelectAll: enableBulkActions,
       sortable: true,
       themeColor: 'purple',
       emptyMessage: this.searchTerm() && this.searchTerm().length >= 2
@@ -876,5 +879,84 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
    */
   goToConfig() {
     this.router.navigate(['/modules/clients/config']);
+  }
+
+  /**
+   * Exportar datos a CSV
+   */
+  exportToCSV() {
+    try {
+      const clients = this.filteredClients();
+      if (clients.length === 0) {
+        this.snackBar.open('No hay datos para exportar', 'Cerrar', { duration: 3000 });
+        return;
+      }
+
+      const fields = this.visibleGridFields();
+
+      // Encabezados
+      const headers = fields.map(f => f.label).join(',');
+
+      // Filas
+      const rows = clients.map(client => {
+        return fields.map(field => {
+          const value = this.getFieldValue(client, field.name);
+          const formatted = this.formatFieldValue(value, field);
+          // Escapar comillas y valores con comas
+          return `"${String(formatted).replace(/"/g, '""')}"`;
+        }).join(',');
+      });
+
+      // Combinar
+      const csv = [headers, ...rows].join('\n');
+
+      // Descargar
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `clientes-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      this.snackBar.open('Datos exportados exitosamente', 'Cerrar', { duration: 3000 });
+    } catch (error) {
+      console.error('Error exportando a CSV:', error);
+      this.snackBar.open('Error al exportar datos', 'Cerrar', { duration: 3000 });
+    }
+  }
+
+  /**
+   * Exportar datos a JSON
+   */
+  exportToJSON() {
+    try {
+      const clients = this.filteredClients();
+      if (clients.length === 0) {
+        this.snackBar.open('No hay datos para exportar', 'Cerrar', { duration: 3000 });
+        return;
+      }
+
+      // Convertir a JSON
+      const json = JSON.stringify(clients, null, 2);
+
+      // Descargar
+      const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `clientes-${new Date().toISOString().split('T')[0]}.json`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      this.snackBar.open('Datos exportados exitosamente', 'Cerrar', { duration: 3000 });
+    } catch (error) {
+      console.error('Error exportando a JSON:', error);
+      this.snackBar.open('Error al exportar datos', 'Cerrar', { duration: 3000 });
+    }
   }
 }

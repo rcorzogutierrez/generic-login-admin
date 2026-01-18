@@ -407,6 +407,13 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
         });
       }
 
+      // Inicializar selector de columnas con las columnas visibles por defecto
+      const defaultVisibleColumns = this.gridFields()
+        .filter(field => field.gridConfig?.showInGrid === true)
+        .map(field => field.id);
+
+      this.visibleColumnIds.set(defaultVisibleColumns);
+
       this.cdr.markForCheck();
     } catch (error) {
       console.error('❌ Error cargando datos:', error);

@@ -67,7 +67,7 @@ export class ColumnVisibilityControlComponent {
       if (this.columns.length > 0 && this.storageKey) {
         this.loadFromStorage();
       }
-    }, { allowSignalWrites: true });
+    });
 
     // Effect para emitir cambios
     effect(() => {

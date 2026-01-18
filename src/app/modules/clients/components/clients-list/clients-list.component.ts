@@ -92,9 +92,9 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
     const allFields = this.gridFields();
     const visibleIds = this.visibleColumnIds();
 
-    // Si no hay columnas seleccionadas, mostrar todas
+    // Si no hay columnas seleccionadas, mostrar solo las que tienen showInGrid: true
     if (visibleIds.length === 0) {
-      return allFields;
+      return allFields.filter(field => field.gridConfig?.showInGrid === true);
     }
 
     return allFields.filter(field => visibleIds.includes(field.id));

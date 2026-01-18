@@ -848,7 +848,7 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
 
     this.tableConfig.set({
       columns: columns,
-      selectable: enableBulkActions ? 'multiple' : 'none',
+      selectable: enableBulkActions ? 'multiple' : false,
       showSelectAll: enableBulkActions,
       sortable: true,
       themeColor: 'purple',

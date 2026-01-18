@@ -84,7 +84,7 @@
             </div>
           </div>
           <mat-slide-toggle
-            [checked]="gridConfig()?.enableColumnSelector"
+            [checked]="gridConfig().enableColumnSelector"
             (change)="updateGridConfig('enableColumnSelector', $event.checked)"
             color="primary">
           </mat-slide-toggle>
@@ -100,7 +100,7 @@
             </div>
           </div>
           <mat-slide-toggle
-            [checked]="gridConfig()?.enableFilters"
+            [checked]="gridConfig().enableFilters"
             (change)="updateGridConfig('enableFilters', $event.checked)"
             color="primary">
           </mat-slide-toggle>
@@ -116,7 +116,7 @@
             </div>
           </div>
           <mat-slide-toggle
-            [checked]="gridConfig()?.enableExport"
+            [checked]="gridConfig().enableExport"
             (change)="updateGridConfig('enableExport', $event.checked)"
             color="primary">
           </mat-slide-toggle>
@@ -132,7 +132,7 @@
             </div>
           </div>
           <mat-slide-toggle
-            [checked]="gridConfig()?.enableBulkActions"
+            [checked]="gridConfig().enableBulkActions"
             (change)="updateGridConfig('enableBulkActions', $event.checked)"
             color="primary">
           </mat-slide-toggle>
@@ -148,7 +148,7 @@
             </div>
           </div>
           <mat-slide-toggle
-            [checked]="gridConfig()?.enableSearch"
+            [checked]="gridConfig().enableSearch"
             (change)="updateGridConfig('enableSearch', $event.checked)"
             color="primary">
           </mat-slide-toggle>
@@ -164,7 +164,7 @@
             </div>
           </div>
           <mat-slide-toggle
-            [checked]="gridConfig()?.compactMode"
+            [checked]="gridConfig().compactMode"
             (change)="updateGridConfig('compactMode', $event.checked)"
             color="primary">
           </mat-slide-toggle>
